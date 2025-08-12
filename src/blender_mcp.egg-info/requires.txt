@@ -1,0 +1,13 @@
+fastmcp>=0.2.10
+pydantic>=2.0.0
+httpx>=0.25.0
+loguru>=0.7.0
+typing-extensions>=4.8.0
+
+[dev]
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.0.0
+black>=23.0.0
+ruff>=0.1.0
+mypy>=1.6.0
