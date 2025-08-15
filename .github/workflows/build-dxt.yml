@@ -1,0 +1,70 @@
+name: Build and Release DXT Extension
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+jobs:
+  build-dxt:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install DXT CLI
+      run: npm install -g @anthropic-ai/dxt
+      
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Validate manifest.json
+      run: dxt validate dxt/manifest.json
+      
+    - name: Build DXT extension
+      run: |
+        cd dxt
+        dxt pack . ../dist/blender-mcp-${{ github.event.inputs.version || github.ref_name }}.dxt
+        
+    - name: Sign DXT extension (optional)
+      if: ${{ secrets.DXT_SIGNING_KEY }}
+      run: |
+        echo "${{ secrets.DXT_SIGNING_KEY }}" > signing.key
+        dxt sign dist/blender-mcp-*.dxt --key signing.key
+        rm signing.key
+        
+    - name: Upload DXT artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: blender-mcp-dxt
+        path: dist/*.dxt
+        
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/*.dxt
+        generate_release_notes: true
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

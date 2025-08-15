@@ -1,0 +1,165 @@
+name: Build and Release Blender MCP
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  RUST_BACKTRACE: 1
+
+jobs:
+  build-blender-mcp:
+    name: Build Blender MCP - ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-x64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            binary: blender-mcp.exe
+            archive: blender-mcp-windows-x64.zip
+            
+          - platform: linux-x64
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            binary: blender-mcp
+            archive: blender-mcp-linux-x64.tar.gz
+            
+          - platform: macos-x64
+            os: macos-latest
+            target: x86_64-apple-darwin
+            binary: blender-mcp
+            archive: blender-mcp-macos-x64.tar.gz
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Get version from tag
+      shell: bash
+      run: |
+        if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+        else
+          VERSION=$(git describe --tags --always --dirty)
+        fi
+        echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+    - name: Setup Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: ${{ matrix.target }}
+
+    - name: Configure Rust cache
+      uses: Swatinem/rust-cache@v2
+      with:
+        key: ${{ matrix.target }}
+
+    - name: Install Linux dependencies
+      if: matrix.os == 'ubuntu-latest'
+      run: sudo apt-get update && sudo apt-get install -y pkg-config libssl-dev
+
+    - name: Install macOS dependencies
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew install pkg-config openssl
+        echo "PKG_CONFIG_PATH=/opt/homebrew/lib/pkgconfig" >> $GITHUB_ENV
+
+    - name: Build Blender MCP
+      run: cargo build --release --target ${{ matrix.target }}
+
+    - name: Create installation package
+      shell: bash
+      run: |
+        mkdir -p dist
+        cp "target/${{ matrix.target }}/release/${{ matrix.binary }}" dist/
+        
+        if [[ "${{ matrix.platform }}" == "windows-x64" ]]; then
+          cat > dist/install.bat << 'EOF'
+@echo off
+echo Blender MCP Installation - Professional 3D Automation
+echo Add to Claude Desktop config and enjoy seamless Blender integration
+pause
+EOF
+        else
+          cat > dist/install.sh << 'EOF'
+#!/bin/bash
+echo "Blender MCP - Professional 3D automation for Claude Desktop"
+echo "See README.md for Claude Desktop configuration"
+EOF
+          chmod +x dist/install.sh
+        fi
+        
+        echo "# Blender MCP - Professional 3D Automation" > dist/README.md
+        echo "Revolutionary Blender integration for Claude Desktop" >> dist/README.md
+        echo "Advanced development: See docs/CLAUDE-CODE-WORKTREES.md" >> dist/README.md
+        
+        cd dist
+        if [[ "${{ matrix.platform }}" == "windows-x64" ]]; then
+          7z a -tzip "../${{ matrix.archive }}" ./*
+        else
+          tar czf "../${{ matrix.archive }}" ./*
+        fi
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: blender-mcp-${{ matrix.platform }}
+        path: ${{ matrix.archive }}
+
+  create-blender-release:
+    name: Create Blender MCP Release
+    needs: build-blender-mcp
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    permissions:
+      contents: write
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Prepare release files
+      run: |
+        mkdir -p release-files
+        find artifacts -name "*.zip" -o -name "*.tar.gz" -exec cp {} release-files/ \;
+        cd release-files && sha256sum * > CHECKSUMS.sha256
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: release-files/*
+        body: |
+          ## Blender MCP Release ${{ github.ref_name }}
+          
+          **Professional 3D Automation for Claude Desktop**
+          
+          Revolutionary Blender integration enabling natural language 3D workflows.
+          
+          ### Advanced Development Pattern
+          
+          This release supports the Claude Code Worktrees pattern for parallel specialized development:
+          - **7 specialized domains**: Modeling, Animation, Rendering, Materials, Scripting, I/O, Testing
+          - **Parallel Claude instances**: Each focused on specific Blender expertise
+          - **10x development velocity**: Complex 3D workflows in days, not weeks
+          
+          See `docs/CLAUDE-CODE-WORKTREES.md` for revolutionary parallel development.
+          
+          ### Cross-Platform Support
+          - Windows x64, Linux x64, macOS x64
+          - Full Blender Python API integration
+          - Professional 3D workflow automation
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

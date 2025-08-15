@@ -1,0 +1,53 @@
+{
+  "name": "blender-mcp",
+  "version": "1.0.0",
+  "description": "Blender Model Control Protocol (MCP) server for automated 3D content creation and manipulation with support for boudoir assets and Japanese architecture",
+  "author": "Windsurf Technologies",
+  "license": "MIT",
+  "python_version": ">=3.8",
+  "dependencies": [
+    "fastmcp>=2.10.0",
+    "loguru>=0.7.0",
+    "pydantic>=2.0.0",
+    "httpx>=0.25.0",
+    "typing-extensions>=4.8.0"
+  ],
+  "entry_point": "blender_mcp.server:main",
+  "capabilities": [
+    "3d_modeling",
+    "blender_integration",
+    "material_editing",
+    "scene_management",
+    "rendering",
+    "export_formats",
+    "japanese_architecture",
+    "boudoir_assets",
+    "mesh_generation"
+  ],
+  "requirements": [
+    "Blender>=3.0.0"
+  ],
+  "environment_variables": {
+    "BLENDER_EXECUTABLE": "Path to Blender executable (default: 'blender' in PATH)",
+    "BLENDER_MCP_DEBUG": "Enable debug mode (optional, set to '1' to enable)"
+  },
+  "documentation": "https://github.com/sandraschi/blender-mcp",
+  "repository": "https://github.com/sandraschi/blender-mcp.git",
+  "keywords": [
+    "blender",
+    "3d",
+    "modeling",
+    "mcp",
+    "japanese",
+    "architecture",
+    "boudoir"
+  ],
+  "screenshots": [],
+  "changelog": "1.0.0: Initial release with Japanese architecture and boudoir asset support",
+  "maintainers": [
+    {
+      "name": "Sandra",
+      "email": "sandra@sandraschi.dev"
+    }
+  ]
+}
