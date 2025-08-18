@@ -1,15 +1,69 @@
 # Blender MCP Server 🎨
 
-Comprehensive Blender automation MCP server for avatar ecosystem integration, Unity3D pipeline, and VRChat optimization.
+A comprehensive Model-Controller-Presenter (MCP) server for Blender, designed to automate 3D content creation, manipulation, and optimization through a clean, programmatic interface. Perfect for automating Blender workflows, batch processing, and integrating with other applications.
 
-## 🚀 Features
+## ✨ Features
 
-- **FastMCP 2.10 Compatible**: Uses the latest FastMCP decorator pattern
-- **Modular Handlers**: Organized by functionality (scene, mesh, material, export, render)
-- **DXT Packaging**: Easy installation and deployment
-- **Structured Logging**: Comprehensive logging with loguru
-- **Type Annotated**: Full Python type hints for better development experience
-- **Error Handling**: Comprehensive error handling with custom exceptions
+- **Automated 3D Content Creation**: Programmatically generate and manipulate 3D objects, materials, and scenes
+- **Cross-Platform**: Works on Windows, macOS, and Linux
+- **Extensive Toolset**:
+  - Advanced animation and rigging tools
+  - Material and shader management
+  - Scene composition and lighting controls
+  - Physics and simulation configuration
+  - High-quality rendering pipeline
+  - Export to multiple formats (FBX, glTF, OBJ, etc.)
+- **Developer Friendly**:
+  - Type-annotated Python code
+  - Comprehensive documentation
+  - Example scripts for common workflows
+  - Modular architecture for easy extension
+
+## 🚀 Quick Start
+
+### Basic Usage Example
+
+```python
+# Scene setup
+await create_scene("VictorianBoudoir")
+
+# Add elegant furniture
+await create_chaiselongue(
+    name="ElegantChaise",
+    x=0.0, y=0.0, z=0.0,
+    style="victorian"
+)
+
+# Apply materials
+await create_fabric_material(
+    name="VelvetUpholstery",
+    fabric_type="velvet",
+    base_r=0.5, base_g=0.2, base_b=0.3,
+    roughness=0.8
+)
+
+# Export for Unity
+await export_for_unity(
+    output_path="boudoir_scene.fbx",
+    scale=1.0,
+    apply_modifiers=True,
+    optimize_materials=True,
+    bake_textures=False,
+    lod_levels=2
+)
+```
+
+### VRChat Optimization Example
+
+```python
+await export_for_vrchat(
+    output_path="vrchat_avatar.vrm",
+    polygon_limit=20000,
+    material_limit=8,
+    texture_size_limit=1024,
+    performance_rank="Good"
+)
+```
 
 ## 📦 Installation
 

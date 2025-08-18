@@ -1,0 +1,52 @@
+Using Blender executable: C:\Program Files\Blender Foundation\Blender 4.4\blender.exe
+2025-08-16 00:29:23.858 | INFO     | blender_mcp.utils.blender_executor:_initialize_executor:66 - \U0001f3a8 Initializing Blender executor with executable: C:\Program Files\Blender Foundation\Blender 4.4\blender.exe
+2025-08-16 00:29:23.859 | INFO     | blender_mcp.utils.blender_executor:_locate_and_validate_blender:99 - \u2705 Using configured Blender executable: C:\Program Files\Blender Foundation\Blender 4.4\blender.exe
+2025-08-16 00:29:23.974 | INFO     | blender_mcp.utils.blender_executor:_validate_blender_version:190 - \u2705 Validated Blender version: Blender 4.4.0
+2025-08-16 00:29:23.975 | DEBUG    | blender_mcp.utils.blender_executor:_setup_temp_directory:203 - \U0001f4c1 Created temp directory: C:\Users\sandr\AppData\Local\Temp\blender_mcp_ashrftzr
+2025-08-16 00:29:23.977 | DEBUG    | blender_mcp.utils.blender_executor:_test_blender_functionality:252 - Running command: "C:\Program Files\Blender Foundation\Blender 4.4\blender.exe" --background --factory-startup --python "C:\Users\sandr\AppData\Local\Temp\blender_mcp_ashrftzr\test_blender_functionality.py" --
+2025-08-16 00:29:24.505 | DEBUG    | blender_mcp.utils.blender_executor:_test_blender_functionality:281 - \u2705 Blender functionality test passed
+2025-08-16 00:29:24.507 | INFO     | blender_mcp.utils.blender_executor:_initialize_executor:77 - \u2705 Blender executor initialized successfully - Version: Blender 4.4.0
+Traceback (most recent call last):
+  File "D:\Dev\repos\blender-mcp\test_imports.py", line 6, in <module>
+    import blender_mcp
+  File "D:\Dev/repos/blender-mcp/src\blender_mcp\__init__.py", line 17, in <module>
+    from .server import main
+  File "D:\Dev/repos/blender-mcp/src\blender_mcp\server.py", line 19, in <module>
+    from .handlers import scene_handler, mesh_handler, material_handler, export_handler, render_handler, shader_handler
+  File "D:\Dev/repos/blender-mcp/src\blender_mcp\handlers\material_handler.py", line 153, in <module>
+    @app.tool
+     ^^^^^^^^
+  File "C:\Users\sandr\AppData\Local\Programs\Python\Python313\Lib\site-packages\fastmcp\server\server.py", line 980, in tool
+    tool = Tool.from_function(
+        fn,
+    ...<9 lines>...
+        enabled=enabled,
+    )
+  File "C:\Users\sandr\AppData\Local\Programs\Python\Python313\Lib\site-packages\fastmcp\tools\tool.py", line 171, in from_function
+    return FunctionTool.from_function(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        fn=fn,
+        ^^^^^^
+    ...<9 lines>...
+        enabled=enabled,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\sandr\AppData\Local\Programs\Python\Python313\Lib\site-packages\fastmcp\tools\tool.py", line 252, in from_function
+    parsed_fn = ParsedFunction.from_function(fn, exclude_args=exclude_args)
+  File "C:\Users\sandr\AppData\Local\Programs\Python\Python313\Lib\site-packages\fastmcp\tools\tool.py", line 354, in from_function
+    raise ValueError(
+        "Functions with **kwargs are not supported as tools"
+    )
+ValueError: Functions with **kwargs are not supported as tools
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Dev\repos\blender-mcp\test_imports.py", line 28, in <module>
+    print(f"\u274c Module import failed: {e}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\sandr\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u274c' in position 0: character maps to <undefined>

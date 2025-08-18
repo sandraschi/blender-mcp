@@ -37,7 +37,6 @@ async def install_addon(
         Dict containing installation status
     """
     script = f"""
-import bpy
 import os
 import json
 
@@ -71,7 +70,6 @@ async def uninstall_addon(
         Dict containing uninstallation status
     """
     script = f"""
-import bpy
 import json
 
 try:
@@ -104,7 +102,6 @@ async def list_addons(
         Dict containing list of addons
     """
     script = f"""
-import bpy
 import json
 
 try:

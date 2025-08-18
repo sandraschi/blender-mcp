@@ -12,7 +12,7 @@ from loguru import logger
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 from ..exceptions import BlenderExportError, BlenderRenderError
-from ..server import app
+from ..app import app
 
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()
@@ -21,7 +21,6 @@ _executor = get_blender_executor()
 def _get_export_script_setup(output_path: str) -> str:
     """Generate the common setup script for export operations."""
     return f"""
-import bpy
 import os
 import json
 from pathlib import Path

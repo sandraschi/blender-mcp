@@ -61,7 +61,6 @@ async def create_texture(
     filepath = kwargs.get('filepath')
     
     script = f"""
-import bpy
 import os
 
 def create_texture():
@@ -162,7 +161,6 @@ async def assign_texture_to_material(
     strength = kwargs.get('strength', 1.0)
     
     script = f"""
-import bpy
 
 def assign_texture():
     # Get material and texture
@@ -290,7 +288,6 @@ async def bake_texture(
     filepath = kwargs.get('filepath', '')
     
     script = f"""
-import bpy
 import os
 
 def bake_texture():

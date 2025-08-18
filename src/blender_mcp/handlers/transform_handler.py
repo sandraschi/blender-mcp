@@ -45,7 +45,6 @@ async def set_transform(
         op = f"obj.location = {values_str} if not {relative} else obj.location + {values_str}"
     
     script = f"""
-import bpy
 from mathutils import Vector, Matrix, Quaternion, Euler
 
 def set_transform():
@@ -97,7 +96,6 @@ async def apply_transform(
         transform_types = [transform_types]
     
     script = f"""
-import bpy
 
 def apply_transform():
     results = {{}}

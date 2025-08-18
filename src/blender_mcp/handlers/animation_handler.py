@@ -49,7 +49,6 @@ async def insert_keyframe(
     options = kwargs.get('options', set())
     
     script = f"""
-import bpy
 
 def insert_keyframe():
     obj = bpy.data.objects.get('{object_name}')
@@ -118,7 +117,6 @@ async def set_animation_range(
     current_frame = kwargs.get('frame_current', start_frame)
     
     script = f"""
-import bpy
 
 scene = bpy.context.scene
 scene.frame_start = {start_frame}
@@ -167,7 +165,6 @@ async def bake_animation(
     clear_constraints = kwargs.get('clear_constraints', False)
     
     script = f"""
-import bpy
 
 def bake_animation():
     obj = bpy.data.objects.get('{object_name}')

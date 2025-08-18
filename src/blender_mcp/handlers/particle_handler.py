@@ -34,7 +34,6 @@ async def create_particle_system(
 ) -> Dict[str, Any]:
     """Create a particle system on an object."""
     script = f"""
-import bpy
 
 def create_particle_system():
     obj = bpy.data.objects.get('{object_name}')
@@ -86,7 +85,6 @@ async def bake_particles(
 ) -> Dict[str, Any]:
     """Bake particle simulation."""
     script = f"""
-import bpy
 
 def bake_particles():
     obj = bpy.data.objects.get('{object_name}')

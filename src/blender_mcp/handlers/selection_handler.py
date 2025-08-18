@@ -58,7 +58,6 @@ async def select_objects(
     deselect_others = kwargs.get('deselect_others', mode == SelectMode.REPLACE)
     
     script = f"""
-import bpy
 
 def select_objects():
     # Store current selection state
@@ -137,7 +136,6 @@ async def select_by_type(
     select_hidden = kwargs.get('select_hidden', False)
     
     script = f"""
-import bpy
 
 def select_by_type():
     # Store current selection state
@@ -225,7 +223,6 @@ async def select_by_material(
     partial_match = kwargs.get('partial_match', True)
     
     script = f"""
-import bpy
 
 def select_by_material():
     # Store current selection state

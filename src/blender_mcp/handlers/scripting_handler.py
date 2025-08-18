@@ -79,7 +79,6 @@ async def execute_script(
     if script_type == ScriptLanguage.PYTHON:
         # For Python scripts, we need to handle return values and context
         wrapped_script = f"""
-import bpy
 import json
 import sys
 from pathlib import Path
@@ -231,7 +230,6 @@ async def create_driver(
     is_simple_expression = kwargs.get('is_simple_expression', False)
     
     script = f"""
-import bpy
 import json
 
 def create_driver():
@@ -387,7 +385,6 @@ async def create_text_block(
         name += '.py'
     
     script = f"""
-import bpy
 import json
 
 def create_text():

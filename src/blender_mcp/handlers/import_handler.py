@@ -98,7 +98,6 @@ async def import_file(
     import_cmd = f"{operator}(**{options})"
     
     script = f"""
-import bpy
 import os
 
 def import_asset():
@@ -175,7 +174,6 @@ async def link_asset(
     relative = kwargs.get('relative_path', True)
     
     script = f"""
-import bpy
 import os
 
 def link_asset():

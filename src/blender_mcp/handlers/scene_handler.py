@@ -8,7 +8,7 @@ from loguru import logger
 
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
-from ..server import app
+from ..app import app
 
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()
@@ -25,7 +25,6 @@ async def create_scene(scene_name: str = "NewScene") -> str:
         str: Confirmation message with the created scene name
     """
     script = f'''
-import bpy
 
 # Clear existing objects
 bpy.ops.object.select_all(action='SELECT')
@@ -50,7 +49,6 @@ async def list_scenes() -> str:
         str: Formatted list of all scenes with object counts
     """
     script = '''
-import bpy
 
 scenes = []
 for scene in bpy.data.scenes:
@@ -73,7 +71,6 @@ async def clear_scene() -> str:
         str: Confirmation message
     """
     script = '''
-import bpy
 
 # Select and delete all objects
 bpy.ops.object.select_all(action='SELECT')

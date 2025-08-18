@@ -101,7 +101,6 @@ async def enable_compositor(
 ) -> Dict[str, Any]:
     """Enable the compositor and configure basic settings."""
     script = f"""
-import bpy
 
 def enable_compositor():
     scene = bpy.context.scene
@@ -161,7 +160,6 @@ async def add_compositor_node(
 ) -> Dict[str, Any]:
     """Add a node to the compositor."""
     script = f"""
-import bpy
 
 def add_node():
     scene = bpy.context.scene
@@ -213,7 +211,6 @@ async def connect_compositor_nodes(
 ) -> Dict[str, Any]:
     """Connect two nodes in the compositor."""
     script = f"""
-import bpy
 
 def connect_nodes():
     scene = bpy.context.scene
@@ -280,7 +277,6 @@ async def create_glow_effect(
 ) -> Dict[str, Any]:
     """Create a glow effect in the compositor."""
     script = f"""
-import bpy
 
 def create_glow():
     scene = bpy.context.scene

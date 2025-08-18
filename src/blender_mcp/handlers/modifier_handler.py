@@ -78,7 +78,6 @@ async def add_modifier(
     props_str = ", ".join(f"{k}={repr(v)}" for k, v in kwargs.items())
     
     script = f"""
-import bpy
 
 def add_modifier():
     obj = bpy.data.objects.get('{object_name}')
@@ -137,7 +136,6 @@ async def remove_modifier(
         Dict containing removal status
     """
     script = f"""
-import bpy
 
 def remove_modifier():
     obj = bpy.data.objects.get('{object_name}')
@@ -199,7 +197,6 @@ async def get_modifiers(
         Dict containing modifier information
     """
     script = f"""
-import bpy
 
 def get_modifiers():
     obj = bpy.data.objects.get('{object_name}')
@@ -273,7 +270,6 @@ async def apply_modifier(
         Dict containing apply status
     """
     script = f"""
-import bpy
 
 def apply_modifier():
     obj = bpy.data.objects.get('{object_name}')

@@ -84,7 +84,6 @@ async def enable_physics(
     collision_margin = kwargs.get('collision_margin', 0.04)
     
     script = f"""
-import bpy
 import math
 
 def setup_physics():
@@ -203,7 +202,6 @@ async def bake_physics_simulation(
     clear_cached = kwargs.get('clear_cached', True)
     
     script = f"""
-import bpy
 
 def bake_simulation():
     # Set the frame range
@@ -284,7 +282,6 @@ async def add_force_field(
     max_distance = kwargs.get('max_distance', 10.0)
     
     script = f"""
-import bpy
 from mathutils import Vector
 
 def add_force_field():
@@ -392,7 +389,6 @@ async def configure_cloth_simulation(
     shrink_max = kwargs.get('shrink_max', 1.0)
     
     script = f"""
-import bpy
 
 def configure_cloth():
     obj = bpy.data.objects.get('{object_name}')
@@ -505,7 +501,6 @@ async def bake_cloth_simulation(
     use_shape_keys = kwargs.get('use_shape_keys', False)
     
     script = f"""
-import bpy
 
 def bake_cloth():
     obj = bpy.data.objects.get('{object_name}')
@@ -635,7 +630,6 @@ async def add_rigid_body_constraint(
         Dict containing operation status and constraint details
     """
     script = f"""
-import bpy
 from mathutils import Matrix, Vector, Quaternion, Euler
 
 def add_constraint():
@@ -769,7 +763,6 @@ async def configure_rigid_body_world(
     ccd_threshold = kwargs.get('ccd_threshold', 0.1)
     
     script = f"""
-import bpy
 
 def configure_world():
     scene = bpy.context.scene
@@ -867,7 +860,6 @@ async def set_rigid_body_collision_shape(
     use_scale = kwargs.get('use_scale', True)
     
     script = f"""
-import bpy
 import mathutils
 
 def set_collision_shape():
@@ -1057,7 +1049,6 @@ async def create_particle_system(
     angular_velocity_factor = kwargs.get('angular_velocity_factor', 0.0)
     
     script = f"""
-import bpy
 
 def create_particles():
     obj = bpy.data.objects.get('{object_name}')
@@ -1186,7 +1177,6 @@ async def control_particle_emission(
     use_dynamic_rotation = kwargs.get('use_dynamic_rotation', False)
     
     script = f"""
-import bpy
 
 def control_emission():
     obj = bpy.data.objects.get('{object_name}')

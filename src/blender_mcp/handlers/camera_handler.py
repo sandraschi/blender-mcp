@@ -50,7 +50,6 @@ async def create_camera(
         Dict containing operation status and camera details
     """
     script = f"""
-import bpy
 import math
 from mathutils import Euler
 
@@ -124,7 +123,6 @@ async def set_active_camera(
         Dict containing operation status
     """
     script = f"""
-import bpy
 
 camera = bpy.data.objects.get('{camera_name}')
 if camera and camera.type == 'CAMERA':
@@ -157,7 +155,6 @@ async def set_camera_lens(
         Dict containing operation status
     """
     script = f"""
-import bpy
 
 camera = bpy.data.objects.get('{camera_name}')
 if camera and camera.type == 'CAMERA':

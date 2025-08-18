@@ -25,7 +25,6 @@ async def create_armature(
 ) -> Dict[str, Any]:
     """Create a new armature object."""
     script = f"""
-import bpy
 
 def create_armature():
     bpy.ops.object.armature_add(
@@ -68,7 +67,6 @@ async def add_bone(
 ) -> Dict[str, Any]:
     """Add a bone to an armature."""
     script = f"""
-import bpy
 
 def add_bone():
     armature = bpy.data.objects.get('{armature_name}')
@@ -128,7 +126,6 @@ async def create_bone_ik(
 ) -> Dict[str, Any]:
     """Create an IK constraint for a bone."""
     script = f"""
-import bpy
 
 def create_ik():
     armature = bpy.data.objects.get('{armature_name}')

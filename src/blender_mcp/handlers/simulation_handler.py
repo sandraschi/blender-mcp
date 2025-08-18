@@ -43,7 +43,6 @@ async def add_simulation(
     simulation_type = simulation_type.upper()
     
     script = f"""
-import bpy
 
 def add_simulation():
     obj = bpy.data.objects.get('{object_name}')
@@ -242,7 +241,6 @@ async def bake_simulation(
     use_disk_cache = kwargs.get('use_disk_cache', False)
     
     script = f"""
-import bpy
 import os
 
 def bake_simulation():
@@ -414,7 +412,6 @@ async def set_simulation_visibility(
     simulation_type = kwargs.get('simulation_type')
     
     script = f"""
-import bpy
 
 def set_sim_visibility():
     obj = bpy.data.objects.get('{object_name}')

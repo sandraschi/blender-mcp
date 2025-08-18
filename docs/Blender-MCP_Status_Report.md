@@ -54,7 +54,7 @@ Blender-MCP is a comprehensive Blender automation server built on FastMCP 2.10, 
 ### Testing Coverage (20% Complete)
 - Need comprehensive unit tests
 - Integration tests for handlers
-- Performance benchmarks
+- Performance benchmarkscs folder
 
 ### Documentation (50% Complete)
 - API documentation complete

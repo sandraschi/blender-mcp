@@ -52,7 +52,6 @@ async def unwrap(
     margin = kwargs.get('margin', 0.001)
     
     script = f"""
-import bpy
 
 def unwrap_mesh():
     obj = bpy.data.objects.get('{object_name}')
@@ -138,7 +137,6 @@ async def project_from_view(
     margin = kwargs.get('margin', 0.0)
     
     script = f"""
-import bpy
 
 def project_from_view():
     obj = bpy.data.objects.get('{object_name}')
@@ -228,7 +226,6 @@ async def reset_uvs(
         Dict containing reset status
     """
     script = f"""
-import bpy
 
 def reset_uvs():
     obj = bpy.data.objects.get('{object_name}')
@@ -294,7 +291,6 @@ async def get_uv_info(
         Dict containing UV information
     """
     script = f"""
-import bpy
 
 def get_uv_info():
     obj = bpy.data.objects.get('{object_name}')

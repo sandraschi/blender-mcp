@@ -46,7 +46,6 @@ async def create_grease_pencil(
     parent = kwargs.get('parent')
     
     script = f"""
-import bpy
 
 def create_gp():
     # Check if GP object with this name already exists
@@ -140,7 +139,6 @@ async def draw_grease_pencil_stroke(
     cyclic = kwargs.get('cyclic', False)
     
     script = f"""
-import bpy
 import math
 
 def draw_stroke():
@@ -288,7 +286,6 @@ async def convert_grease_pencil(
     thickness = kwargs.get('thickness', 0.1)
     
     script = f"""
-import bpy
 
 def convert_gp():
     # Get the Grease Pencil object

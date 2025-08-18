@@ -11,7 +11,7 @@ from loguru import logger
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 from ..exceptions import BlenderRenderError
-from ..server import app
+from ..app import app
 
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()
@@ -46,7 +46,6 @@ async def render_turntable(
         os.makedirs(output_dir, exist_ok=True)
         
         script = f"""
-import bpy
 import os
 import math
 from mathutils import Vector
@@ -168,7 +167,6 @@ async def render_preview(
             os.makedirs(output_dir, exist_ok=True)
         
         script = f"""
-import bpy
 import os
 from mathutils import Vector
 

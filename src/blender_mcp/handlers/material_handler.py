@@ -10,7 +10,7 @@ from loguru import logger
 
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
-from ..server import app
+from ..app import app
 from ..exceptions import BlenderMaterialError
 from typing import Tuple, Optional, Union
 
@@ -92,7 +92,6 @@ def _create_base_material_script(name: str, material_type: Union[str, MaterialTy
         str: Python script to create the base material
     """
     return f"""
-import bpy
 import math
 from mathutils import Color
 
@@ -1225,7 +1224,6 @@ def assign_material(
         str: Status message
     """
     script = f"""
-import bpy
 
 # Get the object and material
 obj = bpy.data.objects.get('{object_name}')
@@ -1268,7 +1266,6 @@ def remove_material(
         str: Status message
     """
     script = f"""
-import bpy
 
 # Get the object
 obj = bpy.data.objects.get('{object_name}')
@@ -1306,7 +1303,6 @@ def get_material_assignments(
         str: Status message with material assignments
     """
     script = f"""
-import bpy
 
 # Get the object
 obj = bpy.data.objects.get('{object_name}')

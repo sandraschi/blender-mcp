@@ -12,20 +12,16 @@ from typing import Any, Dict, Optional, List
 import argparse
 from loguru import logger
 
-from fastmcp import FastMCP
+# Import the app instance
+from .app import app
 
 # Import handlers to register tools via @app.tool decorators
-from .handlers import scene_handler, mesh_handler, material_handler, export_handler, render_handler, shader_handler
-
-# Initialize FastMCP application
-app = FastMCP(
-    name="blender-mcp",
-    version="1.0.0",
-    description="Blender MCP Server for 3D content creation and automation"
-)
+# Only import the working handlers for now
+from .handlers import scene_handler, mesh_handler
+# Temporarily disabled: material_handler, export_handler, render_handler, shader_handler
 
 # Tools are now automatically registered via @app.tool decorators in handlers
-logger.info("✅ All tools registered via @app.tool decorators")
+logger.info("✅ Working tools registered via @app.tool decorators")
 
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""

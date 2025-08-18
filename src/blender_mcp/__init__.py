@@ -13,8 +13,8 @@ Features:
 - VRChat optimization tools
 """
 
-from .server import BlenderMCPServer
-from .tools import *
+from .app import app
+from .server import main
 from .decorators import *
 from .exceptions import *
 
@@ -23,7 +23,8 @@ __author__ = "Sandra"
 __email__ = "sandra@sandraschi.dev"
 
 __all__ = [
-    "BlenderMCPServer",
+    "app",
+    "main",
     "__version__",
     "__author__",
     "__email__",

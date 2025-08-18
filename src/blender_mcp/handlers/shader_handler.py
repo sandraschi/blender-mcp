@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field, validator
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 from ..exceptions import BlenderMCPError
-from ..server import app
+from ..app import app
 
 # Type variable for generic type hints
 T = TypeVar('T')
@@ -102,7 +102,6 @@ async def create_shader_node(
     node_type_str = node_type.value if isinstance(node_type, ShaderType) else str(node_type)
     
     script = f"""
-import bpy
 import json
 
 def create_shader_node():
@@ -252,7 +251,6 @@ async def connect_shader_nodes(
     )
     
     script = f"""
-import bpy
 import json
 
 def connect_nodes():
@@ -433,7 +431,6 @@ async def create_shader_material(
     shader_type_str = shader_type.value if isinstance(shader_type, ShaderType) else str(shader_type)
     
     script = f"""
-import bpy
 import json
 
 def create_material():

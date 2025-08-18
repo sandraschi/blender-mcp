@@ -74,7 +74,6 @@ async def set_render_engine(
     bloom_threshold = kwargs.get('bloom_threshold', 1.0)
     
     script = f"""
-import bpy
 
 def configure_render_engine():
     scene = bpy.context.scene
@@ -197,7 +196,6 @@ async def configure_render_layers(
     light_override = kwargs.get('light_override', None)
     
     script = f"""
-import bpy
 
 def configure_layers():
     scene = bpy.context.scene
@@ -497,7 +495,6 @@ async def setup_post_processing(
     settings_str = '\n'.join(f'    {k} = {repr(v)}' for k, v in settings.items())
     
     script = f"""
-import bpy
 
 def setup_post_processing():
     scene = bpy.context.scene

@@ -58,7 +58,6 @@ async def create_light(
     blend_factor = kwargs.get('blend_factor', 0.2)
     
     script = f"""
-import bpy
 import math
 from mathutils import Color, Euler
 
@@ -147,7 +146,6 @@ async def set_light_energy(
         Dict containing operation status
     """
     script = f"""
-import bpy
 
 light = bpy.data.objects.get('{light_name}')
 if light and light.type == 'LIGHT':
@@ -180,7 +178,6 @@ async def set_light_color(
         Dict containing operation status
     """
     script = f"""
-import bpy
 from mathutils import Color
 
 light = bpy.data.objects.get('{light_name}')
