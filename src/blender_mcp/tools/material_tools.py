@@ -6,8 +6,7 @@ This module provides tools for material and shader operations in Blender.
 from typing import Dict, Any, List, Optional, Union, Tuple
 from enum import Enum
 from pydantic import BaseModel, Field, validator, conlist
-from fastmcp.types import JSONType
-
+from ..compat import JSONType
 from blender_mcp.handlers.material_handler import (
     create_material,
     set_material_property,

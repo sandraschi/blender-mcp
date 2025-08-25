@@ -1,3 +1,5 @@
+from ..compat import *
+
 """
 Validation utilities for Blender MCP.
 

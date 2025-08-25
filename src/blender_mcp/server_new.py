@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Blender MCP Server - FastMCP 2.10 compliant implementation."""
 
 import asyncio

@@ -5,6 +5,8 @@ and managing materials in Blender through the MCP interface.
 """
 
 from __future__ import annotations
+
+from ..compat import *
 from dataclasses import dataclass, asdict
 from enum import Enum
 from typing import Any, Dict, List, Literal, Optional, Tuple, Union, TypeVar, Type, cast

@@ -5,7 +5,7 @@ This module exposes rendering functionality through MCP tools.
 """
 from typing import Dict, Any, List, Literal, Optional
 
-from fastmcp.types import JSONType
+from ..compat import JSONType
 from pydantic import BaseModel, Field
 
 from blender_mcp.handlers.rendering_handler import (

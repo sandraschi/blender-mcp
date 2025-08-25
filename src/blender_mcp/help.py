@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Blender MCP Help System.
 
 This module provides a comprehensive help system that documents all available

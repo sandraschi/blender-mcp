@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Texture operations handler for Blender MCP."""
 
 from typing import Optional, List, Dict, Any, Union, Tuple
@@ -265,28 +267,27 @@ except Exception as e:
 @blender_operation("bake_texture", log_args=True)
 async def bake_texture(
     bake_type: str = "DIFFUSE",
-    **kwargs: Any
+    width: int = 1024,
+    height: int = 1024,
+    margin: int = 16,
+    use_selected_to_active: bool = False,
+    cage_extrusion: float = 0.1,
+    filepath: str = ""
 ) -> Dict[str, Any]:
     """Bake textures for selected objects.
     
     Args:
         bake_type: Type of baking ('DIFFUSE', 'NORMAL', 'ROUGHNESS', 'METALLIC', 'EMIT', etc.)
-        **kwargs: Additional baking parameters
-            - width: Width of the baked texture (default: 1024)
-            - height: Height of the baked texture (default: 1024)
-            - margin: Margin in pixels (default: 16)
-            - use_selected_to_active: Bake from selected to active (default: False)
-            - cage_extrusion: Cage extrusion for ray casting (default: 0.1)
-            - filepath: Where to save the baked texture
+        width: Width of the baked texture (default: 1024)
+        height: Height of the baked texture (default: 1024)
+        margin: Margin in pixels (default: 16)
+        use_selected_to_active: Bake from selected to active (default: False)
+        cage_extrusion: Cage extrusion for ray casting (default: 0.1)
+        filepath: Where to save the baked texture (default: "")
             
     Returns:
         Dict containing baking status and details
     """
-    width = kwargs.get('width', 1024)
-    height = kwargs.get('height', 1024)
-    margin = kwargs.get('margin', 16)
-    filepath = kwargs.get('filepath', '')
-    
     script = f"""
 import os
 
@@ -300,8 +301,8 @@ def bake_texture():
         
         # Set bake settings
         bpy.context.scene.render.bake.margin = {margin}
-        bpy.context.scene.render.bake.use_selected_to_active = {str(kwargs.get('use_selected_to_active', False)).lower()}
-        bpy.context.scene.render.bake.cage_extrusion = {kwargs.get('cage_extrusion', 0.1)}
+        bpy.context.scene.render.bake.use_selected_to_active = {str(use_selected_to_active).lower()}
+        bpy.context.scene.render.bake.cage_extrusion = {cage_extrusion}
         
         # Set bake type
         bake_type = '{bake_type}'.upper()

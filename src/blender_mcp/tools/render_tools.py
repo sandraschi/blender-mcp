@@ -6,8 +6,7 @@ This module provides tools for advanced rendering controls and settings.
 from typing import Dict, Any, List, Optional
 from enum import Enum
 from pydantic import BaseModel, Field
-from fastmcp.types import JSONType
-
+from ..compat import JSONType
 from blender_mcp.handlers.render_handler import (
     set_render_engine,
     set_render_resolution,

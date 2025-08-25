@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Comprehensive Blender script executor with extensive error handling and logging."""
 
 import asyncio

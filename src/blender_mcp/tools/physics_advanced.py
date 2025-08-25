@@ -6,8 +6,7 @@ This module provides tools for advanced physics simulations including cloth, flu
 from typing import Dict, Any, List, Optional, Union, Tuple
 from enum import Enum
 from pydantic import BaseModel, Field, validator, conlist, conint, confloat
-from fastmcp.types import JSONType
-
+from ..compat import JSONType
 from blender_mcp.handlers.physics_advanced_handler import (
     setup_cloth_simulation,
     setup_fluid_simulation,

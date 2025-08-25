@@ -20,12 +20,19 @@ wheels/
 .installed.cfg
 *.egg
 
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
 # Blender
-*.blend1
-*.blend2
-.blender/
-*.blend
-*.blend@
 *.blend1
 *.blend2
 *.blend3
@@ -35,163 +42,79 @@ wheels/
 *.blend7
 *.blend8
 *.blend9
-*.blend10
-*.blend11
-*.blend12
-*.blend13
-*.blend14
-*.blend15
-*.blend16
-*.blend17
-*.blend18
-*.blend19
-*.blend20
-*.blend21
-*.blend22
-*.blend23
-*.blend24
-*.blend25
-*.blend26
-*.blend27
-*.blend28
-*.blend29
-*.blend30
-*.blend31
-*.blend32
-*.blend33
-*.blend34
-*.blend35
-*.blend36
-*.blend37
-*.blend38
-*.blend39
-*.blend40
-*.blend41
-*.blend42
-*.blend43
-*.blend44
-*.blend45
-*.blend46
-*.blend47
-*.blend48
-*.blend49
-*.blend50
-*.blend51
-*.blend52
-*.blend53
-*.blend54
-*.blend55
-*.blend56
-*.blend57
-*.blend58
-*.blend59
-*.blend60
-*.blend61
-*.blend62
-*.blend63
-*.blend64
-*.blend65
-*.blend66
-*.blend67
-*.blend68
-*.blend69
-*.blend70
-*.blend71
-*.blend72
-*.blend73
-*.blend74
-*.blend75
-*.blend76
-*.blend77
-*.blend78
-*.blend79
-*.blend80
-*.blend81
-*.blend82
-*.blend83
-*.blend84
-*.blend85
-*.blend86
-*.blend87
-*.blend88
-*.blend89
-*.blend90
-*.blend91
-*.blend92
-*.blend93
-*.blend94
-*.blend95
-*.blend96
-*.blend97
-*.blend98
-*.blend99
-*.blend100
+*.blend
+*.blend@
+.blender/
 
-# Environment variables
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Logs and databases
+# Logs
+logs/
 *.log
-*.sql
-*.sqlite
 
 # Local development
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+.env
+.env.local
+.env.*.local
 
-# Testing
+# Test coverage
 .coverage
 htmlcov/
-.pytest_cache/
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# Distribution / packaging
+.Python
+build/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dll
+*.dylib
+*.egg-info/
+*.egg
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Sphinx documentation
+docs/_build/
+
 # PyCharm
 .idea/
-*.iml
 
 # VS Code
 .vscode/
 
-# OS generated files
+# macOS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
+
+# Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# Project specific
+.blender/

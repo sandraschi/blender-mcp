@@ -1,5 +1,15 @@
+# Core dependencies
 fastmcp>=2.10.1
 loguru>=0.7.0
 pydantic>=2.0.0
 httpx>=0.25.0
 typing-extensions>=4.8.0
+
+# Development dependencies
+pytest>=7.0.0
+pytest-cov>=4.0.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
+isort>=5.12.0
+pre-commit>=3.0.0

@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Camera operations handler for Blender MCP.
 
 This module provides camera creation and manipulation functions that can be registered as FastMCP tools.

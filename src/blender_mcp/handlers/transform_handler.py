@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Transform operations handler for Blender MCP."""
 
 from typing import Optional, List, Dict, Any, Union

@@ -1,6 +1,7 @@
 """Custom exceptions for Blender MCP operations."""
 
 from typing import Optional
+from blender_mcp.compat import *
 
 
 class BlenderMCPError(Exception):

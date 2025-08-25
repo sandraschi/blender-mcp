@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Lighting operations handler for Blender MCP.
 
 This module provides lighting creation and manipulation functions that can be registered as FastMCP tools.

@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Command Line Interface for Blender MCP.
 
 This module provides a command-line interface to interact with the Blender MCP server,
@@ -83,7 +85,7 @@ def main(args: Optional[List[str]] = None) -> int:
             if args.function_or_category.lower() in [c.lower() for c in categories]:
                 print(get_help(category=args.function_or_category))
             else:
-                print(get_help(function_name=args.function_or_category)
+                print(get_help(function_name=args.function_or_category))
         else:
             print_banner()
             print("\n" + get_help())
@@ -95,6 +97,7 @@ def main(args: Optional[List[str]] = None) -> int:
             for category in sorted(list_categories()):
                 print(f"- {category}")
                 
+        
         if not args.type or args.type == 'functions':
             print("\nAvailable Functions:")
             print("-" * 40)

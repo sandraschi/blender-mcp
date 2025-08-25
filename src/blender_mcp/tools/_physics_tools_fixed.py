@@ -6,8 +6,7 @@ This module exposes physics functionality through MCP tools.
 from typing import Dict, Any, Optional, List, Literal, Union
 from enum import Enum
 from pydantic import BaseModel, Field
-from fastmcp.types import JSONType
-
+from ..compat import JSONType
 from blender_mcp.handlers.physics_handler import (
     enable_physics,
     bake_physics_simulation,

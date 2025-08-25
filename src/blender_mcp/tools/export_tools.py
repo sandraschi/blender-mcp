@@ -6,8 +6,7 @@ This module provides tools for exporting Blender scenes to various file formats.
 from typing import Dict, Any, List, Optional, Union, Tuple
 from enum import Enum
 from pydantic import BaseModel, Field, validator
-from fastmcp.types import JSONType
-
+from ..compat import JSONType
 from blender_mcp.handlers.export_handler import (
     export_fbx,
     export_obj,

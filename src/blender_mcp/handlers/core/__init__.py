@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Core handlers for Blender MCP functionality.
 
 This package contains the core handler implementations for Blender MCP,

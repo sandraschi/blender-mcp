@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Scripting operations handler for Blender MCP."""
 
 import json

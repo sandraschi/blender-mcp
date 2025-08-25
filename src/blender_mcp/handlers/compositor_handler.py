@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Compositor operations handler for Blender MCP."""
 
 from typing import Optional, Tuple, Dict, Any, Union, List, Literal
@@ -32,7 +34,6 @@ class CompositorNodeType(str, Enum):
     FILTER = "CompositorNodeFilter"
     FLIP = "CompositorNodeFlip"
     GAMMA = "CompositorNodeGamma"
-    GLOW = "CompositorNodeGlare"
     HUE_SAT = "CompositorNodeHueSat"
     ID_MASK = "CompositorNodeIDMask"
     INVERT = "CompositorNodeInvert"

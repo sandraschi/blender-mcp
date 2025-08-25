@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Physics operations handler for Blender MCP.
 
 This module provides physics simulation and rigid body functions that can be registered as FastMCP tools.

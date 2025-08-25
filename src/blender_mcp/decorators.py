@@ -5,7 +5,8 @@ import time
 from typing import Any, Callable, Dict, Optional, TypeVar, Union
 from loguru import logger
 
-from .exceptions import BlenderMCPError
+from blender_mcp.compat import *
+from blender_mcp.exceptions import BlenderMCPError
 
 F = TypeVar('F', bound=Callable[..., Any])
 

@@ -1,419 +1,213 @@
+from ..compat import *
+
 """
-MCP Tools for rendering operations.
+Rendering-related MCP tools for Blender.
 
 This module exposes rendering functionality through MCP tools.
 """
-from typing import Dict, Any, List, Literal, Optional
-
-from fastmcp.types import JSONType
-from pydantic import BaseModel, Field
-
+from typing import Dict, Any, List, Optional, Union
+from blender_mcp.compat import Tool, FunctionTool
 from blender_mcp.handlers.rendering_handler import (
     set_render_engine,
     configure_render_layers,
     setup_post_processing
 )
-from blender_mcp.tools import register_tool
+from blender_mcp.app import app
 
 # Common parameter schemas
-class Vector3D(BaseModel):
+class Vector3D:
     """3D vector with x, y, z components."""
-    x: float = Field(..., description="X component")
-    y: float = Field(..., description="Y component")
-    z: float = Field(..., description="Z component")
+    def __init__(self, x: float, y: float, z: float):
+        self.x = x
+        self.y = y
+        self.z = z
 
-class ColorRGB(BaseModel):
+class ColorRGB:
     """RGB color with values 0-1."""
-    r: float = Field(0.0, ge=0.0, le=1.0, description="Red component (0-1)")
-    g: float = Field(0.0, ge=0.0, le=1.0, description="Green component (0-1)")
-    b: float = Field(0.0, ge=0.0, le=1.0, description="Blue component (0-1)")
+    def __init__(self, r: float, g: float, b: float):
+        self.r = r
+        self.g = g
+        self.b = b
 
 # Tool parameter schemas
-class RenderEngineParams(BaseModel):
+class RenderEngineParams:
     """Parameters for setting the render engine."""
-    engine: Literal["BLENDER_EEVEE", "CYCLES", "BLENDER_WORKBENCH"] = Field(
-        ...,
-        description="The render engine to use"
-    )
-    use_gpu: bool = Field(
-        True,
-        description="Whether to use GPU for rendering"
-    )
-    samples: int = Field(
-        64,
-        ge=1,
-        le=4096,
-        description="Number of samples per pixel"
-    )
-    denoising: bool = Field(
-        True,
-        description="Whether to enable denoising"
-    )
-    motion_blur: bool = Field(
-        False,
-        description="Whether to enable motion blur"
-    )
-    bloom: bool = Field(
-        True,
-        description="Whether to enable bloom (EEVEE only)"
-    )
-    ambient_occlusion: bool = Field(
-        True,
-        description="Whether to enable ambient occlusion"
-    )
-    screen_space_reflections: bool = Field(
-        True,
-        description="Whether to enable screen space reflections"
-    )
-    volumetrics: bool = Field(
-        True,
-        description="Whether to enable volumetric effects"
-    )
+    def __init__(self, engine: str, use_gpu: bool, samples: int, denoising: bool, motion_blur: bool, bloom: bool, ambient_occlusion: bool, screen_space_reflections: bool, volumetrics: bool):
+        self.engine = engine
+        self.use_gpu = use_gpu
+        self.samples = samples
+        self.denoising = denoising
+        self.motion_blur = motion_blur
+        self.bloom = bloom
+        self.ambient_occlusion = ambient_occlusion
+        self.screen_space_reflections = screen_space_reflections
+        self.volumetrics = volumetrics
 
-class RenderLayerParams(BaseModel):
+class RenderLayerParams:
     """Parameters for configuring render layers."""
-    use_pass_combined: bool = Field(True, description="Enable combined pass")
-    use_pass_z: bool = Field(False, description="Enable Z depth pass")
-    use_pass_normal: bool = Field(False, description="Enable normal pass")
-    use_pass_diffuse_direct: bool = Field(False, description="Enable direct diffuse pass")
-    use_pass_diffuse_color: bool = Field(False, description="Enable diffuse color pass")
-    use_pass_glossy_direct: bool = Field(False, description="Enable direct glossy pass")
-    use_pass_glossy_color: bool = Field(False, description="Enable glossy color pass")
-    use_pass_ambient_occlusion: bool = Field(False, description="Enable AO pass")
-    use_pass_shadow: bool = Field(False, description="Enable shadow pass")
-    use_pass_emit: bool = Field(False, description="Enable emission pass")
-    use_pass_environment: bool = Field(False, description="Enable environment pass")
-    use_pass_indirect: bool = Field(False, description="Enable indirect pass")
-    use_pass_reflection: bool = Field(False, description="Enable reflection pass")
-    use_pass_refraction: bool = Field(False, description="Enable refraction pass")
-    use_pass_uv: bool = Field(False, description="Enable UV pass")
-    use_pass_mist: bool = Field(False, description="Enable mist pass")
-    use_pass_cryptomatte_object: bool = Field(False, description="Enable cryptomatte object pass")
-    use_pass_cryptomatte_material: bool = Field(False, description="Enable cryptomatte material pass")
-    use_pass_cryptomatte_asset: bool = Field(False, description="Enable cryptomatte asset pass")
-    use_pass_shadow_catcher: bool = Field(False, description="Enable shadow catcher pass")
+    def __init__(self, use_pass_combined: bool, use_pass_z: bool, use_pass_normal: bool, use_pass_diffuse_direct: bool, use_pass_diffuse_color: bool, use_pass_glossy_direct: bool, use_pass_glossy_color: bool, use_pass_ambient_occlusion: bool, use_pass_shadow: bool, use_pass_emit: bool, use_pass_environment: bool, use_pass_indirect: bool, use_pass_reflection: bool, use_pass_refraction: bool, use_pass_uv: bool, use_pass_mist: bool, use_pass_cryptomatte_object: bool, use_pass_cryptomatte_material: bool, use_pass_cryptomatte_asset: bool, use_pass_shadow_catcher: bool):
+        self.use_pass_combined = use_pass_combined
+        self.use_pass_z = use_pass_z
+        self.use_pass_normal = use_pass_normal
+        self.use_pass_diffuse_direct = use_pass_diffuse_direct
+        self.use_pass_diffuse_color = use_pass_diffuse_color
+        self.use_pass_glossy_direct = use_pass_glossy_direct
+        self.use_pass_glossy_color = use_pass_glossy_color
+        self.use_pass_ambient_occlusion = use_pass_ambient_occlusion
+        self.use_pass_shadow = use_pass_shadow
+        self.use_pass_emit = use_pass_emit
+        self.use_pass_environment = use_pass_environment
+        self.use_pass_indirect = use_pass_indirect
+        self.use_pass_reflection = use_pass_reflection
+        self.use_pass_refraction = use_pass_refraction
+        self.use_pass_uv = use_pass_uv
+        self.use_pass_mist = use_pass_mist
+        self.use_pass_cryptomatte_object = use_pass_cryptomatte_object
+        self.use_pass_cryptomatte_material = use_pass_cryptomatte_material
+        self.use_pass_cryptomatte_asset = use_pass_cryptomatte_asset
+        self.use_pass_shadow_catcher = use_pass_shadow_catcher
 
-class PostProcessingParams(BaseModel):
+class PostProcessingParams:
     """Parameters for post-processing effects."""
-    use_bloom: bool = Field(True, description="Enable bloom effect")
-    use_ssao: bool = Field(True, description="Enable screen space ambient occlusion")
-    use_motion_blur: bool = Field(False, description="Enable motion blur")
-    use_dof: bool = Field(False, description="Enable depth of field")
-    
-    # Bloom settings
-    bloom_threshold: float = Field(1.0, ge=0.0, description="Bloom intensity threshold")
-    bloom_radius: float = Field(6.5, ge=0.1, le=50.0, description="Bloom radius")
-    bloom_color: ColorRGB = Field(
-        default_factory=lambda: ColorRGB(r=1.0, g=1.0, b=1.0),
-        description="Bloom color"
-    )
-    
-    # SSAO settings
-    ssao_factor: float = Field(1.0, ge=0.0, le=10.0, description="SSAO intensity")
-    ssao_distance: float = Field(0.2, ge=0.0, description="SSAO distance")
-    
-    # Motion blur settings
-    motion_blur_shutter: float = Field(0.5, ge=0.0, description="Motion blur shutter speed")
-    
-    # Depth of field settings
-    dof_focus_object: Optional[str] = Field(None, description="Object to focus on")
-    dof_focus_distance: float = Field(10.0, ge=0.0, description="Manual focus distance")
-    dof_fstop: float = Field(2.8, gt=0.0, description="Aperture f-stop")
-    dof_blades: int = Field(0, ge=0, le=16, description="Aperture blades (0 for circular)")
-    
-    # Quality settings
-    shadow_quality: Literal["LOW", "MEDIUM", "HIGH", "ULTRA"] = Field(
-        "HIGH",
-        description="Shadow quality preset"
-    )
-    
-    # Color management
-    exposure: float = Field(0.0, description="Exposure compensation")
-    gamma: float = Field(1.0, gt=0.0, description="Gamma correction")
-    contrast: float = Field(1.0, gt=0.0, description="Contrast adjustment")
-    saturation: float = Field(1.0, ge=0.0, description="Saturation adjustment")
-    
-    # Mist/atmosphere
-    mist_start: float = Field(5.0, ge=0.0, description="Mist start distance")
-    mist_depth: float = Field(25.0, gt=0.0, description="Mist depth")
-    mist_falloff: Literal["QUADRATIC", "LINEAR", "INVERSE_QUADRATIC"] = Field(
-        "QUADRATIC",
-        description="Mist falloff type"
-    )
+    def __init__(self, use_bloom: bool, use_ssao: bool, use_motion_blur: bool, use_dof: bool, bloom_threshold: float, bloom_radius: float, bloom_color: ColorRGB, ssao_factor: float, ssao_distance: float, motion_blur_shutter: float, dof_focus_object: Optional[str], dof_focus_distance: float, dof_fstop: float, dof_blades: int, shadow_quality: str, exposure: float, gamma: float, contrast: float, saturation: float, mist_start: float, mist_depth: float, mist_falloff: str):
+        self.use_bloom = use_bloom
+        self.use_ssao = use_ssao
+        self.use_motion_blur = use_motion_blur
+        self.use_dof = use_dof
+        self.bloom_threshold = bloom_threshold
+        self.bloom_radius = bloom_radius
+        self.bloom_color = bloom_color
+        self.ssao_factor = ssao_factor
+        self.ssao_distance = ssao_distance
+        self.motion_blur_shutter = motion_blur_shutter
+        self.dof_focus_object = dof_focus_object
+        self.dof_focus_distance = dof_focus_distance
+        self.dof_fstop = dof_fstop
+        self.dof_blades = dof_blades
+        self.shadow_quality = shadow_quality
+        self.exposure = exposure
+        self.gamma = gamma
+        self.contrast = contrast
+        self.saturation = saturation
+        self.mist_start = mist_start
+        self.mist_depth = mist_depth
+        self.mist_falloff = mist_falloff
 
-# Tool for setting render engine
-@register_tool(
-    name="set_render_engine",
-    description="Set the active render engine and configure its settings",
-    parameters=RenderEngineParams.schema()
-)
-async def set_render_engine_tool(params: Dict[str, Any]) -> JSONType:
-    """Set the active render engine and configure its settings.
+# Register rendering tools using the @app.tool decorator
+
+@app.tool
+def set_render_engine_tool(
+    engine: str = "CYCLES",
+    device: str = "GPU" if True else "CPU",
+    use_denoising: bool = True,
+    use_adaptive_sampling: bool = True
+) -> Dict[str, Any]:
+    """Set the render engine and basic settings.
     
     Args:
-        params: Parameters for the render engine configuration
+        engine: Render engine to use (CYCLES, EEVEE, WORKBENCH)
+        device: Device to use for rendering (CPU/GPU)
+        use_denoising: Enable denoising
+        use_adaptive_sampling: Enable adaptive sampling
         
     Returns:
-        Dict containing the operation status and result
+        Dict with status and message
     """
-    try:
-        # Validate input parameters
-        engine_params = RenderEngineParams(**params)
-        
-        # Call the handler function
-        result = await set_render_engine(
-            engine=engine_params.engine,
-            use_gpu=engine_params.use_gpu,
-            samples=engine_params.samples,
-            denoising=engine_params.denoising,
-            motion_blur=engine_params.motion_blur,
-            bloom=engine_params.bloom,
-            ambient_occlusion=engine_params.ambient_occlusion,
-            screen_space_reflections=engine_params.screen_space_reflections,
-            volumetrics=engine_params.volumetrics
-        )
-        
-        return {"status": "SUCCESS", "result": result}
-        
-    except Exception as e:
-        return {"status": "ERROR", "error": str(e)}
+    return set_render_engine(engine, device, use_denoising, use_adaptive_sampling)
 
-# Tool for configuring render layers
-@register_tool(
-    name="configure_render_layers",
-    description="Configure render layers and passes",
-    parameters=RenderLayerParams.schema()
-)
-async def configure_render_layers_tool(params: Dict[str, Any]) -> JSONType:
+@app.tool
+def configure_render_layers_tool(
+    layers: List[Dict[str, Any]],
+    use_freestyle: bool = False,
+    use_pass_ambient_occlusion: bool = False,
+    use_pass_combined: bool = True,
+    use_pass_z: bool = False,
+    use_pass_mist: bool = False,
+    use_pass_position: bool = False,
+    use_pass_normal: bool = False,
+    use_pass_vector: bool = False,
+    use_pass_uv: bool = False,
+    use_pass_object_index: bool = False,
+    use_pass_material_index: bool = False,
+    use_pass_shadow: bool = False,
+    use_pass_emit: bool = False,
+    use_pass_environment: bool = False,
+    use_pass_diffuse_direct: bool = False,
+    use_pass_diffuse_indirect: bool = False,
+    use_pass_diffuse_color: bool = False,
+    use_pass_glossy_direct: bool = False,
+    use_pass_glossy_indirect: bool = False,
+    use_pass_glossy_color: bool = False,
+    use_pass_transmission_direct: bool = False,
+    use_pass_transmission_indirect: bool = False,
+    use_pass_transmission_color: bool = False,
+    use_pass_volume_direct: bool = False,
+    use_pass_volume_indirect: bool = False,
+) -> Dict[str, Any]:
     """Configure render layers and passes.
     
     Args:
-        params: Parameters for render layer configuration
+        layers: List of layer configurations
+        use_freestyle: Enable Freestyle rendering
+        use_pass_*: Various render passes to enable
         
     Returns:
-        Dict containing the operation status and result
+        Dict with status and message
     """
-    try:
-        # Validate input parameters
-        layer_params = RenderLayerParams(**params)
-        
-        # Call the handler function
-        result = await configure_render_layers(
-            **layer_params.dict()
-        )
-        
-        return {"status": "SUCCESS", "result": result}
-        
-    except Exception as e:
-        return {"status": "ERROR", "error": str(e)}
+    return configure_render_layers(
+        layers, use_freestyle, use_pass_ambient_occlusion, use_pass_combined,
+        use_pass_z, use_pass_mist, use_pass_position, use_pass_normal,
+        use_pass_vector, use_pass_uv, use_pass_object_index, use_pass_material_index,
+        use_pass_shadow, use_pass_ambient_occlusion, use_pass_emit, use_pass_environment,
+        use_pass_diffuse_direct, use_pass_diffuse_indirect, use_pass_diffuse_color,
+        use_pass_glossy_direct, use_pass_glossy_indirect, use_pass_glossy_color,
+        use_pass_transmission_direct, use_pass_transmission_indirect, use_pass_transmission_color,
+        use_pass_volume_direct, use_pass_volume_indirect
+    )
 
-# Tool for setting up post-processing
-@register_tool(
-    name="setup_post_processing",
-    description="Configure post-processing effects",
-    parameters=PostProcessingParams.schema()
-)
-async def setup_post_processing_tool(params: Dict[str, Any]) -> JSONType:
+@app.tool
+def setup_post_processing_tool(
+    use_compositing: bool = True,
+    use_sequencer: bool = False,
+    use_nodes: bool = True,
+    dither: float = 0.0,
+    exposure: float = 0.0,
+    gamma: float = 1.0,
+    use_curve_mapping: bool = False,
+    use_highlight_clamp: bool = False,
+    use_highlight_clamp_high: bool = False,
+    use_highlight_clamp_low: bool = False,
+    use_highlight_clamp_medium: bool = False,
+    use_highlight_clamp_very_high: bool = False,
+    use_highlight_clamp_very_low: bool = False,
+    use_highlight_clamp_zero: bool = False,
+    use_mist: bool = False,
+    use_motion_blur: bool = False,
+    use_sky: bool = True,
+    use_ssr: bool = False,
+    use_ssr_refraction: bool = False,
+) -> Dict[str, Any]:
     """Configure post-processing effects.
     
     Args:
-        params: Parameters for post-processing configuration
+        use_compositing: Enable node-based compositing
+        use_sequencer: Enable video sequence editor
+        use_nodes: Enable node-based compositing
+        dither: Dithering amount
+        exposure: Exposure value
+        gamma: Gamma correction
+        use_*: Various post-processing effects
         
     Returns:
-        Dict containing the operation status and result
+        Dict with status and message
     """
-    try:
-        # Validate input parameters
-        post_params = PostProcessingParams(**params)
-        
-        # Call the handler function
-        result = await setup_post_processing(
-            **post_params.dict()
-        )
-        
-        return {"status": "SUCCESS", "result": result}
-        
-    except Exception as e:
-        return {"status": "ERROR", "error": str(e)}
-"""
-MCP Tools for rendering operations.
-
-This module exposes rendering functionality through MCP tools.
-"""
-from typing import Dict, Any, List, Literal, Optional
-
-from fastmcp.types import JSONType
-from pydantic import BaseModel, Field
-
-from blender_mcp.handlers.rendering_handler import (
-    set_render_engine,
-    configure_render_layers,
-    setup_post_processing
-)
-from blender_mcp.tools import register_tool
-
-# Common parameter schemas
-class Vector3D(BaseModel):
-    """3D vector with x, y, z components."""
-    x: float = Field(..., description="X component")
-    y: float = Field(..., description="Y component")
-    z: float = Field(..., description="Z component")
-
-class ColorRGB(BaseModel):
-    """RGB color with values 0-1."""
-    r: float = Field(0.0, ge=0.0, le=1.0, description="Red component (0-1)")
-    g: float = Field(0.0, ge=0.0, le=1.0, description="Green component (0-1)")
-    b: float = Field(0.0, ge=0.0, le=1.0, description="Blue component (0-1)")
-
-# Tool parameter schemas
-class RenderEngineParams(BaseModel):
-    """Parameters for setting the render engine."""
-    engine: Literal["BLENDER_EEVEE", "CYCLES", "BLENDER_WORKBENCH"] = Field(
-        ...,
-        description="The render engine to use"
+    return setup_post_processing(
+        use_compositing, use_sequencer, use_nodes, dither, exposure, gamma,
+        use_curve_mapping, use_highlight_clamp, use_highlight_clamp_high,
+        use_highlight_clamp_low, use_highlight_clamp_medium, use_highlight_clamp_very_high,
+        use_highlight_clamp_very_low, use_highlight_clamp_zero, use_mist,
+        use_motion_blur, use_sky, use_ssr, use_ssr_refraction
     )
-    use_gpu: bool = Field(
-        True,
-        description="Whether to use GPU for rendering"
-    )
-    samples: int = Field(
-        64,
-        ge=1,
-        le=4096,
-        description="Number of samples per pixel"
-    )
-    denoising: bool = Field(
-        True,
-        description="Whether to enable denoising"
-            },
-            "motion_blur": {
-                "type": "boolean",
-                "default": False,
-                "description": "Whether to enable motion blur"
-            },
-            "bloom": {
-                "type": "boolean",
-                "default": True,
-                "description": "Whether to enable bloom (EEVEE only)"
-            },
-            "ambient_occlusion": {
-                "type": "boolean",
-                "default": True,
-                "description": "Whether to enable ambient occlusion"
-            },
-            "screen_space_reflections": {
-                "type": "boolean",
-                "default": True,
-                "description": "Whether to enable screen space reflections"
-            },
-            "volumetrics": {
-                "type": "boolean",
-                "default": True,
-                "description": "Whether to enable volumetric effects"
-            }
-        },
-        "required": ["engine"]
-    },
-    execute=set_render_engine
-)
 
-# Tool for configuring render layers
-configure_render_layers_tool = MCPTool(
-    name="configure_render_layers",
-    description="Configure render layers and passes",
-    parameters={
-        "type": "object",
-        "properties": {
-            "use_pass_combined": {"type": "boolean", "default": True},
-            "use_pass_z": {"type": "boolean", "default": False},
-            "use_pass_normal": {"type": "boolean", "default": False},
-            "use_pass_diffuse_direct": {"type": "boolean", "default": False},
-            "use_pass_diffuse_color": {"type": "boolean", "default": False},
-            "use_pass_glossy_direct": {"type": "boolean", "default": False},
-            "use_pass_glossy_color": {"type": "boolean", "default": False},
-            "use_pass_ambient_occlusion": {"type": "boolean", "default": False},
-            "use_pass_shadow": {"type": "boolean", "default": False},
-            "use_pass_emit": {"type": "boolean", "default": False},
-            "use_pass_environment": {"type": "boolean", "default": False},
-            "use_pass_indirect": {"type": "boolean", "default": False},
-            "use_pass_reflection": {"type": "boolean", "default": False},
-            "use_pass_refraction": {"type": "boolean", "default": False},
-            "use_pass_uv": {"type": "boolean", "default": False},
-            "use_pass_mist": {"type": "boolean", "default": False},
-            "use_pass_cryptomatte_object": {"type": "boolean", "default": False},
-            "use_pass_cryptomatte_material": {"type": "boolean", "default": False},
-            "use_pass_cryptomatte_asset": {"type": "boolean", "default": False},
-            "use_pass_shadow_catcher": {"type": "boolean", "default": False}
-        }
-    },
-    execute=configure_render_layers
-)
-
-# Tool for setting up post-processing effects
-setup_post_processing_tool = MCPTool(
-    name="setup_post_processing",
-    description="Configure post-processing effects",
-    parameters={
-        "type": "object",
-        "properties": {
-            "use_bloom": {"type": "boolean", "default": True},
-            "use_ssao": {"type": "boolean", "default": True},
-            "use_motion_blur": {"type": "boolean", "default": False},
-            "use_dof": {"type": "boolean", "default": False},
-            "bloom_threshold": {"type": "number", "default": 1.0},
-            "bloom_radius": {"type": "number", "default": 6.5},
-            "bloom_color": {
-                "type": "array",
-                "items": {"type": "number"},
-                "minItems": 3,
-                "maxItems": 3,
-                "default": [1.0, 1.0, 1.0]
-            },
-            "ssao_factor": {"type": "number", "default": 1.0},
-            "ssao_distance": {"type": "number", "default": 0.2},
-            "motion_blur_shutter": {"type": "number", "default": 0.5},
-            "dof_focus_object": {"type": "string", "default": ""},
-            "dof_focus_distance": {"type": "number", "default": 10.0},
-            "dof_fstop": {"type": "number", "default": 2.8},
-            "dof_blades": {"type": "integer", "default": 0},
-            "use_volumetric_lights": {"type": "boolean", "default": True},
-            "use_volumetric_shadows": {"type": "boolean", "default": True},
-            "volumetric_tile_size": {"type": "string", "default": "2"},
-            "volumetric_samples": {"type": "integer", "default": 4},
-            "use_screen_space_reflections": {"type": "boolean", "default": True},
-            "ssr_quality": {"type": "number", "default": 0.5},
-            "ssr_thickness": {"type": "number", "default": 0.2},
-            "ssr_max_roughness": {"type": "number", "default": 0.5},
-            "use_taa": {"type": "boolean", "default": True},
-            "taa_samples": {"type": "integer", "default": 16},
-            "shadow_quality": {
-                "type": "string",
-                "enum": ["LOW", "MEDIUM", "HIGH", "ULTRA"],
-                "default": "HIGH"
-            },
-            "exposure": {"type": "number", "default": 0.0},
-            "gamma": {"type": "number", "default": 1.0},
-            "contrast": {"type": "number", "default": 1.0},
-            "saturation": {"type": "number", "default": 1.0},
-            "brightness": {"type": "number", "default": 1.0},
-            "mist_start": {"type": "number", "default": 5.0},
-            "mist_depth": {"type": "number", "default": 25.0},
-            "mist_falloff": {
-                "type": "string",
-                "enum": ["QUADRATIC", "LINEAR", "INVERSE_QUADRATIC"],
-                "default": "QUADRATIC"
-            }
-        }
-    },
-    execute=setup_post_processing
-)
-
-# Register all tools
-def register() -> None:
-    """Register all rendering tools."""
-    register_tool(set_render_engine_tool)
-    register_tool(configure_render_layers_tool)
-    register_tool(setup_post_processing_tool)
-
-# Auto-register tools when module is imported
-register()
+# Register other rendering tools in a similar way
+# ... rest of the tools ...

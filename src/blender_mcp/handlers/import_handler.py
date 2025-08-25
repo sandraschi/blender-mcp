@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Import operations handler for Blender MCP."""
 
 from typing import Optional, Dict, Any, List, Union

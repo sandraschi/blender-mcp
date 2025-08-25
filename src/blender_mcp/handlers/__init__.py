@@ -5,17 +5,19 @@ including scene management, mesh creation, material handling, and more. These ha
 to be used with the Blender MCP server to provide a clean API for Blender automation.
 """
 
+from blender_mcp.compat import *
+
 # Scene handlers
-from .scene_handler import create_scene, list_scenes, clear_scene
+from blender_mcp.handlers.scene_handler import create_scene, list_scenes, clear_scene
 
 # Mesh handlers - only import existing functions
-from .mesh_handler import (
+from blender_mcp.handlers.mesh_handler import (
     create_chaiselongue,
     create_ornate_mirror
 )
 
 # Material handlers - temporarily disabled until FastMCP compatibility is fixed
-# from .material_handler import (
+# from blender_mcp.handlers.material_handler import (
 #     create_fabric_material,
 #     create_metal_material,
 #     create_wood_material
@@ -23,7 +25,7 @@ from .mesh_handler import (
 
 # Other handlers - check what exists  
 # try:
-#     from .shader_handler import (
+#     from blender_mcp.handlers.shader_handler import (
 #         ShaderType,
 #         create_shader_node,
 #         connect_shader_nodes,
@@ -33,12 +35,12 @@ from .mesh_handler import (
 #     pass
 
 # try:
-#     from .export_handler import export_for_unity, export_for_vrchat
+#     from blender_mcp.handlers.export_handler import export_for_unity, export_for_vrchat
 # except ImportError:
 #     pass
 
 # try:
-#     from .render_handler import render_turntable, render_preview
+#     from blender_mcp.handlers.render_handler import render_turntable, render_preview
 # except ImportError:
 #     pass
 

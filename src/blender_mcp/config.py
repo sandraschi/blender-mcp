@@ -1,3 +1,5 @@
+from blender_mcp.compat import *
+
 """Configuration settings for the Blender MCP server."""
 import os
 import sys

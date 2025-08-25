@@ -1,7 +1,8 @@
 """
-MCP Tool definitions for Blender-MCP.
+Tool definitions for Blender-MCP.
 
-This module exposes Blender functionality as MCP tools that can be called remotely.
+This module provides decorators and utilities for registering and managing FastMCP tools.
+Tools can be registered using the @app.tool decorator from the FastMCP application instance.
 """
 from __future__ import annotations
 
@@ -11,12 +12,13 @@ import logging
 import pkgutil
 import functools
 from pathlib import Path
-from typing import Dict, List, Type, Any, Optional, TypeVar, Callable, Awaitable, Union, TypeAlias
 
-from fastmcp.tools import MCPTool, MCPToolSet
-from fastmcp.server import MCPServer
-from fastmcp.types import JSONType
-from pydantic import BaseModel, ValidationError
+# Import from our compatibility module
+from ..compat import (
+    JSONType, Dict, Any, Type, TypeVar, Callable, 
+    Awaitable, Optional, Union, List, TypeAlias, Type,
+    Tool, FunctionTool, ToolManager, LowLevelServer
+)
 
 # Import error handling utilities
 from blender_mcp.utils.error_handling import (
@@ -35,8 +37,8 @@ T = TypeVar('T')
 # Logger
 logger = logging.getLogger(__name__)
 
-# This will be populated with all registered tools
-TOOLS: Dict[str, MCPTool] = {}
+# Global tool registration
+_tools: Dict[str, Any] = {}
 
 class ToolRegistrationError(Exception):
     """Exception raised for errors in tool registration."""
@@ -52,12 +54,14 @@ def register_tool(
     """
     Decorator to register a function as an MCP tool with enhanced error handling.
     
+    Note: This is a compatibility layer. New code should use @app.tool decorator instead.
+    
     Args:
         name: Tool name (defaults to function name)
         description: Tool description (defaults to function docstring)
         parameters: JSON Schema for tool parameters
         require_validation: Whether to enable parameter validation
-        **kwargs: Additional MCPTool parameters
+        **kwargs: Additional tool parameters
         
     Returns:
         Decorator function that returns a wrapped tool function
@@ -111,7 +115,7 @@ def register_tool(
                 raise MCPError(f"Tool execution failed: {str(e)}")
         
         # Create the tool
-        tool = MCPTool(
+        tool = FunctionTool(
             name=name,
             description=description or "",
             parameters=parameters or {"type": "object", "properties": {}},
@@ -120,10 +124,10 @@ def register_tool(
         )
         
         # Register the tool
-        if tool.name in TOOLS:
+        if tool.name in _tools:
             logger.warning(f"Tool '{tool.name}' is already registered. Overwriting.")
         
-        TOOLS[tool.name] = tool
+        _tools[tool.name] = tool
         
         # Return the original function to allow chaining decorators
         return func
@@ -146,7 +150,7 @@ def validate_with(model: Type[BaseModel]) -> Callable[[ToolFunction], ToolFuncti
         return func
     return decorator
 
-def get_tool(name: str) -> Optional[MCPTool]:
+def get_tool(name: str) -> Optional[Any]:
     """
     Get a registered tool by name.
     
@@ -154,27 +158,27 @@ def get_tool(name: str) -> Optional[MCPTool]:
         name: Name of the tool to retrieve
         
     Returns:
-        The MCPTool instance or None if not found
+        The Tool instance or None if not found
     """
-    return TOOLS.get(name)
+    return _tools.get(name)
 
-def get_toolset() -> MCPToolSet:
+def get_toolset() -> Any:
     """
     Get the MCP toolset with all registered tools.
     
     Returns:
-        MCPToolSet containing all registered tools
+        ToolManager containing all registered tools
     """
-    return MCPToolSet(tools=list(TOOLS.values()))
+    return ToolManager(tools=list(_tools.values()))
 
-def register_tools(server: MCPServer) -> None:
+def register_tools(server: Any) -> None:
     """
     Register all tools with an MCP server.
     
     Args:
         server: The MCP server instance
     """
-    for tool in TOOLS.values():
+    for tool in _tools.values():
         server.register_tool(tool)
 
 def discover_tools(package: str = 'blender_mcp.tools') -> None:

@@ -1,3 +1,5 @@
+from ..compat import *
+
 """
 Rendering Handler for Blender-MCP
 

@@ -6,8 +6,7 @@ This module provides tools for scene management and organization in Blender.
 from typing import Dict, Any, List, Optional, Union, Tuple
 from enum import Enum
 from pydantic import BaseModel, Field, validator, conlist, conint, confloat
-from fastmcp.types import JSONType
-
+from ..compat import JSONType
 from blender_mcp.handlers.scene_handler import (
     create_scene,
     set_active_scene,

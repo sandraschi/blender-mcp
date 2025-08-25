@@ -1,8 +1,8 @@
-# Blender MCP Server 🎨
+# Blender MCP Server 
 
 A comprehensive Model-Controller-Presenter (MCP) server for Blender, designed to automate 3D content creation, manipulation, and optimization through a clean, programmatic interface. Perfect for automating Blender workflows, batch processing, and integrating with other applications.
 
-## ✨ Features
+## Features
 
 - **Automated 3D Content Creation**: Programmatically generate and manipulate 3D objects, materials, and scenes
 - **Cross-Platform**: Works on Windows, macOS, and Linux
@@ -19,7 +19,7 @@ A comprehensive Model-Controller-Presenter (MCP) server for Blender, designed to
   - Example scripts for common workflows
   - Modular architecture for easy extension
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Basic Usage Example
 
@@ -65,7 +65,7 @@ await export_for_vrchat(
 )
 ```
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 
@@ -98,7 +98,7 @@ await export_for_vrchat(
    set BLENDER_EXECUTABLE=C:\\path\\to\\blender.exe
    ```
 
-## 🛠️ Usage
+## Usage
 
 ### Starting the Server
 
@@ -158,7 +158,7 @@ await export_for_vrchat(
 )
 ```
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```text
 blender-mcp/
@@ -184,7 +184,7 @@ blender-mcp/
 └── pyproject.toml         # Project configuration
 ```
 
-## 📚 API Reference
+## API Reference
 
 ### Scene Management
 
@@ -209,7 +209,7 @@ blender-mcp/
 - `export_for_vrchat(output_path: str, polygon_limit: int, material_limit: int, texture_size_limit: int, performance_rank: str) -> str`: Export scene for VRChat
 - `render_turntable(output_dir: str, frames: int, resolution_x: int, resolution_y: int, format: str) -> str`: Render a turntable animation
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
@@ -217,11 +217,11 @@ blender-mcp/
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Blender Foundation for the amazing 3D creation suite
 - FastMCP team for the MCP server framework

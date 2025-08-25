@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Comprehensive mesh generation handler for chambermaid boudoir assets.
 
 This module provides mesh generation functions that can be registered as FastMCP tools.

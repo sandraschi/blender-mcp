@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Modifier operations handler for Blender MCP."""
 
 from typing import Optional, List, Dict, Any, Union
@@ -154,7 +156,7 @@ def remove_modifier():
             "show_viewport": getattr(mod, 'show_viewport', True),
             "show_render": getattr(mod, 'show_render', True),
             "show_in_editmode": getattr(mod, 'show_in_editmode', False)
-        }
+        }}
         
         # Remove the modifier
         obj.modifiers.remove(mod)
@@ -285,7 +287,7 @@ def apply_modifier():
         mod_info = {{
             "name": mod.name,
             "type": mod.type
-        }
+        }}
         
         # Make the object active
         bpy.context.view_layer.objects.active = obj

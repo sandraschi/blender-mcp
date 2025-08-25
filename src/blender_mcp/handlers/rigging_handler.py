@@ -1,3 +1,5 @@
+from ..compat import *
+
 """Rigging and armature operations handler for Blender MCP."""
 
 from typing import Optional, Tuple, Dict, Any, Union, List, Literal

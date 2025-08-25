@@ -1,3 +1,5 @@
+from ..compat import *
+
 """File I/O operations handler for Blender MCP."""
 
 import os

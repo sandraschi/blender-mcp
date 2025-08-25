@@ -1,39 +1,620 @@
-# DXT Extension Building - Complete Guide for All MCP Servers
+# 🛠 DXT Building Guide
 
-**Version:** 2.1  
-**Date:** 2025-08-15  
+## 📋 Table of Contents
+
+1. [Development Setup](#1-development-setup)
+2. [Project Structure](#2-project-structure)
+3. [Building DXT Packages](#3-building-dxt-packages)
+4. [Testing & Validation](#4-testing--validation)
+5. [Versioning & Release](#5-versioning--release)
+6. [CI/CD Integration](#6-cicd-integration)
+7. [Troubleshooting](#7-troubleshooting)
+
+## 1. Development Setup
+
+This section covers the initial setup required for developing an MCP server with DXT.
+
+### 1. Prerequisites
+
+- Python 3.8+
+- pip (Python package manager)
+- Git
+- DXT CLI (for package management)
+
+### Project Initialization
+
+```bash
+# Create project structure
+mkdir my-mcp-server
+cd my-mcp-server
+python -m venv venv
+.\venv\Scripts\activate
+
+# Initialize git
+git init
+git add .
+git commit -m "Initial commit"
+
+# Create basic structure
+mkdir -p src/my_mcp/handlers tests
+```
+
+### 3. Project Configuration
+
+Create `pyproject.toml` with the following content:
+
+```toml
+[tool.poetry]
+name = "my-mcp"
+version = "0.1.0"
+description = "My Awesome MCP Server"
+authors = ["Your Name <your.email@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastmcp = "^2.13"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+```
+
+### 4. Development Tools Setup
+
+1. Install development tools:
+   ```bash
+   pip install poetry pre-commit
+   poetry install
+   ```
+
+2. Create `.pre-commit-config.yaml`:
+
+   ```yaml
+   repos:
+   - repo: https://github.com/psf/black
+     rev: 23.7.0
+     hooks:
+     - id: black
+       language_version: python3.9
+
+   - repo: https://github.com/pycqa/isort
+     rev: 5.12.0
+     hooks:
+     - id: isort
+       name: isort (python)
+       types: [python]
+
+   - repo: https://github.com/charliermarsh/ruff-pre-commit
+     rev: v0.0.284
+     hooks:
+       - id: ruff
+         args: [--fix, --exit-non-zero-on-fix]
+   ```
+
+## 3. Building DXT Packages
+
+This section explains how to build and package your MCP server as a DXT package.
+
+### 1. Create Build Script
+
+Create `build.ps1`:
+
+```powershell
+# Create dist directory if it doesn't exist
+$distDir = "dist"
+if (-not (Test-Path -Path $distDir)) {
+    New-Item -ItemType Directory -Path $distDir | Out-Null
+}
+
+# Get the current directory name for the output filename
+$currentDir = Split-Path -Leaf (Get-Location)
+$outputFile = "$distDir\$currentDir.dxt"
+
+# Build the DXT package
+Write-Host "Building DXT package to $outputFile"
+dxt pack . $distDir
+
+# Verify the file was created
+if (Test-Path -Path $outputFile) {
+    Write-Host "✅ Successfully created DXT package at $outputFile"
+    exit 0
+} else {
+    Write-Host "❌ Failed to create DXT package"
+    exit 1
+}
+```
+
+### Build Process
+
+```bash
+# Run tests
+pytest
+
+# Build package
+.\build.ps1
+
+# Verify package
+dxt info dist/package.dxt
+```
+
+## 4. Testing & Validation
+
+This section covers testing strategies for your MCP server.
+
+### 1. Unit Tests
+
+Create `tests/test_handlers.py`:
+
+```python
+def test_my_handler():
+    # Test implementation
+    assert 1 + 1 == 2
+```
+
+### Integration Testing
+
+```bash
+# Start test server
+dxt serve dist/package.dxt --port 8000
+
+# Test endpoints
+curl http://localhost:8000/health
+```
+
+## 5. Versioning & Release
+
+This section explains the versioning and release process for your MCP server.
+
+### 1. Update Version
+
+```bash
+# Update version in pyproject.toml
+poetry version patch  # or minor/major
+
+# Generate changelog
+git-chglog -o CHANGELOG.md
+```
+
+### Commit Changes
+
+```bash
+git add .
+git commit -m "chore: prepare release v0.1.0"
+git tag -a v0.1.0 -m "v0.1.0"
+git push origin main --tags
+```
+
+## 6. GitHub Release Process
+
+This section covers the process of creating GitHub releases for your MCP server.
+
+### 1. Create GitHub Release
+
+```bash
+# Create release from tag
+gh release create v0.1.0 \
+  --title "v0.1.0 - Initial Release" \
+  --notes "$(cat CHANGELOG.md | sed -n '/## \[0.1.0\]/,/## \[0.0.1\]/p' | head -n -2)" \
+  dist/*.dxt
+```
+
+### Verify Release
+
+1. Go to GitHub Releases page
+2. Verify assets are attached
+3. Test installation:
+
+   ```bash
+   dxt install --source github:your-org/your-repo#v0.1.0
+   ```
+
+## 7. Post-Release Activities
+
+This section covers activities to perform after a successful release.
+
+### 1. Update Documentation
+
+- Update README with new features
+- Add usage examples
+- Document breaking changes
+
+### Announce Release
+
+- Internal team notification
+- Update project boards
+- Share in relevant channels
+
+### Monitor & Gather Feedback
+
+- Monitor error logs
+- Collect user feedback
+- Create issues for bugs/improvements
+
+## 🎉 Next Steps
+
+- [ ] Set up CI/CD pipeline
+- [ ] Add automated testing
+- [ ] Implement monitoring
+- [ ] Plan next features
+
+---
+
+# DXT Extension Building - Complete Guide for MCP Servers
+
+**Version:** 3.0.0  
+**Date:** 2025-08-22  
 **Applies to:** ALL MCP server repositories  
 **AI Tools:** Windsurf, Cursor, Claude Code  
-**Critical Update:** Claude Desktop Extension Path Bug Workarounds  
 
 ## 🎯 CRITICAL RULES - READ FIRST
 
 ### ❌ NEVER DO
-1. **NO `dxt init`** - Primitive 1980s CLI prompting
-2. **NO manual manifest editing** - Use AI to generate comprehensive configs
-3. **NO custom build scripts** - Use official `dxt pack` only
-4. **NO hardcoded external paths** - Use `user_config` for all dependencies
-5. **NO shell variable substitution** - Claude Desktop doesn't resolve `${VAR}` literals
-6. **NO fastmcp < 2.10.1** - CRITICAL: Use fastmcp>=2.10.1,<3.0.0 for stability
-7. **NO incorrect Python paths** - DXT requires explicit `cwd` and `PYTHONPATH` setup
+
+1. **NO `dxt init`** - Outdated and creates minimal configurations
+2. **NO manual configuration** - Use proper `dxt.json` with all required fields
+3. **NO custom build scripts** - Use standard DXT tooling only
+4. **NO hardcoded paths** - Use relative paths in configuration
+5. **NO direct server execution** - Always use DXT CLI tools
 
 ### ✅ ALWAYS DO
-1. **AI-generate manifest.json** - Comprehensive, professional configurations
-2. **Use `user_config`** - For ALL external dependencies (executables, directories, API keys)
-3. **Template literals** - `${user_config.key}` for runtime substitution
-4. **Official DXT toolchain** - `dxt validate`, `dxt pack`, `dxt sign`
-5. **GitHub Actions automation** - Tag-based releases with CI/CD
-6. **Exact fastmcp version** - `fastmcp>=2.10.1,<3.0.0` in requirements.txt
-7. **Python path fixes** - Explicit `cwd` and `PYTHONPATH` in mcp_config
-**Use `dxt validate`** - Always use `dxt validate` to validate the final extension packag
-8. **Use `dxt pack`** - Always use `dxt pack` to create the final extension package. do not use a script to create the final extension package
-9. **Use `dxt sign`** - Always use `dxt sign` to sign the final extension package
-10. **Include everything** - Include all requirements and dependencies, not just sources
 
+1. **Use `dxt.json`** - Central configuration file for all DXT settings
+2. **Follow semantic versioning** - For both package and MCP versions
+3. **Use stdio transport** - Required for reliable communication
+4. **Specify exact versions** - For all dependencies
+5. **Validate before building** - Always run `dxt validate` first
+6. **Verify after building** - Always run `dxt verify` after packaging
+7. **Sign production packages** - Use `dxt sign` for production releases
+8. **Use the build script** - For consistent builds across environments
 
-## 📋 DXT MANIFEST.JSON SPECIFICATION
+## 🖥️ DXT CLI COMMAND SYNTAX
+
+### Core Commands
+
+#### 1. Package Creation
+
+```bash
+# Basic package creation
+dxt pack . dist/
+
+# Sign the package (required for production)
+dxt sign --key your-key.pem dist/package.dxt
+
+# Verify package integrity
+dxt verify --key your-key.pem dist/package.dxt
+
+# Publish to a DXT registry (if configured)
+dxt publish --registry your-registry dist/package.dxt
+```
+
+#### 2. DXT Registries
+
+DXT registries are package repositories that store and distribute DXT packages. Here's what you need to know:
+
+##### Official Registries
+
+- **Anthropic's Public Registry**: The primary public registry for production DXT packages
+  - URL: `https://registry.dxt.anthropic.com` (requires authentication)
+  - Managed by Anthropic
+  - Requires review and approval for public packages
+
+##### Self-hosted Registries
+
+- **Enterprise/Private Registries**: Some organizations run private DXT registries
+  - Configure via environment variable: `DXT_REGISTRY_URL`
+  - Authentication typically required via API keys or tokens
+
+##### Key Points
+
+- **Authentication**: Always required for publishing
+
+  ```bash
+  export DXT_API_TOKEN='your-token-here'
+  ```
+
+- **Scoped Packages**: Use `@scope/package-name` for organization-specific packages
+- **Rate Limits**: Public registry has rate limits for downloads/uploads
+- **Verification**: All packages are cryptographically signed
+
+#### 3. Build Script (Recommended)
+
+For consistent builds, use the provided PowerShell build script:
+
+```powershell
+# Show help and available options
+.\scripts\build-mcp-package.ps1 -Help
+
+# Build and sign the package (default behavior)
+.\scripts\build-mcp-package.ps1
+
+# Build without signing (for development/testing)
+.\scripts\build-mcp-package.ps1 -NoSign
+
+# Specify custom output directory
+.\scripts\build-mcp-package.ps1 -OutputDir "C:\builds"
+```
+
+**Version:** 3.0.0  
+**Date:** 2025-08-22  
+**Applies to:** ALL MCP server repositories  
+**AI Tools:** Windsurf, Cursor, Claude Code  
+
+## 🎯 CRITICAL RULES - READ FIRST
+
+### ❌ NEVER DO
+
+1. **NO `dxt init`** - Outdated and creates minimal configurations
+2. **NO manual configuration** - Use proper `dxt.json` with all required fields
+3. **NO custom build scripts** - Use standard DXT tooling only
+4. **NO hardcoded paths** - Use relative paths in configuration
+5. **NO direct server execution** - Always use DXT CLI tools
+
+### ✅ ALWAYS DO
+
+1. **Use `dxt.json`** - Central configuration file for all DXT settings
+2. **Follow semantic versioning** - For both package and MCP versions
+3. **Use stdio transport** - Required for reliable communication
+4. **Specify exact versions** - For all dependencies
+5. **Validate before building** - Always run `dxt validate` first
+6. **Verify after building** - Always run `dxt verify` after packaging
+7. **Sign production packages** - Use `dxt sign` for production releases
+8. **Use the build script** - For consistent builds across environments
+
+## 🖥️ DXT CLI COMMAND SYNTAX
+
+### Core Commands
+
+#### 1. Package Creation
+
+```bash
+# Basic package creation
+dxt pack . dist/
+
+# Sign the package (required for production)
+dxt sign --key your-key.pem dist/package.dxt
+
+# Verify package integrity
+dxt verify --key your-key.pem dist/package.dxt
+
+# Publish to a DXT registry (if configured)
+dxt publish --registry your-registry dist/package.dxt
+```
+
+#### 2. DXT Registries
+
+DXT registries are package repositories that store and distribute DXT packages. Here's what you need to know:
+
+##### Official Registries
+
+- **Anthropic's Public Registry**: The primary public registry for production DXT packages
+  - URL: `https://registry.dxt.anthropic.com` (requires authentication)
+  - Managed by Anthropic
+  - Requires review and approval for public packages
+
+##### Self-hosted Registries
+
+- **Enterprise/Private Registries**: Some organizations run private DXT registries
+  - Configure via environment variable: `DXT_REGISTRY_URL`
+  - Authentication typically required via API keys or tokens
+
+##### Key Points
+
+- **Authentication**: Always required for publishing
+
+  ```bash
+  export DXT_API_TOKEN='your-token-here'
+  ```
+
+- **Scoped Packages**: Use `@scope/package-name` for organization-specific packages
+- **Rate Limits**: Public registry has rate limits for downloads/uploads
+- **Verification**: All packages are cryptographically signed
+
+#### 3. Build Script (Recommended)
+
+For consistent builds, use the provided PowerShell build script:
+
+```powershell
+# Show help and available options
+.\scripts\build-mcp-package.ps1 -Help
+
+# Build and sign the package (default behavior)
+.\scripts\build-mcp-package.ps1
+
+# Build without signing (for development/testing)
+.\scripts\build-mcp-package.ps1 -NoSign
+
+# Specify custom output directory
+.\scripts\build-mcp-package.ps1 -OutputDir "C:\builds"
+```
+
+#### 3. Package Validation
+
+```bash
+# Validate manifest file
+dxt validate
+
+# Validate built package
+dxt validate package.dxt
+```
+
+#### 3. Package Signing
+
+```bash
+# Sign a package
+dxt sign package.dxt
+
+# Sign with specific key
+dxt sign --key my-key.pem package.dxt
+```
+
+### Common Options
+
+- `--verbose` or `-v`: Enable verbose output
+- `--help` or `-h`: Show help message
+- `--version` or `-V`: Show version information
+
+### Environment Variables
+
+- `DXT_DEBUG=1`: Enable debug mode
+- `DXT_LOG_LEVEL=debug`: Set log level (debug, info, warn, error)
+
+### Important Notes
+
+1. Always run from the project root directory
+2. The `dxt init` command is deprecated - do not use it
+3. For production builds, always validate before packaging
+4. Sign packages for distribution when sharing with others
+
+## 📋 DXT.JSON VS MANIFEST.JSON
+
+### Key Differences
+
+| File | Purpose | When Used | Example Use Case |
+|------|---------|-----------|------------------|
+| `dxt.json` | Development/build configuration | During development and build process | Configure build output directory, development server settings |
+| `manifest.json` | Runtime configuration | When the extension is running | Define server entry points, capabilities, and extension metadata |
+
+### dxt.json (Build Configuration)
+Used by the DXT CLI tools during development and build. Defines how to build and package your extension.
+
+### manifest.json (Runtime Configuration)
+Packaged with your extension and used by the DXT runtime. Defines how your extension should be loaded and executed.
+
+## 📋 DXT.JSON CONFIGURATION
 
 ### Required Fields
+
+```json
+{
+  "name": "your-mcp-server",
+  "version": "1.0.0",
+  "description": "Brief description of your MCP server",
+  "author": "Your Name",
+  "license": "MIT",
+  "outputDir": "dist",
+  "mcp": {
+    "version": "2.10.1",
+    "server": {
+      "command": "python",
+      "args": ["-m", "your.package.module"],
+      "transport": "stdio"
+    },
+    "capabilities": {
+      "tools": true,
+      "resources": true,
+      "prompts": true
+    }
+  },
+  "dependencies": {
+    "python": ">=3.9.0"
+  }
+}
+```
+
+## 🛠️ BUILDING THE PACKAGE
+
+### 1. Validate Configuration
+
+```bash
+dxt validate
+```
+
+### 2. Build the Package
+
+```bash
+dxt pack
+```
+
+This will create the package in the `dist` directory.
+
+### 3. Package Signing (Not Currently Used)
+
+```bash
+dxt sign package.dxt
+```
+
+Package signing is used to verify the authenticity and integrity of DXT packages. However, we currently do not use package signing in our workflow. If needed in the future, signing can be enabled by:
+
+1. Generating a signing key pair
+2. Configuring the build process to sign packages
+3. Distributing the public key to all clients
+
+For now, you can safely ignore any signing-related steps in the DXT documentation.
+
+## 📜 MANIFEST.JSON - CORE CONFIGURATION
+
+### Purpose
+`manifest.json` is the primary configuration file that defines your DXT extension's behavior, dependencies, and capabilities. It's crucial for the DXT runtime to understand how to load and execute your extension.
+
+### Required Fields
+
+```json
+{
+  "dxt_version": "0.1",
+  "name": "your-extension-name",
+  "version": "1.0.0",
+  "description": "Brief description of your extension",
+  "author": "Your Name <email@example.com>",
+  "license": "MIT",
+  "server": {
+    "type": "python",
+    "entry_point": "src/your_package/server.py"
+  },
+  "capabilities": {
+    "tools": true,
+    "resources": true,
+    "prompts": true
+  }
+}
+```
+
+### Key Sections Explained
+
+1. **Server Configuration**
+   - `type`: Must be "python" for Python-based extensions
+   - `entry_point`: Path to your main server file
+
+2. **Capabilities**
+   - `tools`: Enable/disable tool support
+   - `resources`: Enable/disable resource handling
+   - `prompts`: Enable/disable prompt templates
+
+### Best Practices
+- Keep `manifest.json` in the root of your project
+- Use semantic versioning for the `version` field
+- Include all required fields
+- Validate using `dxt validate` before building
+
+## 🏗️ PROJECT STRUCTURE
+
+```text
+your-mcp/
+   ├── dxt.json           # DXT configuration
+   ├── pyproject.toml     # Python project metadata
+   ├── src/               # Source code
+   │   └── your_package/  # Your Python package
+   ├── tests/             # Test files
+   └── dist/              # Output directory for packages
+```
+
+## ⚙️ SERVER CONFIGURATION
+
+### FastMCP Server Best Practices
+
+- Use FastMCP 2.10.1 or later
+- Implement proper signal handling
+- Use structured logging
+- Handle all exceptions gracefully
+
+### Dependency Management
+
+- List all dependencies in `pyproject.toml`
+- Pin exact versions for production
+- Use virtual environments
+
+## 📦 PACKAGE MANIFEST
+
+### Manifest Fields
 ```json
 {
   "dxt_version": "0.1",
@@ -173,6 +754,167 @@ Add a `prompts` section to your manifest.json:
 4. **Test Thoroughly**: Validate prompts with various inputs
 5. **Keep Secure**: Don't include sensitive information in prompts
 6. **Document Assumptions**: Note any assumptions about the environment or user knowledge
+
+## 🚀 GITHUB RELEASES & CI/CD
+
+### PyPI & TestPyPI Publishing
+
+#### Prerequisites
+1. **PyPI Account**
+   - Create at [pypi.org/account/register/](https://pypi.org/account/register/)
+   - Verify your email address
+
+2. **API Tokens**
+   - **PyPI Token**:
+     1. Go to [pypi.org/manage/account/token/](https://pypi.org/manage/account/token/)
+     2. Create token with "Entire account" scope
+     3. Add to GitHub secrets as `PYPI_API_TOKEN`
+   - **TestPyPI Token** (optional):
+     1. Create account at [test.pypi.org](https://test.pypi.org/)
+     2. Create token at [test.pypi.org/manage/account/token/](https://test.pypi.org/manage/account/token/)
+     3. Add to GitHub secrets as `TEST_PYPI_API_TOKEN`
+
+### Automated Release Process
+
+1. **Version Tagging**
+   - Update version in `pyproject.toml`
+   - Create and push tag:
+     ```bash
+     # Update version in pyproject.toml first
+     git add pyproject.toml
+     git commit -m "bump version to 1.0.0"
+     git tag -a v1.0.0 -m "Release v1.0.0"
+     git push origin v1.0.0
+     ```
+
+2. **CI/CD Pipeline**
+   - **On tag push**:
+     1. Build Python package (wheel and source)
+     2. Create DXT package (`.dxt` file)
+     3. Publish to TestPyPI (for testing)
+     4. Publish to PyPI (production)
+     5. Create GitHub release with all artifacts
+   - **On `main` branch push**:
+     1. Build packages
+     2. Publish to PyPI
+   - **On `develop` branch push**:
+     1. Build packages
+     2. Publish to TestPyPI
+
+3. **Verification**
+   - Check PyPI: [pypi.org/project/database-operations-mcp/](https://pypi.org/project/database-operations-mcp/)
+   - Check TestPyPI: [test.pypi.org/project/database-operations-mcp/](https://test.pypi.org/project/database-operations-mcp/)
+
+### Release Artifacts
+
+1. **GitHub Release**
+   - Source distribution (`.tar.gz`)
+   - Python wheel (`.whl`)
+   - DXT package (`.dxt`)
+   - Auto-generated release notes
+
+2. **PyPI**
+   - Source distribution
+   - Python wheel
+   - Package metadata and documentation
+
+3. **TestPyPI** (for testing)
+   - Same as PyPI, but in a testing environment
+
+### Manual Release (if needed)
+
+1. **Create Release on GitHub**
+   ```bash
+   # Build packages locally first
+   python -m build
+   dxt pack . dist/package.dxt
+   
+   # Create and push tag
+   git tag -a v1.0.0 -m "Release v1.0.0"
+   git push origin v1.0.0
+   ```
+
+2. **Manual PyPI Upload (if needed)**
+   ```bash
+   # Install twine
+   pip install twine
+   
+   # Upload to TestPyPI
+   twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+   
+   # Upload to PyPI (after testing)
+   twine upload dist/*
+   ```
+
+### CI/CD Pipeline Details
+
+```yaml
+# .github/workflows/ci-cd.yml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ['v*']  # Trigger on version tags
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ... (test and lint jobs remain the same) ...
+  
+  build:
+    name: Build and Publish
+    needs: [test, lint]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build dxt
+    
+    - name: Build Python package
+      run: python -m build
+    
+    - name: Build DXT package
+      run: |
+        mkdir -p dist
+        dxt pack . dist/package.dxt
+    
+    - name: Publish to PyPI
+      if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+    
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/*.whl
+          dist/*.tar.gz
+          dist/*.dxt
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### Required Secrets
+1. `PYPI_API_TOKEN`: Token for PyPI uploads
+   - Create at PyPI account settings → API tokens
+   - Add to GitHub repository secrets
+
+2. `GITHUB_TOKEN` (automatically provided by GitHub Actions)
 
 ## 🔧 FASTMCP VERSION REQUIREMENT
 
@@ -464,10 +1206,10 @@ your-mcp-server/
 
 # 2. Validate manifest
 cd dxt
-dxt validate manifest.json
+dxt validate
 
 # 3. Build DXT package
-dxt pack . ../dist/your-mcp-server-1.0.0.dxt
+dxt pack . ../dist/package.dxt
 
 # 4. Test installation
 # Drag dist/*.dxt to Claude Desktop
@@ -779,13 +1521,13 @@ jobs:
     - name: Build DXT extension
       run: |
         cd dxt
-        dxt pack . ../dist/${{ github.event.repository.name }}-${{ github.event.inputs.version || github.ref_name }}.dxt
+        dxt pack . ../dist/package.dxt
         
     - name: Sign DXT extension (optional)
       if: ${{ secrets.DXT_SIGNING_KEY }}
       run: |
         echo "${{ secrets.DXT_SIGNING_KEY }}" > signing.key
-        dxt sign dist/*.dxt --key signing.key
+        dxt sign --key signing.key dist/*.dxt
         rm signing.key
         
     - name: Upload DXT artifact
@@ -855,7 +1597,7 @@ python -c "import fastmcp; assert fastmcp.__version__ >= '2.10.1', 'Update FastM
 ```bash
 # Build test package
 cd dxt
-dxt pack . ../test-package.dxt
+dxt pack . ../package.dxt
 
 # Install test package in Claude Desktop
 # Verify configuration prompts work
@@ -959,7 +1701,7 @@ dxt pack . ../test-package.dxt
 - [ ] Validate Python import: `cd src && python -c "import your_mcp.server"`
 - [ ] Validate FastMCP version: `python -c "import fastmcp; print(fastmcp.__version__)"`
 - [ ] Validate manifest: `dxt validate dxt/manifest.json`
-- [ ] Build package: `dxt pack . ../dist/package.dxt`
+- [ ] Build package: `dxt pack . dist/`
 - [ ] Test installation on clean Claude Desktop
 - [ ] Verify user configuration prompts work correctly
 

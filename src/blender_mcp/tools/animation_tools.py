@@ -6,8 +6,7 @@ This module provides tools for animation and rigging operations in Blender.
 from typing import Dict, Any, List, Optional, Union
 from enum import Enum
 from pydantic import BaseModel, Field, validator
-from fastmcp.types import JSONType
-
+from ..compat import JSONType
 from blender_mcp.handlers.animation_handler import (
     insert_keyframe,
     bake_animation,
