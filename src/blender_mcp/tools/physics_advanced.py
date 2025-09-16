@@ -7,17 +7,18 @@ from typing import Dict, Any, List, Optional, Union, Tuple
 from enum import Enum
 from pydantic import BaseModel, Field, validator, conlist, conint, confloat
 from ..compat import JSONType
-from blender_mcp.handlers.physics_advanced_handler import (
-    setup_cloth_simulation,
-    setup_fluid_simulation,
-    setup_particle_system,
-    bake_physics_simulation,
-    setup_rigid_body_constraint,
-    setup_dynamic_paint
-)
+# Temporarily commented out until handler functions are implemented
+# from blender_mcp.handlers.physics_advanced_handler import (
+#     setup_cloth_simulation,
+#     setup_fluid_simulation,
+#     setup_particle_system,
+#     bake_physics_simulation,
+#     setup_rigid_body_constraint,
+#     setup_dynamic_paint
+# )
 from blender_mcp.tools import register_tool, validate_with
 from blender_mcp.utils.error_handling import handle_errors
-from blender_mcp.utils.validation import BaseValidator, ObjectValidator
+# from blender_mcp.utils.validation import BaseValidator, ObjectValidator
 
 # Enums for physics types
 class ClothQualityPreset(str, Enum):

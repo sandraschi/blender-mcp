@@ -20,7 +20,7 @@ def get_app():
         from blender_mcp.tools import discover_tools
         
         # Discover and register all tools
-        discover_tools(app)
+        discover_tools()
     
     return app
 

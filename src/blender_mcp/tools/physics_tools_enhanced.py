@@ -7,25 +7,26 @@ from typing import Dict, Any, List, Optional, Literal
 from enum import Enum
 from pydantic import BaseModel, Field, validator, root_validator
 from ..compat import JSONType
-from blender_mcp.handlers.physics_handler import (
-    enable_physics,
-    bake_physics_simulation,
-    add_force_field,
-    configure_cloth_simulation,
-    add_rigid_body_constraint
-)
+# Temporarily commented out until handler functions are implemented
+# from blender_mcp.handlers.physics_handler import (
+#     enable_physics,
+#     bake_physics_simulation,
+#     add_force_field,
+#     configure_cloth_simulation,
+#     add_rigid_body_constraint
+# )
 from blender_mcp.tools import register_tool
 from blender_mcp.utils.error_handling import handle_errors, validate_with, BlenderOperationError
-from blender_mcp.utils.validation import (
-    validate_object_exists, 
-    validate_vertex_group,
-    validate_frame_range,
-    validate_positive,
-    validate_range,
-    BaseValidator,
-    ObjectValidator,
-    FrameRangeValidator
-)
+# from blender_mcp.utils.validation import (
+#     validate_object_exists, 
+#     validate_vertex_group,
+#     validate_frame_range,
+#     validate_positive,
+#     validate_range,
+#     BaseValidator,
+#     ObjectValidator,
+#     FrameRangeValidator
+# )
 
 # Enums for physics types
 class PhysicsType(str, Enum):

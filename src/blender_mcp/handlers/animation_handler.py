@@ -31,7 +31,9 @@ async def insert_keyframe(
     object_name: str,
     frame: int = 1,
     keyframe_type: Union[KeyframeType, str] = KeyframeType.LOC_ROT_SCALE,
-    **kwargs: Any
+    data_path: Optional[str] = None,
+    index: int = -1,
+    options: Optional[set] = None
 ) -> Dict[str, Any]:
     """Insert a keyframe for the specified object.
     
@@ -39,18 +41,13 @@ async def insert_keyframe(
         object_name: Name of the object to keyframe
         frame: Frame number to insert keyframe
         keyframe_type: Type of keyframe to insert (location, rotation, scale, or combination)
-        **kwargs: Additional parameters
-            - data_path: Custom data path for the keyframe
-            - index: Index for the keyframe data path
-            - options: Set of keyframe options (e.g., {'INSERTKEY_NEEDED'})
+        data_path: Custom data path for the keyframe
+        index: Index for the keyframe data path
+        options: Set of keyframe options (e.g., {'INSERTKEY_NEEDED'})
             
     Returns:
         Dict containing operation status and keyframe details
     """
-    data_path = kwargs.get('data_path', '')
-    index = kwargs.get('index', -1)  # -1 means all indices
-    options = kwargs.get('options', set())
-    
     script = f"""
 
 def insert_keyframe():
@@ -104,20 +101,19 @@ print(str(result))
 async def set_animation_range(
     start_frame: int = 1,
     end_frame: int = 250,
-    **kwargs: Any
+    frame_current: Optional[int] = None
 ) -> Dict[str, Any]:
     """Set the animation frame range for the scene.
     
     Args:
         start_frame: First frame of the animation
         end_frame: Last frame of the animation
-        **kwargs: Additional parameters
-            - frame_current: Current frame to set (optional)
+        frame_current: Current frame to set (optional, defaults to start_frame)
             
     Returns:
         Dict containing operation status and frame range
     """
-    current_frame = kwargs.get('frame_current', start_frame)
+    current_frame = frame_current if frame_current is not None else start_frame
     
     script = f"""
 
@@ -146,7 +142,9 @@ async def bake_animation(
     frame_start: int = 1,
     frame_end: int = 250,
     step: int = 1,
-    **kwargs: Any
+    only_selected: bool = False,
+    visual_keying: bool = True,
+    clear_constraints: bool = False
 ) -> Dict[str, Any]:
     """Bake animation for the specified object.
     
@@ -155,18 +153,13 @@ async def bake_animation(
         frame_start: First frame to bake
         frame_end: Last frame to bake
         step: Frame step for baking
-        **kwargs: Additional parameters
-            - only_selected: Only bake selected objects (bool, default: False)
-            - visual_keying: Use visual keying (bool, default: True)
-            - clear_constraints: Clear constraints after baking (bool, default: False)
+        only_selected: Only bake selected objects (default: False)
+        visual_keying: Use visual keying (default: True)
+        clear_constraints: Clear constraints after baking (default: False)
             
     Returns:
         Dict containing operation status and bake details
     """
-    only_selected = kwargs.get('only_selected', False)
-    visual_keying = kwargs.get('visual_keying', True)
-    clear_constraints = kwargs.get('clear_constraints', False)
-    
     script = f"""
 
 def bake_animation():
@@ -221,20 +214,18 @@ print(str(result))
 async def create_armature(
     name: str = "Armature",
     location: tuple = (0, 0, 0),
-    **kwargs: Any
+    enter_edit_mode: bool = True
 ) -> Dict[str, Any]:
     """Create a new armature object.
     
     Args:
         name: Name for the armature object
         location: Position of the armature (x, y, z)
-        **kwargs: Additional parameters
-            - enter_edit_mode: Whether to enter edit mode after creation (default: True)
+        enter_edit_mode: Whether to enter edit mode after creation (default: True)
             
     Returns:
         Dict containing operation status and armature details
     """
-    enter_edit_mode = kwargs.get('enter_edit_mode', True)
     
     script = f"""
 import bpy
@@ -291,7 +282,8 @@ async def add_bone(
     bone_name: str,
     head: tuple = (0, 0, 0),
     tail: tuple = (0, 1, 0),
-    **kwargs: Any
+    parent: Optional[str] = None,
+    connected: bool = False
 ) -> Dict[str, Any]:
     """Add a bone to an armature.
     
@@ -300,16 +292,12 @@ async def add_bone(
         bone_name: Name for the new bone
         head: Head position of the bone (x, y, z)
         tail: Tail position of the bone (x, y, z)
-        **kwargs: Additional parameters
-            - parent: Name of the parent bone (optional)
-            - connected: Whether to connect to parent bone (default: False)
+        parent: Name of the parent bone (optional)
+        connected: Whether to connect to parent bone (default: False)
             
     Returns:
         Dict containing operation status and bone details
     """
-    parent = kwargs.get('parent', '')
-    connected = kwargs.get('connected', False)
-    
     script = f"""
 import bpy
 
@@ -372,18 +360,20 @@ print(str(result))
 async def create_constraint(
     object_name: str,
     constraint_type: str,
-    **kwargs: Any
+    target: Optional[str] = None,
+    subtarget: Optional[str] = None,
+    influence: float = 1.0,
+    space: str = 'WORLD_SPACE'
 ) -> Dict[str, Any]:
     """Create a constraint on an object.
     
     Args:
         object_name: Name of the object to add the constraint to
         constraint_type: Type of constraint to add (e.g., 'COPY_LOCATION', 'CHILD_OF')
-        **kwargs: Additional parameters for the constraint
-            - target: Name of the target object (for constraints that need a target)
-            - subtarget: Name of the subtarget (e.g., bone name for armature constraints)
-            - influence: Influence of the constraint (0.0 to 1.0)
-            - space: Space for the constraint ('WORLD_SPACE' or 'LOCAL_SPACE')
+        target: Name of the target object (for constraints that need a target)
+        subtarget: Name of the subtarget (e.g., bone name for armature constraints)
+        influence: Influence of the constraint (0.0 to 1.0)
+        space: Space for the constraint ('WORLD_SPACE' or 'LOCAL_SPACE')
             - owner_space: Owner space for the constraint
             - other constraint-specific parameters
             
@@ -391,14 +381,18 @@ async def create_constraint(
         Dict containing operation status and constraint details
     """
     # Common constraint parameters
-    target = kwargs.get('target', '')
-    subtarget = kwargs.get('subtarget', '')
-    influence = kwargs.get('influence', 1.0)
-    space = kwargs.get('space', 'WORLD_SPACE')
-    owner_space = kwargs.get('owner_space', 'WORLD')
+    owner_space = 'WORLD'  # Default value
     
-    # Filter out None values from kwargs
-    constraint_params = {k: v for k, v in kwargs.items() if v is not None}
+    # Filter out None values from parameters
+    constraint_params = {}
+    if target is not None:
+        constraint_params['target'] = target
+    if subtarget is not None:
+        constraint_params['subtarget'] = subtarget
+    if influence != 1.0:
+        constraint_params['influence'] = influence
+    if space != 'WORLD_SPACE':
+        constraint_params['space'] = space
     
     script = """
 import bpy
@@ -480,23 +474,20 @@ print(json.dumps(result))
 async def create_action(
     object_name: str,
     action_name: str,
-    **kwargs: Any
+    replace_existing: bool = False,
+    fake_user: bool = True
 ) -> Dict[str, Any]:
     """Create or assign an action to an object.
     
     Args:
         object_name: Name of the object to assign the action to
         action_name: Name for the new action
-        **kwargs: Additional parameters
-            - replace_existing: Whether to replace existing action with same name (default: False)
-            - fake_user: Whether to set fake user on the action to prevent deletion (default: True)
+        replace_existing: Whether to replace existing action with same name (default: False)
+        fake_user: Whether to set fake user on the action to prevent deletion (default: True)
             
     Returns:
         Dict containing operation status and action details
     """
-    replace_existing = kwargs.get('replace_existing', False)
-    fake_user = kwargs.get('fake_user', True)
-    
     script = f"""
 import bpy
 import json
@@ -571,7 +562,8 @@ async def apply_animation(
     location: Optional[Tuple[float, float, float]] = None,
     rotation: Optional[Tuple[float, float, float]] = None,
     scale: Optional[Tuple[float, float, float]] = None,
-    **kwargs: Any
+    keyframe_type: str = 'KEYFRAME',
+    interpolation: str = 'LINEAR'
 ) -> Dict[str, Any]:
     """Apply animation to an object at a specific frame.
     
@@ -581,16 +573,12 @@ async def apply_animation(
         location: New location (x, y, z) - optional
         rotation: New rotation in radians (x, y, z) - optional
         scale: New scale (x, y, z) - optional
-        **kwargs: Additional parameters
-            - keyframe_type: Type of keyframe ('KEYFRAME', 'BREAKDOWN', etc.)
-            - interpolation: Interpolation type ('CONSTANT', 'LINEAR', 'BEZIER', etc.)
+        keyframe_type: Type of keyframe ('KEYFRAME', 'BREAKDOWN', etc.)
+        interpolation: Interpolation type ('CONSTANT', 'LINEAR', 'BEZIER', etc.)
             
     Returns:
         Dict containing operation status and animation details
     """
-    keyframe_type = kwargs.get('keyframe_type', 'KEYFRAME')
-    interpolation = kwargs.get('interpolation', 'LINEAR')
-    
     script = """
 import bpy
 import json

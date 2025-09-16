@@ -81,8 +81,7 @@ async def create_shader_node(
     material_name: str,
     node_type: Union[ShaderType, str],
     node_name: Optional[str] = None,
-    location: Union[NodeLocation, Tuple[float, float]] = (0.0, 0.0),
-    **properties: Any
+    location: Union[NodeLocation, Tuple[float, float]] = (0.0, 0.0)
 ) -> ShaderOperationResult:
     """Create a shader node in a material.
     
@@ -91,7 +90,6 @@ async def create_shader_node(
         node_type: Type of shader node to create (from ShaderType enum or string)
         node_name: Optional name for the new node
         location: X, Y coordinates for node placement in the shader editor
-        **properties: Additional properties to set on the node
         
     Returns:
         ShaderOperationResult with status and node information
@@ -229,8 +227,7 @@ async def connect_shader_nodes(
     from_node: str,
     from_socket: str,
     to_node: str,
-    to_socket: str,
-    **kwargs: Any
+    to_socket: str
 ) -> ShaderOperationResult:
     """Connect two shader nodes in a material.
     
@@ -240,7 +237,6 @@ async def connect_shader_nodes(
         from_socket: Name of the output socket on the source node
         to_node: Name of the target node
         to_socket: Name of the input socket on the target node
-        **kwargs: Additional connection properties (currently unused)
         
     Returns:
         ShaderOperationResult with status and connection details
@@ -414,8 +410,7 @@ async def create_shader_material(
     name: str,
     shader_type: Union[ShaderType, str] = ShaderType.PRINCIPLED_BSDF,
     clear_nodes: bool = True,
-    is_grease_pencil: bool = False,
-    **shader_properties: Any
+    is_grease_pencil: bool = False
 ) -> ShaderOperationResult:
     """Create a new material with a shader node setup.
     
@@ -424,7 +419,6 @@ async def create_shader_material(
         shader_type: Type of shader node to create (from ShaderType enum or string)
         clear_nodes: Whether to clear existing nodes in the material
         is_grease_pencil: Whether this is a Grease Pencil material
-        **shader_properties: Additional properties to set on the shader node
         
     Returns:
         ShaderOperationResult with status and material information

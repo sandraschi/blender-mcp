@@ -7,11 +7,12 @@ This module exposes rendering functionality through MCP tools.
 """
 from typing import Dict, Any, List, Optional, Union
 from blender_mcp.compat import Tool, FunctionTool
-from blender_mcp.handlers.rendering_handler import (
-    set_render_engine,
-    configure_render_layers,
-    setup_post_processing
-)
+# Temporarily commented out until handler functions are implemented
+# from blender_mcp.handlers.rendering_handler import (
+#     set_render_engine,
+#     configure_render_layers,
+#     setup_post_processing
+# )
 from blender_mcp.app import app
 
 # Common parameter schemas
@@ -94,8 +95,9 @@ class PostProcessingParams:
         self.mist_falloff = mist_falloff
 
 # Register rendering tools using the @app.tool decorator
+# All tool registrations temporarily commented out until handler functions are implemented
 
-@app.tool
+# @app.tool
 def set_render_engine_tool(
     engine: str = "CYCLES",
     device: str = "GPU" if True else "CPU",
@@ -115,7 +117,7 @@ def set_render_engine_tool(
     """
     return set_render_engine(engine, device, use_denoising, use_adaptive_sampling)
 
-@app.tool
+# @app.tool
 def configure_render_layers_tool(
     layers: List[Dict[str, Any]],
     use_freestyle: bool = False,
@@ -165,7 +167,7 @@ def configure_render_layers_tool(
         use_pass_volume_direct, use_pass_volume_indirect
     )
 
-@app.tool
+# @app.tool
 def setup_post_processing_tool(
     use_compositing: bool = True,
     use_sequencer: bool = False,

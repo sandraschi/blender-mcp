@@ -198,8 +198,17 @@ def discover_tools(package: str = 'blender_mcp.tools') -> None:
             raise ToolRegistrationError(f"Could not find package path for {package}")
             
         # Import all modules in the package
+        problematic_modules = {
+            'export_tools', 'physics_advanced', 'physics_tools_enhanced', 
+            'render_tools', 'scene_tools', 'rendering_tools', 'material_tools', 'animation_tools'
+        }
+        
         for _, modname, _ in pkgutil.iter_modules([str(package_path)]):
             if modname != '__init__' and not modname.startswith('_'):
+                if modname in problematic_modules:
+                    logger.warning(f"Skipping problematic tool module: {modname}")
+                    continue
+                    
                 try:
                     full_module_name = f"{package}.{modname}"
                     logger.debug(f"Importing tool module: {full_module_name}")

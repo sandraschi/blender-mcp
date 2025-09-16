@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import json
 import logging
 
-from blender_mcp.fastmcp import blender_operation
+from ..decorators import blender_operation
 from blender_mcp.utils.blender_executor import BlenderExecutor
 
 # Initialize logger

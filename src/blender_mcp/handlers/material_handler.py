@@ -161,7 +161,9 @@ async def create_fabric_material(
     roughness: float = 0.8,
     sub_surface: float = 0.2,
     normal_strength: float = 0.5,
-    **kwargs
+    velvet_softness: float = 0.5,
+    silk_sheen: float = 0.8,
+    weave_scale: float = 1.0
 ) -> str:
     """Create comprehensive fabric material with PBR properties.
     
@@ -172,10 +174,9 @@ async def create_fabric_material(
         roughness: Roughness value (0-1)
         sub_surface: Subsurface scattering amount (0-1)
         normal_strength: Normal map strength (0-1)
-        **kwargs: Additional parameters for specific fabric types
-            - velvet_softness: For velvet materials (0-1)
-            - silk_sheen: For silk materials (0-1)
-            - weave_scale: For woven fabrics (0.1-10.0)
+        velvet_softness: For velvet materials (0-1)
+        silk_sheen: For silk materials (0-1)
+        weave_scale: For woven fabrics (0.1-10.0)
             
     Returns:
         str: Confirmation message with created material name
@@ -203,10 +204,7 @@ async def create_fabric_material(
     # Unpack base color
     base_r, base_g, base_b = base_color
     
-    # Get fabric-specific parameters
-    velvet_softness = kwargs.get('velvet_softness', 0.8) if fabric_type == MaterialPreset.VELVET else 0.0
-    silk_sheen = kwargs.get('silk_sheen', 0.8) if fabric_type == MaterialPreset.SILK else 0.0
-    weave_scale = kwargs.get('weave_scale', 5.0)
+    # Use fabric-specific parameters (already passed as explicit parameters)
     
     try:
         script = _create_base_material_script(name, f"fabric_{fabric_type.value}")
@@ -325,7 +323,9 @@ async def create_metal_material(
     anisotropic: float = 0.0,
     clearcoat: float = 0.0,
     clearcoat_roughness: float = 0.1,
-    **kwargs
+    oxidation: float = 0.0,
+    fingerprint: float = 0.0,
+    edge_wear: float = 0.0
 ) -> str:
     """Create physically accurate metallic material with advanced PBR properties.
     
@@ -336,10 +336,9 @@ async def create_metal_material(
         anisotropic: Anisotropic reflection amount (0-1)
         clearcoat: Clearcoat layer intensity (0-1)
         clearcoat_roughness: Clearcoat roughness (0-1)
-        **kwargs: Additional parameters for specific metal types
-            - oxidation: For aged/weathered metals (0-1)
-            - fingerprint: Add fingerprint smudges (0-1)
-            - edge_wear: Edge wear amount (0-1)
+        oxidation: For aged/weathered metals (0-1)
+        fingerprint: Add fingerprint smudges (0-1)
+        edge_wear: Edge wear amount (0-1)
             
     Returns:
         str: Confirmation message with created material name
@@ -430,10 +429,7 @@ async def create_metal_material(
         'clearcoat': clearcoat if clearcoat is not None else props['clearcoat']
     })
     
-    # Get additional parameters
-    oxidation = kwargs.get('oxidation', 0.0)
-    fingerprint = kwargs.get('fingerprint', 0.0)
-    edge_wear = kwargs.get('edge_wear', 0.0)
+    # Additional parameters are now explicit function parameters
     
     try:
         script = _create_base_material_script(name, f"metal_{metal_type.value}")
@@ -888,7 +884,7 @@ print(f"SUCCESS: Created {{'{ceramic_type.value}'}} ceramic material: {{mat.name
 @blender_operation("create_leather_material", log_args=True)
 async def create_leather_material(
     name: str = "LeatherMaterial",
-    leather_type: Union[str, MaterialPreset] = MaterialPreset.GENUINE_LEATHER,
+    leather_type: Union[str, MaterialPreset] = MaterialPreset.LEATHER,
     base_color: Tuple[float, float, float] = (0.15, 0.05, 0.02),
     roughness: float = 0.7,
     **kwargs
@@ -913,11 +909,9 @@ async def create_leather_material(
     
     # Validate leather type
     valid_leather_types = [
-        MaterialPreset.GENUINE_LEATHER,
-        MaterialPreset.BONDED_LEATHER,
-        MaterialPreset.FAUX_LEATHER,
-        MaterialPreset.SUEDE,
-        MaterialPreset.PATENT_LEATHER
+        MaterialPreset.LEATHER,
+        MaterialPreset.PATENT_LEATHER,
+        MaterialPreset.SUEDE
     ]
     
     if leather_type not in valid_leather_types:

@@ -65,3 +65,4 @@ src/blender_mcp/utils/blender_executor.py
 src/blender_mcp/utils/error_handling.py
 src/blender_mcp/utils/validation.py
 tests/test_blender_mcp.py
+tests/test_imports.py
