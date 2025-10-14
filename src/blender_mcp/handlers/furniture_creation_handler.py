@@ -9,6 +9,33 @@ from typing import Optional, Tuple, Dict, Any, Union, List
 from enum import Enum, auto
 import logging
 from datetime import datetime
+import math
+from math import radians
+
+# Try to import Blender modules, with fallback for non-Blender environments
+try:
+    import bpy
+    import bmesh
+    from mathutils import Vector, Matrix
+    HAS_BPY = True
+except ImportError:
+    # Create mock objects for when not running inside Blender
+    class MockBpy:
+        pass
+    
+    class MockVector:
+        def __init__(self, *args):
+            pass
+    
+    class MockMatrix:
+        def __init__(self, *args):
+            pass
+    
+    bpy = MockBpy()
+    bmesh = MockBpy()
+    Vector = MockVector
+    Matrix = MockMatrix
+    HAS_BPY = False
 
 from fastmcp import FastMCP
 from blender_mcp.decorators import blender_operation
@@ -128,6 +155,7 @@ class Material(Enum):
     COPPER = "copper"
     IRON = "iron"
     STEEL = "steel"
+    PAINT = "paint"
 
 class Style(Enum):
     """Available styles for objects."""
@@ -259,7 +287,7 @@ def get_timestamp() -> str:
     return datetime.now().isoformat()
 
 # Bed Creation
-@app.tool
+
 @blender_operation("create_bed", log_args=True)
 async def create_bed(
     name: str = "Bed",
@@ -310,16 +338,128 @@ async def create_bed(
     Returns:
         Dictionary with information about the created bed
     """
-    logger.warning("MOCK IMPLEMENTATION: create_bed is not actually creating geometry in Blender")
+    # Clear existing object if it exists
+    if name in bpy.data.objects:
+        bpy.data.objects.remove(bpy.data.objects[name], do_unlink=True)
     
+    # Create a new mesh and link it to the scene
+    mesh = bpy.data.meshes.new(name)
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    
+    # Create bmesh for bed construction
+    bm = bmesh.new()
+    
+    # Define bed dimensions based on type
+    bed_length = 2.0  # Default length
+    bed_width = 1.5   # Default width
+    bed_height = 0.3  # Default height
+    leg_height = 0.1  # Default leg height
+    mattress_thickness = 0.2  # Default mattress thickness
+    headboard_height = 0.8 if has_headboard else 0
+    footboard_height = 0.4 if has_footboard else 0
+    storage_height = 0.2 if has_storage else 0
+    
+    # Adjust dimensions based on bed type
+    bed_type_str = bed_type.value if isinstance(bed_type, BedType) else bed_type
+    if bed_type_str == "single":
+        bed_length, bed_width = 1.9, 1.0
+    elif bed_type_str == "double":
+        bed_length, bed_width = 1.9, 1.4
+    elif bed_type_str == "queen":
+        bed_length, bed_width = 2.0, 1.5
+    elif bed_type_str == "king":
+        bed_length, bed_width = 2.0, 1.9
+    elif bed_type_str == "california_king":
+        bed_length, bed_width = 2.1, 1.8
+    
+    # Create the bed frame
+    bpy.ops.mesh.primitive_cube_add(size=1)
+    frame_obj = bpy.context.active_object
+    frame_obj.name = f"{name}_Frame"
+    frame_obj.scale = (bed_length, bed_width, bed_height)
+    frame_obj.location = (0, 0, leg_height + bed_height/2)
+    
+    # Create the mattress
+    bpy.ops.mesh.primitive_cube_add(size=1)
+    mattress_obj = bpy.context.active_object
+    mattress_obj.name = f"{name}_Mattress"
+    mattress_obj.scale = (bed_length * 0.9, bed_width * 0.9, mattress_thickness)
+    mattress_obj.location = (0, 0, leg_height + bed_height + mattress_thickness/2)
+    
+    # Create legs
+    for i, (x, y) in enumerate([(-bed_length/2, -bed_width/2), (bed_length/2, -bed_width/2), 
+                                (-bed_length/2, bed_width/2), (bed_length/2, bed_width/2)]):
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        leg_obj = bpy.context.active_object
+        leg_obj.name = f"{name}_Leg_{i+1}"
+        leg_obj.scale = (0.05, 0.05, leg_height)
+        leg_obj.location = (x, y, leg_height/2)
+    
+    # Create headboard if requested
+    if has_headboard:
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        headboard_obj = bpy.context.active_object
+        headboard_obj.name = f"{name}_Headboard"
+        headboard_obj.scale = (bed_length, 0.1, headboard_height)
+        headboard_obj.location = (0, bed_width/2 + 0.05, leg_height + bed_height + headboard_height/2)
+    
+    # Create footboard if requested
+    if has_footboard:
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        footboard_obj = bpy.context.active_object
+        footboard_obj.name = f"{name}_Footboard"
+        footboard_obj.scale = (bed_length, 0.1, footboard_height)
+        footboard_obj.location = (0, -bed_width/2 - 0.05, leg_height + bed_height + footboard_height/2)
+    
+    # Create storage if requested
+    if has_storage:
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        storage_obj = bpy.context.active_object
+        storage_obj.name = f"{name}_Storage"
+        storage_obj.scale = (bed_length * 0.8, bed_width * 0.8, storage_height)
+        storage_obj.location = (0, 0, leg_height + storage_height/2)
+    
+    # Set object location, rotation, and scale
+    obj.location = location
+    obj.rotation_euler = (radians(rotation[0]), radians(rotation[1]), radians(rotation[2]))
+    obj.scale = scale
+    
+    # Create materials
+    material_str = material.value if isinstance(material, Material) else material
+    frame_material = bpy.data.materials.new(name=f"{name}_Frame_Material")
+    frame_material.use_nodes = True
+    bsdf = frame_material.node_tree.nodes["Principled BSDF"]
+    bsdf.inputs[0].default_value = color
+    
+    # Set material properties based on type
+    if material_str == "wood":
+        bsdf.inputs["Roughness"].default_value = 0.7
+        bsdf.inputs["Specular"].default_value = 0.3
+    elif material_str == "metal":
+        bsdf.inputs["Metallic"].default_value = 1.0
+        bsdf.inputs["Roughness"].default_value = 0.2
+    elif material_str == "fabric":
+        bsdf.inputs["Roughness"].default_value = 0.9
+        bsdf.inputs["Specular"].default_value = 0.2
+    
+    mattress_material = bpy.data.materials.new(name=f"{name}_Mattress_Material")
+    mattress_material.use_nodes = True
+    mattress_material.node_tree.nodes["Principled BSDF"].inputs[0].default_value = (0.95, 0.95, 0.95, 1.0)
+    
+    # Assign materials
+    frame_obj.data.materials.append(frame_material)
+    mattress_obj.data.materials.append(mattress_material)
+    
+    # Prepare return data
     bed_data = {
         "name": name,
-        "type": f"bed_{bed_type.value if isinstance(bed_type, BedType) else bed_type}",
+        "type": f"bed_{bed_type_str}",
         "location": location,
         "rotation": rotation,
         "scale": scale,
         "style": style.value if isinstance(style, Style) else style,
-        "material": material.value if isinstance(material, Material) else material,
+        "material": material_str,
         "color": color,
         "has_headboard": has_headboard,
         "has_footboard": has_footboard,
@@ -333,15 +473,24 @@ async def create_bed(
         "is_hammock": is_hammock,
         "is_round": is_round,
         "is_futon": is_futon,
+        "dimensions": {
+            "length": bed_length,
+            "width": bed_width,
+            "height": bed_height + leg_height + (headboard_height if has_headboard else 0),
+            "mattress_thickness": mattress_thickness,
+            "headboard_height": headboard_height,
+            "footboard_height": footboard_height,
+            "storage_height": storage_height if has_storage else 0
+        },
         "created_at": get_timestamp(),
-        "is_mock": True
+        "is_mock": False
     }
     
-    logger.info(f"Created MOCK bed: {name}")
+    logger.info(f"Created bed: {name}")
     return bed_data
 
 # Building Creation
-@app.tool
+
 @blender_operation("create_building", log_args=True)
 async def create_building(
     name: str = "Building",
@@ -396,8 +545,89 @@ async def create_building(
     Returns:
         Dictionary with information about the created building
     """
-    logger.warning("MOCK IMPLEMENTATION: create_building is not actually creating geometry in Blender")
+    # Clear existing object if it exists
+    if name in bpy.data.objects:
+        bpy.data.objects.remove(bpy.data.objects[name], do_unlink=True)
     
+    # Create a new mesh and link it to the scene
+    mesh = bpy.data.meshes.new(name)
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    
+    # Create bmesh for building construction
+    bm = bmesh.new()
+    
+    # Define building dimensions
+    floor_height = height / floors if floors > 0 else height
+    wall_thickness = 0.2
+    
+    # Create main building structure
+    bpy.ops.mesh.primitive_cube_add(size=1)
+    building_obj = bpy.context.active_object
+    building_obj.name = f"{name}_Main"
+    building_obj.scale = (width, depth, height)
+    building_obj.location = (0, 0, height/2)
+    
+    # Create floors
+    for floor in range(floors):
+        floor_y = floor * floor_height
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        floor_obj = bpy.context.active_object
+        floor_obj.name = f"{name}_Floor_{floor+1}"
+        floor_obj.scale = (width * 0.9, depth * 0.9, 0.1)
+        floor_obj.location = (0, 0, floor_y + 0.05)
+    
+    # Create roof if requested
+    if has_roof:
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        roof_obj = bpy.context.active_object
+        roof_obj.name = f"{name}_Roof"
+        roof_obj.scale = (width * 1.1, depth * 1.1, 0.2)
+        roof_obj.location = (0, 0, height + 0.1)
+    
+    # Create garage if requested
+    if has_garage:
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        garage_obj = bpy.context.active_object
+        garage_obj.name = f"{name}_Garage"
+        garage_obj.scale = (width * 0.3, depth * 0.4, height * 0.6)
+        garage_obj.location = (width * 0.6, depth * 0.6, height * 0.3)
+    
+    # Create chimney if requested
+    if has_chimney:
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        chimney_obj = bpy.context.active_object
+        chimney_obj.name = f"{name}_Chimney"
+        chimney_obj.scale = (0.3, 0.3, height * 0.3)
+        chimney_obj.location = (width * 0.3, depth * 0.3, height + height * 0.15)
+    
+    # Set object location, rotation, and scale
+    obj.location = location
+    obj.rotation_euler = (radians(rotation[0]), radians(rotation[1]), radians(rotation[2]))
+    obj.scale = scale
+    
+    # Create materials
+    material_str = material.value if isinstance(material, Material) else material
+    building_material = bpy.data.materials.new(name=f"{name}_Material")
+    building_material.use_nodes = True
+    bsdf = building_material.node_tree.nodes["Principled BSDF"]
+    bsdf.inputs[0].default_value = color
+    
+    # Set material properties based on type
+    if material_str == "concrete":
+        bsdf.inputs["Roughness"].default_value = 0.8
+        bsdf.inputs["Specular"].default_value = 0.1
+    elif material_str == "brick":
+        bsdf.inputs["Roughness"].default_value = 0.7
+        bsdf.inputs["Specular"].default_value = 0.2
+    elif material_str == "wood":
+        bsdf.inputs["Roughness"].default_value = 0.6
+        bsdf.inputs["Specular"].default_value = 0.3
+    
+    # Assign materials
+    building_obj.data.materials.append(building_material)
+    
+    # Prepare return data
     building_data = {
         "name": name,
         "type": f"building_{building_type.value if isinstance(building_type, BuildingType) else building_type}",
@@ -405,7 +635,7 @@ async def create_building(
         "rotation": rotation,
         "scale": scale,
         "style": style.value if isinstance(style, Style) else style,
-        "material": material.value if isinstance(material, Material) else material,
+        "material": material_str,
         "color": color,
         "floors": floors,
         "dimensions": {"width": width, "depth": depth, "height": height},
@@ -420,14 +650,14 @@ async def create_building(
         "has_basement": has_basement,
         "has_attic": has_attic,
         "created_at": get_timestamp(),
-        "is_mock": True
+        "is_mock": False
     }
     
-    logger.info(f"Created MOCK building: {name}")
+    logger.info(f"Created building: {name}")
     return building_data
 
 # Weapon Creation
-@app.tool
+
 @blender_operation("create_weapon", log_args=True)
 async def create_weapon(
     name: str = "Weapon",
@@ -511,7 +741,7 @@ async def create_weapon(
     return weapon_data
 
 # Ornament Creation
-@app.tool
+
 @blender_operation("create_ornament", log_args=True)
 async def create_ornament(
     name: str = "Ornament",
@@ -578,7 +808,7 @@ async def create_ornament(
     return ornament_data
 
 # Room Creation
-@app.tool
+
 @blender_operation("create_room", log_args=True)
 async def create_room(
     name: str = "Room",
@@ -633,8 +863,98 @@ async def create_room(
     Returns:
         Dictionary with information about the created room
     """
-    logger.warning("MOCK IMPLEMENTATION: create_room is not actually creating geometry in Blender")
+    # Clear existing object if it exists
+    if name in bpy.data.objects:
+        bpy.data.objects.remove(bpy.data.objects[name], do_unlink=True)
     
+    # Create a new mesh and link it to the scene
+    mesh = bpy.data.meshes.new(name)
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    
+    # Create room structure
+    wall_thickness = 0.2
+    
+    # Create floor
+    bpy.ops.mesh.primitive_cube_add(size=1)
+    floor_obj = bpy.context.active_object
+    floor_obj.name = f"{name}_Floor"
+    floor_obj.scale = (length, width, 0.1)
+    floor_obj.location = (0, 0, 0.05)
+    
+    # Create walls
+    wall_positions = [
+        (0, width/2 + wall_thickness/2, height/2),  # Front wall
+        (0, -width/2 - wall_thickness/2, height/2), # Back wall
+        (length/2 + wall_thickness/2, 0, height/2), # Right wall
+        (-length/2 - wall_thickness/2, 0, height/2)  # Left wall
+    ]
+    
+    for i, (x, y, z) in enumerate(wall_positions):
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        wall_obj = bpy.context.active_object
+        wall_obj.name = f"{name}_Wall_{i+1}"
+        if i < 2:  # Front/back walls
+            wall_obj.scale = (length + 2*wall_thickness, wall_thickness, height)
+        else:  # Left/right walls
+            wall_obj.scale = (wall_thickness, width, height)
+        wall_obj.location = (x, y, z)
+    
+    # Create ceiling
+    bpy.ops.mesh.primitive_cube_add(size=1)
+    ceiling_obj = bpy.context.active_object
+    ceiling_obj.name = f"{name}_Ceiling"
+    ceiling_obj.scale = (length, width, 0.1)
+    ceiling_obj.location = (0, 0, height - 0.05)
+    
+    # Create windows if requested
+    if has_windows and window_count > 0:
+        for i in range(min(window_count, 4)):  # Max 4 windows
+            bpy.ops.mesh.primitive_cube_add(size=1)
+            window_obj = bpy.context.active_object
+            window_obj.name = f"{name}_Window_{i+1}"
+            window_obj.scale = (0.8, 0.1, 0.6)
+            window_obj.location = (0, width/2 + 0.1, height * 0.6)
+    
+    # Create doors if requested
+    if has_doors and door_count > 0:
+        for i in range(min(door_count, 2)):  # Max 2 doors
+            bpy.ops.mesh.primitive_cube_add(size=1)
+            door_obj = bpy.context.active_object
+            door_obj.name = f"{name}_Door_{i+1}"
+            door_obj.scale = (0.1, 0.1, height * 0.8)
+            door_obj.location = (length/4 if i == 0 else -length/4, width/2 + 0.1, height * 0.4)
+    
+    # Set object location, rotation, and scale
+    obj.location = location
+    obj.rotation_euler = (radians(rotation[0]), radians(rotation[1]), radians(rotation[2]))
+    obj.scale = scale
+    
+    # Create materials
+    wall_material_str = wall_material.value if isinstance(wall_material, Material) else wall_material
+    floor_material_str = floor_material.value if isinstance(floor_material, Material) else floor_material
+    ceiling_material_str = ceiling_material.value if isinstance(ceiling_material, Material) else ceiling_material
+    
+    # Create wall material
+    wall_mat = bpy.data.materials.new(name=f"{name}_Wall_Material")
+    wall_mat.use_nodes = True
+    wall_mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = wall_color
+    
+    # Create floor material
+    floor_mat = bpy.data.materials.new(name=f"{name}_Floor_Material")
+    floor_mat.use_nodes = True
+    floor_mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = floor_color
+    
+    # Create ceiling material
+    ceiling_mat = bpy.data.materials.new(name=f"{name}_Ceiling_Material")
+    ceiling_mat.use_nodes = True
+    ceiling_mat.node_tree.nodes["Principled BSDF"].inputs[0].default_value = ceiling_color
+    
+    # Assign materials
+    floor_obj.data.materials.append(floor_mat)
+    ceiling_obj.data.materials.append(ceiling_mat)
+    
+    # Prepare return data
     room_data = {
         "name": name,
         "type": f"room_{room_type.value if isinstance(room_type, RoomType) else room_type}",
@@ -643,9 +963,9 @@ async def create_room(
         "scale": scale,
         "style": style.value if isinstance(style, Style) else style,
         "materials": {
-            "wall": wall_material.value if isinstance(wall_material, Material) else wall_material,
-            "floor": floor_material.value if isinstance(floor_material, Material) else floor_material,
-            "ceiling": ceiling_material.value if isinstance(ceiling_material, Material) else ceiling_material
+            "wall": wall_material_str,
+            "floor": floor_material_str,
+            "ceiling": ceiling_material_str
         },
         "colors": {
             "wall": wall_color,
@@ -663,8 +983,8 @@ async def create_room(
             "has_decoration": has_decoration
         },
         "created_at": get_timestamp(),
-        "is_mock": True
+        "is_mock": False
     }
     
-    logger.info(f"Created MOCK room: {name}")
+    logger.info(f"Created room: {name}")
     return room_data

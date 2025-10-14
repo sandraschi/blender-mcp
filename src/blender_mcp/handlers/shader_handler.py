@@ -75,7 +75,6 @@ class NodeLocation(BaseModel):
         """Convert to Blender-compatible tuple."""
         return (self.x, self.y)
 
-@app.tool
 @blender_operation("create_shader_node", log_args=True, log_result=True)
 async def create_shader_node(
     material_name: str,
@@ -220,7 +219,6 @@ class NodeConnection(BaseModel):
     def __str__(self) -> str:
         return f"{self.from_node}.{self.from_socket} → {self.to_node}.{self.to_socket}"
 
-@app.tool
 @blender_operation("connect_shader_nodes", log_args=True, log_result=True)
 async def connect_shader_nodes(
     material_name: str,
@@ -404,7 +402,6 @@ class MaterialProperties(BaseModel):
             ShaderType: lambda v: v.value
         }
 
-@app.tool
 @blender_operation("create_shader_material", log_args=True, log_result=True)
 async def create_shader_material(
     name: str,

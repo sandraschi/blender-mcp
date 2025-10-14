@@ -18,7 +18,6 @@ from ..app import app
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()
 
-@app.tool
 @blender_operation("render_turntable", log_args=True)
 async def render_turntable(
     output_dir: str,
@@ -125,7 +124,6 @@ except Exception as e:
     except Exception as e:
         raise BlenderRenderError("turntable_animation", f"Failed to render turntable: {str(e)}")
 
-@app.tool
 @blender_operation("render_preview", log_args=True)
 async def render_preview(
     output_path: str,

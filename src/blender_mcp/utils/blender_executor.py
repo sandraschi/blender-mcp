@@ -22,22 +22,27 @@ T = TypeVar('T', bound='BlenderExecutor')
 # Global instance of BlenderExecutor
 _blender_executor_instance = None
 
-def get_blender_executor(blender_executable: str = None) -> 'BlenderExecutor':
+def get_blender_executor(blender_executable: str = None, headless: bool = True) -> 'BlenderExecutor':
     """Get or create a singleton instance of BlenderExecutor.
     
     Args:
         blender_executable: Path to the Blender executable or command name.
                           If None, uses the configured BLENDER_EXECUTABLE.
+        headless: Whether to run Blender in headless mode (default: True)
         
     Returns:
         BlenderExecutor: The singleton instance of the BlenderExecutor.
     """
     global _blender_executor_instance
     
+    # Reset singleton if mode changes
+    if _blender_executor_instance is not None and _blender_executor_instance.headless != headless:
+        _blender_executor_instance = None
+    
     if _blender_executor_instance is None:
         # Use the configured path if no explicit path is provided
         executable_to_use = blender_executable or BLENDER_EXECUTABLE
-        _blender_executor_instance = BlenderExecutor(executable_to_use)
+        _blender_executor_instance = BlenderExecutor(executable_to_use, headless)
     
     return _blender_executor_instance
 
@@ -45,7 +50,7 @@ def get_blender_executor(blender_executable: str = None) -> 'BlenderExecutor':
 class BlenderExecutor:
     """Comprehensive Blender script executor with robust error handling."""
     
-    def __init__(self, blender_executable: str = None):
+    def __init__(self, blender_executable: str = None, headless: bool = True):
         # Use the provided executable, or fall back to the one from config
         self.blender_executable = blender_executable or BLENDER_EXECUTABLE
         self.blender_version = None
@@ -53,6 +58,7 @@ class BlenderExecutor:
         self.temp_dir = None
         self.process_timeout = 300
         self.max_retries = 3
+        self.headless = headless  # Whether to run in headless mode
         
         # Validate the Blender executable before initialization
         if not validate_blender_executable():
@@ -242,11 +248,23 @@ except Exception as e:
             # Ensure the Blender executable path is properly quoted for Windows
             blender_cmd = [
                 f'"{self.blender_path}"',  # Quote the path to handle spaces
-                '--background',
-                '--factory-startup',
+            ]
+            
+            # Add headless flag only if running in headless mode
+            if self.headless:
+                blender_cmd.extend([
+                    '--background',
+                    '--factory-startup',
+                ])
+            else:
+                blender_cmd.extend([
+                    '--factory-startup',
+                ])
+            
+            blender_cmd.extend([
                 '--python', f'"{test_script_path}"',
                 '--',  # End of Blender arguments
-            ]
+            ])
             
             # On Windows, we need to use shell=True and join the command parts
             if os.name == 'nt':
@@ -404,10 +422,21 @@ except Exception as user_error:
         """Build comprehensive Blender command with all necessary flags."""
         cmd = [
             self.blender_executable,
-            "--background",           # No GUI
-            "--factory-startup",      # Clean startup
-            "--enable-autoexec",      # Allow script execution
         ]
+        
+        # Add headless flag only if running in headless mode
+        if self.headless:
+            cmd.extend([
+                "--background",           # No GUI
+                "--factory-startup",      # Clean startup
+                "--enable-autoexec",      # Allow script execution
+            ])
+        else:
+            # GUI mode - minimal flags for visual operation
+            cmd.extend([
+                "--factory-startup",      # Clean startup
+                "--enable-autoexec",      # Allow script execution
+            ])
         
         if blend_file and os.path.exists(blend_file):
             cmd.append(blend_file)
@@ -417,7 +446,8 @@ except Exception as user_error:
             "--", # End of Blender args
         ])
         
-        logger.debug(f"🔧 Blender command: {' '.join(cmd)}")
+        mode = "headless" if self.headless else "GUI"
+        logger.debug(f"🔧 Blender command ({mode}): {' '.join(cmd)}")
         return cmd
     
     async def _execute_with_monitoring(

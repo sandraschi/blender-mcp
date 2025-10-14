@@ -1,0 +1,179 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Setup Development Environment",
+      "type": "shell",
+      "command": "python -m venv build_venv && build_venv\\Scripts\\activate && pip install -e .[dev]",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Install Dependencies",
+      "type": "shell",
+      "command": "build_venv\\Scripts\\activate && pip install -e .[dev]",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Run All Tests",
+      "type": "shell",
+      "command": "build_venv\\Scripts\\activate && python -m pytest -v",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Run Real Integration Test",
+      "type": "shell",
+      "command": "build_venv\\Scripts\\activate && python demonstration_test.py",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Format Code",
+      "type": "shell",
+      "command": "build_venv\\Scripts\\activate && python dev.py format",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Build DXT Package",
+      "type": "shell",
+      "command": "build_venv\\Scripts\\activate && dxt pack",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Validate DXT Configuration",
+      "type": "shell",
+      "command": "build_venv\\Scripts\\activate && dxt validate src/notepadpp_mcp/dxt/dxt.toml",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Run Type Checking",
+      "type": "shell",
+      "command": "build_venv\\Scripts\\activate && python -m mypy src/",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Run Linting",
+      "type": "shell",
+      "command": "build_venv\\Scripts\\activate && python dev.py lint",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Clean Build Environment",
+      "type": "shell",
+      "command": "if (Test-Path build_venv) { Remove-Item build_venv -Recurse -Force }; if (Test-Path dist) { Remove-Item dist -Recurse -Force }; if (Test-Path *.dxt) { Remove-Item *.dxt -Force }",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Development Server",
+      "type": "shell",
+      "command": "build_venv\\Scripts\\activate",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "isBackground": true
+    },
+    {
+      "label": "Run MCP Server",
+      "type": "shell",
+      "command": "python -m notepadpp_mcp.tools.server",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "isBackground": true
+    },
+    {
+      "label": "Check Tool Registration",
+      "type": "shell",
+      "command": "build_venv\\Scripts\\activate",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "List Available Tools",
+      "type": "shell",
+      "command": "python -c \"from notepadpp_mcp.tools.server import app; tools = app._tools; print(f'Total tools: {len(tools)}'); [print(f'- {tool.name}') for tool in tools.values()]\"",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    }
+  ]
+}

@@ -40,7 +40,7 @@ def blender_operation(
             try:
                 if validate_blender:
                     # Validate Blender availability (implementation in server)
-                    if hasattr(args[0], '_validate_blender_available'):
+                    if args and hasattr(args[0], '_validate_blender_available'):
                         await args[0]._validate_blender_available()
                 
                 result = await func(*args, **kwargs)

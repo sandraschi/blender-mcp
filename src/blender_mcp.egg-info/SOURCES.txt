@@ -27,6 +27,8 @@ src/blender_mcp/handlers/camera_handler.py
 src/blender_mcp/handlers/compositor_handler.py
 src/blender_mcp/handlers/export_handler.py
 src/blender_mcp/handlers/file_io_handler.py
+src/blender_mcp/handlers/furniture_creation_handler.py
+src/blender_mcp/handlers/furniture_handler.py
 src/blender_mcp/handlers/grease_pencil_handler.py
 src/blender_mcp/handlers/import_handler.py
 src/blender_mcp/handlers/lighting_handler.py
@@ -53,6 +55,7 @@ src/blender_mcp/tools/_rendering_tools_fixed.py
 src/blender_mcp/tools/_rendering_tools_new.py
 src/blender_mcp/tools/animation_tools.py
 src/blender_mcp/tools/export_tools.py
+src/blender_mcp/tools/furniture_tools.py
 src/blender_mcp/tools/material_tools.py
 src/blender_mcp/tools/physics_advanced.py
 src/blender_mcp/tools/physics_tools.py

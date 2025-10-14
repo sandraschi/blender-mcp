@@ -1,4 +1,4 @@
-"""Blender MCP Server - FastMCP 2.10 implementation with modular architecture.
+"""Blender MCP Server - FastMCP 2.12 implementation with modular architecture.
 
 This module provides the main entry point for the Blender MCP server, which exposes
 various Blender operations as FastMCP tools using the decorator pattern.
@@ -83,7 +83,7 @@ def setup_logging(log_level: str = "INFO"):
         colorize=True
     )
 
-def main():
+async def main():
     """Main entry point for the Blender MCP server."""
     # Parse command line arguments
     args = parse_args()
@@ -92,27 +92,25 @@ def main():
     log_level = "DEBUG" if args.debug else "INFO"
     setup_logging(log_level)
     
-    logger.info("🚀 Starting Blender MCP Server")
+    logger.info("[START] Starting Blender MCP Server")
     logger.info(f"Python version: {sys.version}")
     logger.info(f"Running in {'HTTP' if args.http else 'stdio'} mode")
     
     try:
         if args.http:
-            logger.info(f"🌐 Starting HTTP server on {args.host}:{args.port}")
-            from blender_mcp.compat import LowLevelServer
-            server = LowLevelServer(app)
-            server.run(host=args.host, port=args.port)
+            logger.info(f"[HTTP] Starting HTTP server on {args.host}:{args.port}")
+            # HTTP mode - use the app's built-in HTTP server
+            await app.run_http_async(host=args.host, port=args.port)
         else:
-            logger.info("💬 Starting stdio server")
-            from blender_mcp.compat import LowLevelServer
-            server = LowLevelServer(app)
-            server.run()
+            logger.info("[STDIO] Starting stdio server")
+            # Stdio mode - use the app's built-in stdio server
+            await app.run_stdio_async()
     except Exception as e:
-        logger.error(f"❌ Server error: {e}")
+        logger.error(f"[ERROR] Server error: {e}")
         sys.exit(1)
     except KeyboardInterrupt:
-        logger.info("👋 Shutting down gracefully...")
+        logger.info("[SHUTDOWN] Shutting down gracefully...")
         sys.exit(0)
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

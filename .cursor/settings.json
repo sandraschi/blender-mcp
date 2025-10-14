@@ -1,0 +1,39 @@
+{
+  "python.defaultInterpreterPath": "./build_venv/Scripts/python.exe",
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": false,
+  "python.linting.mypyEnabled": true,
+  "python.formatting.provider": "black",
+  "python.sortImports.args": ["--profile", "black"],
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  },
+  "files.associations": {
+    "*.py": "python",
+    "*.toml": "toml",
+    "*.md": "markdown"
+  },
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/build_venv": true,
+    "**/.pytest_cache": true,
+    "**/.mypy_cache": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/build_venv": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true
+  },
+  "python.testing.pytestArgs": [
+    "src/notepadpp_mcp/tests"
+  ],
+  "python.testing.pytestEnabled": true,
+  "mypy.configFile": "pyproject.toml",
+  "black-formatter.args": [
+    "--line-length=100"
+  ]
+}

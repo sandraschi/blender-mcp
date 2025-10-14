@@ -57,7 +57,31 @@ class BlenderMaterialError(BlenderMCPError):
 
 class BlenderRenderError(BlenderMCPError):
     """Raised when render operations fail."""
-    
+
     def __init__(self, output_path: str, error: str):
         super().__init__(f"Render to {output_path} failed: {error}", "RENDER_ERROR")
         self.output_path = output_path
+
+
+class BlenderMeshError(BlenderMCPError):
+    """Raised when mesh operations fail."""
+
+    def __init__(self, operation: str, error: str):
+        super().__init__(f"Mesh operation '{operation}' failed: {error}", "MESH_ERROR")
+        self.operation = operation
+
+
+class BlenderAnimationError(BlenderMCPError):
+    """Raised when animation operations fail."""
+
+    def __init__(self, operation: str, error: str):
+        super().__init__(f"Animation operation '{operation}' failed: {error}", "ANIMATION_ERROR")
+        self.operation = operation
+
+
+class BlenderLightingError(BlenderMCPError):
+    """Raised when lighting operations fail."""
+
+    def __init__(self, operation: str, error: str):
+        super().__init__(f"Lighting operation '{operation}' failed: {error}", "LIGHTING_ERROR")
+        self.operation = operation

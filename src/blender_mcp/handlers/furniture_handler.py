@@ -7,14 +7,37 @@ All implementations are marked as MOCK for now."""
 from typing import Optional, Tuple, Dict, Any, Union, List
 from enum import Enum
 import logging
-import bpy
 import math
 import random
 import colorsys
-from mathutils import Vector, Matrix
 from math import radians, pi
 
-from blender_mcp.utils import FastMCP
+# Try to import Blender modules, with fallback for non-Blender environments
+try:
+    import bpy
+    from mathutils import Vector, Matrix
+    HAS_BPY = True
+except ImportError:
+    # Create mock objects for when not running inside Blender
+    class MockBpy:
+        pass
+    
+    class MockVector:
+        def __init__(self, *args):
+            pass
+    
+    class MockMatrix:
+        def __init__(self, *args):
+            pass
+    
+    bpy = MockBpy()
+    Vector = MockVector
+    Matrix = MockMatrix
+    HAS_BPY = False
+
+from fastmcp import FastMCP
+from ..app import app
+from ..decorators import blender_operation
 from blender_mcp.tools.furniture_tools import (
     create_basic_chair,
     create_basic_table,
@@ -352,10 +375,8 @@ class HouseStyle(str, Enum):
     SHIPPING_CONTAINER = "shipping_container"
     EARTHBAG = "earthbag"
     COB = "cob"
-    STRAW_BALE = "straw_bale"
     EARTH_SHIP = "earth_ship"
     PASSIVE_HOUSE = "passive_house"
-    TINY_HOUSE = "tiny_house"
     TINY_HOUSE_ON_WHEELS = "tiny_house_on_wheels"
     TINY_HOUSE_ON_FOUNDATION = "tiny_house_on_foundation"
     TINY_HOUSE_ON_TRAILER = "tiny_house_on_trailer"
@@ -385,10 +406,9 @@ class FurnitureHandler(FastMCP):
     def __init__(self):
         super().__init__()
         logger.info("FurnitureHandler initialized")
-@app.tool
+
 @blender_operation("create_table", log_args=True)
 async def create_table(
-    self,
     name: str = "Table",
     location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
     rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
@@ -618,8 +638,8 @@ async def create_table(
     logger.info(f"Created table: {name} (Type: {table_type})")
     return table_data
 
-def create_chair(
-    self,
+@blender_operation("create_chair", log_args=True)
+async def create_chair(
     name: str = "Chair",
     location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
     rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
@@ -808,8 +828,8 @@ def create_chair(
     logger.info(f"Created chair: {name}")
     return chair_data
 
-def create_sofa(
-    self,
+@blender_operation("create_sofa", log_args=True)
+async def create_sofa(
     name: str = "Sofa",
     location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
     rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
@@ -1074,8 +1094,8 @@ def create_sofa(
     logger.info(f"Created sofa: {name}")
     return sofa_data
 
-def create_bed(
-    self,
+@blender_operation("create_bed", log_args=True)
+async def create_bed(
     name: str = "Bed",
     location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
     rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
@@ -1103,6 +1123,118 @@ def create_bed(
         mattress_color: RGBA color values for the mattress (0-1)
         has_headboard: Whether the bed has a headboard
         has_footboard: Whether the bed has a footboard
+        has_storage: Whether the bed has storage
+        
+    Returns:
+        Dictionary with information about the created bed
+    """
+    # Clear existing object if it exists
+    if name in bpy.data.objects:
+        bpy.data.objects.remove(bpy.data.objects[name], do_unlink=True)
+    
+    # Create a new mesh and link it to the scene
+    mesh = bpy.data.meshes.new(name)
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    
+    # Set bed dimensions based on type
+    bed_length = 2.0  # Default length
+    bed_width = 1.5   # Default width
+    bed_height = 0.3  # Default height
+    leg_height = 0.1  # Default leg height
+    mattress_thickness = 0.2  # Default mattress thickness
+    headboard_height = 0.8 if has_headboard else 0
+    footboard_height = 0.4 if has_footboard else 0
+    storage_height = 0.2 if has_storage else 0
+    
+    # Adjust dimensions based on bed type
+    if bed_type == "twin":
+        bed_length, bed_width = 1.9, 1.0
+    elif bed_type == "full":
+        bed_length, bed_width = 1.9, 1.4
+    elif bed_type == "queen":
+        bed_length, bed_width = 2.0, 1.5
+    elif bed_type == "king":
+        bed_length, bed_width = 2.0, 1.9
+    elif bed_type == "california_king":
+        bed_length, bed_width = 2.1, 1.8
+    
+    # Create the bed frame
+    bpy.ops.mesh.primitive_cube_add(size=1)
+    frame_obj = bpy.context.active_object
+    frame_obj.name = f"{name}_Frame"
+    frame_obj.scale = (bed_length, bed_width, bed_height)
+    frame_obj.location = (0, 0, leg_height + bed_height/2)
+    
+    # Create the mattress
+    bpy.ops.mesh.primitive_cube_add(size=1)
+    mattress_obj = bpy.context.active_object
+    mattress_obj.name = f"{name}_Mattress"
+    mattress_obj.scale = (bed_length * 0.9, bed_width * 0.9, mattress_thickness)
+    mattress_obj.location = (0, 0, leg_height + bed_height + mattress_thickness/2)
+    
+    # Create legs
+    for i, (x, y) in enumerate([(-bed_length/2, -bed_width/2), (bed_length/2, -bed_width/2), 
+                                (-bed_length/2, bed_width/2), (bed_length/2, bed_width/2)]):
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        leg_obj = bpy.context.active_object
+        leg_obj.name = f"{name}_Leg_{i+1}"
+        leg_obj.scale = (0.05, 0.05, leg_height)
+        leg_obj.location = (x, y, leg_height/2)
+    
+    # Create headboard if requested
+    if has_headboard:
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        headboard_obj = bpy.context.active_object
+        headboard_obj.name = f"{name}_Headboard"
+        headboard_obj.scale = (bed_length, 0.1, headboard_height)
+        headboard_obj.location = (0, bed_width/2 + 0.05, leg_height + bed_height + headboard_height/2)
+    
+    # Create footboard if requested
+    if has_footboard:
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        footboard_obj = bpy.context.active_object
+        footboard_obj.name = f"{name}_Footboard"
+        footboard_obj.scale = (bed_length, 0.1, footboard_height)
+        footboard_obj.location = (0, -bed_width/2 - 0.05, leg_height + bed_height + footboard_height/2)
+    
+    # Create storage if requested
+    if has_storage:
+        bpy.ops.mesh.primitive_cube_add(size=1)
+        storage_obj = bpy.context.active_object
+        storage_obj.name = f"{name}_Storage"
+        storage_obj.scale = (bed_length * 0.8, bed_width * 0.8, storage_height)
+        storage_obj.location = (0, 0, leg_height + storage_height/2)
+    
+    # Set object location, rotation, and scale
+    obj.location = location
+    obj.rotation_euler = (radians(rotation[0]), radians(rotation[1]), radians(rotation[2]))
+    obj.scale = scale
+    
+    # Create materials
+    frame_material = bpy.data.materials.new(name=f"{name}_Frame_Material")
+    frame_material.use_nodes = True
+    frame_material.node_tree.nodes["Principled BSDF"].inputs[0].default_value = frame_color
+    
+    mattress_material = bpy.data.materials.new(name=f"{name}_Mattress_Material")
+    mattress_material.use_nodes = True
+    mattress_material.node_tree.nodes["Principled BSDF"].inputs[0].default_value = mattress_color
+    
+    # Assign materials
+    frame_obj.data.materials.append(frame_material)
+    mattress_obj.data.materials.append(mattress_material)
+    
+    # Prepare return data
+    bed_data = {
+        "name": name,
+        "type": "bed",
+        "object": obj.name,
+        "location": location,
+        "rotation": rotation,
+        "scale": scale,
+        "style": style.value if isinstance(style, FurnitureStyle) else style,
+        "bed_type": bed_type,
+        "material": material.value if isinstance(material, MaterialType) else material,
         "frame_color": frame_color,
         "mattress_color": mattress_color,
         "has_headboard": has_headboard,
@@ -1124,8 +1256,8 @@ def create_bed(
     logger.info(f"Created bed: {name} (Type: {bed_type})")
     return bed_data
 
-def create_room(
-    self,
+@blender_operation("create_room", log_args=True)
+async def create_room(
     name: str = "Room",
     location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
     rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
@@ -1432,8 +1564,8 @@ def create_room(
     logger.info(f"Created room: {name} (Type: {room_type})")
     return room_data
 
-def create_building(
-    self,
+@blender_operation("create_building", log_args=True)
+async def create_building(
     name: str = "House",
     location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
     rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),

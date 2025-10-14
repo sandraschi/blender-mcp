@@ -12,8 +12,12 @@ from loguru import logger
 
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
-from ..app import app
 from ..exceptions import BlenderMaterialError
+
+# Import app lazily to avoid circular imports
+def get_app():
+    from ..app import app
+    return app
 from typing import Tuple, Optional, Union
 
 # Initialize the executor with default Blender executable
@@ -152,7 +156,52 @@ except Exception as e:
     raise e
 """
 
-@app.tool
+# Register tools after app is created to avoid circular imports
+def _register_material_tools():
+    app = get_app()
+
+    @app.tool
+    @blender_operation("create_fabric_material", log_args=True)
+    async def create_fabric_material_tool(
+        name: str = "ElegantFabric",
+        fabric_type: Union[str, MaterialPreset] = MaterialPreset.VELVET,
+        base_color: Tuple[float, float, float] = (0.8, 0.75, 0.7),
+        roughness: float = 0.8,
+        sub_surface: float = 0.2,
+        normal_strength: float = 0.5,
+        velvet_softness: float = 0.5,
+        silk_sheen: float = 0.8,
+        weave_scale: float = 1.0
+    ) -> str:
+        """Create comprehensive fabric material with PBR properties.
+
+        Args:
+            name: Name for the new material
+            fabric_type: Type of fabric (velvet, silk, cotton, linen, brocade, satin, wool)
+            base_color: Base color as RGB tuple (0-1)
+            roughness: Roughness value (0-1)
+            sub_surface: Subsurface scattering amount (0-1)
+            normal_strength: Normal map strength (0-1)
+            velvet_softness: For velvet materials (0-1)
+            silk_sheen: For silk materials (0-1)
+            weave_scale: For woven fabrics (0.1-10.0)
+
+        Returns:
+            str: Confirmation message
+        """
+        return await create_fabric_material(
+            name=name,
+            fabric_type=fabric_type,
+            base_color=base_color,
+            roughness=roughness,
+            sub_surface=sub_surface,
+            normal_strength=normal_strength,
+            velvet_softness=velvet_softness,
+            silk_sheen=silk_sheen,
+            weave_scale=weave_scale
+        )
+
+# Keep the original function for backward compatibility
 @blender_operation("create_fabric_material", log_args=True)
 async def create_fabric_material(
     name: str = "ElegantFabric",
@@ -314,7 +363,6 @@ print(f"SUCCESS: Created {{'{fabric_type.value}'}} fabric material: {{mat.name}}
         logger.error(error_msg)
         raise BlenderMaterialError(name, "fabric_create", error_msg)
 
-@app.tool
 @blender_operation("create_metal_material", log_args=True)
 async def create_metal_material(
     name: str = "OrnateMetal",
@@ -536,7 +584,6 @@ print(f"SUCCESS: Created {{'{metal_type.value}'}} metal material: {{mat.name}}")
         logger.error(error_msg)
         raise BlenderMaterialError(name, "metal_create", error_msg)
 
-@app.tool
 @blender_operation("create_wood_material", log_args=True)
 async def create_wood_material(
     name: str = "WoodMaterial",
@@ -1591,3 +1638,6 @@ async def create_material_from_preset(
         error_msg = f"Failed to create material from preset '{preset_name}': {str(e)}"
         logger.error(error_msg)
         raise BlenderMaterialError(preset_name, "create_from_preset", error_msg)
+
+# Register tools when this module is imported
+_register_material_tools()

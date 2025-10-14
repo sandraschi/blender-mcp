@@ -9,12 +9,12 @@ from loguru import logger
 from blender_mcp.compat import *
 from blender_mcp.utils.blender_executor import get_blender_executor
 from blender_mcp.decorators import blender_operation
-from blender_mcp.app import app
+# from blender_mcp.app import app  # REMOVED to fix circular import
 
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()
 
-@app.tool
+# @app.tool  # Will be registered manually
 @blender_operation("create_scene")
 async def create_scene(scene_name: str = "NewScene") -> str:
     """Create a new Blender scene with the specified name.
@@ -41,7 +41,7 @@ print(f"Objects in scene: {{len(bpy.context.scene.objects)}}")
     output = await _executor.execute_script(script)
     return f"Created scene: {scene_name}"
 
-@app.tool
+# @app.tool  # Will be registered manually
 @blender_operation("list_scenes")
 async def list_scenes() -> str:
     """List all scenes in the current Blender file.
@@ -63,7 +63,7 @@ for scene in scenes:
     output = await _executor.execute_script(script)
     return "Listed all scenes"
 
-@app.tool
+# @app.tool  # Will be registered manually
 @blender_operation("clear_scene")
 async def clear_scene() -> str:
     """Remove all objects from the current scene.
@@ -88,7 +88,7 @@ print("Scene cleared")
     return "Cleared the current scene"
 
 
-@app.tool
+# @app.tool  # Will be registered manually
 @blender_operation("set_active_scene")
 async def set_active_scene(scene_name: str) -> str:
     """Set the active scene by name.
@@ -110,7 +110,7 @@ else:
     return f"Set active scene to: {scene_name}"
 
 
-@app.tool
+# @app.tool  # Will be registered manually
 @blender_operation("link_object_to_scene")
 async def link_object_to_scene(object_name: str, scene_name: str) -> str:
     """Link an object to a scene.
@@ -138,7 +138,7 @@ else:
     return f"Linked object to scene: {scene_name}"
 
 
-@app.tool
+# @app.tool  # Will be registered manually
 @blender_operation("create_collection")
 async def create_collection(collection_name: str) -> str:
     """Create a new collection.
@@ -160,7 +160,7 @@ else:
     return f"Created collection: {collection_name}"
 
 
-@app.tool
+# @app.tool  # Will be registered manually
 @blender_operation("add_to_collection")
 async def add_to_collection(collection_name: str, object_name: str) -> str:
     """Add an object to a collection.
@@ -193,7 +193,7 @@ else:
     return f"Added {object_name} to collection: {collection_name}"
 
 
-@app.tool
+# @app.tool  # Will be registered manually
 @blender_operation("set_active_collection")
 async def set_active_collection(collection_name: str) -> str:
     """Set the active collection.
@@ -217,7 +217,7 @@ else:
     return f"Set active collection to: {collection_name}"
 
 
-@app.tool
+# @app.tool  # Will be registered manually
 @blender_operation("set_view_layer")
 async def set_view_layer(layer_name: str) -> str:
     """Set the active view layer.
@@ -239,7 +239,7 @@ else:
     return f"Set active view layer to: {layer_name}"
 
 
-@app.tool
+# @app.tool  # Will be registered manually
 @blender_operation("setup_lighting")
 async def setup_lighting(light_type: str = "SUN", location: tuple = (0, 0, 5), 
                         rotation: tuple = (0.785398, 0, 0), energy: float = 1.0) -> str:
@@ -276,7 +276,7 @@ print(f"Added {{light_type}} light to scene")
     return f"Set up {light_type} lighting in the scene"
 
 
-@app.tool
+# @app.tool  # Will be registered manually
 @blender_operation("setup_camera")
 async def setup_camera(location: tuple = (0, -5, 2), rotation: tuple = (1.0, 0, 0), 
                       lens: float = 50.0) -> str:
@@ -315,7 +315,7 @@ print("Set up camera in the scene")
     return "Set up camera in the scene"
 
 
-@app.tool
+# @app.tool  # Will be registered manually
 @blender_operation("set_render_settings")
 async def set_render_settings(resolution_x: int = 1920, resolution_y: int = 1080, 
                             engine: str = "CYCLES", samples: int = 128) -> str:

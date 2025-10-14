@@ -49,7 +49,6 @@ except Exception as e:
     raise e
 """
 
-@app.tool
 @blender_operation("export_for_unity", log_args=True)
 async def export_for_unity(
     output_path: str,
@@ -126,7 +125,6 @@ print(f"Export details: {{json.dumps(stats, indent=2)}}")
         logger.error(f"Failed to export for Unity: {str(e)}")
         raise BlenderExportError("FBX", output_path, str(e)) from e
 
-@app.tool
 @blender_operation("export_for_vrchat", log_args=True)
 async def export_for_vrchat(
     output_path: str,
