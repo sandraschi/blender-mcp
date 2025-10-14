@@ -1,6 +1,6 @@
 # 💻 Development Documentation
 
-**Guides, best practices, and lessons learned for developing notepadpp-mcp**
+**Guides, best practices, and lessons learned for developing blender-mcp**
 
 ---
 
@@ -83,6 +83,18 @@
 
 ---
 
+### **8. Free Assets Guide** 🎁 **DOWNLOADS**
+📄 [FREE_ASSETS_GUIDE.md](../blender/FREE_ASSETS_GUIDE.md)
+
+**Find and download free 3D assets legally**
+- Top recommended sites (Poly Haven, AmbientCG, etc.)
+- License types and legal considerations
+- Katana model and texture sources
+- Search strategies and best practices
+- Blender MCP download integration
+
+---
+
 ## 🎯 **Purpose**
 
 This directory contains **development-focused documentation** including:
@@ -144,13 +156,14 @@ This directory contains **development-focused documentation** including:
 | **Python patterns** | [Python Snippets](PYTHON_SNIPPETS_USAGE_GUIDE.md) | 15 min |
 | **Update process** | [Project Updates](SYSTEMATIC_PROJECT_UPDATES.md) | 10 min |
 | **Dependency fix** | [Dependency Hell Fix](PYTHON_DEPENDENCY_HELL_FIX.md) | 5 min |
+| **Free assets** | [Free Assets Guide](../blender/FREE_ASSETS_GUIDE.md) | 10 min |
 
 ---
 
 ## 🏆 **Development Quality**
 
 **This documentation reflects**:
-- ✅ Real-world experience from building notepadpp-mcp
+- ✅ Real-world experience from building blender-mcp
 - ✅ Lessons learned achieving Gold Status (85/100 → 90/100)
 - ✅ Best practices for MCP server development
 - ✅ Effective AI collaboration techniques
@@ -169,7 +182,7 @@ This directory contains **development-focused documentation** including:
 
 *Development Documentation*  
 *Location: `docs/development/`*  
-*Files: 7*  
+*Files: 8*  
 *Focus: Best practices & lessons learned*  
 *Target: Developers & Contributors*
 

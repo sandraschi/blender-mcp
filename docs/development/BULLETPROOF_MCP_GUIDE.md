@@ -572,9 +572,9 @@ Sync 1,896 files:        ~2min     ✅ COMPLETES (was stuck)
 ## Files Created
 
 ### Production Code (3,000 lines)
-1. `src/notepadpp_mcp/sync_health.py` - 600 lines ⭐
-2. `src/notepadpp_mcp/file_validator.py` - 600 lines ⭐
-3. `src/notepadpp_mcp/link_parser.py` - 600 lines ⭐
+1. `src/blender_mcp/sync_health.py` - 600 lines ⭐
+2. `src/blender_mcp/file_validator.py` - 600 lines ⭐
+3. `src/blender_mcp/link_parser.py` - 600 lines ⭐
 4. `tests/test_sync_health.py` - 400 lines
 5. `tests/test_file_validator.py` - 400 lines
 6. `tests/test_link_parser.py` - 400 lines
@@ -594,11 +594,11 @@ Sync 1,896 files:        ~2min     ✅ COMPLETES (was stuck)
 
 ## Deployment Checklist
 
-### For notepadpp-mcp
+### For blender-mcp
 
 ✅ **All modules created**
 ```bash
-src/notepadpp_mcp/
+src/blender_mcp/
 ├── sync_health.py      ✅ Created
 ├── file_validator.py   ✅ Created
 └── link_parser.py      ✅ Created
@@ -717,7 +717,7 @@ python -m build
 - 7 comprehensive guides
 
 **This work benefits:**
-- ✅ notepadpp-mcp
+- ✅ blender-mcp
 - ✅ advanced-memory-mcp
 - ✅ basic-memory-mcp
 - ✅ **ALL MCP servers with file sync!**

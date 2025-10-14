@@ -1,0 +1,76 @@
+B L E N D E R   M C P   -   C L A U D E   D O W N L O A D   G U I D E
+========================================================================
+
+HOW TO TELL CLAUDE TO DOWNLOAD ASSETS
+=====================================
+
+METHOD 1: PROVIDE DIRECT URL
+-----------------------------
+Best when you already have the exact download link.
+
+TELL CLAUDE:
+"Download this katana model and show it in Blender: https://example.com/katana.fbx"
+
+CLAUDE WILL USE:
+blender_download(url="https://example.com/katana.fbx")
+
+METHOD 2: PROVIDE SITE NAME + SEARCH TERMS
+------------------------------------------
+Best when you want Claude to find assets for you.
+
+TELL CLAUDE:
+"Download a katana model from polyhaven.com and import it into Blender"
+
+CLAUDE WILL:
+1. Search polyhaven.com for katana models
+2. Find a suitable download URL
+3. Use: blender_download(url="https://dl.polyhaven.org/file/ph_assets/...")
+
+METHOD 3: SPECIFIC SITE REQUESTS
+--------------------------------
+For your favorite free sites:
+
+TELL CLAUDE:
+"Find a katana texture on ambientcg.com and download it"
+
+OR:
+"Get a Japanese pattern texture from textures.com"
+
+SUPPORTED FORMATS
+=================
+3D Models: .obj, .fbx, .dae, .3ds, .ply, .stl, .x3d, .gltf, .glb, .abc, .usd, .blend
+Images: .png, .jpg, .jpeg, .tiff, .bmp, .exr, .hdr
+
+EXAMPLE CONVERSATIONS
+=====================
+
+USER: "Download a katana model from polyhaven and show it"
+CLAUDE: Uses blender_download with Poly Haven URL
+
+USER: "Get some metal textures from ambientcg.com for my sword"
+CLAUDE: Downloads PBR metal textures and imports them
+
+USER: "Download this specific katana: https://example.com/samurai.obj"
+CLAUDE: Downloads the exact file specified
+
+ADVANCED OPTIONS
+===============
+
+Custom filename:
+blender_download(url="...", custom_filename="my_katana")
+
+Download only (don't import):
+blender_download(url="...", import_into_scene=False)
+
+Long timeout for big files:
+blender_download(url="...", timeout=120)
+
+BEST SITES TO MENTION
+=====================
+- polyhaven.com (HDRI, textures, models - CC0 licensed)
+- ambientcg.com (PBR textures - CC0 licensed)
+- free3d.com (3D models)
+- textures.com (professional textures)
+- cgaxis.com (models and materials)
+
+TELL CLAUDE WHAT YOU WANT - IT WILL FIND AND DOWNLOAD IT!

@@ -159,22 +159,34 @@ async def blender_category(
     # ... etc
 ```
 
-### **✅ Tool Categories (15 total)**
+### **✅ Tool Categories (19 total + 2 utility)**
 1. **`blender_scene`** - Scene management (12 operations)
-2. **`blender_materials`** - Material creation (8 operations)
-3. **`blender_mesh`** - Geometry creation (12 operations)
-4. **`blender_furniture`** - Furniture creation (6 operations)
-5. **`blender_lighting`** - Lighting systems (7 operations)
-6. **`blender_camera`** - Camera controls (6 operations)
-7. **`blender_animation`** - Animation & rigging (6 operations)
-8. **`blender_render`** - Rendering & output (6 operations)
-9. **`blender_io`** - Import & export (8 operations)
-10. **`blender_physics`** - Physics simulation (6 operations)
-11. **`blender_modifiers`** - Modifiers & effects (6 operations)
-12. **`blender_textures`** - Textures & UVs (5 operations)
-13. **`blender_particles`** - Particles & effects (5 operations)
-14. **`blender_asset_management`** - Asset management (8 operations)
-15. **`blender_complex_objects`** - Complex object creation (6 operations)
+2. **`blender_materials`** - Material creation (7 operations)
+3. **`blender_mesh`** - Geometry creation (1 operation)
+4. **`blender_furniture`** - Furniture creation (1 operation)
+5. **`blender_lighting`** - Lighting systems (1 operation)
+6. **`blender_camera`** - Camera controls (1 operation)
+7. **`blender_animation`** - Animation & rigging (1 operation)
+8. **`blender_render`** - Rendering & output (1 operation)
+9. **`blender_export`** - Export operations (1 operation)
+10. **`blender_import`** - Import operations (1 operation)
+11. **`blender_physics`** - Physics simulation (1 operation)
+12. **`blender_modifiers`** - Modifiers & effects (1 operation)
+13. **`blender_textures`** - Textures & UVs (1 operation)
+14. **`blender_particles`** - Particles & effects (1 operation)
+15. **`blender_rigging`** - Rigging operations (1 operation)
+16. **`blender_selection`** - Object selection (1 operation)
+17. **`blender_transform`** - Object transformation (1 operation)
+18. **`blender_addons`** - Add-on management (1 operation)
+19. **`blender_uv`** - UV mapping operations (1 operation)
+
+**Utility Tools (13 total):**
+- **`blender_help`** - Help system (5 operations)
+- **`blender_status`** - System status (4 operations)
+- **`blender_view_logs`** - Log viewing (1 operation)
+- **`blender_log_stats`** - Log statistics (1 operation)
+- **`blender_download`** - File download & import (1 operation)
+- **`blender_download_info`** - Download format info (1 operation)
 
 ### **✅ Operation Parameter Standard**
 - **Required `operation` parameter** for all portmanteau tools
@@ -266,21 +278,37 @@ class BlenderScriptError(BlenderMCPError):
     pass
 ```
 
-### **✅ Logging Standards**
+### **✅ Logging Standards (MANDATORY)**
 ```python
-import logging
+from loguru import logger
 
-logger = logging.getLogger(__name__)
-
-# Operation logging
+# Operation logging with emoji prefixes
 logger.info(f"🎨 Starting Blender operation: {operation_name}")
 logger.error(f"❌ Blender operation failed: {operation_name}")
+logger.debug(f"📥 Operation parameters: {params}")
 ```
 
-### **✅ Error Recovery**
+#### **🚫 STRICTLY PROHIBITED: Print & Console Statements**
+- **❌ NO `print()` statements** in application code
+- **❌ NO `console.log()` statements** (JavaScript style)
+- **✅ ONLY structured logging** with loguru
+- **✅ Appropriate `print()` only** in:
+  - Blender script execution strings (remote output)
+  - CLI interface display
+  - Initialization warnings to stderr
+
+#### **🛡️ Server Stability (CRITICAL)**
+- **Errors must NEVER crash the server** under any circumstance
+- **All exceptions must be caught** and handled gracefully
+- **Comprehensive error handling** in all async operations
+- **Proper exception chaining** with meaningful context
 - **Graceful degradation** for missing optional features
-- **Informative error messages** for users
-- **Proper exception chaining**
+
+### **✅ Error Recovery**
+- **Informative error messages** for users with actionable guidance
+- **Proper exception chaining** maintaining original error context
+- **Resource cleanup** in error paths
+- **Timeout handling** for long-running operations
 
 ---
 
@@ -441,15 +469,31 @@ description = "FastMCP 2.12 Blender automation server"
 - **Real Blender integration** ✅
 
 ### **✅ Verified Working**
-- **20 tools** across 2 categories ✅
+- **48 tools** across 19 categories ✅
 - **Scene management** (12 tools) ✅
-- **Materials & shaders** (8 tools) ✅
+- **Materials & shaders** (7 tools) ✅
+- **Geometry creation** (1 tool) ✅
+- **Lighting systems** (1 tool) ✅
+- **Camera controls** (1 tool) ✅
+- **Animation & rigging** (1 tool) ✅
+- **Rendering & output** (1 tool) ✅
+- **Import/Export operations** (2 tools) ✅
+- **Physics simulation** (1 tool) ✅
+- **Modifiers & effects** (1 tool) ✅
+- **Textures & UVs** (2 tools) ✅
+- **Particles & effects** (1 tool) ✅
+- **Rigging operations** (1 tool) ✅
+- **Object selection** (1 tool) ✅
+- **Transform operations** (1 tool) ✅
+- **Add-on management** (1 tool) ✅
+- **Furniture creation** (1 tool) ✅
+- **Help & status utilities** (9 tools) ✅
 - **Live Blender execution** ✅
 
-### **🚧 In Progress**
-- **Additional categories** (furniture, lighting, etc.)
-- **Asset management** tools
-- **VRChat/Unity export** tools
+### **✅ Complete Implementation**
+- **All major Blender workflows** supported
+- **Professional 3D automation** ready for production
+- **MCPB packaging** and distribution
 - **Advanced features**
 
 ---

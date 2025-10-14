@@ -40,7 +40,7 @@ Run onboarding
 ```
 
 **What happens** (30 seconds - 2 minutes):
-1. ✅ Serena scans notepadpp-mcp project
+1. ✅ Serena scans blender-mcp project
 2. ✅ Creates `.serena/` folder
 3. ✅ Generates memory files about the project
 4. ✅ Starts Python language server
@@ -66,7 +66,7 @@ Start-Process "http://localhost:24282/dashboard/index.html"
 **Dashboard Tabs**:
 
 1. **Overview**
-   - Project name: notepadpp-mcp
+   - Project name: blender-mcp
    - Files indexed: ~50 Python files
    - Symbols found: ~500+ (functions, classes)
    - Language servers: Python LSP (running)
@@ -122,7 +122,7 @@ Start-Process "http://localhost:24282/dashboard/index.html"
 
 **In Composer:**
 ```
-@Composer Use Serena to give me an overview of the notepadpp-mcp project structure
+@Composer Use Serena to give me an overview of the blender-mcp project structure
 ```
 
 **Expected**:
@@ -280,7 +280,7 @@ read_only: true
 ## ⚠️ **Important Notes**
 
 **Per-Project Installation**:
-- ✅ Serena is configured ONLY for notepadpp-mcp folder
+- ✅ Serena is configured ONLY for blender-mcp folder
 - ✅ Other repos won't have it (unless you copy config)
 - ✅ Each repo needs its own `.cursor/mcp.json`
 

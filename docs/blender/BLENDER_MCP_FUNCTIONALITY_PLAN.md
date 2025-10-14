@@ -4,13 +4,13 @@
 
 This document outlines the current tool implementation for the Blender MCP Server, a FastMCP 2.12 compliant MCP server that provides programmatic control over Blender's 3D creation and manipulation capabilities.
 
-**Total Working Tools**: 37 tools across 19 categories
+**Total Working Tools**: 50 tools across 19 categories
 **Current Implementation**: Complete Blender automation server with all major handlers covered
 **Architecture**: FastMCP 2.12 with proper decorators, Pydantic validation, and self-documenting docstrings
 
 ## Current Tool Implementation
 
-We currently have **37 working tools** organized into 19 main categories. This represents a complete Blender automation server covering all major Blender functionality from basic modeling to advanced physics simulation, rendering, and compositing.
+We currently have **50 working tools** organized into 19 main categories. This represents a complete Blender automation server covering all major Blender functionality from basic modeling to advanced physics simulation, rendering, and compositing.
 
 ### 🎨 Object Creation & Mesh Tools (1 tool - 9 operations)
 
@@ -215,7 +215,7 @@ We currently have **37 working tools** organized into 19 main categories. This r
 ## Implementation Status
 
 ### ✅ **Complete Blender MCP Server Working**
-- **37 total tools** across 19 categories
+- **50 total tools** across 19 categories
 - **Real Blender integration** - all tools tested and functional with Blender 4.4
 - **Full 3D Pipeline** - From modeling to rendering with physics and animation
 - **Export/Import** - Unity, VRChat, FBX, OBJ, GLTF, STL, and more

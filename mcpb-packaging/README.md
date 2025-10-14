@@ -9,7 +9,7 @@ This directory contains the complete MCPB (Model Context Protocol Bundle) packag
 
 ## 🎯 What's Included
 
-- **37 working Blender automation tools** across 19 categories
+- **50 working Blender automation tools** across 19 categories
 - **Complete FastMCP 2.12 implementation** with proper tool registration
 - **Comprehensive user configuration** system
 - **Extensive prompt templates** for different workflows
@@ -240,7 +240,7 @@ For automated builds in GitHub Actions:
 
 ### Included Documentation
 
-- **Tool Reference**: Complete API documentation for all 37 tools
+- **Tool Reference**: Complete API documentation for all 50 tools
 - **Workflow Guides**: Step-by-step tutorials for common tasks
 - **Troubleshooting**: Common issues and solutions
 - **Best Practices**: Performance optimization, file organization

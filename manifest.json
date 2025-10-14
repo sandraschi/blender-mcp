@@ -32,7 +32,7 @@
     {
       "name": "welcome",
       "description": "Welcome to Blender MCP",
-      "text": "Welcome to the comprehensive Blender automation server! This MCP server provides 37 tools across 19 categories for complete 3D content creation workflows.\n\nTo get started:\n1. Configure your Blender executable path\n2. Try creating a simple scene: 'Create a cube at position [0,0,0]'\n3. Add lighting: 'Set up three-point lighting'\n4. Render: 'Render a preview of the scene'\n\nFor advanced workflows, explore our comprehensive documentation."
+      "text": "Welcome to the comprehensive Blender automation server! This MCP server provides 50 tools across 19 categories for complete 3D content creation workflows.\n\nTo get started:\n1. Configure your Blender executable path\n2. Try creating a simple scene: 'Create a cube at position [0,0,0]'\n3. Add lighting: 'Set up three-point lighting'\n4. Render: 'Render a preview of the scene'\n\nFor advanced workflows, explore our comprehensive documentation."
     },
     {
       "name": "quick_start",

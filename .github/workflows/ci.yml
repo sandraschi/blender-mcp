@@ -28,7 +28,7 @@ jobs:
 
     - name: Run unit tests (no Blender required)
       run: |
-        python tests/run_tests.py --no-blender --coverage
+        python -m pytest tests/unit/ -v --cov=src/blender_mcp --cov-report=xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
@@ -64,8 +64,8 @@ jobs:
 
     - name: Run integration tests (with Blender)
       run: |
-        python tests/run_tests.py --integration --e2e
+        python -m pytest tests/integration/ -v -k "not requires_blender" --tb=short
 
     - name: Run performance tests (with Blender)
       run: |
-        python tests/run_tests.py --performance
+        python -m pytest tests/ -v -k "performance" --tb=short

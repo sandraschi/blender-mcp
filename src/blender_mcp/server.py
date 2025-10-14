@@ -4,7 +4,6 @@ This module provides the main entry point for the Blender MCP server, which expo
 various Blender operations as FastMCP tools using the decorator pattern.
 """
 
-import asyncio
 import sys
 import os
 import argparse
@@ -63,10 +62,57 @@ def parse_args():
     
     return parser.parse_args()
 
+# Global memory buffer for log viewing
+_memory_logs = []
+_MAX_MEMORY_LOGS = 1000  # Keep last 1000 log entries
+
+def _memory_log_handler(message):
+    """Memory handler that stores recent logs for viewing."""
+    global _memory_logs
+
+    # Add new log entry
+    _memory_logs.append({
+        'timestamp': message.record['time'],
+        'level': message.record['level'].name,
+        'name': message.record['name'],
+        'function': message.record['function'],
+        'line': message.record['line'],
+        'message': message.record['message'],
+        'extra': message.record['extra']
+    })
+
+    # Keep only the most recent logs (circular buffer)
+    if len(_memory_logs) > _MAX_MEMORY_LOGS:
+        _memory_logs.pop(0)
+
+def get_recent_logs(level_filter=None, module_filter=None, limit=50, since_minutes=None):
+    """Get recent logs with optional filtering."""
+    global _memory_logs
+    import datetime
+
+    logs = _memory_logs.copy()
+
+    # Apply time filter
+    if since_minutes:
+        cutoff_time = datetime.datetime.now() - datetime.timedelta(minutes=since_minutes)
+        logs = [log for log in logs if log['timestamp'] > cutoff_time]
+
+    # Apply level filter
+    if level_filter:
+        level_filter = level_filter.upper()
+        logs = [log for log in logs if log['level'] == level_filter]
+
+    # Apply module filter
+    if module_filter:
+        logs = [log for log in logs if module_filter.lower() in log['name'].lower()]
+
+    # Return most recent logs (limited)
+    return logs[-limit:] if limit else logs
+
 def setup_logging(log_level: str = "INFO"):
     """Configure structured logging with loguru."""
     logger.remove()  # Remove default handler
-    
+
     # Configure log format
     log_format = (
         "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
@@ -74,7 +120,7 @@ def setup_logging(log_level: str = "INFO"):
         "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
         "<level>{message}</level>"
     )
-    
+
     # Add console handler
     logger.add(
         sys.stderr,
@@ -83,28 +129,36 @@ def setup_logging(log_level: str = "INFO"):
         colorize=True
     )
 
-async def main():
+    # Add memory handler for log viewing (always captures DEBUG and above)
+    logger.add(
+        _memory_log_handler,
+        level="DEBUG",
+        format="{time} | {level} | {name}:{function}:{line} - {message}",
+        filter=lambda record: True  # Capture all logs for memory buffer
+    )
+
+def main():
     """Main entry point for the Blender MCP server."""
     # Parse command line arguments
     args = parse_args()
-    
+
     # Configure logging
     log_level = "DEBUG" if args.debug else "INFO"
     setup_logging(log_level)
-    
+
     logger.info("[START] Starting Blender MCP Server")
     logger.info(f"Python version: {sys.version}")
     logger.info(f"Running in {'HTTP' if args.http else 'stdio'} mode")
-    
+
     try:
         if args.http:
             logger.info(f"[HTTP] Starting HTTP server on {args.host}:{args.port}")
             # HTTP mode - use the app's built-in HTTP server
-            await app.run_http_async(host=args.host, port=args.port)
+            app.run_http(host=args.host, port=args.port)
         else:
             logger.info("[STDIO] Starting stdio server")
             # Stdio mode - use the app's built-in stdio server
-            await app.run_stdio_async()
+            app.run_stdio()
     except Exception as e:
         logger.error(f"[ERROR] Server error: {e}")
         sys.exit(1)
@@ -113,4 +167,4 @@ async def main():
         sys.exit(0)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

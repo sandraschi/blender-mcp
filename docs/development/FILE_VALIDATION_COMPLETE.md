@@ -248,7 +248,7 @@ async def scan_files():
 
 ## Files Created
 
-1. **`src/notepadpp_mcp/file_validator.py`** (600+ lines)
+1. **`src/blender_mcp/file_validator.py`** (600+ lines)
    - Complete validation implementation
    - Handles all edge cases
    - Configurable and extensible

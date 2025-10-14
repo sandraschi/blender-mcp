@@ -3,7 +3,7 @@
   "name": "blender-mcp",
   "display_name": "Blender MCP Server",
   "version": "1.0.0",
-  "description": "Complete Blender 3D automation MCP server with 37 tools across 19 categories for professional 3D content creation",
+  "description": "Complete Blender 3D automation MCP server with 50 tools across 19 categories for professional 3D content creation",
 
   "author": {
     "name": "Blender MCP Team",
@@ -827,7 +827,7 @@
   "prompts": {
     "welcome": {
       "title": "Welcome to Blender MCP",
-      "content": "Welcome to the comprehensive Blender automation server! This MCP server provides 37 tools across 19 categories for complete 3D content creation workflows.\n\nTo get started:\n1. Configure your Blender executable path\n2. Try creating a simple scene: 'Create a cube at position [0,0,0]'\n3. Add lighting: 'Set up three-point lighting'\n4. Render: 'Render a preview of the scene'\n\nFor advanced workflows, explore our comprehensive documentation."
+      "content": "Welcome to the comprehensive Blender automation server! This MCP server provides 50 tools across 19 categories for complete 3D content creation workflows.\n\nTo get started:\n1. Configure your Blender executable path\n2. Try creating a simple scene: 'Create a cube at position [0,0,0]'\n3. Add lighting: 'Set up three-point lighting'\n4. Render: 'Render a preview of the scene'\n\nFor advanced workflows, explore our comprehensive documentation."
     },
     "quick_start": {
       "title": "Quick Start Guide",

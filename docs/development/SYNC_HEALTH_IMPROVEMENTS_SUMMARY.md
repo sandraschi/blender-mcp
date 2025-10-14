@@ -85,7 +85,7 @@ class TestSyncMonitoring:          # 2 tests - observability
 ---
 
 ### 3. **Production-Ready Health Module**
-📄 `src/notepadpp_mcp/sync_health.py`
+📄 `src/blender_mcp/sync_health.py`
 
 **Features:**
 - ✅ Structured logging (structlog support)
@@ -426,11 +426,11 @@ def test_sync_completes():
 
 ## How to Use
 
-### For notepadpp-mcp
+### For blender-mcp
 
 1. **Copy the health module:**
    ```bash
-   # Already in: src/notepadpp_mcp/sync_health.py
+   # Already in: src/blender_mcp/sync_health.py
    ```
 
 2. **Add to your server:**
@@ -452,7 +452,7 @@ def test_sync_completes():
 
 1. **Copy the module:**
    ```bash
-   cp src/notepadpp_mcp/sync_health.py your_project/
+   cp src/blender_mcp/sync_health.py your_project/
    ```
 
 2. **Follow integration guide:**
@@ -485,7 +485,7 @@ This work transforms a **frustrating debugging session** into **reusable infrast
 - 📄 [MCP_SYNC_DEBUGGING_GUIDE.md](./MCP_SYNC_DEBUGGING_GUIDE.md) - Debugging guide
 - 📄 [SYNC_HEALTH_INTEGRATION.md](./SYNC_HEALTH_INTEGRATION.md) - Integration guide  
 - 📄 [test_sync_health.py](../../tests/test_sync_health.py) - Test suite
-- 📄 [sync_health.py](../../src/notepadpp_mcp/sync_health.py) - Health module
+- 📄 [sync_health.py](../../src/blender_mcp/sync_health.py) - Health module
 
 ---
 

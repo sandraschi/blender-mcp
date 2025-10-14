@@ -1,0 +1,204 @@
+site_name: Blender MCP Documentation
+site_description: Complete Blender automation and asset management documentation
+site_author: Blender MCP Team
+site_url: https://blender-mcp.readthedocs.io/
+
+# Repository
+repo_name: blender-mcp
+repo_url: https://github.com/sandraschi/blender-mcp
+edit_uri: edit/main/docs/
+
+# Copyright
+copyright: Copyright &copy; 2025 Blender MCP Team
+
+# Theme configuration
+theme:
+  name: material
+  language: en
+  palette:
+    - scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to light mode
+
+  features:
+    - announce.dismiss
+    - content.action.edit
+    - content.action.view
+    - content.code.annotate
+    - content.code.copy
+    - content.code.select
+    - content.tabs.link
+    - content.tooltips
+    - header.autohide
+    - navigation.expand
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.prune
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
+    - navigation.tracking
+    - search.highlight
+    - search.share
+    - search.suggest
+    - toc.follow
+    - toc.integrate
+
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+    previous: fontawesome/solid/angle-left
+    next: fontawesome/solid/angle-right
+
+# Plugins
+plugins:
+  - search:
+      separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - minify:
+      minify_html: true
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+  - git-committers:
+      repository: sandraschi/blender-mcp
+      branch: main
+
+# Customization
+extra:
+  version:
+    provider: mike
+    default: latest
+
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/sandraschi/blender-mcp
+    - icon: fontawesome/brands/blender
+      link: https://blender.org
+
+# Extensions
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - meta
+  - tables
+  - toc:
+      permalink: true
+      permalink_title: Anchor link to this section for reference
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      normalize_issue_symbols: true
+      repo_url_shorthand: true
+      user: sandraschi
+      repo: blender-mcp
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Navigation structure
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: installation.md
+      - Quick Start: quickstart.md
+      - Configuration: configuration.md
+  - User Guide:
+      - Blender MCP:
+          - Overview: ../blender/README.md
+          - Tool Reference: ../blender/TOOL_REFERENCE.md
+          - GUI Mode: ../blender/GUI_MODE.md
+          - Functionality Plan: ../blender/BLENDER_MCP_FUNCTIONALITY_PLAN.md
+      - Assets & Downloads:
+          - BlenderKit Guide: ../blender/BLENDERKIT_GUIDE.md
+          - Free Assets Guide: ../blender/FREE_ASSETS_GUIDE.md
+          - Asset Repositories: ../blender/ASSET_REPOSITORIES.md
+      - Logging & Debugging:
+          - Loguru Logging: ../development/LOGURU_LOGGING_GUIDE.md
+          - Log Tools: log_tools.md
+          - Download Tools: download_tools.md
+  - Development:
+      - Overview: ../development/README.md
+      - Standards: ../.cursor/rules.md
+      - AI Development: ../development/AI_DEVELOPMENT_RULES.md
+      - Tools Comparison: ../development/AI_DEVELOPMENT_TOOLS_COMPARISON.md
+      - Debugging: ../development/DEBUGGING_LESSONS_LEARNED.md
+      - Python Snippets: ../development/PYTHON_SNIPPETS_USAGE_GUIDE.md
+      - Project Updates: ../development/SYSTEMATIC_PROJECT_UPDATES.md
+      - Dependency Fixes: ../development/PYTHON_DEPENDENCY_HELL_FIX.md
+  - MCP Technical:
+      - Overview: ../mcp-technical/README.md
+      - Production Checklist: ../mcp-technical/MCP_PRODUCTION_CHECKLIST.md
+      - Troubleshooting: ../mcp-technical/TROUBLESHOOTING_FASTMCP_2.12.md
+      - Monitoring: ../mcp-technical/MONITORING_STACK_DEPLOYMENT.md
+      - Containerization: ../mcp-technical/CONTAINERIZATION_GUIDELINES.md
+  - Packaging:
+      - Overview: ../mcpb-packaging/README.md
+      - Building Guide: ../mcpb-packaging/MCPB_BUILDING_GUIDE.md
+      - Implementation: ../mcpb-packaging/MCPB_IMPLEMENTATION_SUMMARY.md
+      - Publishing: ../mcpb-packaging/PYPI_PUBLISHING_GUIDE.md
+  - Repository:
+      - Overview: ../repository-protection/README.md
+      - Branch Protection: ../repository-protection/BRANCH_PROTECTION_SETTINGS.md
+      - Branch Strategy: ../repository-protection/BRANCH_STRATEGY_AND_AI_WORKFLOW.md
+      - Backup & Recovery: ../repository-protection/BACKUP_AND_RECOVERY_GUIDE.md
+  - Examples:
+      - Overview: ../examples/README.md
+      - Basic Client: ../examples/basic_client.md
+      - Download Examples: ../examples/download_example.md
+  - Platform Integrations:
+      - Glama Platform: ../glama/platform/README.md
+      - CI/CD Optimization: ../glama/platform/CI_CD_GLAMA_OPTIMIZATION_GUIDE.md
+      - Integration Guide: ../glama/platform/GLAMA_INTEGRATION.md
+      - GitHub Setup: ../glama/platform/GLAMA_GITHUB_APP_SETUP.md
+      - Gold Status Achievement: ../glama/GOLD_STATUS_ACHIEVEMENT.md
+  - About:
+      - License: ../LICENSE
+      - Contributing: ../CONTRIBUTING.md
+      - Changelog: ../CHANGELOG.md
+      - Roadmap: ../ROADMAP.md

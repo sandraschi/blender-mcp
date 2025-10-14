@@ -66,14 +66,27 @@ def _register_furniture_tools():
             create_cabinet, create_desk, create_shelf, create_stool
         )
 
+        from loguru import logger
+        logger.info(f"🪑 blender_furniture called with operation='{operation}', name='{name}'")
+
         try:
+            # Convert tuple parameters to proper formats
+            dimensions_tuple = tuple(float(x) for x in dimensions) if hasattr(dimensions, '__iter__') and not isinstance(dimensions, str) else dimensions
+            location_tuple = tuple(float(x) for x in location) if hasattr(location, '__iter__') and not isinstance(location, str) else location
+
+            # Validate 3-element vectors
+            if len(dimensions_tuple) != 3:
+                return f"Error: dimensions must be a 3-element array/tuple, got {len(dimensions_tuple)} elements"
+            if len(location_tuple) != 3:
+                return f"Error: location must be a 3-element array/tuple, got {len(location_tuple)} elements"
+
             if operation == "create_chair":
                 return await create_chair(
                     name=name,
                     chair_type=chair_type,
                     style=style,
-                    dimensions=dimensions,
-                    location=location,
+                    dimensions=dimensions_tuple,
+                    location=location_tuple,
                     material=material
                 )
 
@@ -82,8 +95,8 @@ def _register_furniture_tools():
                     name=name,
                     table_type=table_type,
                     style=style,
-                    dimensions=dimensions,
-                    location=location,
+                    dimensions=dimensions_tuple,
+                    location=location_tuple,
                     material=material
                 )
 
@@ -92,8 +105,8 @@ def _register_furniture_tools():
                     name=name,
                     bed_type=bed_type,
                     style=style,
-                    dimensions=dimensions,
-                    location=location,
+                    dimensions=dimensions_tuple,
+                    location=location_tuple,
                     material=material
                 )
 
@@ -102,8 +115,8 @@ def _register_furniture_tools():
                     name=name,
                     sofa_type=sofa_type,
                     style=style,
-                    dimensions=dimensions,
-                    location=location,
+                    dimensions=dimensions_tuple,
+                    location=location_tuple,
                     material=material
                 )
 
@@ -112,8 +125,8 @@ def _register_furniture_tools():
                     name=name,
                     cabinet_type=cabinet_type,
                     style=style,
-                    dimensions=dimensions,
-                    location=location,
+                    dimensions=dimensions_tuple,
+                    location=location_tuple,
                     material=material
                 )
 
@@ -122,8 +135,8 @@ def _register_furniture_tools():
                     name=name,
                     desk_type=desk_type,
                     style=style,
-                    dimensions=dimensions,
-                    location=location,
+                    dimensions=dimensions_tuple,
+                    location=location_tuple,
                     material=material
                 )
 
@@ -132,8 +145,8 @@ def _register_furniture_tools():
                     name=name,
                     shelf_type=shelf_type,
                     style=style,
-                    dimensions=dimensions,
-                    location=location,
+                    dimensions=dimensions_tuple,
+                    location=location_tuple,
                     material=material
                 )
 
@@ -142,8 +155,8 @@ def _register_furniture_tools():
                     name=name,
                     stool_type=stool_type,
                     style=style,
-                    dimensions=dimensions,
-                    location=location,
+                    dimensions=dimensions_tuple,
+                    location=location_tuple,
                     material=material
                 )
 
@@ -151,6 +164,7 @@ def _register_furniture_tools():
                 return f"Unknown furniture operation: {operation}"
 
         except Exception as e:
+            logger.error(f"❌ Error in furniture operation '{operation}': {str(e)}")
             return f"Error in furniture operation '{operation}': {str(e)}"
 
 

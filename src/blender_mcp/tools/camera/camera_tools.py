@@ -58,12 +58,28 @@ def _register_camera_tools():
             create_camera, set_active_camera, set_camera_lens
         )
 
+        from loguru import logger
+        logger.info(f"📷 blender_camera called with operation='{operation}', camera_name='{camera_name}', location={location}")
+
         try:
+            # Convert parameters to proper formats
+            location_tuple = tuple(float(x) for x in location) if hasattr(location, '__iter__') and not isinstance(location, str) else location
+            rotation_tuple = tuple(float(x) for x in rotation) if hasattr(rotation, '__iter__') and not isinstance(rotation, str) else rotation
+            target_tuple = tuple(float(x) for x in target_location) if target_location and hasattr(target_location, '__iter__') and not isinstance(target_location, str) else target_location
+
+            # Validate 3-element vectors
+            if len(location_tuple) != 3:
+                return f"Error: location must be a 3-element array/tuple, got {len(location_tuple)} elements"
+            if len(rotation_tuple) != 3:
+                return f"Error: rotation must be a 3-element array/tuple, got {len(rotation_tuple)} elements"
+            if target_tuple and len(target_tuple) != 3:
+                return f"Error: target_location must be a 3-element array/tuple, got {len(target_tuple)} elements"
+
             if operation == "create_camera":
                 return await create_camera(
                     name=camera_name,
-                    location=location,
-                    rotation=rotation,
+                    location=location_tuple,
+                    rotation=rotation_tuple,
                     lens=lens,
                     sensor_width=sensor_width
                 )
@@ -85,6 +101,7 @@ def _register_camera_tools():
                 return f"Unknown camera operation: {operation}. Available: create_camera, set_active_camera, set_camera_lens"
 
         except Exception as e:
+            logger.error(f"❌ Error in camera operation '{operation}': {str(e)}")
             return f"Error in camera operation '{operation}': {str(e)}"
 
 

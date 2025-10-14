@@ -29,7 +29,7 @@
     "**/.pytest_cache": true
   },
   "python.testing.pytestArgs": [
-    "src/notepadpp_mcp/tests"
+    "tests"
   ],
   "python.testing.pytestEnabled": true,
   "mypy.configFile": "pyproject.toml",

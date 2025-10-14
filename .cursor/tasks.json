@@ -42,9 +42,9 @@
       }
     },
     {
-      "label": "Run Real Integration Test",
+      "label": "Run Integration Tests",
       "type": "shell",
-      "command": "build_venv\\Scripts\\activate && python demonstration_test.py",
+      "command": "build_venv\\Scripts\\activate && python -m pytest tests/integration/ -v",
       "group": "test",
       "presentation": {
         "echo": true,
@@ -56,7 +56,7 @@
     {
       "label": "Format Code",
       "type": "shell",
-      "command": "build_venv\\Scripts\\activate && python dev.py format",
+      "command": "build_venv\\Scripts\\activate && black src/ tests/ --line-length=100",
       "group": "build",
       "presentation": {
         "echo": true,
@@ -66,9 +66,9 @@
       }
     },
     {
-      "label": "Build DXT Package",
+      "label": "Build MCPB Package",
       "type": "shell",
-      "command": "build_venv\\Scripts\\activate && dxt pack",
+      "command": "build_venv\\Scripts\\activate && mcpb pack . dist/blender-mcp.mcpb",
       "group": "build",
       "presentation": {
         "echo": true,
@@ -78,9 +78,9 @@
       }
     },
     {
-      "label": "Validate DXT Configuration",
+      "label": "Validate MCPB Package",
       "type": "shell",
-      "command": "build_venv\\Scripts\\activate && dxt validate src/notepadpp_mcp/dxt/dxt.toml",
+      "command": "build_venv\\Scripts\\activate && mcpb validate dist/blender-mcp.mcpb",
       "group": "build",
       "presentation": {
         "echo": true,
@@ -104,7 +104,7 @@
     {
       "label": "Run Linting",
       "type": "shell",
-      "command": "build_venv\\Scripts\\activate && python dev.py lint",
+      "command": "build_venv\\Scripts\\activate && python -m flake8 src/ tests/ --max-line-length=100",
       "group": "build",
       "presentation": {
         "echo": true,
@@ -116,7 +116,7 @@
     {
       "label": "Clean Build Environment",
       "type": "shell",
-      "command": "if (Test-Path build_venv) { Remove-Item build_venv -Recurse -Force }; if (Test-Path dist) { Remove-Item dist -Recurse -Force }; if (Test-Path *.dxt) { Remove-Item *.dxt -Force }",
+      "command": "if (Test-Path build_venv) { Remove-Item build_venv -Recurse -Force }; if (Test-Path dist) { Remove-Item dist -Recurse -Force }; if (Test-Path *.mcpb) { Remove-Item *.mcpb -Force }",
       "group": "build",
       "presentation": {
         "echo": true,
@@ -141,7 +141,7 @@
     {
       "label": "Run MCP Server",
       "type": "shell",
-      "command": "python -m notepadpp_mcp.tools.server",
+      "command": "python -m blender_mcp",
       "group": "build",
       "presentation": {
         "echo": true,
@@ -166,7 +166,7 @@
     {
       "label": "List Available Tools",
       "type": "shell",
-      "command": "python -c \"from notepadpp_mcp.tools.server import app; tools = app._tools; print(f'Total tools: {len(tools)}'); [print(f'- {tool.name}') for tool in tools.values()]\"",
+      "command": "python -c \"import asyncio; from blender_mcp.app import get_app; async def main(): app = get_app(); tools = await app.get_tools(); print(f'Total tools: {len(tools)}'); [print(f'- {tool.name}') for tool in tools]; asyncio.run(main())\"",
       "group": "test",
       "presentation": {
         "echo": true,

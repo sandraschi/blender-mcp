@@ -32,10 +32,10 @@ def blender_operation(
             start_time = time.time()
             operation_id = f"{operation_name}_{int(start_time * 1000)}"
             
-            logger.info(f"🎨 Starting Blender operation: {operation_name} [{operation_id}]")
+            logger.info(f"Starting Blender operation: {operation_name} [{operation_id}]")
             
             if log_args:
-                logger.debug(f"📥 Operation args: {args[1:] if args else []}, kwargs: {kwargs}")
+                logger.debug(f"Operation args: {args[1:] if args else []}, kwargs: {kwargs}")
             
             try:
                 if validate_blender:
@@ -46,20 +46,20 @@ def blender_operation(
                 result = await func(*args, **kwargs)
                 
                 execution_time = time.time() - start_time
-                logger.info(f"✅ Blender operation completed: {operation_name} [{operation_id}] ({execution_time:.2f}s)")
+                logger.info(f"Blender operation completed: {operation_name} [{operation_id}] ({execution_time:.2f}s)")
                 
                 if log_result:
-                    logger.debug(f"📤 Operation result: {result}")
+                    logger.debug(f"Operation result: {result}")
                 
                 return result
                 
             except BlenderMCPError as e:
                 execution_time = time.time() - start_time
-                logger.error(f"❌ Blender operation failed: {operation_name} [{operation_id}] ({execution_time:.2f}s) - {e}")
+                logger.error(f"Blender operation failed: {operation_name} [{operation_id}] ({execution_time:.2f}s) - {e}")
                 raise
             except Exception as e:
                 execution_time = time.time() - start_time
-                logger.error(f"💥 Unexpected error in Blender operation: {operation_name} [{operation_id}] ({execution_time:.2f}s) - {e}")
+                logger.error(f"Unexpected error in Blender operation: {operation_name} [{operation_id}] ({execution_time:.2f}s) - {e}")
                 raise BlenderMCPError(f"Unexpected error in {operation_name}: {str(e)}", "UNEXPECTED_ERROR")
         
         return wrapper

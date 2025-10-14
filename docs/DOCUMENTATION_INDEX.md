@@ -1,6 +1,6 @@
 # 📚 Complete Documentation Index
 
-**Central hub for all notepadpp-mcp documentation**
+**Central hub for all blender-mcp documentation**
 
 ---
 
@@ -46,12 +46,14 @@ docs/
 │   ├── GLAMA_AI_RESCAN_GUIDE.md → Rescan procedures
 │   └── GLAMA_RESCAN_EMAIL.txt → Support templates
 │
-├── notepadpp/                  📝 Complete Notepad++ reference (NEW!)
-│   ├── README.md              → Notepad++ documentation hub
-│   ├── NOTEPADPP_COMPLETE_GUIDE.md → History, features, config (15+ pages)
-│   ├── PLUGIN_ECOSYSTEM_COMPREHENSIVE.md → 1,400+ plugins (12+ pages)
-│   ├── COMMUNITY_AND_SUPPORT.md → Community & help (10+ pages)
-│   └── NOTEPADPP_COLOR_FIX_2025_10_08.md → White-on-white fix
+├── blender/                    📝 Complete Blender reference (NEW!)
+│   ├── README.md              → Blender documentation hub
+│   ├── TOOL_REFERENCE.md      → Complete tool API reference
+│   ├── BLENDER_MCP_FUNCTIONALITY_PLAN.md → Tool inventory & status
+│   ├── GUI_MODE.md            → Interactive Blender integration
+│   ├── BLENDERKIT_GUIDE.md    → Asset platform guide
+│   ├── FREE_ASSETS_GUIDE.md   → Free asset repositories
+│   └── ASSET_REPOSITORIES.md  → Automated asset integration
 │
 ├── development/                💻 Development guides & best practices (NEW!)
 │   ├── README.md              → Development documentation hub
@@ -81,7 +83,7 @@ docs/
 ├── DOCUMENTATION_INDEX.md     📚 This file - Complete doc index
 ├── ORGANIZATION_SUMMARY.md    📋 Documentation organization log
 │
-src/notepadpp_mcp/docs/
+docs/
 ├── README.md                  📘 Complete API documentation
 ├── PRD.md                     📋 Product requirements
 ├── PLUGIN_ECOSYSTEM.md        🔌 Plugin integration (1,400+)
@@ -212,55 +214,53 @@ Complete documentation for achieving, maintaining, and enhancing Gold Status on 
 
 ---
 
-## 📝 **Notepad++ Reference Documentation**
+## 📝 **Blender Reference Documentation**
 
-**Location**: `docs/notepadpp/`
+**Location**: `docs/blender/`
 
 ### **Purpose**
-Complete reference documentation for Notepad++ - history, features, plugins, and community.
+Complete reference documentation for Blender MCP - tools, workflows, assets, and integration.
 
 ### **Documents**
 
-#### **1. Notepad++ Complete Guide** ⭐
-📄 [NOTEPADPP_COMPLETE_GUIDE.md](notepadpp/NOTEPADPP_COMPLETE_GUIDE.md)
+#### **1. Blender MCP Tool Reference** ⭐
+📄 [TOOL_REFERENCE.md](blender/TOOL_REFERENCE.md)
 
-**15+ page comprehensive reference** covering:
-- History & evolution (2003-2025, 22 years)
-- Core features (editing, syntax, search)
-- Technical architecture (Scintilla, Win32 API)
-- Configuration deep dive (stylers.xml, config.xml)
-- Recent changes (v8.5-8.7)
-- Comparison with alternatives
-- Best practices by user type
+**Complete API reference** for all 50+ Blender MCP tools covering:
+- Tool signatures and parameters
+- Return value specifications
+- Usage examples and error handling
+- Performance characteristics
+- Integration patterns
 
-#### **2. Plugin Ecosystem Guide**
-📄 [PLUGIN_ECOSYSTEM_COMPREHENSIVE.md](notepadpp/PLUGIN_ECOSYSTEM_COMPREHENSIVE.md)
+#### **2. Blender MCP Functionality Plan**
+📄 [BLENDER_MCP_FUNCTIONALITY_PLAN.md](blender/BLENDER_MCP_FUNCTIONALITY_PLAN.md)
 
-**12+ page plugin reference** covering:
-- 1,400+ official plugins
-- 8 plugin categories
-- Top 50 plugins ranked
-- Installation methods
-- Plugin development
-- Security & signing
+**Complete tool inventory** covering:
+- 50+ working tools across 19 categories
+- Implementation status and testing
+- Tool operation mappings
+- Future development roadmap
+- Performance benchmarks
 
-#### **3. Community & Support**
-📄 [COMMUNITY_AND_SUPPORT.md](notepadpp/COMMUNITY_AND_SUPPORT.md)
+#### **3. BlenderKit Asset Platform Guide**
+📄 [BLENDERKIT_GUIDE.md](blender/BLENDERKIT_GUIDE.md)
 
-**10+ page community guide** covering:
-- Official channels (forum, GitHub, docs)
-- Reddit (15k members), Stack Overflow (10k questions)
-- Getting help procedures
-- Contributing guidelines
-- 100M+ users worldwide
+**Comprehensive asset guide** covering:
+- BlenderKit platform setup and usage
+- Asset categories and quality tiers
+- Premium vs free assets
+- Download and import workflows
+- Integration with Blender MCP tools
 
-#### **4. Color Fix Documentation**
-📄 [NOTEPADPP_COLOR_FIX_2025_10_08.md](notepadpp/NOTEPADPP_COLOR_FIX_2025_10_08.md)
+#### **4. Free Assets Guide**
+📄 [FREE_ASSETS_GUIDE.md](blender/FREE_ASSETS_GUIDE.md)
 
-**White-on-white text fix**:
-- Problem diagnosis
-- Configuration fix
-- Verification steps
+**Legal free 3D assets guide**:
+- Top 7 recommended free asset sites
+- License types and legal considerations
+- Search strategies and quality indicators
+- Blender MCP download integration
 
 ---
 
@@ -269,7 +269,7 @@ Complete reference documentation for Notepad++ - history, features, plugins, and
 **Location**: `docs/development/`
 
 ### **Purpose**
-Development guides, best practices, and lessons learned from building notepadpp-mcp.
+Development guides, best practices, and lessons learned from building blender-mcp.
 
 ### **Documents**
 
@@ -422,10 +422,10 @@ Complete guide to professional MCP server packaging and distribution.
 
 ## 📘 **API & Development Documentation**
 
-**Location**: `src/notepadpp_mcp/docs/`
+**Location**: `docs/`
 
 ### **Complete API Documentation**
-📄 [src/notepadpp_mcp/docs/README.md](../src/notepadpp_mcp/docs/README.md)
+📄 [docs/README.md](../docs/README.md)
 
 **Comprehensive MCP server guide**:
 - All 26 tools documented
@@ -434,7 +434,7 @@ Complete guide to professional MCP server packaging and distribution.
 - Architecture
 
 ### **Product Requirements Document**
-📄 [src/notepadpp_mcp/docs/PRD.md](../src/notepadpp_mcp/docs/PRD.md)
+📄 [docs/PRD.md](../docs/PRD.md)
 
 **Vision and roadmap**:
 - Business objectives
@@ -443,7 +443,7 @@ Complete guide to professional MCP server packaging and distribution.
 - Success metrics
 
 ### **Plugin Ecosystem Guide**
-📄 [src/notepadpp_mcp/docs/PLUGIN_ECOSYSTEM.md](../src/notepadpp_mcp/docs/PLUGIN_ECOSYSTEM.md)
+📄 [docs/PLUGIN_ECOSYSTEM.md](../docs/PLUGIN_ECOSYSTEM.md)
 
 **Integration with 1,400+ official plugins**:
 - Plugin discovery
@@ -498,7 +498,7 @@ Overview of all automation scripts.
 | Branch strategy | [Branch Strategy](repository-protection/BRANCH_STRATEGY_AND_AI_WORKFLOW.md) | Workflow |
 | AI collaboration | [Branch Strategy](repository-protection/BRANCH_STRATEGY_AND_AI_WORKFLOW.md) | AI Prompts |
 | Create release | [MCPB Guide](MCPB_BUILDING_GUIDE.md) | Releases |
-| Run tests | [API Docs](../src/notepadpp_mcp/docs/README.md) | Testing |
+| Run tests | [API Docs](../docs/README.md) | Testing |
 
 ### **Troubleshooting**
 
@@ -507,7 +507,7 @@ Overview of all automation scripts.
 | Can't push to main | [Branch Protection](repository-protection/BRANCH_PROTECTION_SETTINGS.md) | Common Issues |
 | Lost work | [Backup Guide](repository-protection/BACKUP_AND_RECOVERY_GUIDE.md) | Recovery |
 | Build fails | [MCPB Guide](MCPB_BUILDING_GUIDE.md) | Troubleshooting |
-| Tool errors | [API Docs](../src/notepadpp_mcp/docs/README.md) | Tools |
+| Tool errors | [API Docs](../docs/README.md) | Tools |
 
 ---
 
@@ -528,8 +528,8 @@ Overview of all automation scripts.
 1. [README.md](../README.md) - Overview
 2. [CONTRIBUTING.md](../CONTRIBUTING.md) - Guidelines
 3. [Repository Protection](repository-protection/README.md) - Strategy
-4. [API Documentation](../src/notepadpp_mcp/docs/README.md) - Tools
-5. [PRD](../src/notepadpp_mcp/docs/PRD.md) - Vision
+4. [API Documentation](../docs/README.md) - Tools
+5. [PRD](../docs/PRD.md) - Vision
 
 **Result**: Ready to contribute! ✅
 
@@ -576,9 +576,9 @@ If you find errors or missing information:
 
 ### **Contact**
 
-- **GitHub Issues**: https://github.com/sandraschi/notepadpp-mcp/issues
-- **Pull Requests**: https://github.com/sandraschi/notepadpp-mcp/pulls
-- **Discussions**: https://github.com/sandraschi/notepadpp-mcp/discussions
+- **GitHub Issues**: https://github.com/sandraschi/blender-mcp/issues
+- **Pull Requests**: https://github.com/sandraschi/blender-mcp/pulls
+- **Discussions**: https://github.com/sandraschi/blender-mcp/discussions
 
 ---
 
@@ -607,7 +607,7 @@ Based on what you need:
 ### **I Want to Develop**
 → Read [CONTRIBUTING.md](../CONTRIBUTING.md)  
 → Review [Branch Strategy](repository-protection/BRANCH_STRATEGY_AND_AI_WORKFLOW.md)  
-→ Check [API Docs](../src/notepadpp_mcp/docs/README.md)
+→ Check [API Docs](../docs/README.md)
 
 ### **I Want to Release**
 → Read [MCPB Guide](MCPB_BUILDING_GUIDE.md)  
@@ -617,7 +617,7 @@ Based on what you need:
 ### **I Need Help**
 → Check [Repository Protection](repository-protection/README.md)  
 → See [Backup Guide](repository-protection/BACKUP_AND_RECOVERY_GUIDE.md)  
-→ Create [GitHub Issue](https://github.com/sandraschi/notepadpp-mcp/issues)
+→ Create [GitHub Issue](https://github.com/sandraschi/blender-mcp/issues)
 
 ---
 
@@ -629,5 +629,5 @@ Based on what you need:
 *Status: Complete*  
 *Coverage: 100%*
 
-**Everything you need to know about notepadpp-mcp!** 📚✨
+**Everything you need to know about blender-mcp!** 📚✨
 

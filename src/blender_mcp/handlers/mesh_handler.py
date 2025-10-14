@@ -5,6 +5,7 @@ Provides functions for creating basic mesh primitives and manipulating mesh obje
 """
 
 from typing import Tuple, Optional
+from loguru import logger
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 from ..exceptions import BlenderMeshError
@@ -29,17 +30,18 @@ async def create_cube(
     Returns:
         Success message
     """
+    logger.info(f"Creating cube '{name}' at {location} with scale {scale}")
+
     script = f"""
 import bpy
 
 # Create cube
-bpy.ops.mesh.primitive_cube_add(location={location}, scale={scale})
+bpy.ops.mesh.primitive_cube_add(location={location!r}, scale={scale!r})
 obj = bpy.context.active_object
-obj.name = "{name}"
-
-print(f"Created cube: {name}")
+obj.name = {name!r}
 """
     result = await _executor.execute_script(script)
+    logger.info(f"Successfully created cube '{name}'")
     return f"Created cube '{name}' at {location}"
 
 
@@ -66,23 +68,24 @@ async def create_sphere(
     Returns:
         Success message
     """
+    logger.info(f"Creating sphere '{name}' at {location} with radius {radius}, segments {segments}")
+
     script = f"""
 import bpy
 
 # Create sphere
 bpy.ops.mesh.primitive_uv_sphere_add(
-    location={location},
-    scale={scale},
+    location={location!r},
+    scale={scale!r},
     radius={radius},
     segments={segments},
     ring_count={rings}
 )
 obj = bpy.context.active_object
-obj.name = "{name}"
-
-print(f"Created sphere: {name}")
+obj.name = {name!r}
 """
     result = await _executor.execute_script(script)
+    logger.info(f"✅ Successfully created sphere '{name}'")
     return f"Created sphere '{name}' at {location}"
 
 
@@ -109,23 +112,24 @@ async def create_cylinder(
     Returns:
         Success message
     """
+    logger.info(f"Creating cylinder '{name}' at {location} with radius {radius}, depth {depth}")
+
     script = f"""
 import bpy
 
 # Create cylinder
 bpy.ops.mesh.primitive_cylinder_add(
-    location={location},
-    scale={scale},
+    location={location!r},
+    scale={scale!r},
     radius={radius},
     depth={depth},
     vertices={vertices}
 )
 obj = bpy.context.active_object
-obj.name = "{name}"
-
-print(f"Created cylinder: {name}")
+obj.name = {name!r}
 """
     result = await _executor.execute_script(script)
+    logger.info(f"✅ Successfully created cylinder '{name}'")
     return f"Created cylinder '{name}' at {location}"
 
 
@@ -152,23 +156,24 @@ async def create_cone(
     Returns:
         Success message
     """
+    logger.info(f"Creating cone '{name}' at {location} with base radius {radius1}, depth {depth}")
+
     script = f"""
 import bpy
 
 # Create cone
 bpy.ops.mesh.primitive_cone_add(
-    location={location},
-    scale={scale},
+    location={location!r},
+    scale={scale!r},
     radius1={radius1},
     depth={depth},
     vertices={vertices}
 )
 obj = bpy.context.active_object
-obj.name = "{name}"
-
-print(f"Created cone: {name}")
+obj.name = {name!r}
 """
     result = await _executor.execute_script(script)
+    logger.info(f"✅ Successfully created cone '{name}'")
     return f"Created cone '{name}' at {location}"
 
 
@@ -189,17 +194,18 @@ async def create_plane(
     Returns:
         Success message
     """
+    logger.info(f"Creating plane '{name}' at {location} with scale {scale}")
+
     script = f"""
 import bpy
 
 # Create plane
-bpy.ops.mesh.primitive_plane_add(location={location}, scale={scale})
+bpy.ops.mesh.primitive_plane_add(location={location!r}, scale={scale!r})
 obj = bpy.context.active_object
-obj.name = "{name}"
-
-print(f"Created plane: {name}")
+obj.name = {name!r}
 """
     result = await _executor.execute_script(script)
+    logger.info(f"✅ Successfully created plane '{name}'")
     return f"Created plane '{name}' at {location}"
 
 
@@ -222,21 +228,22 @@ async def create_torus(
     Returns:
         Success message
     """
+    logger.info(f"Creating torus '{name}' at {location} with major radius {major_radius}, minor radius {minor_radius}")
+
     script = f"""
 import bpy
 
 # Create torus
 bpy.ops.mesh.primitive_torus_add(
-    location={location},
+    location={location!r},
     major_radius={major_radius},
     minor_radius={minor_radius}
 )
 obj = bpy.context.active_object
-obj.name = "{name}"
-
-print(f"Created torus: {name}")
+obj.name = {name!r}
 """
     result = await _executor.execute_script(script)
+    logger.info(f"✅ Successfully created torus '{name}'")
     return f"Created torus '{name}' at {location}"
 
 
@@ -257,17 +264,18 @@ async def create_monkey(
     Returns:
         Success message
     """
+    logger.info(f"Creating Suzanne '{name}' at {location} with scale {scale}")
+
     script = f"""
 import bpy
 
 # Create monkey
-bpy.ops.mesh.primitive_monkey_add(location={location}, scale={scale})
+bpy.ops.mesh.primitive_monkey_add(location={location!r}, scale={scale!r})
 obj = bpy.context.active_object
-obj.name = "{name}"
-
-print(f"Created Suzanne: {name}")
+obj.name = {name!r}
 """
     result = await _executor.execute_script(script)
+    logger.info(f"✅ Successfully created Suzanne '{name}'")
     return f"Created Suzanne '{name}' at {location}"
 
 
@@ -286,13 +294,15 @@ async def duplicate_object(
     Returns:
         Success message
     """
+    logger.info(f"Duplicating object '{source_name}' as '{new_name}'")
+
     script = f"""
 import bpy
 
 # Find source object
-obj = bpy.data.objects.get("{source_name}")
+obj = bpy.data.objects.get({source_name!r})
 if not obj:
-    raise ValueError(f"Object '{{source_name}}' not found")
+    raise ValueError(f"Object {source_name!r} not found")
 
 # Select and duplicate
 bpy.ops.object.select_all(action='DESELECT')
@@ -302,11 +312,10 @@ bpy.ops.object.duplicate()
 
 # Rename duplicate
 dup_obj = bpy.context.active_object
-dup_obj.name = "{new_name}"
-
-print(f"Duplicated object: {new_name}")
+dup_obj.name = {new_name!r}
 """
     result = await _executor.execute_script(script)
+    logger.info(f"✅ Successfully duplicated '{source_name}' as '{new_name}'")
     return f"Duplicated '{source_name}' as '{new_name}'"
 
 
@@ -321,16 +330,18 @@ async def delete_object(name: str) -> str:
     Returns:
         Success message
     """
+    logger.info(f"Deleting object '{name}'")
+
     script = f"""
 import bpy
 
 # Find and delete object
-obj = bpy.data.objects.get("{name}")
+obj = bpy.data.objects.get({name!r})
 if obj:
     bpy.data.objects.remove(obj)
-    print(f"Deleted object: {name}")
 else:
-    raise ValueError(f"Object '{name}' not found")
+    raise ValueError(f"Object {name!r} not found")
 """
     result = await _executor.execute_script(script)
+    logger.info(f"✅ Successfully deleted object '{name}'")
     return f"Deleted object '{name}'"

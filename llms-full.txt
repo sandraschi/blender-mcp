@@ -1,0 +1,711 @@
+# Blender MCP Server - Complete Documentation
+
+> Complete Blender 3D automation MCP server with 50+ tools across 19 categories for professional 3D content creation workflows. Enables natural language control over Blender's Python API through Claude Desktop and other AI assistants.
+
+## Overview
+
+This is a **FastMCP 2.12 server** that exposes Blender's powerful 3D creation and manipulation capabilities as standardized MCP tools. It allows AI assistants like Claude to:
+
+- **Create 3D scenes, objects, and materials programmatically**
+- **Automate complex Blender workflows**
+- **Generate content for games, visualization, and media production**
+- **Batch process 3D assets and exports**
+
+## Architecture
+
+**FastMCP 2.12 Standard Compliance:**
+- ✅ Proper `@app.tool` decorators
+- ✅ Multiline self-documenting docstrings (no """ inside)
+- ✅ Pydantic parameter validation
+- ✅ Async/await pattern
+- ✅ Stdio and HTTP transport support
+
+**Connection Methods:**
+- **Stdio**: Connect to Claude Desktop for interactive 3D creation
+- **HTTP**: REST API for integration with other applications
+- **Local Development**: Direct Python API access
+
+## Installation
+
+### Prerequisites
+- **Python**: 3.10 or higher (3.11+ recommended)
+- **Blender**: 4.0+ (4.4+ recommended for full compatibility)
+- **RAM**: 8GB minimum, 16GB+ recommended
+- **Storage**: 2GB free space for installation + assets
+
+### Operating System Support
+- ✅ **Windows 10/11** - Fully supported
+- ✅ **macOS 12+** - Fully supported
+- ✅ **Linux (Ubuntu 20.04+)** - Fully supported
+- ✅ **WSL2** - Windows Subsystem for Linux
+
+### Quick Install (Recommended)
+
+#### Option 1: PyPI Package
+```bash
+# Install from PyPI
+pip install blender-mcp
+
+# Verify installation
+python -c "import blender_mcp; print('✅ Blender MCP installed successfully')"
+```
+
+#### Option 2: MCPB Package (One-Click Install)
+```bash
+# Install MCPB CLI if not already installed
+pip install mcpb
+
+# Download and install Blender MCP
+mcpb install https://github.com/sandraschi/blender-mcp/releases/latest/download/blender-mcp.mcpb
+```
+
+### Advanced Installation
+
+#### From Source Code
+```bash
+# Clone the repository
+git clone https://github.com/sandraschi/blender-mcp.git
+cd blender-mcp
+
+# Create virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Install in development mode
+pip install -e .
+
+# Verify installation
+python -m blender_mcp --help
+```
+
+#### Development Setup
+```bash
+# Install additional development dependencies
+pip install -r requirements-dev.txt
+
+# Install pre-commit hooks
+pre-commit install
+
+# Run tests to verify everything works
+pytest tests/unit/ -v
+```
+
+## Blender Setup
+
+### Download and Install Blender
+
+#### Windows
+```bash
+# Download from https://blender.org/download/
+# Run the installer
+# Note the installation path (usually: C:\Program Files\Blender Foundation\Blender 4.4\)
+```
+
+#### macOS
+```bash
+# Download from https://blender.org/download/
+# Drag to Applications folder
+# Note the path: /Applications/Blender.app/Contents/MacOS/Blender
+```
+
+#### Linux
+```bash
+# Download from https://blender.org/download/
+# Extract to ~/blender/
+# Make executable: chmod +x ~/blender/blender
+# Note the path: ~/blender/blender
+```
+
+### Verify Blender Installation
+```bash
+# Run Blender to verify it works
+/path/to/blender --version
+
+# Expected output:
+# Blender 4.4.0
+# ...
+```
+
+## MCP Server Configuration
+
+### Claude Desktop Setup
+
+#### Basic Configuration
+```json
+{
+  "mcpServers": {
+    "blender-mcp": {
+      "command": "python",
+      "args": ["-m", "blender_mcp"],
+      "env": {
+        "BLENDER_EXECUTABLE": "/path/to/blender"
+      }
+    }
+  }
+}
+```
+
+#### Blender Path Examples
+
+**Windows:**
+```json
+"BLENDER_EXECUTABLE": "C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe"
+```
+
+**macOS:**
+```json
+"BLENDER_EXECUTABLE": "/Applications/Blender.app/Contents/MacOS/Blender"
+```
+
+**Linux:**
+```json
+"BLENDER_EXECUTABLE": "/home/user/blender/blender"
+```
+
+### Environment Variables
+
+#### Required Settings
+- `BLENDER_EXECUTABLE` - Path to Blender executable (required)
+
+#### Performance Settings
+- `OPERATION_TIMEOUT` - Maximum seconds for single operations (default: 30)
+- `MAX_PARALLEL_OPERATIONS` - Concurrent Blender operations (default: 3)
+- `ENABLE_GPU_RENDERING` - Use GPU acceleration (default: false)
+
+#### Logging Configuration
+- `LOG_LEVEL` - Logging verbosity: DEBUG, INFO, WARNING, ERROR (default: INFO)
+
+## Quick Start Guide
+
+### Prerequisites
+- ✅ Blender MCP installed
+- ✅ Blender 4.0+ installed and configured
+- ✅ Claude Desktop configured with MCP server
+
+### Verify Setup
+
+#### Test Blender MCP
+```bash
+# Check server starts
+python -m blender_mcp --version
+
+# Test with debug logging
+python -m blender_mcp --debug --help
+```
+
+#### Test Claude Integration
+1. **Open Claude Desktop**
+2. **Ask**: "What Blender tools are available?"
+3. **Expected**: Claude lists 50+ tools across categories
+
+### Your First 3D Scene
+
+#### Step 1: Create a Basic Object
+**Tell Claude:**
+```
+Create a red cube at position [2, 0, 0] with size 2
+```
+
+**What happens:**
+- Claude analyzes your request
+- Selects appropriate tools (`blender_mesh`, `blender_materials`)
+- Executes Blender operations
+- Returns confirmation with results
+
+#### Step 2: Add Lighting
+**Tell Claude:**
+```
+Set up professional three-point lighting for the scene
+```
+
+**What happens:**
+- Creates key, fill, and rim lights
+- Positions lights optimally
+- Configures light properties
+
+#### Step 3: Add Camera and Render
+**Tell Claude:**
+```
+Add a camera looking at the cube and render a preview image
+```
+
+**What happens:**
+- Creates and positions camera
+- Sets up render settings
+- Generates preview image
+
+### Advanced Examples
+
+#### Character Creation Workflow
+```
+Create a simple character: body (cylinder), head (sphere), arms (cylinders), legs (cylinders)
+Apply skin material to all parts
+Add a ground plane
+Position character and set up lighting
+```
+
+#### Animation Sequence
+```
+Create a bouncing ball: sphere with physics
+Add a ground plane
+Enable gravity and physics simulation
+Bake the animation for 120 frames
+```
+
+#### Asset Download and Import
+```
+Download a katana model from polyhaven and import it
+Apply a metallic material to the blade
+Add Japanese pattern texture to handle
+Position it on a display stand
+```
+
+## Available Tools by Category
+
+### 🎨 Scene Management
+- `create_scene` - Create new Blender scenes
+- `list_scenes` - List all scenes in the project
+- `clear_scene` - Remove all objects from active scene
+- `set_active_scene` - Switch between scenes
+- `link_object_to_scene` - Share objects between scenes
+- `create_collection` - Organize objects in collections
+- `add_to_collection` - Add objects to collections
+- `set_active_collection` - Set working collection
+- `set_view_layer` - Control render layers
+
+### 🏗️ Mesh & Geometry
+- `create_cube` - Create cube primitives
+- `create_sphere` - Create sphere primitives
+- `create_cylinder` - Create cylinder primitives
+- `create_plane` - Create plane primitives
+- `create_torus` - Create torus primitives
+- `create_monkey` - Create Blender's Suzanne primitive
+- `create_text` - Create 3D text objects
+- `create_curve` - Create bezier curves
+- `create_surface` - Create NURBS surfaces
+
+### 🎨 Materials & Shaders
+- `create_fabric_material` - Realistic fabric materials (velvet, silk, cotton, etc.)
+- `create_metal_material` - Metal materials (gold, silver, brass, etc.)
+- `create_wood_material` - Wood materials with grain textures
+- `create_glass_material` - Glass materials with refraction
+- `create_ceramic_material` - Ceramic materials
+- `create_plastic_material` - Plastic materials
+- `create_emissive_material` - Self-illuminating materials
+- `assign_material_to_object` - Apply materials to objects
+- `create_material_from_preset` - Use predefined material configurations
+
+### 🪑 Furniture Creation
+- `create_chair` - Create chair objects with various styles
+- `create_table` - Create table objects with dimensions
+- `create_bed` - Create bed objects
+- `create_sofa` - Create sofa objects with seat configurations
+- `create_room` - Generate complete room environments
+- `create_building` - Create multi-floor building structures
+
+### 💡 Lighting
+- `create_sun_light` - Create directional sunlight
+- `create_point_light` - Create omnidirectional point lights
+- `create_spot_light` - Create focused spotlights
+- `create_area_light` - Create area lighting panels
+- `set_light_properties` - Control light intensity, color, shadows
+- `create_hdri_environment` - Set up HDR environment lighting
+- `configure_lighting_setup` - Automated lighting rigs
+
+### 📷 Camera & Viewport
+- `create_camera` - Add cameras to scenes
+- `set_camera_properties` - Control focal length, aperture, focus
+- `position_camera` - Set camera location and rotation
+- `create_camera_rig` - Multi-camera setups
+- `set_active_camera` - Switch between cameras
+- `configure_viewport` - Set viewport display options
+
+### 🎬 Animation & Rigging
+- `create_armature` - Create bone structures
+- `rig_character` - Automated character rigging
+- `create_animation` - Keyframe animation tools
+- `animate_object` - Animate object properties
+- `create_walk_cycle` - Procedural walk animations
+- `export_animation` - Export animation data
+
+### 🎯 Rendering & Output
+- `set_render_engine` - Switch between Cycles/EEVEE
+- `configure_render_settings` - Resolution, samples, quality
+- `set_output_format` - Configure export formats
+- `render_scene` - Generate final renders
+- `render_animation` - Create animation sequences
+- `create_render_passes` - Multi-layer rendering
+
+### 📦 Import & Export
+- `import_fbx` - Import FBX files
+- `import_obj` - Import OBJ files
+- `import_gltf` - Import glTF files
+- `export_fbx` - Export to FBX format
+- `export_gltf` - Export to glTF format
+- `export_obj` - Export to OBJ format
+- `export_stl` - Export to STL format
+- `batch_export` - Process multiple files
+
+### ⚡ Physics & Simulation
+- `enable_physics` - Add physics properties
+- `create_rigid_body` - Rigid body dynamics
+- `create_soft_body` - Soft body simulation
+- `create_cloth` - Cloth simulation
+- `create_fluid` - Fluid simulation
+- `bake_physics` - Bake physics animations
+
+### 🎛️ Modifiers & Effects
+- `add_subdivision` - Subdivision surface modifier
+- `add_bevel` - Bevel modifier
+- `add_array` - Array modifier
+- `add_boolean` - Boolean operations
+- `add_lattice` - Lattice deformation
+- `apply_modifiers` - Apply all modifiers
+
+### 🎨 Textures & UVs
+- `create_texture` - Generate procedural textures
+- `load_image_texture` - Import image textures
+- `unwrap_uv` - UV unwrapping tools
+- `pack_uv_islands` - Optimize UV layouts
+- `bake_textures` - Bake lighting to textures
+
+### 🎭 Particles & Effects
+- `create_particle_system` - Hair, grass, fire effects
+- `configure_emitter` - Particle emission settings
+- `create_smoke` - Smoke simulation
+- `create_fire` - Fire effects
+- `create_explosion` - Explosion effects
+
+### 🏗️ Advanced Features
+- `create_asset` - Asset management tools
+- `batch_process` - Process multiple files
+- `create_procedural` - Procedural generation
+- `optimize_scene` - Performance optimization
+- `validate_geometry` - Mesh validation tools
+
+## Tool Reference
+
+### Animation Tools
+
+#### `insert_keyframe`
+Inserts a keyframe for the specified object and property.
+
+**Parameters:**
+- `object_name`: Name of the object to keyframe
+- `data_path`: Path to the property to keyframe (e.g., "location", "rotation_euler")
+- `frame`: Frame number for the keyframe
+- `index`: Index for vector properties (-1 for all)
+- `keyframe_type`: Type of keyframe ('KEYFRAME', 'BREAKDOWN', 'EXTREME', 'JITTER', 'KEYFRAME_VEC', 'MOVING_HOLD')
+- `options`: Additional options as a dictionary (e.g., {'INSERTKEY_NEEDED', 'INSERTKEY_MATRIX'})
+- `keying_set`: Name of the keying set to use
+
+#### `bake_animation`
+Bakes animation for the specified object.
+
+**Parameters:**
+- `object_name`: Name of the object to bake
+- `frame_start`: Start frame
+- `frame_end`: End frame
+- `step`: Frame step
+- `only_selected`: Only bake selected objects
+- `visual_keying`: Use visual keying (accounts for constraints)
+- `clear_constraints`: Clear constraints after baking
+- `bake_types`: Set of properties to bake ('POSE', 'OBJECT', 'SHAPE')
+- `use_current_action`: Bake to the current action
+- `use_clean_curves`: Clean redundant keyframes
+
+### Armature & Rigging
+
+#### `create_armature`
+Creates a new armature object.
+
+**Parameters:**
+- `name`: Name for the new armature
+- `location`: (x, y, z) location for the armature
+- `rotation`: (x, y, z) rotation in radians
+- `scale`: (x, y, z) scale factors
+- `enter_edit_mode`: Enter edit mode after creation
+- `align`: Alignment ('WORLD', 'VIEW', 'CURSOR')
+
+#### `add_bone`
+Adds a bone to an armature.
+
+**Parameters:**
+- `armature_name`: Name of the armature
+- `bone_name`: Name for the new bone
+- `head`: (x, y, z) head position
+- `tail`: (x, y, z) tail position
+- `parent`: Name of parent bone (optional)
+- `connected`: Whether to connect to parent bone
+- `length`: Length of the bone (alternative to tail)
+- `roll`: Roll angle in radians
+- `layers`: Array of 32 booleans for layer visibility
+
+### Material & Shading
+
+#### `create_fabric_material`
+Creates realistic fabric materials with physical properties.
+
+**Parameters:**
+- `name`: Name for the material
+- `fabric_type`: Type of fabric ('VELVET', 'SILK', 'COTTON', 'LINEN', 'WOOL', 'LEATHER')
+- `base_color`: RGB color tuple (0.0-1.0)
+- `roughness`: Surface roughness (0.0-1.0)
+- `metallic`: Metallic property (0.0-1.0)
+- `subsurface`: Subsurface scattering amount
+- `normal_strength`: Normal map strength
+- `scale`: Texture scale factor
+
+#### `create_metal_material`
+Creates physically accurate metal materials.
+
+**Parameters:**
+- `name`: Name for the material
+- `metal_type`: Type of metal ('GOLD', 'SILVER', 'COPPER', 'BRASS', 'IRON', 'STEEL')
+- `roughness`: Surface roughness (0.0-1.0)
+- `anisotropy`: Anisotropic reflection amount
+- `clearcoat`: Clear coat layer strength
+- `clearcoat_roughness`: Clear coat roughness
+
+### Scene Management
+
+#### `create_scene`
+Creates a new scene in the Blender project.
+
+**Parameters:**
+- `scene_name`: Name for the new scene
+- `copy_from`: Name of scene to copy from (optional)
+- `link_object_data`: Link object data between scenes
+- `link_world_data`: Link world data between scenes
+- `link_material_data`: Link material data between scenes
+
+#### `clear_scene`
+Removes all objects from the active scene.
+
+**Parameters:**
+- `keep_camera`: Preserve the active camera
+- `keep_lights`: Preserve light objects
+- `confirm`: Confirmation flag (safety check)
+
+### Rendering
+
+#### `render_scene`
+Renders the current scene to an image file.
+
+**Parameters:**
+- `output_path`: File path for rendered image
+- `resolution_x`: Image width in pixels
+- `resolution_y`: Image height in pixels
+- `samples`: Number of render samples
+- `engine`: Render engine ('CYCLES', 'BLENDER_EEVEE')
+- `file_format`: Output format ('PNG', 'JPEG', 'EXR', 'HDR')
+- `quality`: Output quality (1-100 for JPEG)
+
+#### `set_render_engine`
+Switches between Blender's render engines.
+
+**Parameters:**
+- `engine`: Render engine to use ('CYCLES', 'BLENDER_EEVEE', 'WORKBENCH')
+- `device`: Compute device ('CPU', 'GPU', 'AUTO')
+- `samples`: Default sample count
+- `max_bounces`: Maximum light bounces
+
+## Usage Examples
+
+### Basic Object Creation
+```python
+# Create a simple scene with objects
+from blender_mcp.app import get_app
+
+app = get_app()
+
+# Create a cube
+await app.run_tool("create_cube", {"name": "MyCube", "location": [0, 0, 0], "scale": [2, 2, 2]})
+
+# Add a material
+await app.run_tool("create_metal_material", {"name": "GoldMaterial", "metal_type": "GOLD"})
+
+# Apply material to object
+await app.run_tool("assign_material_to_object", {"object_name": "MyCube", "material_name": "GoldMaterial"})
+```
+
+### Animation Workflow
+```python
+# Create an animated object
+await app.run_tool("create_sphere", {"name": "Ball", "location": [0, 0, 5]})
+
+# Set up physics
+await app.run_tool("create_rigid_body", {"object_name": "Ball"})
+
+# Create ground plane
+await app.run_tool("create_plane", {"name": "Ground", "location": [0, 0, 0], "scale": [10, 10, 10]})
+
+# Bake physics animation
+await app.run_tool("bake_physics", {"frame_start": 1, "frame_end": 120})
+```
+
+### Rendering Pipeline
+```python
+# Set up render settings
+await app.run_tool("set_render_engine", {"engine": "CYCLES", "samples": 128})
+
+# Add lighting
+await app.run_tool("create_hdri_environment", {"hdri_path": "path/to/hdri.hdr"})
+
+# Position camera
+await app.run_tool("create_camera", {"name": "MainCamera", "location": [10, -10, 10]})
+await app.run_tool("set_active_camera", {"camera_name": "MainCamera"})
+
+# Render scene
+await app.run_tool("render_scene", {"output_path": "output.png", "resolution_x": 1920, "resolution_y": 1080})
+```
+
+## Development
+
+### Handler Layer
+Business logic in `src/blender_mcp/handlers/`
+- `mesh_handler.py` - Geometry operations
+- `material_handler.py` - Material creation
+- `lighting_handler.py` - Lighting setup
+- `animation_handler.py` - Animation tools
+
+### Tool Layer
+MCP interface in `src/blender_mcp/tools/` (organized by category)
+- `mesh_tools.py` - Mesh creation tools
+- `material_tools.py` - Material tools
+- `lighting_tools.py` - Lighting tools
+- `render_tools.py` - Rendering tools
+
+### Standards Compliance
+- FastMCP 2.12 compliance with proper decorators and documentation
+- Pydantic parameter validation for type safety
+- Comprehensive error handling and recovery
+- Async/await patterns for non-blocking operations
+
+### Testing
+- Comprehensive test suite with real Blender integration
+- Unit tests for individual components
+- Integration tests for end-to-end workflows
+- Performance benchmarks and validation
+
+## Contributing
+
+1. Add handlers in `src/blender_mcp/handlers/`
+2. Create tool definitions in `src/blender_mcp/tools/{category}/`
+3. Follow FastMCP 2.12 patterns with `@app.tool` decorators
+4. Use multiline docstrings for self-documentation
+5. Add tests in `tests/` directory
+6. Update documentation in `docs/` directory
+
+## Asset Management
+
+### BlenderKit Integration
+- Official Blender asset platform access
+- Download and import 3D models, materials, textures
+- Premium and free asset categories
+- Automatic material and texture assignment
+
+### Free Asset Sources
+- Poly Haven: High-quality PBR materials and HDRIs
+- AmbientCG: Comprehensive material library
+- Kenney Assets: Game-ready assets
+- OpenGameArt: Community-contributed assets
+
+### Download Tools
+- `download_asset` - Download from URLs with format detection
+- `import_model` - Import 3D models (OBJ, FBX, glTF, STL)
+- `load_texture` - Load image textures
+- `batch_import` - Process multiple assets
+
+## Configuration Options
+
+### Environment Variables
+```bash
+# Required
+export BLENDER_EXECUTABLE="/path/to/blender"
+
+# Performance
+export OPERATION_TIMEOUT=60
+export MAX_PARALLEL_OPERATIONS=3
+export ENABLE_GPU_RENDERING=true
+
+# Logging
+export LOG_LEVEL=INFO
+export LOG_FILE="/path/to/blender_mcp.log"
+```
+
+### MCP Server Configuration
+```json
+{
+  "mcpServers": {
+    "blender-mcp": {
+      "command": "python",
+      "args": ["-m", "blender_mcp"],
+      "env": {
+        "BLENDER_EXECUTABLE": "/path/to/blender",
+        "LOG_LEVEL": "INFO",
+        "OPERATION_TIMEOUT": "30"
+      }
+    }
+  }
+}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Blender Not Found
+```bash
+# Check Blender path
+/path/to/blender --version
+
+# Update BLENDER_EXECUTABLE environment variable
+export BLENDER_EXECUTABLE="/correct/path/to/blender"
+```
+
+#### Operation Timeouts
+```bash
+# Increase timeout for complex operations
+export OPERATION_TIMEOUT=120
+
+# Reduce parallel operations
+export MAX_PARALLEL_OPERATIONS=1
+```
+
+#### Import Errors
+```bash
+# Check file formats are supported
+# Verify Blender version compatibility
+# Check file paths and permissions
+```
+
+#### Memory Issues
+```bash
+# Reduce scene complexity
+# Use lower resolution textures
+# Close other Blender instances
+# Increase system RAM if possible
+```
+
+### Debug Mode
+```bash
+# Enable detailed logging
+export LOG_LEVEL=DEBUG
+
+# Run with verbose output
+python -m blender_mcp --debug
+```
+
+## License
+
+MIT License - see LICENSE file for details.
+
+---
+
+**Blender MCP Server enables AI-powered 3D content creation through natural language commands. Transform your Blender workflow with programmatic automation and intelligent tool selection.**
+
+**Ready to create amazing 3D content? Start with simple objects and scale to complex production workflows!** 🚀🎨✨

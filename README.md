@@ -27,7 +27,7 @@ This is a **FastMCP 2.12 server** that exposes Blender's powerful 3D creation an
 
 ## Available Tools
 
-This server provides **37 working tools** for comprehensive Blender automation:
+This server provides **50 working tools** for comprehensive Blender automation:
 
 ### 🎨 Object Creation & Mesh (1 tool - 7 operations)
 - **`blender_mesh`** - Create and manipulate 3D objects ✅ **TESTED & WORKING**

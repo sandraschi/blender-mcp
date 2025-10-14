@@ -71,7 +71,7 @@ class BlenderExecutor:
     def _initialize_executor(self) -> None:
         """Initialize executor with comprehensive validation and setup."""
         try:
-            logger.info(f"🎨 Initializing Blender executor with executable: {self.blender_executable}")
+            logger.info(f"Initializing Blender executor with executable: {self.blender_executable}")
             
             # Find and validate Blender executable
             self._locate_and_validate_blender()
@@ -82,10 +82,10 @@ class BlenderExecutor:
             # Test basic Blender functionality
             self._test_blender_functionality()
             
-            logger.info(f"✅ Blender executor initialized successfully - Version: {self.blender_version}")
+            logger.info(f"Blender executor initialized successfully - Version: {self.blender_version}")
             
         except Exception as e:
-            logger.error(f"❌ Failed to initialize Blender executor: {str(e)}")
+            logger.error(f"Failed to initialize Blender executor: {str(e)}")
             raise BlenderNotFoundError(f"Executor initialization failed: {str(e)}")
     
     def _locate_and_validate_blender(self) -> None:
@@ -97,14 +97,14 @@ class BlenderExecutor:
                 exe_path = f"{self.blender_executable}.exe"
                 if os.path.isfile(exe_path):
                     self.blender_path = Path(exe_path).resolve()
-                    logger.info(f"✅ Using configured Blender executable: {self.blender_path}")
+                    logger.info(f"Using configured Blender executable: {self.blender_path}")
                     self._validate_blender_version()
                     return
             
             # Try the path as-is
             if os.path.isfile(self.blender_executable):
                 self.blender_path = Path(self.blender_executable).resolve()
-                logger.info(f"✅ Using configured Blender executable: {self.blender_path}")
+                logger.info(f"Using configured Blender executable: {self.blender_path}")
                 self._validate_blender_version()
                 return
             
@@ -115,7 +115,7 @@ class BlenderExecutor:
                     exe_path = os.path.join(self.blender_executable, exe_name)
                     if os.path.isfile(exe_path):
                         self.blender_path = Path(exe_path).resolve()
-                        logger.info(f"✅ Found Blender in configured directory: {self.blender_path}")
+                        logger.info(f"Found Blender in configured directory: {self.blender_path}")
                         self._validate_blender_version()
                         return
         
@@ -147,7 +147,7 @@ class BlenderExecutor:
                 )
                 if result.returncode == 0:
                     self.blender_path = Path(shutil.which(name)).resolve()
-                    logger.info(f"✅ Found Blender in PATH: {self.blender_path}")
+                    logger.info(f"Found Blender in PATH: {self.blender_path}")
                     self._validate_blender_version()
                     return
             except (subprocess.SubprocessError, FileNotFoundError):
@@ -163,14 +163,14 @@ class BlenderExecutor:
                 exe_path = f"{path}.exe"
                 if os.path.isfile(exe_path):
                     self.blender_path = Path(exe_path).resolve()
-                    logger.info(f"✅ Found Blender at common location: {self.blender_path}")
+                    logger.info(f"Found Blender at common location: {self.blender_path}")
                     self._validate_blender_version()
                     return
             
             # Try the path as-is
             if os.path.isfile(path):
                 self.blender_path = Path(path).resolve()
-                logger.info(f"✅ Found Blender at common location: {self.blender_path}")
+                logger.info(f"Found Blender at common location: {self.blender_path}")
                 self._validate_blender_version()
                 return
         
@@ -195,20 +195,20 @@ class BlenderExecutor:
             if result.returncode == 0 and "Blender" in result.stdout:
                 version_line = result.stdout.split('\n')[0]
                 self.blender_version = version_line.strip()
-                logger.info(f"✅ Validated Blender version: {self.blender_version}")
+                logger.info(f"Validated Blender version: {self.blender_version}")
             else:
-                logger.warning(f"⚠️ Could not determine Blender version: {result.stderr}")
+                logger.warning(f"Could not determine Blender version: {result.stderr}")
                 self.blender_version = "unknown"
                 
         except Exception as e:
-            logger.error(f"❌ Error validating Blender version: {str(e)}")
+            logger.error(f"Error validating Blender version: {str(e)}")
             raise BlenderScriptError("", f"Blender version validation failed: {str(e)}")
     
     def _setup_temp_directory(self) -> None:
         """Setup temporary directory for Blender operations."""
         try:
             self.temp_dir = tempfile.mkdtemp(prefix="blender_mcp_")
-            logger.debug(f"📁 Created temp directory: {self.temp_dir}")
+            logger.debug(f"Created temp directory: {self.temp_dir}")
             
             # Verify temp directory is writable
             test_file = os.path.join(self.temp_dir, "test_write.txt")
@@ -217,7 +217,7 @@ class BlenderExecutor:
             os.remove(test_file)
             
         except Exception as e:
-            logger.error(f"❌ Failed to setup temp directory: {str(e)}")
+            logger.error(f"Failed to setup temp directory: {str(e)}")
             raise BlenderScriptError("", f"Temp directory setup failed: {str(e)}")
     
     def _test_blender_functionality(self) -> None:
@@ -290,21 +290,21 @@ except Exception as e:
                 )
             
             if result.returncode != 0:
-                logger.error(f"❌ Blender functionality test failed: {result.stderr}")
+                logger.error(f"Blender functionality test failed: {result.stderr}")
                 raise BlenderScriptError(test_script, f"Functionality test failed: {result.stderr}")
             
             # Check for success marker in output
             if "BLENDER_TEST_SUCCESS" not in result.stdout:
-                logger.error(f"❌ Blender test script did not complete successfully")
+                logger.error(f"Blender test script did not complete successfully")
                 raise BlenderScriptError(test_script, "Test script did not complete successfully")
             
-            logger.debug(f"✅ Blender functionality test passed")
+            logger.debug(f"Blender functionality test passed")
             
         except subprocess.TimeoutExpired as e:
-            logger.error(f"❌ Blender functionality test timed out: {str(e)}")
+            logger.error(f"Blender functionality test timed out: {str(e)}")
             raise BlenderScriptError(test_script, "Functionality test timed out")
         except Exception as e:
-            logger.error(f"❌ Blender functionality test error: {str(e)}")
+            logger.error(f"Blender functionality test error: {str(e)}")
             raise BlenderScriptError(test_script, f"Functionality test error: {str(e)}")
     
     async def execute_script(
@@ -323,7 +323,7 @@ except Exception as e:
         script_id = script_name or f"script_{int(time.time() * 1000)}"
         
         try:
-            logger.info(f"🎨 Executing Blender script: {script_id} (timeout: {timeout}s)")
+            logger.info(f"Executing Blender script: {script_id} (timeout: {timeout}s)")
             
             # Validate script is not empty
             if not script or not script.strip():
@@ -336,7 +336,7 @@ except Exception as e:
             try:
                 # Validate blend file if provided
                 if blend_file and not os.path.exists(blend_file):
-                    logger.warning(f"⚠️ Blend file not found, using factory startup: {blend_file}")
+                    logger.warning(f"Blend file not found, using factory startup: {blend_file}")
                     blend_file = None
                 
                 # Build comprehensive command
@@ -348,7 +348,7 @@ except Exception as e:
                 # Process and validate output
                 result = self._process_script_output(stdout, stderr, script_id)
                 
-                logger.info(f"✅ Blender script completed successfully: {script_id}")
+                logger.info(f"Blender script completed successfully: {script_id}")
                 return result
                 
             finally:
@@ -360,7 +360,7 @@ except Exception as e:
             raise
         except asyncio.TimeoutError as e:
             error_msg = f"Script execution timed out after {timeout}s"
-            logger.error(f"❌ {error_msg}: {script_id}")
+            logger.error(f"{error_msg}: {script_id}")
             
             # Retry logic for timeout
             if retry_count < self.max_retries:
@@ -371,7 +371,7 @@ except Exception as e:
             raise BlenderScriptError(script, error_msg)
         except Exception as e:
             error_msg = f"Unexpected error during script execution: {str(e)}"
-            logger.error(f"❌ {error_msg}: {script_id}")
+            logger.error(f"{error_msg}: {script_id}")
             raise BlenderScriptError(script, error_msg)
     
     def _wrap_script_with_error_handling(self, script: str, script_id: str) -> str:
@@ -411,11 +411,11 @@ except Exception as user_error:
             with open(script_path, 'w', encoding='utf-8') as f:
                 f.write(script)
             
-            logger.debug(f"📝 Written script to: {script_path}")
+            logger.debug(f"Written script to: {script_path}")
             return script_path
             
         except Exception as e:
-            logger.error(f"❌ Failed to write temp script: {str(e)}")
+            logger.error(f"Failed to write temp script: {str(e)}")
             raise BlenderScriptError(script, f"Failed to write temp script: {str(e)}")
     
     def _build_blender_command(self, script_path: str, blend_file: Optional[str]) -> List[str]:
@@ -480,21 +480,21 @@ except Exception as user_error:
                 )
                 
                 execution_time = time.time() - start_time
-                logger.debug(f"⏱️ Script execution completed in {execution_time:.2f}s: {script_id}")
+                logger.debug(f"Script execution completed in {execution_time:.2f}s: {script_id}")
                 
             except asyncio.TimeoutError:
                 # Kill process on timeout
-                logger.error(f"❌ Script execution timed out, killing process {process.pid}: {script_id}")
+                logger.error(f"Script execution timed out, killing process {process.pid}: {script_id}")
                 
                 try:
                     if process.pid:
                         parent = psutil.Process(process.pid)
                         for child in parent.children(recursive=True):
-                            logger.debug(f"🔪 Killing child process: {child.pid}")
+                            logger.debug(f"Killing child process: {child.pid}")
                             child.kill()
                         parent.kill()
                 except (psutil.NoSuchProcess, psutil.AccessDenied) as e:
-                    logger.warning(f"⚠️ Could not kill process cleanly: {str(e)}")
+                    logger.warning(f"Could not kill process cleanly: {str(e)}")
                 
                 process.kill()
                 await process.wait()
@@ -503,7 +503,7 @@ except Exception as user_error:
             # Check process return code
             if process.returncode != 0:
                 stderr_str = stderr.decode('utf-8', errors='replace')
-                logger.error(f"❌ Blender process failed with return code {process.returncode}: {script_id}")
+                logger.error(f"Blender process failed with return code {process.returncode}: {script_id}")
                 raise BlenderScriptError("", f"Blender process failed (code {process.returncode}): {stderr_str}")
             
             return stdout.decode('utf-8', errors='replace'), stderr.decode('utf-8', errors='replace')
@@ -514,7 +514,7 @@ except Exception as user_error:
                     process.kill()
                     await process.wait()
                 except Exception as cleanup_error:
-                    logger.error(f"❌ Error during process cleanup: {str(cleanup_error)}")
+                    logger.error(f"Error during process cleanup: {str(cleanup_error)}")
             
             raise e
     
@@ -536,7 +536,7 @@ except Exception as user_error:
         
         # Check for script execution markers
         if f"BLENDER_SCRIPT_START: {script_id}" not in stdout:
-            logger.error(f"❌ Script did not start properly: {script_id}")
+            logger.error(f"Script did not start properly: {script_id}")
             raise BlenderScriptError("", f"Script did not start properly: {stderr}")
         
         # Check for errors
@@ -555,12 +555,12 @@ except Exception as user_error:
             full_error = f"Script errors: {'; '.join(error_lines)}"
             if traceback_lines:
                 full_error += f"\nTraceback: {'; '.join(traceback_lines)}"
-            logger.error(f"❌ Script execution errors: {script_id} - {full_error}")
+            logger.error(f"Script execution errors: {script_id} - {full_error}")
             raise BlenderScriptError("", full_error)
         
         # Check for success marker
         if f"BLENDER_SCRIPT_SUCCESS: {script_id}" not in stdout:
-            logger.warning(f"⚠️ Script completed without success marker: {script_id}")
+            logger.warning(f"Script completed without success marker: {script_id}")
             # Don't fail here, as script might have completed successfully without marker
         
         return stdout
@@ -570,18 +570,18 @@ except Exception as user_error:
         try:
             if os.path.exists(file_path):
                 os.remove(file_path)
-                logger.debug(f"🧹 Cleaned up temp file: {file_path}")
+                logger.debug(f"Cleaned up temp file: {file_path}")
         except Exception as e:
-            logger.warning(f"⚠️ Could not clean up temp file {file_path}: {str(e)}")
+            logger.warning(f"Could not clean up temp file {file_path}: {str(e)}")
     
     def cleanup(self) -> None:
         """Clean up executor resources."""
         try:
             if self.temp_dir and os.path.exists(self.temp_dir):
                 shutil.rmtree(self.temp_dir)
-                logger.debug(f"🧹 Cleaned up temp directory: {self.temp_dir}")
+                logger.debug(f"Cleaned up temp directory: {self.temp_dir}")
         except Exception as e:
-            logger.warning(f"⚠️ Could not clean up temp directory: {str(e)}")
+            logger.warning(f"Could not clean up temp directory: {str(e)}")
     
     def __del__(self):
         """Destructor to ensure cleanup."""

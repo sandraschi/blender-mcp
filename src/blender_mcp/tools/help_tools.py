@@ -5,6 +5,8 @@ Provides comprehensive help system, tool discovery, and documentation
 for all available Blender MCP functionality.
 """
 
+from loguru import logger
+
 # Import app lazily to avoid circular imports
 def get_app():
     from blender_mcp.app import app
@@ -37,6 +39,7 @@ def _register_help_tools():
             - blender_help(category="Mesh Creation") - All mesh tools
             - blender_help(detail_level="brief") - Brief overview
         """
+        logger.info(f"Getting help - function: {function_name}, category: {category}, detail_level: {detail_level}")
         from blender_mcp.help import get_help as _get_help
         return _get_help(function_name, category, detail_level)
 
@@ -55,11 +58,11 @@ def _register_help_tools():
 
         Examples:
             - blender_list_tools() - All tools
-            - blender_list_tools("Mesh Creation") - Mesh tools only
         """
-        from blender_mcp.help import list_functions, get_categories
+        logger.info(f"Listing tools - category: {category}")
+        from blender_mcp.help import list_functions, list_categories
 
-        categories = get_categories()
+        categories = list_categories()
 
         result = f"Available Blender MCP Tools\n{'=' * 30}\n\n"
 
@@ -107,9 +110,8 @@ def _register_help_tools():
 
         Examples:
             - blender_search_tools("cube") - Find cube-related tools
-            - blender_search_tools("material") - Find material tools
-            - blender_search_tools("export") - Find export tools
         """
+        logger.info(f"Searching tools for query: '{query}'")
         from blender_mcp.help import help_system
 
         query_lower = query.lower()
@@ -176,8 +178,8 @@ def _register_help_tools():
 
         Examples:
             - blender_tool_info("blender_mesh") - Info about mesh tools
-            - blender_tool_info("create_cube") - Info about cube creation
         """
+        logger.info(f"Getting info for tool: '{tool_name}'")
         from blender_mcp.help import help_system
 
         func_info = help_system.get_function(tool_name)
@@ -234,6 +236,7 @@ Description:
         Examples:
             - blender_categories() - List all categories
         """
+        logger.info("Listing all tool categories")
         from blender_mcp.help import list_categories, list_functions
 
         categories = list_categories()

@@ -5,6 +5,7 @@ Provides functions for creating and managing lights in Blender scenes.
 """
 
 from typing import Tuple, Optional
+from loguru import logger
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 from ..exceptions import BlenderLightingError
@@ -35,6 +36,8 @@ async def create_sun_light(
     Returns:
         Success message
     """
+    logger.info(f"Creating sun light '{name}' at {location} with energy {energy}")
+
     script = f"""
 import bpy
 
@@ -78,6 +81,8 @@ async def create_point_light(
     Returns:
         Success message
     """
+    logger.info(f"Creating point light '{name}' at {location} with energy {energy}")
+
     script = f"""
 import bpy
 
@@ -123,6 +128,8 @@ async def create_spot_light(
     Returns:
         Success message
     """
+    logger.info(f"Creating spot light '{name}' at {location} with energy {energy}")
+
     script = f"""
 import bpy
 
@@ -171,6 +178,8 @@ async def create_area_light(
     Returns:
         Success message
     """
+    logger.info(f"Creating area light '{name}' at {location} with energy {energy}")
+
     script = f"""
 import bpy
 
@@ -203,6 +212,8 @@ async def setup_three_point_lighting() -> str:
     Returns:
         Success message
     """
+    logger.info("Setting up three-point lighting")
+
     script = """
 import bpy
 
@@ -242,6 +253,8 @@ async def setup_hdri_environment() -> str:
     Returns:
         Success message
     """
+    logger.info("Setting up HDRI environment lighting")
+
     script = """
 import bpy
 
@@ -300,6 +313,8 @@ async def adjust_light(
     Returns:
         Success message
     """
+    logger.info(f"Adjusting light '{name}' - location: {location}, energy: {energy}")
+
     location_str = f"light_obj.location = {location}" if location else ""
     rotation_str = f"light_obj.rotation_euler = ({rotation[0]} * 3.14159/180, {rotation[1]} * 3.14159/180, {rotation[2]} * 3.14159/180)" if rotation else ""
     energy_str = f"light.energy = {energy}" if energy is not None else ""

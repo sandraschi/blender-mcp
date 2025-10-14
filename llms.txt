@@ -1,0 +1,36 @@
+# Blender MCP Server
+
+> Complete Blender 3D automation MCP server with 50+ tools across 19 categories for professional 3D content creation workflows. Enables natural language control over Blender's Python API through Claude Desktop and other AI assistants.
+
+## Core Documentation
+
+- [Quick Start](docs/quickstart.md): Get up and running in 5 minutes with your first 3D scene
+- [Installation Guide](docs/installation.md): Complete setup instructions for all platforms
+- [Tool Reference](docs/blender/TOOL_REFERENCE.md): Complete API reference for all 50+ Blender MCP tools
+- [Functionality Overview](docs/blender/BLENDER_MCP_FUNCTIONALITY_PLAN.md): Tool inventory and implementation status
+- [Configuration Guide](docs/configuration.md): Environment variables and performance tuning
+
+## Asset Management
+
+- [BlenderKit Guide](docs/blender/BLENDERKIT_GUIDE.md): Official asset platform integration
+- [Free Assets Guide](docs/blender/FREE_ASSETS_GUIDE.md): Legal free 3D asset sources
+- [Download Tools](docs/download_tools.md): Automated asset downloading and importing
+
+## Development & Technical
+
+- [Development Documentation](docs/development/README.md): Best practices and lessons learned
+- [MCP Technical Guide](docs/mcp-technical/README.md): Server architecture and troubleshooting
+- [Packaging Guide](docs/mcpb-packaging/README.md): Build and distribution instructions
+
+## Specialized Tools
+
+- [Log Tools](docs/log_tools.md): Debugging and monitoring capabilities
+- [Help System](docs/docsviewer/README.md): Interactive documentation viewer
+- [GLAMA Platform](docs/glama/README.md): AI platform integration
+
+## Optional Resources
+
+- [Examples](examples/README.md): Code samples and usage patterns
+- [Contributing Guidelines](CONTRIBUTING.md): Development and contribution process
+- [License](LICENSE): Project licensing information
+- [Repository Protection](docs/repository-protection/README.md): Backup and recovery guides

@@ -47,6 +47,50 @@ The script will log its progress to the console. You should see output like:
 
 You can modify the `main()` function in `basic_client.py` to call different tools or pass different parameters. Refer to the Blender-MCP documentation for a complete list of available tools and their parameters.
 
+## Download Tools Example
+
+The `download_example.py` script demonstrates how to use the download tools to fetch assets from URLs and import them into Blender scenes.
+
+### Prerequisites
+
+- Same prerequisites as basic client
+- Internet connection for downloading files
+
+### Running the Download Example
+
+```bash
+python examples/download_example.py
+```
+
+### What the Download Example Shows
+
+The example demonstrates:
+
+1. **Supported file formats** for download and import
+2. **Example commands** for different file types
+3. **Advanced usage** with custom filenames and timeouts
+4. **Katana-specific examples** for downloading 3D assets
+
+### Download Tool Capabilities
+
+The `blender_download` tool can:
+
+- Download files from HTTP/HTTPS URLs
+- Automatically detect file types (.obj, .fbx, .png, etc.)
+- Import 3D models, textures, and other assets into Blender
+- Handle large files with progress indication
+- Provide flexible import options
+
+### Example Usage
+
+```python
+# Download and import a Katana model
+await blender_download("https://example.com/katana.fbx")
+
+# Download texture without importing
+await blender_download("https://example.com/texture.png", import_into_scene=False)
+```
+
 ## Error Handling
 
 The example includes basic error handling. If a tool call fails, the error will be logged to the console.

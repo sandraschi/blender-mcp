@@ -233,6 +233,8 @@ async def create_fabric_material(
     Raises:
         BlenderMaterialError: If fabric type is invalid or creation fails
     """
+    logger.info(f"Creating fabric material '{name}' of type {fabric_type}")
+
     # Convert string to MaterialPreset if needed
     if isinstance(fabric_type, str):
         fabric_type = MaterialPreset(fabric_type.lower())
@@ -394,6 +396,8 @@ async def create_metal_material(
     Raises:
         BlenderMaterialError: If metal type is invalid or creation fails
     """
+    logger.info(f"Creating metal material '{name}' of type {metal_type}")
+
     # Convert string to MaterialPreset if needed
     if isinstance(metal_type, str):
         metal_type = MaterialPreset(metal_type.lower())
