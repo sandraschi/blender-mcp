@@ -6,205 +6,118 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock, mock_open
 from blender_mcp.utils.validation import (
-    validate_file_path, validate_directory_path, validate_timeout,
-    validate_parallel_operations, validate_render_samples, sanitize_filename
+    validate_object_exists, validate_vertex_group, validate_frame_range,
+    validate_positive, validate_range, validate_with_model
 )
-from blender_mcp.utils.error_handling import ErrorHandler, ErrorContext
+from blender_mcp.utils.error_handling import MCPError, ValidationError, BlenderOperationError
 
 
-class TestPathValidation:
-    """Test path validation utility functions."""
-
-    @pytest.mark.unit
-    def test_validate_file_path_valid(self):
-        """Test validation of valid file path."""
-        with patch('blender_mcp.utils.validation.Path') as mock_path:
-            mock_path_instance = MagicMock()
-            mock_path_instance.exists.return_value = True
-            mock_path_instance.is_file.return_value = True
-            mock_path.return_value = mock_path_instance
-
-            result = validate_file_path("/valid/path/file.txt")
-            assert result is True
+class TestObjectValidation:
+    """Test Blender object validation functions."""
 
     @pytest.mark.unit
-    def test_validate_file_path_not_exists(self):
-        """Test validation of non-existent file path."""
-        with patch('blender_mcp.utils.validation.Path') as mock_path:
-            mock_path_instance = MagicMock()
-            mock_path_instance.exists.return_value = False
-            mock_path.return_value = mock_path_instance
-
-            result = validate_file_path("/invalid/path/file.txt")
-            assert result is False
+    def test_validate_object_exists_success(self):
+        """Test object validation when bpy is not available (should skip)."""
+        # Since bpy is not available in unit tests, this should not raise
+        validate_object_exists("TestObject")
 
     @pytest.mark.unit
-    def test_validate_file_path_is_directory(self):
-        """Test validation when path is a directory instead of file."""
-        with patch('blender_mcp.utils.validation.Path') as mock_path:
-            mock_path_instance = MagicMock()
-            mock_path_instance.exists.return_value = True
-            mock_path_instance.is_file.return_value = False
-            mock_path.return_value = mock_path_instance
-
-            result = validate_file_path("/path/to/directory")
-            assert result is False
+    def test_validate_vertex_group_success(self):
+        """Test vertex group validation when bpy is not available."""
+        # Should not raise when bpy is not available
+        validate_vertex_group("TestObject", "TestGroup")
 
     @pytest.mark.unit
-    def test_validate_directory_path_valid(self):
-        """Test validation of valid directory path."""
-        with patch('blender_mcp.utils.validation.Path') as mock_path:
-            mock_path_instance = MagicMock()
-            mock_path_instance.exists.return_value = True
-            mock_path_instance.is_dir.return_value = True
-            mock_path.return_value = mock_path_instance
-
-            result = validate_directory_path("/valid/directory")
-            assert result is True
+    def test_validate_frame_range_valid(self):
+        """Test frame range validation with valid ranges."""
+        # Should not raise for valid ranges
+        validate_frame_range(1, 10)
+        validate_frame_range(100, 200)
 
     @pytest.mark.unit
-    def test_validate_directory_path_creates_if_missing(self):
-        """Test directory validation with auto-creation."""
-        with patch('blender_mcp.utils.validation.Path') as mock_path:
-            mock_path_instance = MagicMock()
-            mock_path_instance.exists.return_value = False
-            mock_path_instance.mkdir = MagicMock()
-            mock_path.return_value = mock_path_instance
-
-            result = validate_directory_path("/new/directory", create_if_missing=True)
-            assert result is True
-            mock_path_instance.mkdir.assert_called_once()
+    def test_validate_frame_range_invalid_start(self):
+        """Test frame range validation with invalid start frame."""
+        with pytest.raises(ValueError, match="Start frame must be at least 1"):
+            validate_frame_range(0, 10)
 
     @pytest.mark.unit
-    def test_validate_timeout_valid(self):
-        """Test timeout validation with valid values."""
-        assert validate_timeout(30) is True
-        assert validate_timeout(300) is True
-        assert validate_timeout(3600) is True
+    def test_validate_frame_range_invalid_end(self):
+        """Test frame range validation with end before start."""
+        with pytest.raises(ValueError, match="End frame must be greater than or equal to start frame"):
+            validate_frame_range(10, 5)
 
     @pytest.mark.unit
-    def test_validate_timeout_invalid(self):
-        """Test timeout validation with invalid values."""
-        assert validate_timeout(10) is False  # Too low
-        assert validate_timeout(4000) is False  # Too high
-        assert validate_timeout(-1) is False  # Negative
-        assert validate_timeout("300") is False  # Wrong type
+    def test_validate_positive_valid(self):
+        """Test positive value validation."""
+        # Should not raise for positive values
+        validate_positive("test_param", 1.0)
+        validate_positive("test_param", 0.1)
+        validate_positive("test_param", 100)
 
     @pytest.mark.unit
-    def test_validate_parallel_operations_valid(self):
-        """Test parallel operations validation with valid values."""
-        assert validate_parallel_operations(1) is True
-        assert validate_parallel_operations(2) is True
-        assert validate_parallel_operations(4) is True
+    def test_validate_positive_zero(self):
+        """Test positive value validation with zero."""
+        with pytest.raises(ValueError):
+            validate_positive("test_param", 0)
 
     @pytest.mark.unit
-    def test_validate_parallel_operations_invalid(self):
-        """Test parallel operations validation with invalid values."""
-        assert validate_parallel_operations(0) is False  # Too low
-        assert validate_parallel_operations(5) is False  # Too high
-        assert validate_parallel_operations(-1) is False  # Negative
-        assert validate_parallel_operations("2") is False  # Wrong type
+    def test_validate_positive_negative(self):
+        """Test positive value validation with negative values."""
+        with pytest.raises(ValueError):
+            validate_positive("test_param", -1.0)
 
     @pytest.mark.unit
-    def test_validate_render_samples_valid(self):
-        """Test render samples validation with valid values."""
-        assert validate_render_samples(1) is True
-        assert validate_render_samples(128) is True
-        assert validate_render_samples(4096) is True
+    def test_validate_range_valid(self):
+        """Test range validation with valid values."""
+        # Should not raise for values in range
+        validate_range("test_param", 5.0, 0.0, 10.0)
+        validate_range("test_param", 0.0, 0.0, 10.0)
+        validate_range("test_param", 10.0, 0.0, 10.0)
 
     @pytest.mark.unit
-    def test_validate_render_samples_invalid(self):
-        """Test render samples validation with invalid values."""
-        assert validate_render_samples(0) is False  # Too low
-        assert validate_render_samples(5000) is False  # Too high
-        assert validate_render_samples(-1) is False  # Negative
-        assert validate_render_samples("128") is False  # Wrong type
-
-
-class TestFilenameSanitization:
-    """Test filename sanitization functions."""
+    def test_validate_range_below_min(self):
+        """Test range validation with value below minimum."""
+        with pytest.raises(ValueError):
+            validate_range("test_param", -1.0, 0.0, 10.0)
 
     @pytest.mark.unit
-    def test_sanitize_filename_basic(self):
-        """Test basic filename sanitization."""
-        result = sanitize_filename("normal_filename.txt")
-        assert result == "normal_filename.txt"
-
-    @pytest.mark.unit
-    def test_sanitize_filename_special_chars(self):
-        """Test filename sanitization with special characters."""
-        result = sanitize_filename("file:with*chars?.txt")
-        assert result == "file_with_chars_.txt"
-
-    @pytest.mark.unit
-    def test_sanitize_filename_whitespace(self):
-        """Test filename sanitization with whitespace."""
-        result = sanitize_filename("file with spaces.txt")
-        assert result == "file_with_spaces.txt"
-
-    @pytest.mark.unit
-    def test_sanitize_filename_empty(self):
-        """Test filename sanitization with empty string."""
-        result = sanitize_filename("")
-        assert result == "untitled"
-
-    @pytest.mark.unit
-    def test_sanitize_filename_too_long(self):
-        """Test filename sanitization with overly long names."""
-        long_name = "a" * 300
-        result = sanitize_filename(long_name)
-        assert len(result) <= 255
-        assert result.endswith("a")
+    def test_validate_range_above_max(self):
+        """Test range validation with value above maximum."""
+        with pytest.raises(ValueError):
+            validate_range("test_param", 15.0, 0.0, 10.0)
 
 
 class TestErrorHandling:
     """Test error handling utilities."""
 
     @pytest.mark.unit
-    def test_error_handler_initialization(self):
-        """Test ErrorHandler initialization."""
-        handler = ErrorHandler()
-        assert handler is not None
-        assert hasattr(handler, 'handle_error')
+    def test_mcp_error_creation(self):
+        """Test MCPError creation."""
+        error = MCPError("Test error message")
+        assert str(error) == "Test error message"
+        assert error.message == "Test error message"
+        assert error.details == {}
 
     @pytest.mark.unit
-    def test_error_context_creation(self):
-        """Test ErrorContext creation and properties."""
-        context = ErrorContext(
-            operation="test_operation",
-            parameters={"key": "value"},
-            start_time=1234567890.0
-        )
-
-        assert context.operation == "test_operation"
-        assert context.parameters == {"key": "value"}
-        assert context.start_time == 1234567890.0
+    def test_mcp_error_with_details(self):
+        """Test MCPError with details."""
+        details = {"code": "TEST_ERROR", "operation": "test"}
+        error = MCPError("Test error", details=details)
+        assert error.details == details
 
     @pytest.mark.unit
-    def test_error_context_duration(self):
-        """Test ErrorContext duration calculation."""
-        context = ErrorContext(start_time=1000.0)
-        # Mock end_time
-        context.end_time = 1005.0
-
-        assert context.duration == 5.0
+    def test_validation_error_creation(self):
+        """Test ValidationError creation."""
+        error = ValidationError("Invalid input")
+        assert "Validation error: Invalid input" in str(error)
+        assert isinstance(error, MCPError)
 
     @pytest.mark.unit
-    def test_error_context_to_dict(self):
-        """Test ErrorContext serialization."""
-        context = ErrorContext(
-            operation="test_op",
-            parameters={"param": "value"},
-            start_time=1000.0
-        )
-        context.end_time = 1002.0
-        context.success = True
-
-        data = context.to_dict()
-        assert data["operation"] == "test_op"
-        assert data["parameters"] == {"param": "value"}
-        assert data["duration"] == 2.0
-        assert data["success"] is True
+    def test_blender_operation_error_creation(self):
+        """Test BlenderOperationError creation."""
+        error = BlenderOperationError("Failed to create object")
+        assert "Blender operation failed: Failed to create object" in str(error)
+        assert isinstance(error, MCPError)
 
 
 class TestJSONHandling:

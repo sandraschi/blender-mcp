@@ -3,7 +3,8 @@
 import pytest
 from blender_mcp.exceptions import (
     BlenderMCPError, BlenderNotFoundError, BlenderScriptError,
-    ValidationError, ConfigurationError, TimeoutError, OperationError
+    BlenderExportError, BlenderImportError, BlenderMaterialError,
+    BlenderRenderError, BlenderMeshError, BlenderAnimationError, BlenderLightingError
 )
 
 
@@ -32,32 +33,62 @@ class TestExceptionHierarchy:
         assert isinstance(error, BlenderMCPError)
 
     @pytest.mark.unit
-    def test_validation_error(self):
-        """Test ValidationError."""
-        error = ValidationError("Invalid configuration")
-        assert str(error) == "Invalid configuration"
+    def test_blender_export_error(self):
+        """Test BlenderExportError."""
+        error = BlenderExportError("FBX", "/path/file.fbx", "Export failed")
+        assert "Export to FBX failed at /path/file.fbx: Export failed" in str(error)
         assert isinstance(error, BlenderMCPError)
+        assert error.format == "FBX"
+        assert error.path == "/path/file.fbx"
 
     @pytest.mark.unit
-    def test_configuration_error(self):
-        """Test ConfigurationError."""
-        error = ConfigurationError("Configuration problem")
-        assert str(error) == "Configuration problem"
+    def test_blender_import_error(self):
+        """Test BlenderImportError."""
+        error = BlenderImportError("/path/file.obj", "Import failed")
+        assert "Import from /path/file.obj failed: Import failed" in str(error)
         assert isinstance(error, BlenderMCPError)
+        assert error.path == "/path/file.obj"
 
     @pytest.mark.unit
-    def test_timeout_error(self):
-        """Test TimeoutError."""
-        error = TimeoutError("Operation timed out")
-        assert str(error) == "Operation timed out"
+    def test_blender_material_error(self):
+        """Test BlenderMaterialError."""
+        error = BlenderMaterialError("MetalMaterial", "assignment", "Material not found")
+        assert "Material 'MetalMaterial' assignment failed: Material not found" in str(error)
         assert isinstance(error, BlenderMCPError)
+        assert error.material_name == "MetalMaterial"
+        assert error.operation == "assignment"
 
     @pytest.mark.unit
-    def test_operation_error(self):
-        """Test OperationError."""
-        error = OperationError("Operation failed")
-        assert str(error) == "Operation failed"
+    def test_blender_render_error(self):
+        """Test BlenderRenderError."""
+        error = BlenderRenderError("/output/image.png", "Render engine error")
+        assert "Render to /output/image.png failed: Render engine error" in str(error)
         assert isinstance(error, BlenderMCPError)
+        assert error.output_path == "/output/image.png"
+
+    @pytest.mark.unit
+    def test_blender_mesh_error(self):
+        """Test BlenderMeshError."""
+        error = BlenderMeshError("subdivide", "Invalid mesh topology")
+        assert "Mesh operation 'subdivide' failed: Invalid mesh topology" in str(error)
+        assert isinstance(error, BlenderMCPError)
+        assert error.operation == "subdivide"
+
+    @pytest.mark.unit
+    def test_blender_animation_error(self):
+        """Test BlenderAnimationError."""
+        error = BlenderAnimationError("keyframe", "Invalid frame range")
+        assert "Animation operation 'keyframe' failed: Invalid frame range" in str(error)
+        assert isinstance(error, BlenderMCPError)
+        assert error.operation == "keyframe"
+
+    @pytest.mark.unit
+    def test_blender_lighting_error(self):
+        """Test BlenderLightingError."""
+        error = BlenderLightingError("setup_hdri", "HDRI file not found")
+        assert "Lighting operation 'setup_hdri' failed: HDRI file not found" in str(error)
+        assert isinstance(error, BlenderMCPError)
+        assert error.operation == "setup_hdri"
 
 
 class TestExceptionMessages:

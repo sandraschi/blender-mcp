@@ -29,6 +29,12 @@ from pathlib import Path
 from typing import Generator, Optional, Dict, Any
 from unittest.mock import MagicMock
 
+# Add src directory to Python path for imports
+project_root = Path(__file__).parent.parent
+src_path = project_root / "src"
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
+
 
 # Constants
 BLENDER_EXECUTABLE_ENV = "BLENDER_EXECUTABLE"
