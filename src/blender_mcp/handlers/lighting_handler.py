@@ -56,7 +56,7 @@ light.energy = {energy}
 light.color = {color}
 light.shadow_soft_size = {shadow_soft_size}
 
-print(f"Created sun light: {name}")
+logger.info(f"Created sun light: {name}")
 """
     result = await _executor.execute_script(script)
     return f"Created sun light '{name}'"
@@ -97,7 +97,7 @@ light.name = "{name}_data"
 light.energy = {energy}
 light.color = {color}
 
-print(f"Created point light: {name}")
+logger.info(f"Created point light: {name}")
 """
     result = await _executor.execute_script(script)
     return f"Created point light '{name}'"
@@ -149,7 +149,7 @@ light.color = {color}
 light.spot_size = {spot_size} * 3.14159/180  # Convert degrees to radians
 light.spot_blend = {spot_blend}
 
-print(f"Created spot light: {name}")
+logger.info(f"Created spot light: {name}")
 """
     result = await _executor.execute_script(script)
     return f"Created spot light '{name}'"
@@ -198,7 +198,7 @@ light.energy = {energy}
 light.color = {color}
 light.size = {size}
 
-print(f"Created area light: {name}")
+logger.info(f"Created area light: {name}")
 """
     result = await _executor.execute_script(script)
     return f"Created area light '{name}'"
@@ -239,7 +239,7 @@ rim_light.rotation_euler = (0.5, 0, 0)
 rim_light.data.energy = 2.0
 rim_light.data.spot_size = 1.0  # Narrow beam
 
-print("Created three-point lighting setup")
+logger.info("Created three-point lighting setup")
 """
     result = await _executor.execute_script(script)
     return "Created three-point lighting setup (Key, Fill, Rim lights)"

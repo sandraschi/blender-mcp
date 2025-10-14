@@ -44,6 +44,7 @@ class TestServerFunctionality:
     """Test server startup and configuration."""
 
     @pytest.mark.unit
+    @pytest.mark.asyncio
     @patch('blender_mcp.server.app')
     async def test_server_stdio_mode(self, mock_app):
         """Test server startup in stdio mode."""
@@ -98,23 +99,26 @@ class TestServerFunctionality:
         setup_logging("WARNING")
         setup_logging("ERROR")
 
-        # Invalid log level should not cause issues
-        setup_logging("INVALID_LEVEL")
+        # Invalid log level should raise ValueError
+        with pytest.raises(ValueError, match="Level 'INVALID_LEVEL' does not exist"):
+            setup_logging("INVALID_LEVEL")
 
 
 class TestToolRegistration:
     """Test that tools are properly registered with the app."""
 
     @pytest.mark.unit
-    def test_app_has_tools_registered(self):
+    @pytest.mark.asyncio
+    async def test_app_has_tools_registered(self):
         """Test that the app has tools registered after imports."""
         app_instance = get_app()
 
         # Get the tools from the app
         # Note: FastMCP internal API may vary, so we'll test what we can
         try:
-            tools = app_instance.get_tools()
-            assert isinstance(tools, list)
+            tools = await app_instance.get_tools()
+            # FastMCP returns a dictionary of tools, not a list
+            assert isinstance(tools, dict)
             # Should have at least some tools registered
             assert len(tools) > 0
         except AttributeError:
@@ -137,9 +141,12 @@ class TestToolRegistration:
             """Test tool for unit testing."""
             return f"Processed: {param}"
 
-        # The decorator should have registered the function
-        # (We can't easily test the registration without internal API access)
-        assert callable(test_tool)
+        # The decorator should have transformed the function into a tool object
+        # (FastMCP returns a FunctionTool object, not the original function)
+        from fastmcp.tools import FunctionTool
+        assert isinstance(test_tool, FunctionTool)
+        assert hasattr(test_tool, 'name')
+        assert test_tool.name == "test_tool"
 
 
 class TestErrorHandling:
