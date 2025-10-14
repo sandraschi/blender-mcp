@@ -27,5 +27,22 @@
       "default": "C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe",
       "required": true
     }
-  }
+  },
+  "prompts": [
+    {
+      "name": "welcome",
+      "description": "Welcome to Blender MCP",
+      "text": "Welcome to the comprehensive Blender automation server! This MCP server provides 37 tools across 19 categories for complete 3D content creation workflows.\n\nTo get started:\n1. Configure your Blender executable path\n2. Try creating a simple scene: 'Create a cube at position [0,0,0]'\n3. Add lighting: 'Set up three-point lighting'\n4. Render: 'Render a preview of the scene'\n\nFor advanced workflows, explore our comprehensive documentation."
+    },
+    {
+      "name": "quick_start",
+      "description": "Quick Start Guide",
+      "text": "🚀 **Blender MCP Quick Start**\n\n**Basic Scene Creation:**\n- Create objects with `blender_mesh`\n- Add materials with `blender_materials`\n- Set up lighting with `blender_lighting`\n- Position camera with `blender_camera`\n\n**Animation Workflow:**\n- Set keyframes with `blender_animation`\n- Create character rigs with `blender_rigging`\n- Bake physics with `blender_physics`\n\n**Export Pipeline:**\n- Export for Unity/VRChat with `blender_export`\n- Batch process with automated workflows\n\nNeed help? Check our documentation or ask specific questions!"
+    },
+    {
+      "name": "troubleshooting",
+      "description": "Common Issues & Solutions",
+      "text": "🔧 **Troubleshooting Blender MCP**\n\n**Blender Not Found:**\n- Ensure Blender executable path is correct\n- Enable auto-detection if path is wrong\n- Check Blender version (4.0+ required)\n\n**Operations Timeout:**\n- Increase operation timeout in settings\n- Complex scenes may need more time\n- Check system resources\n\n**Export Failures:**\n- Ensure output directory exists and is writable\n- Check file format compatibility\n- Verify object selection for export\n\n**Performance Issues:**\n- Reduce parallel operations to 1\n- Lower render samples for previews\n- Enable GPU rendering if available\n\n**Need More Help?**\n- Check the logs for detailed error messages\n- Review the comprehensive documentation\n- Create an issue on GitHub with error details"
+    }
+  ]
 }

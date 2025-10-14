@@ -9,8 +9,6 @@ node_modules/
 
 # Exclude documentation (except essential README)
 docs/
-*.md
-!README.md
 
 # Exclude tests
 tests/
