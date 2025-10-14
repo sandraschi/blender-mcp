@@ -433,22 +433,45 @@ For functions in a specific category, use: help_category('category_name')
 # Create a singleton instance
 help_system = HelpSystem()
 
-def get_help(function_name: Optional[str] = None, category: Optional[str] = None) -> str:
+def get_help(function_name: Optional[str] = None, category: Optional[str] = None, detail_level: str = "normal") -> str:
     """Get help for a specific function or list all available functions.
-    
+
     Args:
         function_name: Name of the function to get help for
         category: If provided, list all functions in this category
-        
+        detail_level: Level of detail ("brief", "normal", "detailed")
+
     Returns:
         str: Formatted help text
     """
     if function_name:
-        return help_system.format_function_help(function_name)
+        if detail_level == "brief":
+            func_info = help_system.get_function(function_name)
+            if func_info:
+                return f"{func_info.name}: {func_info.description}"
+            else:
+                return f"Function '{function_name}' not found."
+        else:
+            return help_system.format_function_help(function_name)
     elif category:
-        return help_system.format_category_help(category)
+        if detail_level == "brief":
+            tools = help_system.list_functions(category)
+            tool_names = [t.name for t in tools]
+            return f"{category}: {len(tools)} tools - {', '.join(tool_names[:5])}{'...' if len(tools) > 5 else ''}"
+        else:
+            return help_system.format_category_help(category)
     else:
-        return help_system.format_all_help()
+        if detail_level == "brief":
+            categories = help_system.get_categories()
+            category_counts = {}
+            for cat in categories:
+                category_counts[cat] = len(help_system.list_functions(cat))
+            total_tools = sum(category_counts.values())
+            return f"Blender MCP: {total_tools} tools across {len(categories)} categories\n" + "\n".join([f"• {cat}: {count} tools" for cat, count in category_counts.items()])
+        elif detail_level == "detailed":
+            return help_system.format_all_help() + "\n\nDetailed parameter information available for each tool."
+        else:
+            return help_system.format_all_help()
 
 def list_categories() -> List[str]:
     """List all available categories."""

@@ -16,7 +16,7 @@ def _register_help_tools():
     app = get_app()
 
     @app.tool
-    async def blender_help(function_name: str = None, category: str = None) -> str:
+    async def blender_help(function_name: str = None, category: str = None, detail_level: str = "normal") -> str:
         """
         Get comprehensive help for Blender MCP tools and functions.
 
@@ -26,6 +26,7 @@ def _register_help_tools():
         Args:
             function_name: Name of specific function to get detailed help for
             category: Category to filter help by
+            detail_level: Level of detail ("brief", "normal", "detailed")
 
         Returns:
             Formatted help text with function signatures, parameters, and examples
@@ -34,9 +35,10 @@ def _register_help_tools():
             - blender_help() - Show all available tools
             - blender_help("create_cube") - Help for specific function
             - blender_help(category="Mesh Creation") - All mesh tools
+            - blender_help(detail_level="brief") - Brief overview
         """
         from blender_mcp.help import get_help as _get_help
-        return _get_help(function_name, category)
+        return _get_help(function_name, category, detail_level)
 
     @app.tool
     async def blender_list_tools(category: str = None) -> str:
