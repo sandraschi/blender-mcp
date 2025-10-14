@@ -338,6 +338,51 @@
       "name": "set_render_settings",
       "description": "Basic render configuration",
       "category": "Render"
+    },
+    {
+      "name": "blender_help",
+      "description": "Get comprehensive help for Blender MCP tools",
+      "category": "Help & Documentation"
+    },
+    {
+      "name": "blender_list_tools",
+      "description": "List all available Blender MCP tools with descriptions",
+      "category": "Help & Documentation"
+    },
+    {
+      "name": "blender_search_tools",
+      "description": "Search for Blender MCP tools by name or description",
+      "category": "Help & Documentation"
+    },
+    {
+      "name": "blender_tool_info",
+      "description": "Get detailed information about a specific Blender MCP tool",
+      "category": "Help & Documentation"
+    },
+    {
+      "name": "blender_categories",
+      "description": "Get information about all available tool categories",
+      "category": "Help & Documentation"
+    },
+    {
+      "name": "blender_status",
+      "description": "Get comprehensive system status and health information",
+      "category": "System Status"
+    },
+    {
+      "name": "blender_system_info",
+      "description": "Get detailed system and environment information",
+      "category": "System Status"
+    },
+    {
+      "name": "blender_health_check",
+      "description": "Perform a comprehensive health check of the Blender MCP system",
+      "category": "System Status"
+    },
+    {
+      "name": "blender_performance_monitor",
+      "description": "Monitor system performance over a specified duration",
+      "category": "System Status"
     }
   ],
 

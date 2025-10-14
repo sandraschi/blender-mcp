@@ -1,4 +1,4 @@
-from ..compat import *
+from blender_mcp.compat import *
 
 """Blender MCP Help System.
 
@@ -219,6 +219,121 @@ class HelpSystem:
                     ParameterInfo("format", "str", "'PNG'", "Output image format")
                 ],
                 returns="str: Success message with render details"
+            )
+        )
+
+        # Help and Status Tools
+        self._add_function(
+            FunctionInfo(
+                name="blender_help",
+                category="Help & Documentation",
+                description="Get comprehensive help for Blender MCP tools and functions.",
+                parameters=[
+                    ParameterInfo("function_name", "Optional[str]", "None", "Name of specific function to get help for"),
+                    ParameterInfo("category", "Optional[str]", "None", "Category to filter help by")
+                ],
+                returns="str: Formatted help text with function signatures and examples",
+                example="blender_help('create_cube') or blender_help(category='Mesh Creation')"
+            )
+        )
+
+        self._add_function(
+            FunctionInfo(
+                name="blender_list_tools",
+                category="Help & Documentation",
+                description="List all available Blender MCP tools with descriptions.",
+                parameters=[
+                    ParameterInfo("category", "Optional[str]", "None", "Category to filter tools by")
+                ],
+                returns="Dict: Tools organized by categories with descriptions",
+                example="blender_list_tools('Mesh Creation')"
+            )
+        )
+
+        self._add_function(
+            FunctionInfo(
+                name="blender_search_tools",
+                category="Help & Documentation",
+                description="Search for Blender MCP tools by name or description.",
+                parameters=[
+                    ParameterInfo("query", "str", required=True, description="Search term to match against tool names and descriptions")
+                ],
+                returns="Dict: Matching tools grouped by relevance (exact, name, description)",
+                example="blender_search_tools('cube')"
+            )
+        )
+
+        self._add_function(
+            FunctionInfo(
+                name="blender_tool_info",
+                category="Help & Documentation",
+                description="Get detailed information about a specific Blender MCP tool.",
+                parameters=[
+                    ParameterInfo("tool_name", "str", required=True, description="Name of the tool to get information about")
+                ],
+                returns="Dict: Comprehensive tool information including parameters and usage",
+                example="blender_tool_info('create_cube')"
+            )
+        )
+
+        self._add_function(
+            FunctionInfo(
+                name="blender_categories",
+                category="Help & Documentation",
+                description="Get information about all available tool categories.",
+                parameters=[],
+                returns="Dict: All categories with tool counts and examples",
+                example="blender_categories()"
+            )
+        )
+
+        self._add_function(
+            FunctionInfo(
+                name="blender_status",
+                category="System Status",
+                description="Get comprehensive system status and health information.",
+                parameters=[
+                    ParameterInfo("include_blender_info", "bool", "True", "Include Blender-specific information"),
+                    ParameterInfo("include_system_info", "bool", "True", "Include general system information"),
+                    ParameterInfo("include_performance", "bool", "True", "Include performance metrics")
+                ],
+                returns="Dict: Complete system status including MCP server, Blender, and performance data",
+                example="blender_status()"
+            )
+        )
+
+        self._add_function(
+            FunctionInfo(
+                name="blender_system_info",
+                category="System Status",
+                description="Get detailed system and environment information.",
+                parameters=[],
+                returns="Dict: Detailed system information including Python packages and configuration",
+                example="blender_system_info()"
+            )
+        )
+
+        self._add_function(
+            FunctionInfo(
+                name="blender_health_check",
+                category="System Status",
+                description="Perform a comprehensive health check of the Blender MCP system.",
+                parameters=[],
+                returns="Dict: Health check results with status indicators for all components",
+                example="blender_health_check()"
+            )
+        )
+
+        self._add_function(
+            FunctionInfo(
+                name="blender_performance_monitor",
+                category="System Status",
+                description="Monitor system performance over a specified duration.",
+                parameters=[
+                    ParameterInfo("duration_seconds", "int", "10", "How long to monitor (max 60 seconds)")
+                ],
+                returns="Dict: Performance monitoring results with samples and summary statistics",
+                example="blender_performance_monitor(30)"
             )
         )
     
