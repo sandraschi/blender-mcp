@@ -6,6 +6,7 @@ Provides tools for selecting objects and elements in Blender scenes.
 
 from pydantic import BaseModel, Field
 from typing import List, Optional, Tuple, Union
+from loguru import logger
 from blender_mcp.app import get_app
 
 
@@ -83,11 +84,12 @@ def _register_selection_tools():
 import bpy
 bpy.ops.object.select_all(action='SELECT')
 selected_count = len([obj for obj in bpy.context.selected_objects])
-print(f"Selected {selected_count} objects")
 """
                 from ..utils.blender_executor import get_blender_executor
                 executor = get_blender_executor()
                 result = await executor.execute_script(script)
+                selected_count = len([obj for obj in result.split() if obj.isdigit()])  # Extract count from result if needed
+                logger.info(f"🎯 Selected all objects in scene")
                 return f"Selected all objects in scene"
 
             elif operation == "select_none":
@@ -95,11 +97,11 @@ print(f"Selected {selected_count} objects")
                 script = """
 import bpy
 bpy.ops.object.select_all(action='DESELECT')
-print("Deselected all objects")
 """
                 from ..utils.blender_executor import get_blender_executor
                 executor = get_blender_executor()
                 result = await executor.execute_script(script)
+                logger.info("🎯 Deselected all objects")
                 return f"Deselected all objects"
 
             elif operation == "invert_selection":
@@ -108,11 +110,12 @@ print("Deselected all objects")
 import bpy
 bpy.ops.object.select_all(action='INVERT')
 selected_count = len([obj for obj in bpy.context.selected_objects])
-print(f"Inverted selection: {selected_count} objects now selected")
 """
                 from ..utils.blender_executor import get_blender_executor
                 executor = get_blender_executor()
                 result = await executor.execute_script(script)
+                # Try to extract the count from the result or use a default message
+                logger.info("🎯 Inverted object selection")
                 return f"Inverted object selection"
 
             else:

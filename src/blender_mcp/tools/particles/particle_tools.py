@@ -6,6 +6,7 @@ Provides tools for creating particle systems and effects.
 
 from pydantic import BaseModel, Field
 from typing import List, Optional, Tuple, Union
+from loguru import logger
 from blender_mcp.app import get_app
 
 
@@ -89,7 +90,7 @@ import bpy
 # Find object
 obj = bpy.data.objects.get('{object_name}')
 if not obj:
-    print("ERROR: Object not found")
+    logger.error(f"❌ Object '{object_name}' not found for particle system")
 else:
     # Create particle system
     bpy.ops.object.select_all(action='DESELECT')
@@ -108,7 +109,7 @@ else:
     settings.emit_from = 'FACE'
     settings.use_emit_random = False
 
-    print("SUCCESS: Created hair particle system")
+    logger.info(f"✨ Created hair particle system for '{object_name}'")
 """
                 from ..utils.blender_executor import get_blender_executor
                 executor = get_blender_executor()
@@ -148,7 +149,7 @@ smoke_mod.smoke_type = 'FLOW'
 smoke_mod.flow_settings.smoke_color = (0.8, 0.4, 0.1)  # Orange fire color
 smoke_mod.flow_settings.temperature = 1.0  # Hot fire
 
-print("SUCCESS: Created fire effect")
+logger.info(f"🔥 Created fire particle effect for '{object_name}'")
 """
                 from ..utils.blender_executor import get_blender_executor
                 executor = get_blender_executor()

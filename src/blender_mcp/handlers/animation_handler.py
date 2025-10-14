@@ -5,6 +5,7 @@ Provides functions for creating keyframes and basic animations.
 """
 
 from typing import Tuple, Optional
+from loguru import logger
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 from ..exceptions import BlenderAnimationError
@@ -58,7 +59,7 @@ if {rotation is not None}:
 if {scale is not None}:
     obj.keyframe_insert(data_path="scale")
 
-print(f"Set keyframe for {{object_name}} at frame {frame}")
+logger.info(f"🎬 Set keyframe for {object_name} at frame {frame}")
 """
     result = await _executor.execute_script(script)
     return f"Set keyframe for '{object_name}' at frame {frame}"
@@ -103,7 +104,7 @@ bpy.context.scene.frame_set({end_frame})
 obj.location = {end_location}
 obj.keyframe_insert(data_path="location")
 
-print(f"Animated {{object_name}} location from {start_location} to {end_location}")
+logger.info(f"🎬 Animated {object_name} location from {start_location} to {end_location}")
 """
     result = await _executor.execute_script(script)
     return f"Animated '{object_name}' location from {start_location} to {end_location} over frames {start_frame}-{end_frame}"
@@ -152,7 +153,7 @@ bpy.context.scene.frame_set({end_frame})
 obj.rotation_euler = end_rad
 obj.keyframe_insert(data_path="rotation_euler")
 
-print(f"Animated {{object_name}} rotation from {start_rotation}° to {end_rotation}°")
+logger.info(f"🎬 Animated {object_name} rotation from {start_rotation}° to {end_rotation}°")
 """
     result = await _executor.execute_script(script)
     return f"Animated '{object_name}' rotation from {start_rotation}° to {end_rotation}° over frames {start_frame}-{end_frame}"
@@ -197,7 +198,7 @@ bpy.context.scene.frame_set({end_frame})
 obj.scale = {end_scale}
 obj.keyframe_insert(data_path="scale")
 
-print(f"Animated {{object_name}} scale from {start_scale} to {end_scale}")
+logger.info(f"🎬 Animated {object_name} scale from {start_scale} to {end_scale}")
 """
     result = await _executor.execute_script(script)
     return f"Animated '{object_name}' scale from {start_scale} to {end_scale} over frames {start_frame}-{end_frame}"
@@ -217,7 +218,7 @@ import bpy
 # Start animation playback
 bpy.ops.screen.animation_play()
 
-print("Started animation playback")
+logger.info("🎬 Started animation playback")
 """
     result = await _executor.execute_script(script)
     return "Started animation playback"
@@ -245,7 +246,7 @@ import bpy
 bpy.context.scene.frame_start = {start_frame}
 bpy.context.scene.frame_end = {end_frame}
 
-print(f"Set frame range to {start_frame}-{end_frame}")
+logger.info(f"🎬 Set frame range to {start_frame}-{end_frame}")
 """
     result = await _executor.execute_script(script)
     return f"Set frame range to {start_frame}-{end_frame}"
@@ -273,7 +274,7 @@ if not obj:
 # Clear animation data
 obj.animation_data_clear()
 
-print(f"Cleared animation data from {{object_name}}")
+logger.info(f"🎬 Cleared animation data from {object_name}")
 """
     result = await _executor.execute_script(script)
     return f"Cleared all animation data from '{object_name}'"
