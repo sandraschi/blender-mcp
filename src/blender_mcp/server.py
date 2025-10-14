@@ -154,11 +154,11 @@ def main():
         if args.http:
             logger.info(f"[HTTP] Starting HTTP server on {args.host}:{args.port}")
             # HTTP mode - use the app's built-in HTTP server
-            app.run_http(host=args.host, port=args.port)
+            app.run(transport="http", host=args.host, port=args.port)
         else:
             logger.info("[STDIO] Starting stdio server")
             # Stdio mode - use the app's built-in stdio server
-            app.run_stdio()
+            app.run(transport="stdio")
     except Exception as e:
         logger.error(f"[ERROR] Server error: {e}")
         sys.exit(1)
