@@ -1,45 +1,62 @@
 #!/usr/bin/env python3
-"""Test runner script for Blender MCP tests.
+"""
+Test runner for Blender MCP project.
 
-This script provides an easy way to run different types of tests with proper
-configuration and filtering.
+This script provides a comprehensive test runner that works in both local development
+environments (with Blender) and CI/CD environments (without Blender).
+
+Usage:
+    python tests/run_tests.py                    # Run all appropriate tests
+    python tests/run_tests.py --unit-only        # Run only unit tests
+    python tests/run_tests.py --integration-only # Run only integration tests (requires Blender)
+    python tests/run_tests.py --ci               # Run tests for CI environment
+    python tests/run_tests.py --coverage         # Run with coverage reporting
+    python tests/run_tests.py --verbose          # Verbose output
 """
 
-import argparse
-import subprocess
 import sys
 import os
+import argparse
+import subprocess
 from pathlib import Path
 
 
-def find_blender_executable():
-    """Find Blender executable for testing."""
-    # Check environment variable
-    env_path = os.environ.get('BLENDER_EXECUTABLE')
-    if env_path and Path(env_path).exists():
-        return env_path
-
-    # Common Blender installation paths
-    common_paths = [
+def is_blender_available():
+    """Check if Blender is available on the system."""
+    # Check common Blender installation paths
+    blender_paths = [
         "C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe",
         "C:\\Program Files\\Blender Foundation\\Blender 4.3\\blender.exe",
         "C:\\Program Files\\Blender Foundation\\Blender 4.2\\blender.exe",
         "/usr/bin/blender",
         "/usr/local/bin/blender",
         "/opt/blender/blender",
-        "blender"
+        "/Applications/Blender.app/Contents/MacOS/Blender",
     ]
 
-    for path in common_paths:
+    # Check environment variable
+    env_path = os.environ.get("BLENDER_EXECUTABLE")
+    if env_path and Path(env_path).exists():
+        return True
+
+    # Check common paths
+    for path in blender_paths:
         if Path(path).exists():
-            return path
+            return True
 
-    return None
+    return False
 
 
-def run_pytest(args, extra_args=None):
-    """Run pytest with given arguments."""
-    cmd = [sys.executable, "-m", "pytest"] + args
+def run_pytest(args, test_path="tests/", markers=None, extra_args=None):
+    """Run pytest with specified arguments."""
+    cmd = [sys.executable, "-m", "pytest"]
+
+    if test_path:
+        cmd.append(test_path)
+
+    if markers:
+        cmd.extend(["-m", markers])
+
     if extra_args:
         cmd.extend(extra_args)
 
@@ -49,155 +66,118 @@ def run_pytest(args, extra_args=None):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Run Blender MCP tests - Two-tier testing for CI/CD and local development",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Two-Tier Testing Strategy:
-
-TIER 1 - CI/CD Tests (No Blender Required):
-  --unit              Unit tests for utilities, validation, configuration
-  --no-blender        All tests that don't require Blender (CI-safe)
-
-TIER 2 - Integration Tests (Blender Required):
-  --integration       Real Blender script execution tests
-  --e2e              End-to-end workflow tests
-  --performance       Performance and stress tests
-
-Examples:
-  # CI/CD: Fast tests without Blender
-  python tests/run_tests.py --no-blender --coverage
-
-  # Local development: Full test suite with Blender
-  python tests/run_tests.py --all
-
-  # Specific test categories
-  python tests/run_tests.py --unit
-  python tests/run_tests.py --integration --e2e
-
-  # Development workflow
-  python tests/run_tests.py --unit --verbose  # Quick feedback
-  python tests/run_tests.py --integration     # Test real functionality
-        """
-    )
-
-    # Test type options
-    test_group = parser.add_mutually_exclusive_group()
-    test_group.add_argument('--unit', action='store_true',
-                           help='Run unit tests only (no Blender required)')
-    test_group.add_argument('--integration', action='store_true',
-                           help='Run integration tests (requires Blender)')
-    test_group.add_argument('--e2e', action='store_true',
-                           help='Run end-to-end tests (requires Blender)')
-    test_group.add_argument('--performance', action='store_true',
-                           help='Run performance tests (requires Blender)')
-    test_group.add_argument('--no-blender', action='store_true',
-                           help='Run tests that do not require Blender')
-    test_group.add_argument('--all', action='store_true',
-                           help='Run all tests')
-
-    # Specific test options
-    parser.add_argument('--file', type=str,
-                       help='Run specific test file')
-    parser.add_argument('--test-class', type=str,
-                       help='Run specific test class')
-    parser.add_argument('--function', type=str,
-                       help='Run specific test function')
-
-    # Output options
-    parser.add_argument('--verbose', '-v', action='store_true',
-                       help='Verbose output')
-    parser.add_argument('--quiet', '-q', action='store_true',
-                       help='Quiet output')
-    parser.add_argument('--coverage', action='store_true',
-                       help='Generate coverage report')
-    parser.add_argument('--html-report', action='store_true',
-                       help='Generate HTML test report')
-
-    # Blender options
-    parser.add_argument('--blender-path', type=str,
-                       help='Path to Blender executable')
+    """Main test runner function."""
+    parser = argparse.ArgumentParser(description="Run Blender MCP tests")
+    parser.add_argument("--unit-only", action="store_true",
+                       help="Run only unit tests")
+    parser.add_argument("--integration-only", action="store_true",
+                       help="Run only integration tests (requires Blender)")
+    parser.add_argument("--ci", action="store_true",
+                       help="Run tests optimized for CI environment")
+    parser.add_argument("--coverage", action="store_true",
+                       help="Run tests with coverage reporting")
+    parser.add_argument("--verbose", "-v", action="store_true",
+                       help="Verbose output")
+    parser.add_argument("--no-blender-skip", action="store_true",
+                       help="Don't skip Blender-dependent tests even if Blender unavailable")
 
     args = parser.parse_args()
 
-    # Check for Blender
-    blender_path = args.blender_path or find_blender_executable()
-    if blender_path:
-        os.environ['BLENDER_EXECUTABLE'] = blender_path
-        print(f"Using Blender: {blender_path}")
-    else:
-        print("Warning: Blender executable not found. Some tests will be skipped.")
+    # Check Blender availability
+    blender_available = is_blender_available()
+    print(f"Blender available: {blender_available}")
 
-    # Build pytest arguments
-    pytest_args = []
+    if not blender_available and not args.no_blender_skip:
+        print("⚠️  Blender not found. Integration tests will be skipped.")
+        print("   Install Blender or set BLENDER_EXECUTABLE environment variable.")
 
-    # Handle test selection
-    if args.file:
-        pytest_args.append(f"tests/{args.file}")
-    elif args.unit:
-        pytest_args.extend(["-m", "not (integration or e2e or performance)"])
-    elif args.integration:
-        pytest_args.extend(["-m", "integration"])
-    elif args.e2e:
-        pytest_args.extend(["-m", "e2e"])
-    elif args.performance:
-        pytest_args.extend(["-m", "performance"])
-    elif args.no_blender:
-        pytest_args.extend(["-m", "not (integration or e2e or performance or requires_blender)"])
-    elif args.all:
-        pass  # Run all tests
-    else:
-        # Default: run unit tests only
-        pytest_args.extend(["-m", "not (integration or e2e or performance)"])
-
-    # Handle specific test selection
-    if args.test_class:
-        pytest_args.extend(["-k", args.test_class])
-    if args.function:
-        if args.test_class:
-            pytest_args.extend([f"{args.test_class} and {args.function}"])
-        else:
-            pytest_args.extend(["-k", args.function])
-
-    # Output options
+    # Determine test strategy
+    extra_args = []
     if args.verbose:
-        pytest_args.append("-v")
-    elif args.quiet:
-        pytest_args.append("-q")
+        extra_args.extend(["-v", "--tb=short"])
+    else:
+        extra_args.append("--tb=short")
 
     if args.coverage:
-        pytest_args.extend([
-            "--cov=blender_mcp",
-            "--cov-report=term-missing",
-            "--cov-report=html:htmlcov"
+        extra_args.extend([
+            "--cov=src/blender_mcp",
+            "--cov-report=html:htmlcov",
+            "--cov-report=term-missing"
         ])
 
-    if args.html_report:
-        pytest_args.extend([
-            "--html=test_report.html",
-            "--self-contained-html"
+    # CI mode optimizations
+    if args.ci:
+        extra_args.extend([
+            "--strict-markers",
+            "--disable-warnings",
+            "-x",  # Stop on first failure
         ])
 
-    # Default test path if not specified
-    if not any(arg.startswith("tests/") for arg in pytest_args):
-        pytest_args.insert(0, "tests/")
+    success = True
 
-    # Run the tests
-    exit_code = run_pytest(pytest_args)
+    try:
+        if args.unit_only:
+            # Run only unit tests
+            print("🧪 Running unit tests...")
+            result = run_pytest(args, "tests/unit/", "unit", extra_args)
+            if result != 0:
+                success = False
 
-    # Print summary
-    if exit_code == 0:
-        print("\n✅ All tests passed!")
+        elif args.integration_only:
+            # Run only integration tests
+            if not blender_available and not args.no_blender_skip:
+                print("❌ Cannot run integration tests: Blender not available")
+                success = False
+            else:
+                print("🔗 Running integration tests...")
+                result = run_pytest(args, "tests/integration/",
+                                  "integration and requires_blender", extra_args)
+                if result != 0:
+                    success = False
+
+        else:
+            # Run appropriate tests based on environment
+            if args.ci or not blender_available:
+                # CI mode or no Blender: run only unit tests
+                print("🤖 Running unit tests only (CI mode or no Blender)...")
+                result = run_pytest(args, "tests/unit/", "unit", extra_args)
+                if result != 0:
+                    success = False
+            else:
+                # Local development with Blender: run all tests
+                print("🏠 Running all tests (local development mode)...")
+
+                # Unit tests first
+                print("  📦 Running unit tests...")
+                result = run_pytest(args, "tests/unit/", "unit", extra_args)
+                if result != 0:
+                    success = False
+
+                # Then integration tests
+                if success:
+                    print("  🔗 Running integration tests...")
+                    result = run_pytest(args, "tests/integration/",
+                                      "integration and requires_blender", extra_args)
+                    if result != 0:
+                        success = False
+
+    except KeyboardInterrupt:
+        print("\n🛑 Tests interrupted by user")
+        success = False
+    except Exception as e:
+        print(f"\n❌ Test runner error: {e}")
+        success = False
+
+    # Print results
+    print()
+    if success:
+        print("✅ All tests passed!")
+        if args.coverage:
+            print("📊 Coverage report generated in htmlcov/")
+        return 0
     else:
-        print(f"\n❌ Tests failed with exit code: {exit_code}")
-
-    # Print helpful information
-    if not blender_path:
-        print("\nNote: Some tests were skipped because Blender was not found.")
-        print("To run all tests, install Blender and set BLENDER_EXECUTABLE environment variable")
-        print("or use --blender-path option.")
-
-    return exit_code
+        print("❌ Some tests failed!")
+        return 1
 
 
 if __name__ == "__main__":
