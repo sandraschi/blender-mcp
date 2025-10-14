@@ -1,0 +1,868 @@
+{
+  "manifest_version": "0.2",
+  "name": "blender-mcp",
+  "display_name": "Blender MCP Server",
+  "version": "1.0.0",
+  "description": "Complete Blender 3D automation MCP server with 37 tools across 19 categories for professional 3D content creation",
+
+  "author": {
+    "name": "Blender MCP Team",
+    "email": "blender-mcp@example.com",
+    "url": "https://github.com/sandraschi/blender-mcp"
+  },
+
+  "license": "MIT",
+
+  "server": {
+    "type": "python",
+    "entry_point": "src/blender_mcp/__main__.py",
+    "mcp_config": {
+      "command": "python",
+      "args": ["-m", "blender_mcp"],
+      "env": {
+        "PYTHONPATH": "${CWD}",
+        "BLENDER_EXECUTABLE": "${user_config.blender_executable}",
+        "BLENDER_AUTO_DETECT": "${user_config.auto_detect_blender}",
+        "OPERATION_TIMEOUT": "${user_config.operation_timeout}",
+        "MAX_PARALLEL_OPERATIONS": "${user_config.max_parallel_operations}",
+        "ENABLE_GPU_RENDERING": "${user_config.enable_gpu_rendering}",
+        "RENDER_SAMPLES": "${user_config.render_samples}",
+        "TEMP_DIRECTORY": "${user_config.temp_directory}",
+        "LOG_LEVEL": "${user_config.log_level}",
+        "ENABLE_PERFORMANCE_MONITORING": "${user_config.enable_performance_monitoring}",
+        "BACKUP_BLEND_FILES": "${user_config.backup_blend_files}"
+      },
+      "stdio": {
+        "encoding": "utf-8",
+        "buffer_size": 65536
+      }
+    }
+  },
+
+  "capabilities": {
+    "tools": {
+      "listChanged": false
+    },
+    "resources": {
+      "enabled": false
+    },
+    "prompts": {
+      "enabled": false
+    }
+  },
+
+  "user_config": {
+    "blender_executable": {
+      "type": "file",
+      "title": "Blender Executable Path",
+      "description": "Select the Blender executable file (blender.exe on Windows, blender on Linux/Mac)",
+      "default": "C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe",
+      "required": true,
+      "validation": {
+        "exists": true,
+        "is_file": true,
+        "is_executable": true
+      },
+      "platform_defaults": {
+        "win32": "C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe",
+        "darwin": "/Applications/Blender.app/Contents/MacOS/Blender",
+        "linux": "/usr/bin/blender"
+      }
+    },
+    "auto_detect_blender": {
+      "type": "boolean",
+      "title": "Auto-detect Blender Installation",
+      "description": "Automatically find Blender installation if the path above is not accessible",
+      "default": true,
+      "required": false
+    },
+    "operation_timeout": {
+      "type": "number",
+      "title": "Operation Timeout (seconds)",
+      "description": "Maximum time allowed for each Blender operation to complete",
+      "default": 300,
+      "min": 30,
+      "max": 3600,
+      "step": 30,
+      "required": false
+    },
+    "max_parallel_operations": {
+      "type": "number",
+      "title": "Maximum Parallel Operations",
+      "description": "Maximum number of Blender operations that can run simultaneously",
+      "default": 1,
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "required": false
+    },
+    "enable_gpu_rendering": {
+      "type": "boolean",
+      "title": "Enable GPU Rendering",
+      "description": "Use GPU acceleration for rendering operations (requires compatible GPU)",
+      "default": true,
+      "required": false
+    },
+    "render_samples": {
+      "type": "number",
+      "title": "Default Render Samples",
+      "description": "Default number of samples for Cycles rendering (higher = better quality but slower)",
+      "default": 128,
+      "min": 1,
+      "max": 4096,
+      "step": 16,
+      "required": false
+    },
+    "temp_directory": {
+      "type": "directory",
+      "title": "Temporary Files Directory",
+      "description": "Directory where temporary Blender files and scripts will be stored",
+      "default": "${TEMP}\\blender-mcp",
+      "required": false,
+      "validation": {
+        "writable": true,
+        "create_if_missing": true
+      },
+      "platform_defaults": {
+        "win32": "%TEMP%\\blender-mcp",
+        "darwin": "/tmp/blender-mcp",
+        "linux": "/tmp/blender-mcp"
+      }
+    },
+    "log_level": {
+      "type": "select",
+      "title": "Logging Level",
+      "description": "Control how much information is logged during operations",
+      "options": [
+        {
+          "value": "DEBUG",
+          "label": "Debug - Most verbose (includes detailed operation steps)"
+        },
+        {
+          "value": "INFO",
+          "label": "Info - Normal operations (recommended for most users)"
+        },
+        {
+          "value": "WARNING",
+          "label": "Warning - Only issues and warnings"
+        },
+        {
+          "value": "ERROR",
+          "label": "Error - Only critical errors"
+        }
+      ],
+      "default": "INFO",
+      "required": false
+    },
+    "enable_performance_monitoring": {
+      "type": "boolean",
+      "title": "Enable Performance Monitoring",
+      "description": "Monitor and log performance metrics for operations (may slightly impact performance)",
+      "default": false,
+      "required": false
+    },
+    "backup_blend_files": {
+      "type": "boolean",
+      "title": "Backup Modified Files",
+      "description": "Create backup copies of .blend files before modifying them",
+      "default": true,
+      "required": false
+    },
+    "preferred_render_engine": {
+      "type": "select",
+      "title": "Preferred Render Engine",
+      "description": "Default render engine for new scenes",
+      "options": [
+        {
+          "value": "CYCLES",
+          "label": "Cycles - Physically-based ray tracing (high quality, slower)"
+        },
+        {
+          "value": "EEVEE",
+          "label": "Eevee - Real-time rendering (fast, good for previews)"
+        },
+        {
+          "value": "WORKBENCH",
+          "label": "Workbench - Fast rendering for modeling and layout"
+        }
+      ],
+      "default": "CYCLES",
+      "required": false
+    },
+    "default_output_format": {
+      "type": "select",
+      "title": "Default Output Format",
+      "description": "Default image format for rendered outputs",
+      "options": [
+        {"value": "PNG", "label": "PNG - Lossless, supports transparency"},
+        {"value": "JPEG", "label": "JPEG - Smaller files, lossy compression"},
+        {"value": "OPEN_EXR", "label": "OpenEXR - High dynamic range, floating point"},
+        {"value": "TIFF", "label": "TIFF - Uncompressed, high quality"},
+        {"value": "BMP", "label": "BMP - Uncompressed bitmap"}
+      ],
+      "default": "PNG",
+      "required": false
+    },
+    "enable_undo_history": {
+      "type": "boolean",
+      "title": "Enable Undo History",
+      "description": "Maintain undo history for operations (uses more memory)",
+      "default": true,
+      "required": false
+    },
+    "auto_save_interval": {
+      "type": "number",
+      "title": "Auto-save Interval (minutes)",
+      "description": "Automatically save work every N minutes (0 = disabled)",
+      "default": 5,
+      "min": 0,
+      "max": 60,
+      "step": 1,
+      "required": false
+    }
+  },
+
+  "tools": [
+    {
+      "name": "blender_mesh",
+      "description": "Create and manipulate 3D mesh objects and primitives",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: create_cube, create_sphere, create_cylinder, create_cone, create_plane, create_torus, create_monkey, duplicate_object, delete_object",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name for the new object",
+          "default": "Object",
+          "required": false
+        },
+        {
+          "name": "location",
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Location coordinates [x, y, z]",
+          "default": [0, 0, 0],
+          "required": false
+        },
+        {
+          "name": "scale",
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Scale factors [x, y, z]",
+          "default": [1, 1, 1],
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_animation",
+      "description": "Create animations and keyframes for objects",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: set_keyframe, animate_location, animate_rotation, animate_scale, play_animation, set_frame_range, clear_animation",
+          "required": true
+        },
+        {
+          "name": "object_name",
+          "type": "string",
+          "description": "Name of object to animate",
+          "required": true
+        },
+        {
+          "name": "frame",
+          "type": "integer",
+          "description": "Frame number for keyframes",
+          "default": 1,
+          "required": false
+        },
+        {
+          "name": "location",
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Location for keyframe [x, y, z]",
+          "required": false
+        },
+        {
+          "name": "rotation",
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Rotation angles in degrees [x, y, z]",
+          "required": false
+        },
+        {
+          "name": "scale",
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Scale factors [x, y, z]",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_lighting",
+      "description": "Create and manage lighting setups",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: create_sun, create_point, create_spot, create_area, setup_three_point, setup_hdri, adjust_light",
+          "required": true
+        },
+        {
+          "name": "light_name",
+          "type": "string",
+          "description": "Name for the light",
+          "default": "Light",
+          "required": false
+        },
+        {
+          "name": "location",
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Light position [x, y, z]",
+          "default": [5, 5, 5],
+          "required": false
+        },
+        {
+          "name": "energy",
+          "type": "number",
+          "description": "Light intensity",
+          "default": 1.0,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_export",
+      "description": "Export scenes for Unity and VRChat",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: export_unity, export_vrchat",
+          "required": true
+        },
+        {
+          "name": "output_path",
+          "type": "string",
+          "description": "Path where to save the exported file",
+          "required": true
+        },
+        {
+          "name": "object_names",
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "List of specific object names to export",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_import",
+      "description": "Import various 3D file formats",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: import_[format] (fbx, obj, gltf, etc.) or link_asset",
+          "required": true
+        },
+        {
+          "name": "filepath",
+          "type": "string",
+          "description": "Path to the file to import",
+          "required": true
+        },
+        {
+          "name": "global_scale",
+          "type": "number",
+          "description": "Global scale factor for import",
+          "default": 1.0,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_furniture",
+      "description": "Create furniture and complex objects",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: create_chair, create_table, create_bed, create_sofa, create_cabinet, create_desk, create_shelf, create_stool",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name for the furniture object",
+          "default": "Furniture",
+          "required": false
+        },
+        {
+          "name": "style",
+          "type": "string",
+          "description": "Style: modern, classic, rustic, industrial",
+          "default": "modern",
+          "required": false
+        },
+        {
+          "name": "dimensions",
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Dimensions [width, depth, height]",
+          "default": [1, 1, 1],
+          "required": false
+        },
+        {
+          "name": "location",
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Position [x, y, z]",
+          "default": [0, 0, 0],
+          "required": false
+        },
+        {
+          "name": "material",
+          "type": "string",
+          "description": "Material type",
+          "default": "wood",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_textures",
+      "description": "Create procedural and image textures",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: create_[type] (noise, voronoi, etc.), assign_texture, bake_texture",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Name for the texture",
+          "default": "Texture",
+          "required": false
+        },
+        {
+          "name": "width",
+          "type": "integer",
+          "description": "Texture width in pixels",
+          "default": 1024,
+          "required": false
+        },
+        {
+          "name": "height",
+          "type": "integer",
+          "description": "Texture height in pixels",
+          "default": 1024,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_camera",
+      "description": "Camera creation and control",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: create_camera, set_active_camera, set_camera_lens",
+          "required": true
+        },
+        {
+          "name": "camera_name",
+          "type": "string",
+          "description": "Name of the camera",
+          "default": "Camera",
+          "required": false
+        },
+        {
+          "name": "location",
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Camera position [x, y, z]",
+          "default": [0, 10, 0],
+          "required": false
+        },
+        {
+          "name": "lens",
+          "type": "number",
+          "description": "Camera lens focal length",
+          "default": 50.0,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_modifiers",
+      "description": "Apply and manage mesh modifiers",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: add_[modifier] (subsurf, bevel, mirror, etc.), remove_modifier, apply_modifier, get_modifiers",
+          "required": true
+        },
+        {
+          "name": "object_name",
+          "type": "string",
+          "description": "Name of object to modify",
+          "required": true
+        },
+        {
+          "name": "modifier_name",
+          "type": "string",
+          "description": "Name of modifier to operate on",
+          "required": false
+        },
+        {
+          "name": "levels",
+          "type": "integer",
+          "description": "Subdivision levels",
+          "default": 2,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_render",
+      "description": "Render scenes and animations",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: render_preview, render_turntable, render_animation, render_current_frame",
+          "required": true
+        },
+        {
+          "name": "output_path",
+          "type": "string",
+          "description": "Path for single frame output",
+          "required": false
+        },
+        {
+          "name": "output_dir",
+          "type": "string",
+          "description": "Directory for animation output",
+          "required": false
+        },
+        {
+          "name": "resolution_x",
+          "type": "integer",
+          "description": "Horizontal resolution",
+          "default": 1920,
+          "required": false
+        },
+        {
+          "name": "resolution_y",
+          "type": "integer",
+          "description": "Vertical resolution",
+          "default": 1080,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_transform",
+      "description": "Transform objects in 3D space",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: set_location, set_rotation, set_scale, translate, rotate, scale, apply_transform, reset_transform",
+          "required": true
+        },
+        {
+          "name": "object_names",
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Name(s) of object(s) to transform",
+          "required": true
+        },
+        {
+          "name": "x",
+          "type": "number",
+          "description": "X coordinate/rotation/scale",
+          "default": 0,
+          "required": false
+        },
+        {
+          "name": "y",
+          "type": "number",
+          "description": "Y coordinate/rotation/scale",
+          "default": 0,
+          "required": false
+        },
+        {
+          "name": "z",
+          "type": "number",
+          "description": "Z coordinate/rotation/scale",
+          "default": 0,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_selection",
+      "description": "Select objects and elements",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: select_objects, select_by_type, select_by_material, select_all, select_none, invert_selection",
+          "required": true
+        },
+        {
+          "name": "object_names",
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "List of object names to select",
+          "required": false
+        },
+        {
+          "name": "object_type",
+          "type": "string",
+          "description": "Type of objects to select",
+          "default": "MESH",
+          "required": false
+        },
+        {
+          "name": "material_name",
+          "type": "string",
+          "description": "Material name to select by",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_rigging",
+      "description": "Create armatures and character rigging",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: create_armature, add_bone, create_bone_ik, create_basic_rig",
+          "required": true
+        },
+        {
+          "name": "armature_name",
+          "type": "string",
+          "description": "Name of armature",
+          "default": "Armature",
+          "required": false
+        },
+        {
+          "name": "bone_name",
+          "type": "string",
+          "description": "Name of bone",
+          "default": "Bone",
+          "required": false
+        },
+        {
+          "name": "head",
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Bone head position [x, y, z]",
+          "default": [0, 0, 0],
+          "required": false
+        },
+        {
+          "name": "tail",
+          "type": "array",
+          "items": {"type": "number"},
+          "description": "Bone tail position [x, y, z]",
+          "default": [0, 1, 0],
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_physics",
+      "description": "Enable physics simulations",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: enable_rigid_body, enable_cloth, enable_soft_body, enable_fluid, bake_physics, add_force_field, configure_world",
+          "required": true
+        },
+        {
+          "name": "object_name",
+          "type": "string",
+          "description": "Name of object for physics",
+          "required": true
+        },
+        {
+          "name": "physics_type",
+          "type": "string",
+          "description": "Type of physics: RIGID_BODY, CLOTH, SOFT_BODY, FLUID",
+          "default": "RIGID_BODY",
+          "required": false
+        },
+        {
+          "name": "mass",
+          "type": "number",
+          "description": "Object mass",
+          "default": 1.0,
+          "required": false
+        },
+        {
+          "name": "friction",
+          "type": "number",
+          "description": "Friction coefficient",
+          "default": 0.5,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_particles",
+      "description": "Create particle systems and effects",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: create_particle_system, create_hair_particles, create_fire_effect, bake_particles",
+          "required": true
+        },
+        {
+          "name": "object_name",
+          "type": "string",
+          "description": "Name of object for particles",
+          "required": true
+        },
+        {
+          "name": "particle_count",
+          "type": "integer",
+          "description": "Number of particles",
+          "default": 1000,
+          "required": false
+        },
+        {
+          "name": "lifetime",
+          "type": "number",
+          "description": "Particle lifetime in frames",
+          "default": 50.0,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "blender_uv",
+      "description": "Manage UV mapping and unwrapping",
+      "parameters": [
+        {
+          "name": "operation",
+          "type": "string",
+          "description": "Operation type: unwrap, smart_project, cube_project, cylinder_project, sphere_project, reset_uvs, get_uv_info",
+          "required": true
+        },
+        {
+          "name": "object_name",
+          "type": "string",
+          "description": "Name of object for UV operations",
+          "required": true
+        },
+        {
+          "name": "unwrap_method",
+          "type": "string",
+          "description": "UV unwrapping method",
+          "default": "ANGLE_BASED",
+          "required": false
+        }
+      ]
+    }
+  ],
+
+  "requirements": {
+    "python": ">=3.10.0",
+    "blender": ">=4.0.0",
+    "fastmcp": ">=2.12.0",
+    "pydantic": ">=2.0.0",
+    "loguru": ">=0.7.0"
+  },
+
+  "metadata": {
+    "homepage": "https://github.com/sandraschi/blender-mcp",
+    "repository": "https://github.com/sandraschi/blender-mcp.git",
+    "documentation": "https://github.com/sandraschi/blender-mcp/blob/main/docs/BLENDER_MCP_FUNCTIONALITY_PLAN.md",
+    "issues": "https://github.com/sandraschi/blender-mcp/issues",
+    "keywords": [
+      "blender",
+      "3d",
+      "automation",
+      "mcp",
+      "modeling",
+      "rendering",
+      "animation",
+      "physics",
+      "export",
+      "import",
+      "game-dev",
+      "vfx"
+    ],
+    "categories": [
+      "3D Graphics",
+      "Automation",
+      "Game Development",
+      "Content Creation",
+      "Visual Effects",
+      "MCP Server"
+    ],
+    "platforms": ["win32", "darwin", "linux"],
+    "license": "MIT"
+  },
+
+  "prompts": {
+    "welcome": {
+      "title": "Welcome to Blender MCP",
+      "content": "Welcome to the comprehensive Blender automation server! This MCP server provides 37 tools across 19 categories for complete 3D content creation workflows.\n\nTo get started:\n1. Configure your Blender executable path\n2. Try creating a simple scene: 'Create a cube at position [0,0,0]'\n3. Add lighting: 'Set up three-point lighting'\n4. Render: 'Render a preview of the scene'\n\nFor advanced workflows, explore our comprehensive documentation."
+    },
+    "quick_start": {
+      "title": "Quick Start Guide",
+      "content": "🚀 **Blender MCP Quick Start**\n\n**Basic Scene Creation:**\n- Create objects with `blender_mesh`\n- Add materials with `blender_materials`\n- Set up lighting with `blender_lighting`\n- Position camera with `blender_camera`\n\n**Animation Workflow:**\n- Set keyframes with `blender_animation`\n- Create character rigs with `blender_rigging`\n- Bake physics with `blender_physics`\n\n**Export Pipeline:**\n- Export for Unity/VRChat with `blender_export`\n- Batch process with automated workflows\n\nNeed help? Check our documentation or ask specific questions!"
+    },
+    "troubleshooting": {
+      "title": "Common Issues & Solutions",
+      "content": "🔧 **Troubleshooting Blender MCP**\n\n**Blender Not Found:**\n- Ensure Blender executable path is correct\n- Enable auto-detection if path is wrong\n- Check Blender version (4.0+ required)\n\n**Operations Timeout:**\n- Increase operation timeout in settings\n- Complex scenes may need more time\n- Check system resources\n\n**Export Failures:**\n- Ensure output directory exists and is writable\n- Check file format compatibility\n- Verify object selection for export\n\n**Performance Issues:**\n- Reduce parallel operations to 1\n- Lower render samples for previews\n- Enable GPU rendering if available\n\n**Need More Help?**\n- Check the logs for detailed error messages\n- Review the comprehensive documentation\n- Create an issue on GitHub with error details"
+    }
+  },
+
+  "hooks": {
+    "pre_install": [
+      "echo 'Installing Blender MCP Server...'",
+      "python -c \"import sys; print(f'Python: {sys.version}')\""
+    ],
+    "post_install": [
+      "echo 'Blender MCP Server installed successfully!'",
+      "echo 'Configure your Blender executable path to get started.'"
+    ],
+    "pre_uninstall": [
+      "echo 'Preparing to uninstall Blender MCP Server...'"
+    ],
+    "post_uninstall": [
+      "echo 'Blender MCP Server uninstalled.'",
+      "echo 'Your user configurations have been preserved.'"
+    ]
+  },
+
+  "security": {
+    "allow_file_access": true,
+    "allow_network_access": false,
+    "allow_subprocess_execution": true,
+    "sandbox_level": "trusted",
+    "trusted_domains": [],
+    "blocked_commands": []
+  }
+}
