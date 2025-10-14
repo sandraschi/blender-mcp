@@ -1,0 +1,61 @@
+# MCPB Packaging Ignore File
+# Only include essential files for MCP server functionality
+
+# Exclude development environment
+venv/
+.venv/
+env/
+node_modules/
+
+# Exclude documentation (except essential README)
+docs/
+*.md
+!README.md
+
+# Exclude tests
+tests/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Exclude IDE and development files
+.cursor/
+.vscode/
+.idea/
+*.log
+
+# Exclude Git
+.git/
+.gitignore
+
+# Exclude build artifacts
+dist/
+build/
+*.egg-info/
+
+# Exclude examples (not needed for MCP server)
+examples/
+
+# Exclude MCPB packaging files (only needed during build)
+mcpb-packaging/
+mcpb.json
+
+# Exclude development scripts and configs
+run_server.py
+setup.py
+pyproject.toml
+.github/
+
+# Exclude snapshots and cache
+.snapshots/
+.coverage
+
+# Exclude license (optional, but keep if wanted)
+# LICENSE
+
+# Only include these essential files:
+# - src/blender_mcp/ (main package)
+# - requirements.txt
+# - README.md
+# - LICENSE
+# - manifest.json
