@@ -1,0 +1,458 @@
+{
+  "name": "blender-mcp",
+  "version": "1.0.0",
+  "description": "Complete Blender 3D automation MCP server with 48 tools across 19 categories",
+  "author": "Blender MCP Team",
+  "license": "MIT",
+
+  "mcp": {
+    "version": "2.12.0",
+    "capabilities": {
+      "tools": true,
+      "resources": false,
+      "prompts": false
+    }
+  },
+
+  "dependencies": {
+    "python": ">=3.10.0,<4.0.0",
+    "fastmcp": ">=2.12.0,<3.0.0",
+    "pydantic": ">=2.0.0,<3.0.0",
+    "loguru": ">=0.7.0,<1.0.0"
+  },
+
+  "build": {
+    "entry_point": "src/blender_mcp/__main__.py",
+    "include_patterns": [
+      "src/blender_mcp/**/*.py",
+      "requirements.txt",
+      "README.md",
+      "LICENSE"
+    ],
+    "exclude_patterns": [
+      "**/__pycache__/**",
+      "**/*.pyc",
+      "**/.git/**",
+      "**/node_modules/**",
+      "**/venv/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/*.log",
+      "**/.pytest_cache/**",
+      "**/tests/**"
+    ]
+  },
+
+  "user_config": [
+    {
+      "name": "blender_executable",
+      "type": "file",
+      "title": "Blender Executable Path",
+      "description": "Path to Blender executable (e.g., C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe)",
+      "default": "C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe",
+      "required": true,
+      "validation": {
+        "exists": true,
+        "executable": true
+      }
+    },
+    {
+      "name": "auto_detect_blender",
+      "type": "boolean",
+      "title": "Auto-detect Blender Installation",
+      "description": "Automatically find Blender installation if path is not set",
+      "default": true,
+      "required": false
+    },
+    {
+      "name": "operation_timeout",
+      "type": "number",
+      "title": "Operation Timeout (seconds)",
+      "description": "Maximum time allowed for Blender operations",
+      "default": 300,
+      "min": 30,
+      "max": 3600,
+      "required": false
+    },
+    {
+      "name": "max_parallel_operations",
+      "type": "number",
+      "title": "Maximum Parallel Operations",
+      "description": "Maximum number of concurrent Blender operations",
+      "default": 1,
+      "min": 1,
+      "max": 4,
+      "required": false
+    },
+    {
+      "name": "enable_gpu_rendering",
+      "type": "boolean",
+      "title": "Enable GPU Rendering",
+      "description": "Use GPU acceleration for rendering operations",
+      "default": true,
+      "required": false
+    },
+    {
+      "name": "render_samples",
+      "type": "number",
+      "title": "Default Render Samples",
+      "description": "Default number of samples for Cycles rendering",
+      "default": 128,
+      "min": 1,
+      "max": 4096,
+      "required": false
+    },
+    {
+      "name": "temp_directory",
+      "type": "directory",
+      "title": "Temporary Files Directory",
+      "description": "Directory for temporary Blender files and scripts",
+      "default": "%TEMP%\\blender-mcp",
+      "required": false,
+      "validation": {
+        "writable": true
+      }
+    },
+    {
+      "name": "log_level",
+      "type": "select",
+      "title": "Logging Level",
+      "description": "Verbosity level for operation logging",
+      "options": [
+        {"value": "DEBUG", "label": "Debug (most verbose)"},
+        {"value": "INFO", "label": "Info (normal operations)"},
+        {"value": "WARNING", "label": "Warning (issues only)"},
+        {"value": "ERROR", "label": "Error (critical issues only)"}
+      ],
+      "default": "INFO",
+      "required": false
+    },
+    {
+      "name": "enable_performance_monitoring",
+      "type": "boolean",
+      "title": "Enable Performance Monitoring",
+      "description": "Monitor and log operation performance metrics",
+      "default": false,
+      "required": false
+    },
+    {
+      "name": "backup_blend_files",
+      "type": "boolean",
+      "title": "Backup Blend Files",
+      "description": "Create backup copies of modified .blend files",
+      "default": true,
+      "required": false
+    }
+  ],
+
+  "server_config": {
+    "command": "python",
+    "args": ["-m", "blender_mcp"],
+    "env": {
+      "PYTHONPATH": "${CWD}",
+      "BLENDER_EXECUTABLE": "${user_config.blender_executable}",
+      "BLENDER_AUTO_DETECT": "${user_config.auto_detect_blender}",
+      "OPERATION_TIMEOUT": "${user_config.operation_timeout}",
+      "MAX_PARALLEL_OPERATIONS": "${user_config.max_parallel_operations}",
+      "ENABLE_GPU_RENDERING": "${user_config.enable_gpu_rendering}",
+      "RENDER_SAMPLES": "${user_config.render_samples}",
+      "TEMP_DIRECTORY": "${user_config.temp_directory}",
+      "LOG_LEVEL": "${user_config.log_level}",
+      "ENABLE_PERFORMANCE_MONITORING": "${user_config.enable_performance_monitoring}",
+      "BACKUP_BLEND_FILES": "${user_config.backup_blend_files}"
+    }
+  },
+
+  "tools": [
+    {
+      "name": "blender_mesh",
+      "description": "Create and manipulate 3D mesh objects (cubes, spheres, primitives)",
+      "category": "Object Creation"
+    },
+    {
+      "name": "blender_animation",
+      "description": "Create animations and keyframes for objects",
+      "category": "Animation"
+    },
+    {
+      "name": "blender_lighting",
+      "description": "Create and manage lighting setups",
+      "category": "Lighting"
+    },
+    {
+      "name": "blender_export",
+      "description": "Export scenes for Unity and VRChat",
+      "category": "Export/Import"
+    },
+    {
+      "name": "blender_import",
+      "description": "Import various 3D file formats",
+      "category": "Export/Import"
+    },
+    {
+      "name": "blender_furniture",
+      "description": "Create furniture and complex objects",
+      "category": "Complex Objects"
+    },
+    {
+      "name": "blender_textures",
+      "description": "Create procedural and image textures",
+      "category": "Textures"
+    },
+    {
+      "name": "blender_camera",
+      "description": "Camera creation and control",
+      "category": "Camera"
+    },
+    {
+      "name": "blender_addons",
+      "description": "Manage Blender addons",
+      "category": "Addon Management"
+    },
+    {
+      "name": "blender_modifiers",
+      "description": "Apply and manage mesh modifiers",
+      "category": "Modifiers"
+    },
+    {
+      "name": "blender_render",
+      "description": "Render scenes and animations",
+      "category": "Render"
+    },
+    {
+      "name": "blender_transform",
+      "description": "Transform objects in 3D space",
+      "category": "Transform"
+    },
+    {
+      "name": "blender_selection",
+      "description": "Select objects and elements",
+      "category": "Selection"
+    },
+    {
+      "name": "blender_rigging",
+      "description": "Create armatures and character rigging",
+      "category": "Rigging"
+    },
+    {
+      "name": "blender_physics",
+      "description": "Enable physics simulations",
+      "category": "Physics"
+    },
+    {
+      "name": "blender_particles",
+      "description": "Create particle systems and effects",
+      "category": "Particles"
+    },
+    {
+      "name": "blender_uv",
+      "description": "Manage UV mapping and unwrapping",
+      "category": "UV Mapping"
+    },
+    {
+      "name": "create_scene",
+      "description": "Create new Blender scenes",
+      "category": "Scene Management"
+    },
+    {
+      "name": "list_scenes",
+      "description": "List all scenes in the project",
+      "category": "Scene Management"
+    },
+    {
+      "name": "clear_scene",
+      "description": "Remove all objects from scene",
+      "category": "Scene Management"
+    },
+    {
+      "name": "set_active_scene",
+      "description": "Switch between scenes",
+      "category": "Scene Management"
+    },
+    {
+      "name": "link_object_to_scene",
+      "description": "Share objects between scenes",
+      "category": "Scene Management"
+    },
+    {
+      "name": "create_collection",
+      "description": "Organize objects in collections",
+      "category": "Scene Management"
+    },
+    {
+      "name": "add_to_collection",
+      "description": "Add objects to collections",
+      "category": "Scene Management"
+    },
+    {
+      "name": "set_active_collection",
+      "description": "Set working collection",
+      "category": "Scene Management"
+    },
+    {
+      "name": "create_fabric_material",
+      "description": "Create realistic fabric materials",
+      "category": "Materials"
+    },
+    {
+      "name": "create_metal_material",
+      "description": "Create metal materials",
+      "category": "Materials"
+    },
+    {
+      "name": "create_wood_material",
+      "description": "Create wood materials",
+      "category": "Materials"
+    },
+    {
+      "name": "create_glass_material",
+      "description": "Create glass materials",
+      "category": "Materials"
+    },
+    {
+      "name": "create_ceramic_material",
+      "description": "Create ceramic materials",
+      "category": "Materials"
+    },
+    {
+      "name": "assign_material_to_object",
+      "description": "Apply materials to objects",
+      "category": "Materials"
+    },
+    {
+      "name": "create_material_from_preset",
+      "description": "Use predefined material configurations",
+      "category": "Materials"
+    },
+    {
+      "name": "setup_lighting",
+      "description": "Automated lighting rigs",
+      "category": "Lighting"
+    },
+    {
+      "name": "setup_camera",
+      "description": "Camera positioning",
+      "category": "Camera"
+    },
+    {
+      "name": "set_render_settings",
+      "description": "Basic render configuration",
+      "category": "Render"
+    },
+    {
+      "name": "blender_help",
+      "description": "Get comprehensive help for Blender MCP tools",
+      "category": "Help & Documentation"
+    },
+    {
+      "name": "blender_list_tools",
+      "description": "List all available Blender MCP tools with descriptions",
+      "category": "Help & Documentation"
+    },
+    {
+      "name": "blender_search_tools",
+      "description": "Search for Blender MCP tools by name or description",
+      "category": "Help & Documentation"
+    },
+    {
+      "name": "blender_tool_info",
+      "description": "Get detailed information about a specific Blender MCP tool",
+      "category": "Help & Documentation"
+    },
+    {
+      "name": "blender_categories",
+      "description": "Get information about all available tool categories",
+      "category": "Help & Documentation"
+    },
+    {
+      "name": "blender_status",
+      "description": "Get comprehensive system status and health information",
+      "category": "System Status"
+    },
+    {
+      "name": "blender_system_info",
+      "description": "Get detailed system and environment information",
+      "category": "System Status"
+    },
+    {
+      "name": "blender_health_check",
+      "description": "Perform a comprehensive health check of the Blender MCP system",
+      "category": "System Status"
+    },
+    {
+      "name": "blender_performance_monitor",
+      "description": "Monitor system performance over a specified duration",
+      "category": "System Status"
+    }
+  ],
+
+  "prompts": [
+    {
+      "name": "blender_quick_start",
+      "description": "Get started with basic Blender operations",
+      "template": "I need help getting started with Blender automation. Show me how to create a simple scene with a cube, light it, and render it."
+    },
+    {
+      "name": "blender_modeling_workflow",
+      "description": "Complete modeling workflow guide",
+      "template": "Guide me through a complete 3D modeling workflow in Blender: creating primitives, applying modifiers, UV mapping, texturing, and exporting."
+    },
+    {
+      "name": "blender_animation_setup",
+      "description": "Set up character animation rig",
+      "template": "Help me set up a basic character animation rig with armature, keyframes, and export-ready animation."
+    },
+    {
+      "name": "blender_game_asset_pipeline",
+      "description": "Game asset creation and export",
+      "template": "Show me how to create game-ready assets: low-poly models, optimized textures, proper UVs, and export for Unity/Unreal."
+    },
+    {
+      "name": "blender_physics_simulation",
+      "description": "Physics simulation setup",
+      "template": "Guide me through setting up realistic physics simulations: rigid bodies, cloth, particles, and baking the results."
+    },
+    {
+      "name": "blender_rendering_pipeline",
+      "description": "Professional rendering setup",
+      "template": "Help me set up a professional rendering pipeline: lighting, camera positioning, render settings, and output optimization."
+    },
+    {
+      "name": "blender_batch_processing",
+      "description": "Batch process multiple files",
+      "template": "Show me how to batch process multiple Blender files: import assets, apply operations, render turntables, and export results."
+    },
+    {
+      "name": "blender_troubleshooting",
+      "description": "Common issues and solutions",
+      "template": "I'm having issues with Blender operations. Help me troubleshoot common problems like crashes, slow performance, and export failures."
+    }
+  ],
+
+  "metadata": {
+    "homepage": "https://github.com/sandraschi/blender-mcp",
+    "repository": "https://github.com/sandraschi/blender-mcp.git",
+    "documentation": "https://github.com/sandraschi/blender-mcp/blob/main/README.md",
+    "issues": "https://github.com/sandraschi/blender-mcp/issues",
+    "changelog": "https://github.com/sandraschi/blender-mcp/blob/main/CHANGELOG.md",
+    "keywords": [
+      "blender",
+      "3d",
+      "automation",
+      "mcp",
+      "modeling",
+      "rendering",
+      "animation",
+      "physics",
+      "export",
+      "import"
+    ],
+    "categories": [
+      "3D Graphics",
+      "Automation",
+      "Game Development",
+      "Content Creation",
+      "MCP Server"
+    ]
+  }
+}
