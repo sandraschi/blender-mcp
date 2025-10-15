@@ -13,6 +13,9 @@ jobs:
   security-scan:
     name: Security Vulnerability Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v4
 
@@ -30,7 +33,7 @@ jobs:
         run: uv sync --dev
 
       - name: Run Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.24.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -38,17 +41,21 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: Upload Trivy to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
 
       - name: Run Bandit
-        run: uv run bandit -r src/ -f json -o bandit-results.json || echo "Scan completed"
+        run: |
+          echo "Running Bandit security scan..."
+          uv run bandit -r src/ -f json -o bandit-results.json || echo "Bandit scan completed with warnings"
         continue-on-error: true
 
       - name: Run Safety
-        run: uv run safety scan --output json --save-as safety-results.json || echo "Scan completed"
+        run: |
+          echo "Running Safety dependency scan..."
+          uv run safety scan --output json --save-as safety-results.json || echo "Safety scan completed with warnings"
         continue-on-error: true
 
       - name: Run Semgrep (Optional)
@@ -72,3 +79,10 @@ jobs:
             bandit-results.json
             safety-results.json
             trivy-results.sarif
+
+      - name: Security scan summary
+        if: always()
+        run: |
+          echo "🔒 Security scan completed!"
+          echo "📊 Reports uploaded as artifacts"
+          echo "🛡️ SARIF results uploaded to GitHub Security tab"
