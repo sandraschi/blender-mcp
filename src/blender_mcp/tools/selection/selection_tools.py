@@ -87,7 +87,7 @@ selected_count = len([obj for obj in bpy.context.selected_objects])
 
                 executor = get_blender_executor()
                 result = await executor.execute_script(script)
-                selected_count = len(
+                len(
                     [obj for obj in result.split() if obj.isdigit()]
                 )  # Extract count from result if needed
                 logger.info("🎯 Selected all objects in scene")

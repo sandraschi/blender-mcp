@@ -38,7 +38,7 @@ print(f"Scene created: {{bpy.context.scene.name}}")
 print(f"Objects in scene: {{len(bpy.context.scene.objects)}}")
 '''
 
-    output = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Created scene: {scene_name}"
 
 
@@ -61,7 +61,7 @@ print("SCENES:")
 for scene in scenes:
     print(f"- {scene}")
 """
-    output = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return "Listed all scenes"
 
 
@@ -86,7 +86,7 @@ for material in bpy.data.materials:
 
 print("Scene cleared")
 """
-    output = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return "Cleared the current scene"
 
 
@@ -108,7 +108,7 @@ if "{scene_name}" in bpy.data.scenes:
 else:
     print(f"Error: Scene '{scene_name}' not found")
 '''
-    output = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Set active scene to: {scene_name}"
 
 
@@ -136,7 +136,7 @@ else:
         scene.collection.objects.link(obj)
     print(f"Linked object '{object_name}' to scene '{scene_name}'")
 '''
-    output = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Linked object to scene: {scene_name}"
 
 
@@ -158,7 +158,7 @@ if "{collection_name}" not in bpy.data.collections:
 else:
     print(f"Collection '{collection_name}' already exists")
 '''
-    output = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Created collection: {collection_name}"
 
 
@@ -191,7 +191,7 @@ else:
     collection.objects.link(obj)
     print(f"Added '{object_name}' to collection '{collection_name}'")
 '''
-    output = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Added {object_name} to collection: {collection_name}"
 
 
@@ -215,7 +215,7 @@ if "{collection_name}" in bpy.data.collections:
 else:
     print(f"Error: Collection '{collection_name}' not found")
 '''
-    output = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Set active collection to: {collection_name}"
 
 
@@ -237,7 +237,7 @@ if "{layer_name}" in bpy.context.scene.view_layers:
 else:
     print(f"Error: View layer '{layer_name}' not found")
 '''
-    output = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Set active view layer to: {layer_name}"
 
 
@@ -278,7 +278,7 @@ light_object.rotation_euler = {list(rotation)}
 
 print(f"Added {{light_type}} light to scene")
 '''
-    output = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Set up {light_type} lighting in the scene"
 
 
@@ -318,7 +318,7 @@ bpy.context.scene.camera = camera_object
 
 print("Set up camera in the scene")
 """
-    output = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return "Set up camera in the scene"
 
 
@@ -356,5 +356,5 @@ elif "{engine}" == "EEVEE":
 
 print(f"Render settings updated: {{resolution_x}}x{{resolution_y}} using {{engine}} with {{samples}} samples")
 '''
-    output = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Updated render settings: {resolution_x}x{resolution_y} using {engine} with {samples} samples"

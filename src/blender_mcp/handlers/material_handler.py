@@ -739,7 +739,7 @@ async def create_glass_material(
     transmission = kwargs.get("transmission", 1.0)
     dispersion = kwargs.get("dispersion", 0.0)
     thickness = kwargs.get("thickness", 0.1)
-    normal_strength = kwargs.get("normal", 0.0)
+    kwargs.get("normal", 0.0)
 
     # Unpack color
     r, g, b = color
@@ -1158,7 +1158,7 @@ async def create_stone_material(
 
     # Get additional parameters with defaults
     vein_scale = kwargs.get("vein_scale", 5.0)
-    vein_contrast = kwargs.get("vein_contrast", 0.8)
+    kwargs.get("vein_contrast", 0.8)
     polish = kwargs.get("polish", 0.5)
     normal_strength = kwargs.get("normal_strength", 0.3)
     displacement = kwargs.get("displacement", 0.02)

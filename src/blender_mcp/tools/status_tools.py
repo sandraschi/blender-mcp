@@ -59,7 +59,7 @@ def _register_status_tools():
         try:
             from blender_mcp.app import get_app
 
-            app = get_app()
+            get_app()
             status_parts.append("✅ MCP Server: Running")
         except Exception as e:
             status_parts.append(f"❌ MCP Server: Error - {str(e)}")
@@ -226,7 +226,7 @@ def _register_status_tools():
         try:
             from blender_mcp.app import get_app
 
-            app = get_app()
+            get_app()
             checks.append("✅ MCP Server: Running and accessible")
         except Exception as e:
             checks.append(f"❌ MCP Server: Failed - {str(e)}")

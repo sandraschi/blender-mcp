@@ -467,7 +467,6 @@ async def create_table(
     # Define dimensions
     tabletop_thickness = 0.05
     leg_thickness = 0.05
-    leg_inset = 0.1  # How far from the edge the legs are placed
 
     # Create tabletop (a flat box)
     bmesh.ops.create_cube(
@@ -1340,9 +1339,6 @@ async def create_room(
     # Define dimensions
     wall_thickness = max(0.05, min(wall_thickness, 0.5))  # Clamp between 0.05 and 0.5m
     window_height = height * 0.5  # Height from floor
-    window_width = 1.2  # Standard window width
-    window_height_size = 1.2  # Window height
-    door_width = 0.9
     door_height = 2.1
     baseboard_height = 0.1
 

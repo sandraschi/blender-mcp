@@ -41,7 +41,7 @@ bpy.ops.mesh.primitive_cube_add(location={location!r}, scale={scale!r})
 obj = bpy.context.active_object
 obj.name = {name!r}
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     logger.info(f"Successfully created cube '{name}'")
     return f"Created cube '{name}' at {location}"
 
@@ -85,7 +85,7 @@ bpy.ops.mesh.primitive_uv_sphere_add(
 obj = bpy.context.active_object
 obj.name = {name!r}
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     logger.info(f"✅ Successfully created sphere '{name}'")
     return f"Created sphere '{name}' at {location}"
 
@@ -129,7 +129,7 @@ bpy.ops.mesh.primitive_cylinder_add(
 obj = bpy.context.active_object
 obj.name = {name!r}
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     logger.info(f"✅ Successfully created cylinder '{name}'")
     return f"Created cylinder '{name}' at {location}"
 
@@ -173,7 +173,7 @@ bpy.ops.mesh.primitive_cone_add(
 obj = bpy.context.active_object
 obj.name = {name!r}
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     logger.info(f"✅ Successfully created cone '{name}'")
     return f"Created cone '{name}' at {location}"
 
@@ -205,7 +205,7 @@ bpy.ops.mesh.primitive_plane_add(location={location!r}, scale={scale!r})
 obj = bpy.context.active_object
 obj.name = {name!r}
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     logger.info(f"✅ Successfully created plane '{name}'")
     return f"Created plane '{name}' at {location}"
 
@@ -245,7 +245,7 @@ bpy.ops.mesh.primitive_torus_add(
 obj = bpy.context.active_object
 obj.name = {name!r}
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     logger.info(f"✅ Successfully created torus '{name}'")
     return f"Created torus '{name}' at {location}"
 
@@ -277,7 +277,7 @@ bpy.ops.mesh.primitive_monkey_add(location={location!r}, scale={scale!r})
 obj = bpy.context.active_object
 obj.name = {name!r}
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     logger.info(f"✅ Successfully created Suzanne '{name}'")
     return f"Created Suzanne '{name}' at {location}"
 
@@ -314,7 +314,7 @@ bpy.ops.object.duplicate()
 dup_obj = bpy.context.active_object
 dup_obj.name = {new_name!r}
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     logger.info(f"✅ Successfully duplicated '{source_name}' as '{new_name}'")
     return f"Duplicated '{source_name}' as '{new_name}'"
 
@@ -342,6 +342,6 @@ if obj:
 else:
     raise ValueError(f"Object {name!r} not found")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     logger.info(f"✅ Successfully deleted object '{name}'")
     return f"Deleted object '{name}'"

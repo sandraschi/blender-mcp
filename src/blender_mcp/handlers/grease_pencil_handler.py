@@ -4,6 +4,7 @@ from typing import Optional, List, Dict, Any, Union, Tuple
 from enum import Enum
 from loguru import logger
 
+from ..compat import *
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 
@@ -12,8 +13,6 @@ _executor = get_blender_executor()
 
 class GPStrokePlacement(str, Enum):
     """Grease Pencil stroke placement modes."""
-
-from ..compat import *
 
     ORIGIN = "ORIGIN"  # Draw at origin
     CURSOR = "CURSOR"  # Draw at 3D cursor

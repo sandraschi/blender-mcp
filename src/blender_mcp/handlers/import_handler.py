@@ -5,6 +5,7 @@ from enum import Enum
 from pathlib import Path
 from loguru import logger
 
+from ..compat import *
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 
@@ -13,8 +14,6 @@ _executor = get_blender_executor()
 
 class ImportFormat(str, Enum):
     """Supported import formats."""
-
-from ..compat import *
 
     OBJ = "OBJ"
     FBX = "FBX"

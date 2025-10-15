@@ -65,7 +65,7 @@ if {scale is not None}:
 
 logger.info(f"🎬 Set keyframe for {object_name} at frame {frame}")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Set keyframe for '{object_name}' at frame {frame}"
 
 
@@ -110,7 +110,7 @@ obj.keyframe_insert(data_path="location")
 
 logger.info(f"🎬 Animated {object_name} location from {start_location} to {end_location}")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Animated '{object_name}' location from {start_location} to {end_location} over frames {start_frame}-{end_frame}"
 
 
@@ -159,7 +159,7 @@ obj.keyframe_insert(data_path="rotation_euler")
 
 logger.info(f"🎬 Animated {object_name} rotation from {start_rotation}° to {end_rotation}°")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Animated '{object_name}' rotation from {start_rotation}° to {end_rotation}° over frames {start_frame}-{end_frame}"
 
 
@@ -204,7 +204,7 @@ obj.keyframe_insert(data_path="scale")
 
 logger.info(f"🎬 Animated {object_name} scale from {start_scale} to {end_scale}")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Animated '{object_name}' scale from {start_scale} to {end_scale} over frames {start_frame}-{end_frame}"
 
 
@@ -224,7 +224,7 @@ bpy.ops.screen.animation_play()
 
 logger.info("🎬 Started animation playback")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return "Started animation playback"
 
 
@@ -249,7 +249,7 @@ bpy.context.scene.frame_end = {end_frame}
 
 logger.info(f"🎬 Set frame range to {start_frame}-{end_frame}")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Set frame range to {start_frame}-{end_frame}"
 
 
@@ -277,5 +277,5 @@ obj.animation_data_clear()
 
 logger.info(f"🎬 Cleared animation data from {object_name}")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Cleared all animation data from '{object_name}'"

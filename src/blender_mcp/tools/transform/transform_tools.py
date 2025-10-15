@@ -137,14 +137,14 @@ def _register_transform_tools():
 
             elif operation == "reset_transform":
                 # Reset all transforms to identity
-                location_result = await set_transform(
+                await set_transform(
                     object_names=obj_list,
                     transform_type="TRANSLATE",
                     values=[0, 0, 0],
                     space="WORLD",
                     relative=False,
                 )
-                rotation_result = await set_transform(
+                await set_transform(
                     object_names=obj_list,
                     transform_type="ROTATE",
                     values=[0, 0, 0],
@@ -152,7 +152,7 @@ def _register_transform_tools():
                     relative=False,
                     as_euler=True,
                 )
-                scale_result = await set_transform(
+                await set_transform(
                     object_names=obj_list,
                     transform_type="SCALE",
                     values=[1, 1, 1],

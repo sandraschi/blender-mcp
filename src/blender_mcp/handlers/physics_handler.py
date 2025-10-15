@@ -508,7 +508,7 @@ async def bake_cloth_simulation(
         Dict containing operation status and bake information
     """
     use_gravity = kwargs.get("use_gravity", True)
-    use_subsurf = kwargs.get("use_subsurf", True)
+    kwargs.get("use_subsurf", True)
     use_shape_keys = kwargs.get("use_shape_keys", False)
 
     script = f"""

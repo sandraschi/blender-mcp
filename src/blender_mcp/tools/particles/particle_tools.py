@@ -110,7 +110,7 @@ else:
                 from ..utils.blender_executor import get_blender_executor
 
                 executor = get_blender_executor()
-                result = await executor.execute_script(script)
+                await executor.execute_script(script)
                 return f"Created hair particle system on '{object_name}'"
 
             elif operation == "create_fire_effect":

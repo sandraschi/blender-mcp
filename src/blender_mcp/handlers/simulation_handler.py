@@ -240,7 +240,7 @@ async def bake_simulation(
     start_frame = kwargs.get("start_frame", 1)
     end_frame = kwargs.get("end_frame", 250)
     cache_path = kwargs.get("cache_path")
-    use_disk_cache = kwargs.get("use_disk_cache", False)
+    kwargs.get("use_disk_cache", False)
 
     script = f"""
 import os

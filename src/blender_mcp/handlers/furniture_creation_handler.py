@@ -368,7 +368,7 @@ async def create_bed(
     bpy.context.collection.objects.link(obj)
 
     # Create bmesh for bed construction
-    bm = bmesh.new()
+    bmesh.new()
 
     # Define bed dimensions based on type
     bed_length = 2.0  # Default length
@@ -596,11 +596,10 @@ async def create_building(
     bpy.context.collection.objects.link(obj)
 
     # Create bmesh for building construction
-    bm = bmesh.new()
+    bmesh.new()
 
     # Define building dimensions
     floor_height = height / floors if floors > 0 else height
-    wall_thickness = 0.2
 
     # Create main building structure
     bpy.ops.mesh.primitive_cube_add(size=1)

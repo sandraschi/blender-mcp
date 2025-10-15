@@ -59,7 +59,7 @@ light.shadow_soft_size = {shadow_soft_size}
 
 logger.info(f"Created sun light: {name}")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Created sun light '{name}'"
 
 
@@ -100,7 +100,7 @@ light.color = {color}
 
 logger.info(f"Created point light: {name}")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Created point light '{name}'"
 
 
@@ -152,7 +152,7 @@ light.spot_blend = {spot_blend}
 
 logger.info(f"Created spot light: {name}")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Created spot light '{name}'"
 
 
@@ -201,7 +201,7 @@ light.size = {size}
 
 logger.info(f"Created area light: {name}")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Created area light '{name}'"
 
 
@@ -242,7 +242,7 @@ rim_light.data.spot_size = 1.0  # Narrow beam
 
 logger.info("Created three-point lighting setup")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return "Created three-point lighting setup (Key, Fill, Rim lights)"
 
 
@@ -289,7 +289,7 @@ links.new(background.outputs['Background'], output.inputs['Surface'])
 # Note: User needs to load actual HDRI texture file
 print("Set up HDRI environment lighting (add HDRI texture file to Environment Texture node)")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return "Set up HDRI environment lighting (add HDRI texture file to Environment Texture node)"
 
 
@@ -343,5 +343,5 @@ light = light_obj.data
 
 print(f"Adjusted light: {{name}}")
 """
-    result = await _executor.execute_script(script)
+    await _executor.execute_script(script)
     return f"Adjusted light '{name}' properties"

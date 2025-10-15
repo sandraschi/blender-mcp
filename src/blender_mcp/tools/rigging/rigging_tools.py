@@ -127,7 +127,7 @@ def _register_rigging_tools():
 
             elif operation == "create_basic_rig":
                 # Create a simple biped rig
-                armature_result = await create_armature(
+                await create_armature(
                     name=f"{armature_name}_basic", location=location
                 )
 
