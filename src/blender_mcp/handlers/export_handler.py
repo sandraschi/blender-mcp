@@ -1,9 +1,8 @@
-from ..compat import *
-
 """Comprehensive export and render handlers for Unity/VRChat pipeline.
 
 This module provides export functions that can be registered as FastMCP tools.
 """
+from ..compat import *
 
 import os
 from pathlib import Path

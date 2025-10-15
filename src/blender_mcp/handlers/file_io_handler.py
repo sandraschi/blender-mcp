@@ -1,5 +1,3 @@
-from ..compat import *
-
 """File I/O operations handler for Blender MCP."""
 
 import os
@@ -26,6 +24,7 @@ async def read_file(
     filepath: str, file_type: Union[FileType, str] = FileType.TEXT, **kwargs: Any
 ) -> Dict[str, Any]:
     """Read a file's contents."""
+from ..compat import *
     filepath = str(Path(filepath).absolute())
 
     try:

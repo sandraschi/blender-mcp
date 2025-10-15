@@ -1,5 +1,3 @@
-from ..compat import *
-
 """
 Rendering Handler for Blender-MCP
 
@@ -7,6 +5,7 @@ This module provides advanced rendering functionality for Blender scenes,
 including EEVEE and Cycles render engine configuration, post-processing effects,
 render layer management, and output configuration.
 """
+from ..compat import *
 from typing import Any, Dict, Union
 import logging
 

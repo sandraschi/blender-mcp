@@ -1,5 +1,3 @@
-from ..compat import *
-
 """Addon operations handler for Blender MCP."""
 
 import json
@@ -7,6 +5,7 @@ from typing import Dict, Any
 from enum import Enum
 from loguru import logger
 
+from ..compat import *
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 

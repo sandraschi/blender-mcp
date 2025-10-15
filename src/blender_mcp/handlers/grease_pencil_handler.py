@@ -1,5 +1,3 @@
-from ..compat import *
-
 """Grease Pencil operations handler for Blender MCP."""
 
 from typing import Optional, List, Dict, Any, Union, Tuple
@@ -14,6 +12,7 @@ _executor = get_blender_executor()
 
 class GPStrokePlacement(str, Enum):
     """Grease Pencil stroke placement modes."""
+from ..compat import *
 
     ORIGIN = "ORIGIN"  # Draw at origin
     CURSOR = "CURSOR"  # Draw at 3D cursor

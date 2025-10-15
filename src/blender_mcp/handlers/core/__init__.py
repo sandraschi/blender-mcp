@@ -1,10 +1,9 @@
-from ..compat import *
-
 """Core handlers for Blender MCP functionality.
 
 This package contains the core handler implementations for Blender MCP,
 including mesh, material, scene, and camera operations.
 """
+from ..compat import *
 
 from .mesh_handler import *
 from .material_handler import *

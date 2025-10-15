@@ -1,5 +1,3 @@
-from ..compat import *
-
 """Selection operations handler for Blender MCP."""
 
 from typing import List, Dict, Any, Union
@@ -14,6 +12,7 @@ _executor = get_blender_executor()
 
 class SelectMode(str, Enum):
     """Selection modes."""
+from ..compat import *
 
     REPLACE = "REPLACE"
     ADD = "ADD"

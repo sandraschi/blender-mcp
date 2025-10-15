@@ -13,22 +13,7 @@ Features:
 - VRChat optimization tools
 """
 
-# Import only specific types from typing to avoid circular imports
-from typing import (
-    Dict,
-    List,
-    Tuple,
-    Any,
-    Type,
-    Callable,
-    Awaitable,
-    Optional,
-    Union,
-    TypeVar,
-    TypeAlias,
-    Mapping,
-    Sequence,
-)
+# No typing imports needed in __init__.py
 
 # Import custom types from compat
 from .compat import JSONType, JSONPrimitive

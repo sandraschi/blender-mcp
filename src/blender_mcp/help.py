@@ -1,13 +1,14 @@
-from blender_mcp.compat import *
-
 """Blender MCP Help System.
 
 This module provides a comprehensive help system that documents all available
 operations in the Blender MCP server. It's designed to be used by both users
 and AI assistants to understand the available functionality.
 """
+
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
+
+from blender_mcp.compat import *
 
 
 @dataclass

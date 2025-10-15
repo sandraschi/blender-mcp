@@ -1,10 +1,10 @@
-from ..compat import *
-
 """Blender MCP Server - FastMCP 2.10 compliant implementation."""
 
 from loguru import logger
 
 from fastmcp import FastMCP
+
+from ..compat import *
 
 # Import tool functions from handlers
 from .handlers.scene_handler import create_scene, list_scenes, clear_scene

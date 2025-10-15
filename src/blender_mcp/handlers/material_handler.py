@@ -1,10 +1,9 @@
-from ..compat import *
-
 """Comprehensive material system handler with extensive error handling.
 
 This module provides material creation functions that can be registered as FastMCP tools.
 Supports physically-based rendering (PBR) materials with advanced node setups.
 """
+from ..compat import *
 
 from typing import Dict, Tuple, List, Optional, Union
 from enum import Enum

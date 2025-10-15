@@ -1,5 +1,3 @@
-from ..compat import *
-
 """Import operations handler for Blender MCP."""
 
 from typing import Dict, Any, Union
@@ -15,6 +13,7 @@ _executor = get_blender_executor()
 
 class ImportFormat(str, Enum):
     """Supported import formats."""
+from ..compat import *
 
     OBJ = "OBJ"
     FBX = "FBX"

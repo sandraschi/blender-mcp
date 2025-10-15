@@ -1,5 +1,3 @@
-from ..compat import *
-
 """Modifier operations handler for Blender MCP."""
 
 from typing import Optional, Dict, Any, Union
@@ -14,6 +12,7 @@ _executor = get_blender_executor()
 
 class ModifierType(str, Enum):
     """Supported modifier types."""
+from ..compat import *
 
     ARRAY = "ARRAY"
     BEVEL = "BEVEL"

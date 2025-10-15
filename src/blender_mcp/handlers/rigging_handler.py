@@ -1,5 +1,3 @@
-from ..compat import *
-
 """Rigging and armature operations handler for Blender MCP."""
 
 from typing import Tuple, Dict, Any
@@ -26,6 +24,7 @@ async def create_armature(
     name: str = "Armature", location: Tuple[float, float, float] = (0.0, 0.0, 0.0), **kwargs: Any
 ) -> Dict[str, Any]:
     """Create a new armature object."""
+from ..compat import *
     script = f"""
 
 def create_armature():

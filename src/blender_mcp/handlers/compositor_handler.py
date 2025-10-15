@@ -1,5 +1,3 @@
-from ..compat import *
-
 """Compositor operations handler for Blender MCP."""
 
 from typing import Tuple, Dict, Any, Union
@@ -14,6 +12,7 @@ _executor = get_blender_executor()
 
 class CompositorNodeType(str, Enum):
     """Common compositor node types."""
+from ..compat import *
 
     BLUR = "CompositorNodeBlur"
     RGB = "CompositorNodeRGB"

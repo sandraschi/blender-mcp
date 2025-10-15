@@ -1,5 +1,3 @@
-from ..compat import *
-
 """Texture operations handler for Blender MCP."""
 
 from typing import Dict, Any, Union
@@ -14,6 +12,7 @@ _executor = get_blender_executor()
 
 class TextureType(str, Enum):
     """Supported texture types."""
+from ..compat import *
 
     IMAGE = "IMAGE"
     NOISE = "NOISE"

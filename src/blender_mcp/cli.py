@@ -1,13 +1,14 @@
-from ..compat import *
-
 """Command Line Interface for Blender MCP.
 
 This module provides a command-line interface to interact with the Blender MCP server,
 including accessing the help system and executing commands.
 """
+
 import argparse
 import sys
 from typing import List, Optional
+
+from ..compat import *
 
 from .help import get_help, list_categories, list_functions
 

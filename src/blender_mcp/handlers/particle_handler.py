@@ -1,5 +1,3 @@
-from ..compat import *
-
 """Particle system operations handler for Blender MCP."""
 
 from typing import Dict, Any, Union
@@ -38,6 +36,7 @@ async def create_particle_system(
     **kwargs: Any,
 ) -> Dict[str, Any]:
     """Create a particle system on an object."""
+from ..compat import *
     script = f"""
 
 def create_particle_system():

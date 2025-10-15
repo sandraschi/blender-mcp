@@ -1,5 +1,3 @@
-from ..compat import *
-
 """Scripting operations handler for Blender MCP."""
 
 import json
@@ -17,6 +15,7 @@ _executor = get_blender_executor()
 
 class ScriptLanguage(str, Enum):
     """Supported scripting languages."""
+from ..compat import *
 
     PYTHON = "PYTHON"
     EXPRESSION = "EXPRESSION"

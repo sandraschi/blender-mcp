@@ -1,9 +1,8 @@
-from ..compat import *
-
 """Render handler for Blender MCP server.
 
 This module provides rendering functions that can be registered as FastMCP tools.
 """
+from ..compat import *
 
 import os
 from pathlib import Path

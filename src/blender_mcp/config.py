@@ -1,9 +1,10 @@
-from blender_mcp.compat import *
-
 """Configuration settings for the Blender MCP server."""
+
 import os
 import sys
 from pathlib import Path
+
+from blender_mcp.compat import *
 
 # Default Blender executable path
 DEFAULT_BLENDER_EXECUTABLE = "C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe"

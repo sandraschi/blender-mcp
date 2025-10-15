@@ -1,9 +1,8 @@
-from ..compat import *
-
 """Physics operations handler for Blender MCP.
 
 This module provides physics simulation and rigid body functions that can be registered as FastMCP tools.
 """
+from ..compat import *
 
 from typing import Optional, Tuple, Dict, Any, Union
 from enum import Enum

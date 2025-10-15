@@ -1,5 +1,3 @@
-from ..compat import *
-
 """Transform operations handler for Blender MCP."""
 
 from typing import List, Dict, Any, Union
@@ -14,6 +12,7 @@ _executor = get_blender_executor()
 
 class TransformSpace(str, Enum):
     """Coordinate spaces for transformations."""
+from ..compat import *
 
     WORLD = "WORLD"
     LOCAL = "LOCAL"
