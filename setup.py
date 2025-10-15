@@ -20,7 +20,7 @@ setup(
         "loguru>=0.7.0",
         "pydantic>=2.0.0",
         "httpx>=0.25.0",
-        "typing-extensions>=4.8.0"
+        "typing-extensions>=4.8.0",
     ],
     extras_require={
         "dev": [
@@ -29,7 +29,7 @@ setup(
             "black>=23.0.0",
             "flake8>=6.0.0",
             "mypy>=1.0.0",
-            "isort>=5.12.0"
+            "isort>=5.12.0",
         ]
     },
     classifiers=[

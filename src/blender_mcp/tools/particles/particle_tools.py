@@ -4,14 +4,12 @@ Particle tools for Blender MCP.
 Provides tools for creating particle systems and effects.
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Optional, Tuple, Union
-from loguru import logger
 from blender_mcp.app import get_app
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -27,8 +25,8 @@ def _register_particle_tools():
         lifetime: float = 50.0,
         start_frame: int = 1,
         end_frame: int = 250,
-    emission_rate: int = 100,
-    particle_size: float = 0.05
+        emission_rate: int = 100,
+        particle_size: float = 0.05,
     ) -> str:
         """
         Create and manage particle systems and effects.
@@ -55,9 +53,7 @@ def _register_particle_tools():
         Returns:
             Success message with particle system details
         """
-        from blender_mcp.handlers.particle_handler import (
-            create_particle_system, bake_particles
-        )
+        from blender_mcp.handlers.particle_handler import create_particle_system, bake_particles
 
         try:
             if operation == "create_particle_system":
@@ -68,16 +64,14 @@ def _register_particle_tools():
                     particle_count=particle_count,
                     lifetime=lifetime,
                     start_frame=start_frame,
-                    end_frame=end_frame
+                    end_frame=end_frame,
                 )
 
             elif operation == "bake_particles":
                 if not object_name:
                     return "object_name parameter required"
                 return await bake_particles(
-                    object_name=object_name,
-                    start_frame=start_frame,
-                    end_frame=end_frame
+                    object_name=object_name, start_frame=start_frame, end_frame=end_frame
                 )
 
             elif operation == "create_hair_particles":
@@ -112,6 +106,7 @@ else:
     logger.info(f"✨ Created hair particle system for '{object_name}'")
 """
                 from ..utils.blender_executor import get_blender_executor
+
                 executor = get_blender_executor()
                 result = await executor.execute_script(script)
                 return f"Created hair particle system on '{object_name}'"
@@ -152,9 +147,10 @@ smoke_mod.flow_settings.temperature = 1.0  # Hot fire
 logger.info(f"🔥 Created fire particle effect for '{object_name}'")
 """
                 from ..utils.blender_executor import get_blender_executor
+
                 executor = get_blender_executor()
                 result = await executor.execute_script(script)
-                return f"Created fire effect system"
+                return "Created fire effect system"
 
             else:
                 return f"Unknown particle operation: {operation}. Available: create_particle_system, create_hair_particles, create_fire_effect, bake_particles"

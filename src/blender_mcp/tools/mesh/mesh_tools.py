@@ -5,15 +5,20 @@ Provides portmanteau tools for creating basic mesh primitives and manipulating o
 """
 
 from pydantic import BaseModel, Field
-from typing import List, Optional, Tuple, Union
+from typing import Tuple
 from blender_mcp.app import get_app
 
 
 class CreatePrimitiveParams(BaseModel):
     """Parameters for creating mesh primitives."""
-    primitive_type: str = Field(..., description="Type of primitive: cube, sphere, cylinder, cone, plane, torus, monkey")
+
+    primitive_type: str = Field(
+        ..., description="Type of primitive: cube, sphere, cylinder, cone, plane, torus, monkey"
+    )
     name: str = Field("Object", description="Name for the new object")
-    location: Tuple[float, float, float] = Field((0, 0, 0), description="Location coordinates (x, y, z)")
+    location: Tuple[float, float, float] = Field(
+        (0, 0, 0), description="Location coordinates (x, y, z)"
+    )
     scale: Tuple[float, float, float] = Field((1, 1, 1), description="Scale factors (x, y, z)")
 
 
@@ -26,12 +31,12 @@ def _register_mesh_tools():
         operation: str = "create_cube",
         name: str = "Object",
         primitive_type: str = "cube",
-    location: Tuple[float, float, float] = (0, 0, 0),
-    scale: Tuple[float, float, float] = (1, 1, 1),
+        location: Tuple[float, float, float] = (0, 0, 0),
+        scale: Tuple[float, float, float] = (1, 1, 1),
         radius: float = 1.0,
         depth: float = 2.0,
         vertices: int = 32,
-        source_name: str = ""
+        source_name: str = "",
     ) -> str:
         """
         Create and manipulate mesh objects in Blender.
@@ -62,24 +67,43 @@ def _register_mesh_tools():
             Operation result message
         """
         from blender_mcp.handlers.mesh_handler import (
-            create_cube, create_sphere, create_cylinder, create_cone,
-            create_plane, create_torus, create_monkey,
-            duplicate_object, delete_object
+            create_cube,
+            create_sphere,
+            create_cylinder,
+            create_cone,
+            create_plane,
+            create_torus,
+            create_monkey,
+            duplicate_object,
+            delete_object,
         )
 
         from loguru import logger
-        logger.info(f"blender_mesh called with operation='{operation}', name='{name}', location={location}, radius={radius}, vertices={vertices}")
+
+        logger.info(
+            f"blender_mesh called with operation='{operation}', name='{name}', location={location}, radius={radius}, vertices={vertices}"
+        )
 
         try:
             # Convert parameters to proper formats
-            location_tuple = tuple(float(x) for x in location) if hasattr(location, '__iter__') and not isinstance(location, str) else location
-            scale_tuple = tuple(float(x) for x in scale) if hasattr(scale, '__iter__') and not isinstance(scale, str) else scale
+            location_tuple = (
+                tuple(float(x) for x in location)
+                if hasattr(location, "__iter__") and not isinstance(location, str)
+                else location
+            )
+            scale_tuple = (
+                tuple(float(x) for x in scale)
+                if hasattr(scale, "__iter__") and not isinstance(scale, str)
+                else scale
+            )
 
             # Ensure we have 3-tuples
             if len(location_tuple) != 3:
                 return f"Error: location must be a 3-element array/tuple, got {len(location_tuple)} elements"
             if len(scale_tuple) != 3:
-                return f"Error: scale must be a 3-element array/tuple, got {len(scale_tuple)} elements"
+                return (
+                    f"Error: scale must be a 3-element array/tuple, got {len(scale_tuple)} elements"
+                )
 
             # Validate numeric parameters
             try:
@@ -96,23 +120,45 @@ def _register_mesh_tools():
                 return await create_cube(name=name, location=location_tuple, scale=scale_tuple)
 
             elif operation == "create_sphere":
-                return await create_sphere(name=name, location=location_tuple, scale=scale_tuple,
-                                         radius=radius_val, segments=vertices_val, rings=vertices_val//2)
+                return await create_sphere(
+                    name=name,
+                    location=location_tuple,
+                    scale=scale_tuple,
+                    radius=radius_val,
+                    segments=vertices_val,
+                    rings=vertices_val // 2,
+                )
 
             elif operation == "create_cylinder":
-                return await create_cylinder(name=name, location=location_tuple, scale=scale_tuple,
-                                           radius=radius_val, depth=float(depth), vertices=vertices_val)
+                return await create_cylinder(
+                    name=name,
+                    location=location_tuple,
+                    scale=scale_tuple,
+                    radius=radius_val,
+                    depth=float(depth),
+                    vertices=vertices_val,
+                )
 
             elif operation == "create_cone":
-                return await create_cone(name=name, location=location_tuple, scale=scale_tuple,
-                                       radius1=radius_val, depth=float(depth), vertices=vertices_val)
+                return await create_cone(
+                    name=name,
+                    location=location_tuple,
+                    scale=scale_tuple,
+                    radius1=radius_val,
+                    depth=float(depth),
+                    vertices=vertices_val,
+                )
 
             elif operation == "create_plane":
                 return await create_plane(name=name, location=location_tuple, scale=scale_tuple)
 
             elif operation == "create_torus":
-                return await create_torus(name=name, location=location_tuple,
-                                        major_radius=radius_val, minor_radius=radius_val*0.25)
+                return await create_torus(
+                    name=name,
+                    location=location_tuple,
+                    major_radius=radius_val,
+                    minor_radius=radius_val * 0.25,
+                )
 
             elif operation == "create_monkey":
                 return await create_monkey(name=name, location=location_tuple, scale=scale_tuple)

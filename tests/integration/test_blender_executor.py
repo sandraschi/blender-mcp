@@ -4,7 +4,7 @@ import pytest
 import json
 from pathlib import Path
 from blender_mcp.utils.blender_executor import BlenderExecutor
-from blender_mcp.exceptions import BlenderNotFoundError, BlenderScriptError, TimeoutError
+from blender_mcp.exceptions import BlenderNotFoundError
 
 
 class TestBlenderExecutorIntegration:
@@ -24,10 +24,10 @@ class TestBlenderExecutorIntegration:
         """Test basic script execution in Blender."""
         executor = BlenderExecutor(blender_executable)
 
-        script = '''
+        script = """
 import bpy
 print("Hello from Blender integration test")
-'''
+"""
 
         result = executor.execute_script(script)
 
@@ -40,7 +40,7 @@ print("Hello from Blender integration test")
         """Test scene creation script execution."""
         executor = BlenderExecutor(blender_executable)
 
-        script = '''
+        script = """
 import bpy
 
 # Clear scene
@@ -56,7 +56,7 @@ sphere = bpy.context.active_object
 sphere.name = "TestSphere"
 
 print(f"Created {len(bpy.data.objects)} objects")
-'''
+"""
 
         result = executor.execute_script(script)
 
@@ -69,7 +69,7 @@ print(f"Created {len(bpy.data.objects)} objects")
         """Test material creation and assignment."""
         executor = BlenderExecutor(blender_executable)
 
-        script = '''
+        script = """
 import bpy
 
 # Clear scene and create object
@@ -92,7 +92,7 @@ cube.data.materials.append(material)
 
 print(f"Created material: {material.name}")
 print(f"Assigned to object: {cube.name}")
-'''
+"""
 
         result = executor.execute_script(script)
 
@@ -106,12 +106,12 @@ print(f"Assigned to object: {cube.name}")
         executor = BlenderExecutor(blender_executable)
 
         # Script with syntax error
-        script = '''
+        script = """
 import bpy
 # This will cause a syntax error
 print("This is fine"
 print("This won't execute")
-'''
+"""
 
         result = executor.execute_script(script)
 
@@ -125,7 +125,7 @@ print("This won't execute")
         """Test complex scene operations."""
         executor = BlenderExecutor(blender_executable)
 
-        script = '''
+        script = """
 import bpy
 import json
 
@@ -175,17 +175,17 @@ scene_info = {
 }
 
 print(json.dumps(scene_info))
-'''
+"""
 
         result = executor.execute_script(script)
 
         assert result["success"] is True
 
         # Parse the JSON output
-        output_lines = result["output"].strip().split('\n')
+        output_lines = result["output"].strip().split("\n")
         json_line = None
         for line in output_lines:
-            if line.strip().startswith('{'):
+            if line.strip().startswith("{"):
                 json_line = line.strip()
                 break
 
@@ -204,14 +204,14 @@ print(json.dumps(scene_info))
         executor = BlenderExecutor(blender_executable, timeout=5)  # Short timeout
 
         # Script that should take longer than timeout
-        script = '''
+        script = """
 import bpy
 import time
 
 # Simulate long operation
 time.sleep(10)  # This should timeout
 print("This should not print")
-'''
+"""
 
         result = executor.execute_script(script)
 
@@ -227,7 +227,8 @@ print("This should not print")
 
         output_path = temp_dir / "test_render.png"
 
-        script = '''
+        script = (
+            '''
 import bpy
 
 # Clear scene and create simple object
@@ -251,14 +252,17 @@ bpy.context.scene.camera = camera
 # Set render settings
 bpy.context.scene.render.resolution_x = 800
 bpy.context.scene.render.resolution_y = 600
-bpy.context.scene.render.filepath = r"''' + str(output_path) + '''"
+bpy.context.scene.render.filepath = r"'''
+            + str(output_path)
+            + """"
 bpy.context.scene.render.image_settings.file_format = 'PNG'
 
 # Render
 bpy.ops.render.render(write_still=True)
 
 print(f"Rendered to: {output_path}")
-'''
+"""
+        )
 
         result = executor.execute_script(script)
 
@@ -286,11 +290,11 @@ class TestBlenderExecutorErrorCases:
         executor = BlenderExecutor(blender_executable)
 
         # Script that will cause a runtime error
-        script = '''
+        script = """
 import bpy
 # This will cause an AttributeError
 nonexistent_object.some_method()
-'''
+"""
 
         result = executor.execute_script(script)
 

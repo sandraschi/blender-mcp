@@ -4,7 +4,7 @@ Log viewing tools for Blender MCP.
 Provides tools to view and filter recent logs for debugging purposes.
 """
 
-from typing import Optional, List
+from typing import Optional
 from loguru import logger
 from ..app import app
 from ..utils.error_handling import MCPError
@@ -16,7 +16,7 @@ async def blender_view_logs(
     module_filter: Optional[str] = None,
     limit: int = 20,
     since_minutes: Optional[int] = None,
-    include_details: bool = False
+    include_details: bool = False,
 ) -> str:
     """
     View recent Blender MCP logs with filtering options.
@@ -43,7 +43,9 @@ async def blender_view_logs(
     """
     from ..server import get_recent_logs
 
-    logger.info(f"Viewing logs - level: {level_filter}, module: {module_filter}, limit: {limit}, since: {since_minutes}min")
+    logger.info(
+        f"Viewing logs - level: {level_filter}, module: {module_filter}, limit: {limit}, since: {since_minutes}min"
+    )
 
     try:
         # Validate inputs
@@ -53,15 +55,23 @@ async def blender_view_logs(
         if since_minutes is not None and since_minutes < 0:
             raise MCPError(f"since_minutes must be positive, got {since_minutes}")
 
-        if level_filter and level_filter.upper() not in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']:
-            raise MCPError(f"level_filter must be DEBUG, INFO, WARNING, ERROR, or CRITICAL, got '{level_filter}'")
+        if level_filter and level_filter.upper() not in [
+            "DEBUG",
+            "INFO",
+            "WARNING",
+            "ERROR",
+            "CRITICAL",
+        ]:
+            raise MCPError(
+                f"level_filter must be DEBUG, INFO, WARNING, ERROR, or CRITICAL, got '{level_filter}'"
+            )
 
         # Get filtered logs
         logs = get_recent_logs(
             level_filter=level_filter,
             module_filter=module_filter,
             limit=limit,
-            since_minutes=since_minutes
+            since_minutes=since_minutes,
         )
 
         if not logs:
@@ -82,7 +92,7 @@ async def blender_view_logs(
         result_lines.append("=" * 60)
 
         for log in logs:
-            timestamp = log['timestamp'].strftime('%H:%M:%S')
+            timestamp = log["timestamp"].strftime("%H:%M:%S")
 
             if include_details:
                 location = f"{log['name']}:{log['function']}:{log['line']}"
@@ -96,7 +106,7 @@ async def blender_view_logs(
         total_logs = len(logs)
         levels = {}
         for log in logs:
-            levels[log['level']] = levels.get(log['level'], 0) + 1
+            levels[log["level"]] = levels.get(log["level"], 0) + 1
 
         result_lines.append("")
         result_lines.append(f"Summary: {total_logs} logs shown")
@@ -126,7 +136,6 @@ async def blender_log_stats() -> str:
         - blender_log_stats() - Show log buffer statistics
     """
     from ..server import _memory_logs
-    import datetime
 
     logger.info("Getting log statistics")
 
@@ -135,8 +144,8 @@ async def blender_log_stats() -> str:
             return "No logs in memory buffer. The server may have just started."
 
         total_logs = len(_memory_logs)
-        oldest = _memory_logs[0]['timestamp']
-        newest = _memory_logs[-1]['timestamp']
+        oldest = _memory_logs[0]["timestamp"]
+        newest = _memory_logs[-1]["timestamp"]
         time_span = newest - oldest
 
         # Count by level
@@ -144,8 +153,8 @@ async def blender_log_stats() -> str:
         modules = {}
 
         for log in _memory_logs:
-            levels[log['level']] = levels.get(log['level'], 0) + 1
-            modules[log['name']] = modules.get(log['name'], 0) + 1
+            levels[log["level"]] = levels.get(log["level"], 0) + 1
+            modules[log["name"]] = modules.get(log["name"], 0) + 1
 
         # Format results
         result_lines = []

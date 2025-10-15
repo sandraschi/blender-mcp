@@ -5,67 +5,100 @@ Provides tools for creating, managing, and manipulating Blender scenes,
 collections, view layers, and basic scene setup operations.
 """
 
-from typing import List, Optional
+from typing import List
 from pydantic import BaseModel, Field
+
 
 # Import app lazily to avoid circular imports
 def get_app():
     from blender_mcp.app import app
+
     return app
+
 
 # Parameter schemas
 class CreateSceneParams(BaseModel):
     """Parameters for creating a new scene."""
+
     scene_name: str = Field(default="NewScene", description="Name for the new scene")
+
 
 class ListScenesParams(BaseModel):
     """Parameters for listing scenes (no parameters needed)."""
+
     pass
+
 
 class ClearSceneParams(BaseModel):
     """Parameters for clearing scene (no parameters needed)."""
+
     pass
+
 
 class SetActiveSceneParams(BaseModel):
     """Parameters for setting active scene."""
+
     scene_name: str = Field(..., description="Name of the scene to make active")
+
 
 class LinkObjectToSceneParams(BaseModel):
     """Parameters for linking object to scene."""
+
     object_name: str = Field(..., description="Name of the object to link")
     scene_name: str = Field(..., description="Name of the scene to link to")
 
+
 class CreateCollectionParams(BaseModel):
     """Parameters for creating a collection."""
+
     collection_name: str = Field(..., description="Name for the new collection")
+
 
 class AddToCollectionParams(BaseModel):
     """Parameters for adding object to collection."""
+
     collection_name: str = Field(..., description="Name of the collection")
     object_name: str = Field(..., description="Name of the object to add")
 
+
 class SetActiveCollectionParams(BaseModel):
     """Parameters for setting active collection."""
+
     collection_name: str = Field(..., description="Name of the collection to make active")
+
 
 class SetViewLayerParams(BaseModel):
     """Parameters for setting active view layer."""
+
     layer_name: str = Field(..., description="Name of the view layer to set")
+
 
 class SetupLightingParams(BaseModel):
     """Parameters for setting up scene lighting."""
+
     light_type: str = Field("SUN", description="Type of light (SUN, POINT, SPOT, AREA)")
-    location: List[float] = Field([0, 0, 5], description="Light location as [x, y, z]", min_length=3, max_length=3)
+    location: List[float] = Field(
+        [0, 0, 5], description="Light location as [x, y, z]", min_length=3, max_length=3
+    )
+
 
 class SetupCameraParams(BaseModel):
     """Parameters for setting up scene camera."""
-    location: List[float] = Field([0, -5, 2], description="Camera location as [x, y, z]", min_length=3, max_length=3)
-    rotation: List[float] = Field([1.0, 0, 0], description="Camera rotation as [x, y, z]", min_length=3, max_length=3)
+
+    location: List[float] = Field(
+        [0, -5, 2], description="Camera location as [x, y, z]", min_length=3, max_length=3
+    )
+    rotation: List[float] = Field(
+        [1.0, 0, 0], description="Camera rotation as [x, y, z]", min_length=3, max_length=3
+    )
+
 
 class SetRenderSettingsParams(BaseModel):
     """Parameters for setting render settings."""
+
     resolution_x: int = Field(1920, description="Render resolution width", ge=1, le=8192)
     resolution_y: int = Field(1080, description="Render resolution height", ge=1, le=8192)
+
 
 # Tool registration functions
 def _register_scene_tools():
@@ -87,6 +120,7 @@ def _register_scene_tools():
             Confirmation message with scene creation details
         """
         from blender_mcp.handlers.scene_handler import create_scene
+
         return await create_scene(scene_name)
 
     @app.tool
@@ -101,6 +135,7 @@ def _register_scene_tools():
             Formatted string listing all scenes and their properties
         """
         from blender_mcp.handlers.scene_handler import list_scenes
+
         return await list_scenes()
 
     @app.tool
@@ -115,6 +150,7 @@ def _register_scene_tools():
             Confirmation message about scene clearing
         """
         from blender_mcp.handlers.scene_handler import clear_scene
+
         return await clear_scene()
 
     @app.tool
@@ -131,6 +167,7 @@ def _register_scene_tools():
             Confirmation message about scene switching
         """
         from blender_mcp.handlers.scene_handler import set_active_scene
+
         return await set_active_scene(scene_name)
 
     @app.tool
@@ -149,6 +186,7 @@ def _register_scene_tools():
             Confirmation message about object linking
         """
         from blender_mcp.handlers.scene_handler import link_object_to_scene
+
         return await link_object_to_scene(object_name, scene_name)
 
     @app.tool
@@ -166,6 +204,7 @@ def _register_scene_tools():
             Confirmation message about collection creation
         """
         from blender_mcp.handlers.scene_handler import create_collection
+
         return await create_collection(collection_name)
 
     @app.tool
@@ -184,6 +223,7 @@ def _register_scene_tools():
             Confirmation message about adding object to collection
         """
         from blender_mcp.handlers.scene_handler import add_to_collection
+
         return await add_to_collection(collection_name, object_name)
 
     @app.tool
@@ -201,6 +241,7 @@ def _register_scene_tools():
             Confirmation message about collection activation
         """
         from blender_mcp.handlers.scene_handler import set_active_collection
+
         return await set_active_collection(collection_name)
 
     @app.tool
@@ -218,13 +259,11 @@ def _register_scene_tools():
             Confirmation message about view layer switching
         """
         from blender_mcp.handlers.scene_handler import set_view_layer
+
         return await set_view_layer(layer_name)
 
     @app.tool
-    async def setup_lighting(
-        light_type: str = "SUN",
-        location: List[float] = [0, 0, 5]
-    ) -> str:
+    async def setup_lighting(light_type: str = "SUN", location: List[float] = [0, 0, 5]) -> str:
         """
         Set up basic lighting for the scene.
 
@@ -239,12 +278,12 @@ def _register_scene_tools():
             Confirmation message about lighting setup
         """
         from blender_mcp.handlers.scene_handler import setup_lighting
+
         return await setup_lighting(light_type, tuple(location))
 
     @app.tool
     async def setup_camera(
-        location: List[float] = [0, -5, 2],
-        rotation: List[float] = [1.0, 0, 0]
+        location: List[float] = [0, -5, 2], rotation: List[float] = [1.0, 0, 0]
     ) -> str:
         """
         Set up a camera for the scene.
@@ -260,13 +299,11 @@ def _register_scene_tools():
             Confirmation message about camera setup
         """
         from blender_mcp.handlers.scene_handler import setup_camera
+
         return await setup_camera(tuple(location), tuple(rotation))
 
     @app.tool
-    async def set_render_settings(
-        resolution_x: int = 1920,
-        resolution_y: int = 1080
-    ) -> str:
+    async def set_render_settings(resolution_x: int = 1920, resolution_y: int = 1080) -> str:
         """
         Configure basic render settings for the scene.
 
@@ -280,7 +317,9 @@ def _register_scene_tools():
             Confirmation message about render settings
         """
         from blender_mcp.handlers.scene_handler import set_render_settings
+
         return await set_render_settings(resolution_x, resolution_y)
+
 
 # Register tools when this module is imported
 _register_scene_tools()

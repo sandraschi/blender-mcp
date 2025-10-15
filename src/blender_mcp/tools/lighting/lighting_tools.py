@@ -4,8 +4,7 @@ Lighting creation and management tools for Blender MCP.
 Provides tools for creating various types of lights and managing lighting setups.
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Optional, Tuple, Union
+from typing import Tuple
 from blender_mcp.app import get_app
 
 
@@ -25,7 +24,7 @@ def _register_lighting_tools():
         shadow_soft_size: float = 0.1,
         size: float = 1.0,
         spot_size: float = 45.0,
-        spot_blend: float = 0.15
+        spot_blend: float = 0.15,
     ) -> str:
         """
         Create and manage lighting in Blender scenes.
@@ -56,18 +55,38 @@ def _register_lighting_tools():
             Operation result message
         """
         from blender_mcp.handlers.lighting_handler import (
-            create_sun_light, create_point_light, create_spot_light, create_area_light,
-            setup_three_point_lighting, setup_hdri_environment, adjust_light
+            create_sun_light,
+            create_point_light,
+            create_spot_light,
+            create_area_light,
+            setup_three_point_lighting,
+            setup_hdri_environment,
+            adjust_light,
         )
 
         from loguru import logger
-        logger.info(f"💡 blender_lighting called with operation='{operation}', light_name='{light_name}', location={location}")
+
+        logger.info(
+            f"💡 blender_lighting called with operation='{operation}', light_name='{light_name}', location={location}"
+        )
 
         try:
             # Convert tuple parameters to proper formats
-            location_tuple = tuple(float(x) for x in location) if hasattr(location, '__iter__') and not isinstance(location, str) else location
-            rotation_tuple = tuple(float(x) for x in rotation) if hasattr(rotation, '__iter__') and not isinstance(rotation, str) else rotation
-            color_tuple = tuple(float(x) for x in color) if hasattr(color, '__iter__') and not isinstance(color, str) else color
+            location_tuple = (
+                tuple(float(x) for x in location)
+                if hasattr(location, "__iter__") and not isinstance(location, str)
+                else location
+            )
+            rotation_tuple = (
+                tuple(float(x) for x in rotation)
+                if hasattr(rotation, "__iter__") and not isinstance(rotation, str)
+                else rotation
+            )
+            color_tuple = (
+                tuple(float(x) for x in color)
+                if hasattr(color, "__iter__") and not isinstance(color, str)
+                else color
+            )
 
             # Validate 3-element vectors
             if len(location_tuple) != 3:
@@ -75,7 +94,9 @@ def _register_lighting_tools():
             if len(rotation_tuple) != 3:
                 return f"Error: rotation must be a 3-element array/tuple, got {len(rotation_tuple)} elements"
             if len(color_tuple) != 3:
-                return f"Error: color must be a 3-element array/tuple, got {len(color_tuple)} elements"
+                return (
+                    f"Error: color must be a 3-element array/tuple, got {len(color_tuple)} elements"
+                )
 
             # Validate color values are in 0-1 range
             if not all(0 <= c <= 1 for c in color_tuple):
@@ -83,8 +104,12 @@ def _register_lighting_tools():
 
             if operation == "create_sun":
                 return await create_sun_light(
-                    name=light_name, location=location_tuple, rotation=rotation_tuple,
-                    energy=energy, color=color_tuple, shadow_soft_size=shadow_soft_size
+                    name=light_name,
+                    location=location_tuple,
+                    rotation=rotation_tuple,
+                    energy=energy,
+                    color=color_tuple,
+                    shadow_soft_size=shadow_soft_size,
                 )
 
             elif operation == "create_point":
@@ -94,14 +119,23 @@ def _register_lighting_tools():
 
             elif operation == "create_spot":
                 return await create_spot_light(
-                    name=light_name, location=location_tuple, rotation=rotation_tuple,
-                    energy=energy, color=color_tuple, spot_size=spot_size, spot_blend=spot_blend
+                    name=light_name,
+                    location=location_tuple,
+                    rotation=rotation_tuple,
+                    energy=energy,
+                    color=color_tuple,
+                    spot_size=spot_size,
+                    spot_blend=spot_blend,
                 )
 
             elif operation == "create_area":
                 return await create_area_light(
-                    name=light_name, location=location_tuple, rotation=rotation_tuple,
-                    energy=energy, color=color_tuple, size=size
+                    name=light_name,
+                    location=location_tuple,
+                    rotation=rotation_tuple,
+                    energy=energy,
+                    color=color_tuple,
+                    size=size,
                 )
 
             elif operation == "setup_three_point":
@@ -112,8 +146,11 @@ def _register_lighting_tools():
 
             elif operation == "adjust_light":
                 return await adjust_light(
-                    name=light_name, location=location, rotation=rotation,
-                    energy=energy, color=color
+                    name=light_name,
+                    location=location,
+                    rotation=rotation,
+                    energy=energy,
+                    color=color,
                 )
 
             else:

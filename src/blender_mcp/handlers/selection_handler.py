@@ -2,7 +2,7 @@ from ..compat import *
 
 """Selection operations handler for Blender MCP."""
 
-from typing import Optional, List, Dict, Any, Union, Set, Tuple
+from typing import List, Dict, Any, Union
 from enum import Enum
 from loguru import logger
 
@@ -11,8 +11,10 @@ from ..decorators import blender_operation
 
 _executor = get_blender_executor()
 
+
 class SelectMode(str, Enum):
     """Selection modes."""
+
     REPLACE = "REPLACE"
     ADD = "ADD"
     SUBTRACT = "SUB"
@@ -21,8 +23,10 @@ class SelectMode(str, Enum):
     AND = "AND"
     XOR = "XOR"
 
+
 class SelectableType(str, Enum):
     """Types of selectable elements."""
+
     OBJECT = "OBJECT"
     VERTEX = "VERT"
     EDGE = "EDGE"
@@ -38,27 +42,26 @@ class SelectableType(str, Enum):
     SEGMENT = "SEGMENT"
     GPENCIL = "GPENCIL"
 
+
 @blender_operation("select_objects", log_args=True)
 async def select_objects(
-    object_names: List[str],
-    mode: Union[SelectMode, str] = SelectMode.REPLACE,
-    **kwargs: Any
+    object_names: List[str], mode: Union[SelectMode, str] = SelectMode.REPLACE, **kwargs: Any
 ) -> Dict[str, Any]:
     """Select objects in the scene.
-    
+
     Args:
         object_names: List of object names to select
         mode: Selection mode (REPLACE, ADD, SUBTRACT, etc.)
         **kwargs: Additional options
             - active_object: Set as active object after selection
             - deselect_others: Deselect all other objects first (default: True for REPLACE mode)
-            
+
     Returns:
         Dict containing selection status and details
     """
-    active_object = kwargs.get('active_object')
-    deselect_others = kwargs.get('deselect_others', mode == SelectMode.REPLACE)
-    
+    active_object = kwargs.get("active_object")
+    deselect_others = kwargs.get("deselect_others", mode == SelectMode.REPLACE)
+
     script = f"""
 
 def select_objects():
@@ -108,7 +111,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -116,27 +119,28 @@ except Exception as e:
         logger.error(f"Failed to select objects: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("select_by_type", log_args=True)
 async def select_by_type(
     type: Union[SelectableType, str],
     mode: Union[SelectMode, str] = SelectMode.REPLACE,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Select objects by type.
-    
+
     Args:
         type: Type of objects to select
         mode: Selection mode (REPLACE, ADD, SUBTRACT, etc.)
         **kwargs: Additional options
             - select_children: Also select child objects (default: True)
             - select_hidden: Include hidden objects (default: False)
-            
+
     Returns:
         Dict containing selection status and details
     """
-    select_children = kwargs.get('select_children', True)
-    select_hidden = kwargs.get('select_hidden', False)
-    
+    select_children = kwargs.get("select_children", True)
+    select_hidden = kwargs.get("select_hidden", False)
+
     script = f"""
 
 def select_by_type():
@@ -197,7 +201,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -205,25 +209,24 @@ except Exception as e:
         logger.error(f"Failed to select by type: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("select_by_material", log_args=True)
 async def select_by_material(
-    material_name: str,
-    mode: Union[SelectMode, str] = SelectMode.REPLACE,
-    **kwargs: Any
+    material_name: str, mode: Union[SelectMode, str] = SelectMode.REPLACE, **kwargs: Any
 ) -> Dict[str, Any]:
     """Select objects using a specific material.
-    
+
     Args:
         material_name: Name of the material to select by
         mode: Selection mode (REPLACE, ADD, SUBTRACT, etc.)
         **kwargs: Additional options
             - partial_match: Also select objects where material is one of many (default: True)
-            
+
     Returns:
         Dict containing selection status and details
     """
-    partial_match = kwargs.get('partial_match', True)
-    
+    partial_match = kwargs.get("partial_match", True)
+
     script = f"""
 
 def select_by_material():
@@ -281,7 +284,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}

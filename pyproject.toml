@@ -1,7 +1,3 @@
-[build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "blender-mcp"
 version = "0.1.0"
@@ -10,12 +6,12 @@ readme = "README.md"
 authors = [
     {name = "Your Name", email = "your.email@example.com"}
 ]
-license = {text = "MIT"}
-requires-python = ">=3.7"
+license = {text = "AGPL-3.0"}
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
@@ -26,18 +22,39 @@ dependencies = [
     "httpx>=0.25.0",
     "typing-extensions>=4.8.0",
     "psutil>=5.9.0",
-    "numpy>=1.21.0"
+    "numpy>=1.21.0",
+    "defusedxml>=0.7.1",  # For secure XML parsing
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.0.0",
-    "pytest-asyncio>=0.21.0",
-    "pytest-cov>=4.0.0",
-    "black>=23.0.0",
-    "flake8>=6.0.0",
-    "mypy>=1.0.0",
-    "isort>=5.12.0"
+[tool.uv]
+dev-dependencies = [
+    # Testing
+    "pytest>=8.3.4",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-xdist>=3.0.0",
+
+    # Linting & Formatting
+    "ruff>=0.1.6",
+    "mypy>=1.8.0",
+    "black>=24.0.0",
+    "isort>=5.13.0",
+
+    # Type Checking
+    "pyright>=1.1.390",
+    "types-setuptools>=69.0.0",
+
+    # Security
+    "bandit>=1.7.0",
+    "safety>=3.0.0",
+
+    # Building & Publishing
+    "build>=1.0.0",
+    "twine>=5.0.0",
+
+    # Pre-commit
+    "pre-commit>=3.6.0",
 ]
 
 [project.scripts]
@@ -46,40 +63,21 @@ blender-mcp = "blender_mcp.cli:main"
 [tool.setuptools]
 package-dir = { "" = "src" }
 
-[tool.black]
-line-length = 88
-target-version = ['py37']
-include = '\.pyi?$'
+[tool.ruff]
+target-version = "py311"
+line-length = 100
 
-[tool.isort]
-profile = "black"
-line_length = 88
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
-
-[tool.mypy]
-python_version = "3.7"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-check_untyped_defs = true
-disallow_incomplete_defs = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
-warn_unreachable = true
+[tool.pyright]
+include = ["src/"]
+pythonVersion = "3.11"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
-addopts = "-v --cov=blender_mcp --cov-report=term-missing"
+addopts = "-v --cov=src --cov-report=term-missing"
 
 [tool.coverage.run]
-source = ["blender_mcp"]
+source = ["src"]
 omit = [
     "**/__init__.py",
     "**/tests/**",

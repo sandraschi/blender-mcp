@@ -3,15 +3,10 @@ from ..compat import *
 """Scripting operations handler for Blender MCP."""
 
 import json
-import base64
-import textwrap
-from typing import Optional, Dict, Any, Union, List, Tuple
+from typing import Dict, Any, Union
 from enum import Enum
 from pathlib import Path
-import tempfile
 import uuid
-import inspect
-import sys
 from loguru import logger
 
 from ..utils.blender_executor import get_blender_executor
@@ -19,15 +14,19 @@ from ..decorators import blender_operation
 
 _executor = get_blender_executor()
 
+
 class ScriptLanguage(str, Enum):
     """Supported scripting languages."""
+
     PYTHON = "PYTHON"
     EXPRESSION = "EXPRESSION"
     TEXT_BLOCK = "TEXT_BLOCK"
     EXTERNAL_FILE = "EXTERNAL_FILE"
 
+
 class ScriptScope(str, Enum):
     """Script execution scopes."""
+
     SCENE = "SCENE"
     OBJECT = "OBJECT"
     MATERIAL = "MATERIAL"
@@ -36,14 +35,13 @@ class ScriptScope(str, Enum):
     RENDER = "RENDER"
     FRAME_CHANGE = "FRAME_CHANGE"
 
+
 @blender_operation("execute_script", log_args=True)
 async def execute_script(
-    script: str,
-    script_type: Union[ScriptLanguage, str] = ScriptLanguage.PYTHON,
-    **kwargs: Any
+    script: str, script_type: Union[ScriptLanguage, str] = ScriptLanguage.PYTHON, **kwargs: Any
 ) -> Dict[str, Any]:
     """Execute a script in Blender.
-    
+
     Args:
         script: The script code to execute or path to script file
         script_type: Type of script to execute
@@ -54,29 +52,29 @@ async def execute_script(
             - return_result: Return the result of the last expression (Python only)
             - args: Arguments to pass to the script
             - context_vars: Dictionary of variables to inject into the script context
-            
+
     Returns:
         Dict containing execution status and result/output
     """
     script_type = script_type.upper()
-    scope = kwargs.get('scope', ScriptScope.SCENE).upper()
-    target = kwargs.get('target')
-    as_module = kwargs.get('as_module', False)
-    return_result = kwargs.get('return_result', True)
-    script_args = kwargs.get('args', {})
-    context_vars = kwargs.get('context_vars', {})
-    
+    scope = kwargs.get("scope", ScriptScope.SCENE).upper()
+    target = kwargs.get("target")
+    as_module = kwargs.get("as_module", False)
+    return_result = kwargs.get("return_result", True)
+    script_args = kwargs.get("args", {})
+    context_vars = kwargs.get("context_vars", {})
+
     # Generate a unique ID for this script execution
     exec_id = f"script_{uuid.uuid4().hex[:8]}"
-    
+
     # Handle different script types
     if script_type == ScriptLanguage.EXTERNAL_FILE:
         # Read the script from file
         script_path = Path(script)
         if not script_path.exists():
             return {"status": "ERROR", "error": f"Script file not found: {script}"}
-        script = script_path.read_text(encoding='utf-8')
-    
+        script = script_path.read_text(encoding="utf-8")
+
     # Prepare the script for execution
     if script_type == ScriptLanguage.PYTHON:
         # For Python scripts, we need to handle return values and context
@@ -187,11 +185,11 @@ print(json.dumps(_result_data, default=str))
     else:
         # For non-Python scripts, we'll execute them directly
         wrapped_script = script
-    
+
     try:
         # Execute the script in Blender
         output = await _executor.execute_script(wrapped_script)
-        
+
         # Parse the output if it's JSON
         try:
             if script_type == ScriptLanguage.PYTHON and output.strip():
@@ -204,15 +202,13 @@ print(json.dumps(_result_data, default=str))
         logger.error(f"Failed to execute script: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("create_driver", log_args=True)
 async def create_driver(
-    target: str,
-    data_path: str,
-    expression: str,
-    **kwargs: Any
+    target: str, data_path: str, expression: str, **kwargs: Any
 ) -> Dict[str, Any]:
     """Create a driver for a property.
-    
+
     Args:
         target: Target object/data path (e.g., 'Cube.location' or 'Material.001.node_tree.nodes["Principled BSDF"].inputs[0]')
         data_path: Data path to drive (e.g., 'location', 'scale', 'inputs[0].default_value')
@@ -222,15 +218,15 @@ async def create_driver(
             - variables: List of variable definitions for the driver
             - use_self: Use 'self' in the expression
             - is_simple_expression: Whether the expression is simple (no variables)
-            
+
     Returns:
         Dict containing driver creation status and details
     """
-    variable_type = kwargs.get('variable_type', 'SINGLE_PROP')
-    variables = kwargs.get('variables', [])
-    use_self = kwargs.get('use_self', False)
-    is_simple_expression = kwargs.get('is_simple_expression', False)
-    
+    variable_type = kwargs.get("variable_type", "SINGLE_PROP")
+    variables = kwargs.get("variables", [])
+    use_self = kwargs.get("use_self", False)
+    is_simple_expression = kwargs.get("is_simple_expression", False)
+
     script = f"""
 import json
 
@@ -351,7 +347,7 @@ try:
 except Exception as e:
     print(json.dumps({{"status": "ERROR", "error": str(e)}}, default=str))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         try:
@@ -362,30 +358,27 @@ except Exception as e:
         logger.error(f"Failed to create driver: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("create_text_block", log_args=True)
-async def create_text_block(
-    name: str,
-    text: str = "",
-    **kwargs: Any
-) -> Dict[str, Any]:
+async def create_text_block(name: str, text: str = "", **kwargs: Any) -> Dict[str, Any]:
     """Create or update a text block in Blender.
-    
+
     Args:
         name: Name of the text block
         text: Text content
         **kwargs: Additional parameters
             - overwrite: Overwrite if text block exists (default: True)
             - as_module: Mark as a Python module (adds .py extension if needed)
-            
+
     Returns:
         Dict containing text block creation status and details
     """
-    overwrite = kwargs.get('overwrite', True)
-    as_module = kwargs.get('as_module', False)
-    
-    if as_module and not name.endswith('.py'):
-        name += '.py'
-    
+    overwrite = kwargs.get("overwrite", True)
+    as_module = kwargs.get("as_module", False)
+
+    if as_module and not name.endswith(".py"):
+        name += ".py"
+
     script = f"""
 import json
 
@@ -424,7 +417,7 @@ try:
 except Exception as e:
     print(json.dumps({{"status": "ERROR", "error": str(e)}}, default=str))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         try:

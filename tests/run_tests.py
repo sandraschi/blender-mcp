@@ -68,18 +68,20 @@ def run_pytest(args, test_path="tests/", markers=None, extra_args=None):
 def main():
     """Main test runner function."""
     parser = argparse.ArgumentParser(description="Run Blender MCP tests")
-    parser.add_argument("--unit-only", action="store_true",
-                       help="Run only unit tests")
-    parser.add_argument("--integration-only", action="store_true",
-                       help="Run only integration tests (requires Blender)")
-    parser.add_argument("--ci", action="store_true",
-                       help="Run tests optimized for CI environment")
-    parser.add_argument("--coverage", action="store_true",
-                       help="Run tests with coverage reporting")
-    parser.add_argument("--verbose", "-v", action="store_true",
-                       help="Verbose output")
-    parser.add_argument("--no-blender-skip", action="store_true",
-                       help="Don't skip Blender-dependent tests even if Blender unavailable")
+    parser.add_argument("--unit-only", action="store_true", help="Run only unit tests")
+    parser.add_argument(
+        "--integration-only",
+        action="store_true",
+        help="Run only integration tests (requires Blender)",
+    )
+    parser.add_argument("--ci", action="store_true", help="Run tests optimized for CI environment")
+    parser.add_argument("--coverage", action="store_true", help="Run tests with coverage reporting")
+    parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
+    parser.add_argument(
+        "--no-blender-skip",
+        action="store_true",
+        help="Don't skip Blender-dependent tests even if Blender unavailable",
+    )
 
     args = parser.parse_args()
 
@@ -99,19 +101,19 @@ def main():
         extra_args.append("--tb=short")
 
     if args.coverage:
-        extra_args.extend([
-            "--cov=src/blender_mcp",
-            "--cov-report=html:htmlcov",
-            "--cov-report=term-missing"
-        ])
+        extra_args.extend(
+            ["--cov=src/blender_mcp", "--cov-report=html:htmlcov", "--cov-report=term-missing"]
+        )
 
     # CI mode optimizations
     if args.ci:
-        extra_args.extend([
-            "--strict-markers",
-            "--disable-warnings",
-            "-x",  # Stop on first failure
-        ])
+        extra_args.extend(
+            [
+                "--strict-markers",
+                "--disable-warnings",
+                "-x",  # Stop on first failure
+            ]
+        )
 
     success = True
 
@@ -130,8 +132,9 @@ def main():
                 success = False
             else:
                 print("🔗 Running integration tests...")
-                result = run_pytest(args, "tests/integration/",
-                                  "integration and requires_blender", extra_args)
+                result = run_pytest(
+                    args, "tests/integration/", "integration and requires_blender", extra_args
+                )
                 if result != 0:
                     success = False
 
@@ -156,8 +159,9 @@ def main():
                 # Then integration tests
                 if success:
                     print("  🔗 Running integration tests...")
-                    result = run_pytest(args, "tests/integration/",
-                                      "integration and requires_blender", extra_args)
+                    result = run_pytest(
+                        args, "tests/integration/", "integration and requires_blender", extra_args
+                    )
                     if result != 0:
                         success = False
 

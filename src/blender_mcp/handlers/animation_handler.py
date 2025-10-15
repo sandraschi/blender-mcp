@@ -5,10 +5,8 @@ Provides functions for creating keyframes and basic animations.
 """
 
 from typing import Tuple, Optional
-from loguru import logger
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
-from ..exceptions import BlenderAnimationError
 
 _executor = get_blender_executor()
 
@@ -19,7 +17,7 @@ async def set_keyframe(
     frame: int = 1,
     location: Optional[Tuple[float, float, float]] = None,
     rotation: Optional[Tuple[float, float, float]] = None,
-    scale: Optional[Tuple[float, float, float]] = None
+    scale: Optional[Tuple[float, float, float]] = None,
 ) -> str:
     """
     Set keyframe for object properties.
@@ -35,7 +33,11 @@ async def set_keyframe(
         Success message
     """
     location_str = f"obj.location = {location}" if location else ""
-    rotation_str = f"obj.rotation_euler = ({rotation[0]} * 3.14159/180, {rotation[1]} * 3.14159/180, {rotation[2]} * 3.14159/180)" if rotation else ""
+    rotation_str = (
+        f"obj.rotation_euler = ({rotation[0]} * 3.14159/180, {rotation[1]} * 3.14159/180, {rotation[2]} * 3.14159/180)"
+        if rotation
+        else ""
+    )
     scale_str = f"obj.scale = {scale}" if scale else ""
 
     script = f"""
@@ -71,7 +73,7 @@ async def animate_location(
     start_frame: int = 1,
     end_frame: int = 60,
     start_location: Tuple[float, float, float] = (0, 0, 0),
-    end_location: Tuple[float, float, float] = (5, 0, 0)
+    end_location: Tuple[float, float, float] = (5, 0, 0),
 ) -> str:
     """
     Animate object location over time.
@@ -116,7 +118,7 @@ async def animate_rotation(
     start_frame: int = 1,
     end_frame: int = 60,
     start_rotation: Tuple[float, float, float] = (0, 0, 0),
-    end_rotation: Tuple[float, float, float] = (360, 0, 0)
+    end_rotation: Tuple[float, float, float] = (360, 0, 0),
 ) -> str:
     """
     Animate object rotation over time.
@@ -165,7 +167,7 @@ async def animate_scale(
     start_frame: int = 1,
     end_frame: int = 60,
     start_scale: Tuple[float, float, float] = (1, 1, 1),
-    end_scale: Tuple[float, float, float] = (2, 2, 2)
+    end_scale: Tuple[float, float, float] = (2, 2, 2),
 ) -> str:
     """
     Animate object scale over time.
@@ -225,10 +227,7 @@ logger.info("🎬 Started animation playback")
 
 
 @blender_operation("set_frame_range")
-async def set_frame_range(
-    start_frame: int = 1,
-    end_frame: int = 250
-) -> str:
+async def set_frame_range(start_frame: int = 1, end_frame: int = 250) -> str:
     """
     Set animation frame range.
 

@@ -9,12 +9,13 @@ import os
 import sys
 import psutil
 import platform
-from typing import Dict, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
+
 
 # Import app lazily to avoid circular imports
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -23,7 +24,11 @@ def _register_status_tools():
     app = get_app()
 
     @app.tool
-    async def blender_status(include_blender_info: bool = True, include_system_info: bool = True, include_performance: bool = True) -> str:
+    async def blender_status(
+        include_blender_info: bool = True,
+        include_system_info: bool = True,
+        include_performance: bool = True,
+    ) -> str:
         """
         Get comprehensive system status and health information.
 
@@ -51,6 +56,7 @@ def _register_status_tools():
         # MCP Server status
         try:
             from blender_mcp.app import get_app
+
             app = get_app()
             status_parts.append("✅ MCP Server: Running")
         except Exception as e:
@@ -68,6 +74,7 @@ def _register_status_tools():
                 # Try to get version
                 try:
                     from blender_mcp.config import get_blender_version
+
                     version = get_blender_version()
                     if version:
                         status_parts.append(f"📦 Version: {version}")
@@ -107,11 +114,15 @@ def _register_status_tools():
 
                 # Memory usage
                 memory = psutil.virtual_memory()
-                status_parts.append(f"💾 Memory Usage: {memory.percent:.1f}% ({memory.available // (1024**2):,} MB free)")
+                status_parts.append(
+                    f"💾 Memory Usage: {memory.percent:.1f}% ({memory.available // (1024**2):,} MB free)"
+                )
 
                 # Disk usage
-                disk = psutil.disk_usage('/')
-                status_parts.append(f"💿 Disk Usage: {disk.percent:.1f}% ({disk.free // (1024**3):.1f} GB free)")
+                disk = psutil.disk_usage("/")
+                status_parts.append(
+                    f"💿 Disk Usage: {disk.percent:.1f}% ({disk.free // (1024**3):.1f} GB free)"
+                )
 
             except Exception as e:
                 status_parts.append(f"⚠️  Performance monitoring unavailable: {str(e)}")
@@ -177,11 +188,15 @@ def _register_status_tools():
             info_parts.append(f"  • Available Memory: {memory.available // (1024**3):.1f} GB")
 
             # CPU
-            info_parts.append(f"  • CPU Cores: {psutil.cpu_count()} physical, {psutil.cpu_count(logical=True)} logical")
+            info_parts.append(
+                f"  • CPU Cores: {psutil.cpu_count()} physical, {psutil.cpu_count(logical=True)} logical"
+            )
 
             # Disk
-            disk = psutil.disk_usage('/')
-            info_parts.append(f"  • Disk Space: {disk.total // (1024**3):.1f} GB total, {disk.free // (1024**3):.1f} GB free")
+            disk = psutil.disk_usage("/")
+            info_parts.append(
+                f"  • Disk Space: {disk.total // (1024**3):.1f} GB total, {disk.free // (1024**3):.1f} GB free"
+            )
 
         except Exception as e:
             info_parts.append(f"  • Resource info unavailable: {str(e)}")
@@ -208,6 +223,7 @@ def _register_status_tools():
         # Check 1: MCP Server
         try:
             from blender_mcp.app import get_app
+
             app = get_app()
             checks.append("✅ MCP Server: Running and accessible")
         except Exception as e:
@@ -217,6 +233,7 @@ def _register_status_tools():
         # Check 2: Blender Availability
         try:
             from blender_mcp.config import validate_blender_executable
+
             if validate_blender_executable():
                 checks.append("✅ Blender: Available and validated")
             else:
@@ -229,7 +246,7 @@ def _register_status_tools():
         # Check 3: System Resources
         try:
             memory = psutil.virtual_memory()
-            disk = psutil.disk_usage('/')
+            disk = psutil.disk_usage("/")
 
             resource_issues = []
             if memory.percent > 90:
@@ -238,7 +255,9 @@ def _register_status_tools():
                 resource_issues.append(f"low disk space ({disk.percent:.1f}% used)")
 
             if resource_issues:
-                checks.append(f"⚠️  System Resources: Issues detected - {', '.join(resource_issues)}")
+                checks.append(
+                    f"⚠️  System Resources: Issues detected - {', '.join(resource_issues)}"
+                )
                 if overall_status == "✅ HEALTHY":
                     overall_status = "⚠️  WARNING"
             else:
@@ -250,11 +269,14 @@ def _register_status_tools():
         # Check 4: Tool Registration
         try:
             from blender_mcp.help import list_functions, get_categories
+
             categories = get_categories()
             total_tools = sum(len(list_functions(cat)) for cat in categories)
 
             if total_tools > 0:
-                checks.append(f"✅ Tool Registration: {total_tools} tools across {len(categories)} categories")
+                checks.append(
+                    f"✅ Tool Registration: {total_tools} tools across {len(categories)} categories"
+                )
             else:
                 checks.append("❌ Tool Registration: No tools registered")
                 overall_status = "❌ UNHEALTHY"
@@ -301,7 +323,7 @@ def _register_status_tools():
         result = f"Blender MCP Performance Monitor - {start_time.strftime('%Y-%m-%d %H:%M:%S')}\n"
         result += "=" * 70 + "\n"
         result += f"Monitoring Duration: {duration_seconds} seconds\n"
-        result += f"Sample Interval: 2 seconds\n"
+        result += "Sample Interval: 2 seconds\n"
         result += f"Number of Samples: {max(1, duration_seconds // 2)}\n\n"
 
         try:
@@ -311,31 +333,33 @@ def _register_status_tools():
 
                 # CPU usage
                 cpu_percent = psutil.cpu_percent(interval=1)
-                perf_data['cpu'] = cpu_percent
+                perf_data["cpu"] = cpu_percent
 
                 # Memory usage
                 memory = psutil.virtual_memory()
-                perf_data['memory'] = memory.percent
+                perf_data["memory"] = memory.percent
 
                 # Disk usage
-                disk = psutil.disk_usage('/')
-                perf_data['disk'] = disk.percent
+                disk = psutil.disk_usage("/")
+                perf_data["disk"] = disk.percent
 
-                samples.append({
-                    'sample': len(samples) + 1,
-                    'timestamp': sample_time.strftime('%H:%M:%S'),
-                    'cpu_percent': cpu_percent,
-                    'memory_percent': memory.percent,
-                    'disk_percent': disk.percent
-                })
+                samples.append(
+                    {
+                        "sample": len(samples) + 1,
+                        "timestamp": sample_time.strftime("%H:%M:%S"),
+                        "cpu_percent": cpu_percent,
+                        "memory_percent": memory.percent,
+                        "disk_percent": disk.percent,
+                    }
+                )
 
                 if i + 2 < duration_seconds:  # Don't sleep after last sample
                     time.sleep(2)
 
             # Calculate summary statistics
-            cpu_values = [s['cpu_percent'] for s in samples]
-            memory_values = [s['memory_percent'] for s in samples]
-            disk_values = [s['disk_percent'] for s in samples]
+            cpu_values = [s["cpu_percent"] for s in samples]
+            memory_values = [s["memory_percent"] for s in samples]
+            disk_values = [s["disk_percent"] for s in samples]
 
             result += "Performance Samples:\n"
             result += f"{'Sample':<8} {'Time':<12} {'CPU%':<8} {'Mem%':<8} {'Disk%':<8}\n"
@@ -346,9 +370,9 @@ def _register_status_tools():
 
             result += "\nSummary Statistics:\n"
             result += "-" * 20 + "\n"
-            result += f"CPU Usage:    Avg {sum(cpu_values)/len(cpu_values):5.1f}% | Max {max(cpu_values):5.1f}% | Min {min(cpu_values):5.1f}%\n"
-            result += f"Memory Usage: Avg {sum(memory_values)/len(memory_values):5.1f}% | Max {max(memory_values):5.1f}% | Min {min(memory_values):5.1f}%\n"
-            result += f"Disk Usage:   Avg {sum(disk_values)/len(disk_values):5.1f}% | Max {max(disk_values)/len(disk_values):5.1f}% | Min {min(disk_values):5.1f}%\n"
+            result += f"CPU Usage:    Avg {sum(cpu_values) / len(cpu_values):5.1f}% | Max {max(cpu_values):5.1f}% | Min {min(cpu_values):5.1f}%\n"
+            result += f"Memory Usage: Avg {sum(memory_values) / len(memory_values):5.1f}% | Max {max(memory_values):5.1f}% | Min {min(memory_values):5.1f}%\n"
+            result += f"Disk Usage:   Avg {sum(disk_values) / len(disk_values):5.1f}% | Max {max(disk_values) / len(disk_values):5.1f}% | Min {min(disk_values):5.1f}%\n"
 
             end_time = datetime.now()
             duration = (end_time - start_time).total_seconds()

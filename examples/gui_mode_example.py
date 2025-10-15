@@ -9,15 +9,16 @@ debugging 3D scenes.
 import asyncio
 from blender_mcp.utils.blender_executor import get_blender_executor
 
+
 async def create_animated_scene():
     """Create a simple animated scene with GUI visible."""
-    
+
     # IMPORTANT: Set headless=False to enable GUI mode
     executor = get_blender_executor(headless=False)
-    
+
     print("🎬 Creating animated scene with GUI visible...")
     print("⚠️  Note: Blender window will open!")
-    
+
     # Create a script that sets up an animation
     script = """
 import bpy
@@ -81,24 +82,25 @@ print("   Close Blender window when done.")
 # Keep Blender open (comment out for headless mode)
 # In GUI mode, Blender stays open until you close it manually
 """
-    
+
     # Execute the script - Blender GUI will open!
     result = await executor.execute_script(script, script_name="animated_scene_gui")
-    
+
     print("\n✅ Script executed! Blender GUI should be visible now.")
     print("   Press SPACEBAR to play the animation")
     print("   Close the Blender window when done")
-    
+
     return result
+
 
 async def create_simple_render_preview():
     """Create a simple scene and show it in GUI for preview."""
-    
+
     # Enable GUI mode
     executor = get_blender_executor(headless=False)
-    
+
     print("🎨 Creating scene for preview...")
-    
+
     script = """
 import bpy
 
@@ -140,14 +142,15 @@ print("✅ Scene created! You can now preview in Blender GUI.")
 print("   Press F12 to render")
 print("   Or use the viewport for real-time preview")
 """
-    
+
     result = await executor.execute_script(script, script_name="preview_scene_gui")
-    
+
     print("\n✅ Scene ready in Blender GUI!")
     print("   Press F12 to render the scene")
     print("   Press ESC to cancel render")
-    
+
     return result
+
 
 if __name__ == "__main__":
     print("=" * 60)
@@ -159,9 +162,9 @@ if __name__ == "__main__":
     print("  1. Animated bouncing cube (press SPACEBAR to play)")
     print("  2. Preview scene with Suzanne (press F12 to render)")
     print()
-    
+
     choice = input("Enter choice (1 or 2): ").strip()
-    
+
     if choice == "1":
         asyncio.run(create_animated_scene())
     elif choice == "2":
@@ -169,6 +172,3 @@ if __name__ == "__main__":
     else:
         print("Invalid choice. Running animation example...")
         asyncio.run(create_animated_scene())
-
-
-

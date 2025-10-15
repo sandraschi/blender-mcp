@@ -2,7 +2,7 @@ from ..compat import *
 
 """Simulation operations handler for Blender MCP."""
 
-from typing import Optional, List, Dict, Any, Union, Tuple
+from typing import Optional, Dict, Any, Union
 from enum import Enum
 from loguru import logger
 
@@ -11,8 +11,10 @@ from ..decorators import blender_operation
 
 _executor = get_blender_executor()
 
+
 class SimulationType(str, Enum):
     """Supported simulation types."""
+
     CLOTH = "CLOTH"
     FLUID = "FLUID"
     SMOKE = "SMOKE"
@@ -23,14 +25,13 @@ class SimulationType(str, Enum):
     FLUID_FLIP = "FLUID_FLIP"
     OCEAN = "OCEAN"
 
+
 @blender_operation("add_simulation", log_args=True)
 async def add_simulation(
-    object_name: str,
-    simulation_type: Union[SimulationType, str],
-    **kwargs: Any
+    object_name: str, simulation_type: Union[SimulationType, str], **kwargs: Any
 ) -> Dict[str, Any]:
     """Add a physics simulation to an object.
-    
+
     Args:
         object_name: Name of the object to add simulation to
         simulation_type: Type of simulation to add
@@ -38,12 +39,12 @@ async def add_simulation(
             - For CLOTH: mass, tension, compression, bending, etc.
             - For FLUID: type (DOMAIN, FLOW, EFFECTOR), resolution, etc.
             - For RIGID_BODY: type (ACTIVE, PASSIVE), mass, friction, etc.
-            
+
     Returns:
         Dict containing simulation creation status and details
     """
     simulation_type = simulation_type.upper()
-    
+
     script = f"""
 
 def add_simulation():
@@ -64,26 +65,26 @@ def add_simulation():
             
             # Set cloth settings from kwargs
             if 'mass' in {kwargs}:
-                mod.settings.mass = {kwargs['mass']}
+                mod.settings.mass = {kwargs["mass"]}
             if 'tension' in {kwargs}:
-                mod.settings.tension_stiffness = {kwargs['tension']}
+                mod.settings.tension_stiffness = {kwargs["tension"]}
             if 'compression' in {kwargs}:
-                mod.settings.compression_stiffness = {kwargs['compression']}
+                mod.settings.compression_stiffness = {kwargs["compression"]}
             if 'bending' in {kwargs}:
-                mod.settings.bending_stiffness = {kwargs['bending']}
+                mod.settings.bending_stiffness = {kwargs["bending"]}
             if 'damping' in {kwargs}:
-                mod.settings.air_damping = {kwargs['damping']}
+                mod.settings.air_damping = {kwargs["damping"]}
             
             # Enable self-collision if requested
-            if {kwargs.get('self_collision', False)}:
+            if {kwargs.get("self_collision", False)}:
                 mod.settings.use_self_collision = True
             
             # Add collision settings
-            if 'collision' in {kwargs} and {kwargs['collision']}:
+            if 'collision' in {kwargs} and {kwargs["collision"]}:
                 mod.collision_settings.use_collision = True
         
         elif '{simulation_type}' == 'FLUID':
-            fluid_type = {kwargs.get('fluid_type', 'DOMAIN').upper()}
+            fluid_type = {kwargs.get("fluid_type", "DOMAIN").upper()}
             
             if fluid_type == 'DOMAIN':
                 bpy.ops.object.quick_fluid()
@@ -91,9 +92,9 @@ def add_simulation():
                 
                 # Set domain settings
                 if 'resolution' in {kwargs}:
-                    domain.modifiers[-1].domain_settings.resolution = {kwargs['resolution']}
+                    domain.modifiers[-1].domain_settings.resolution = {kwargs["resolution"]}
                 if 'time_scale' in {kwargs}:
-                    domain.modifiers[-1].domain_settings.time_scale = {kwargs['time_scale']}
+                    domain.modifiers[-1].domain_settings.time_scale = {kwargs["time_scale"]}
                 
                 return {{
                     "status": "SUCCESS",
@@ -108,9 +109,9 @@ def add_simulation():
                 
                 # Set flow settings
                 if 'flow_type' in {kwargs}:
-                    flow.modifiers[-1].flow_settings.flow_type = {kwargs['flow_type']}
+                    flow.modifiers[-1].flow_settings.flow_type = {kwargs["flow_type"]}
                 if 'initial_velocity' in {kwargs}:
-                    flow.modifiers[-1].flow_settings.initial_velocity = {kwargs['initial_velocity']}
+                    flow.modifiers[-1].flow_settings.initial_velocity = {kwargs["initial_velocity"]}
                 
                 return {{
                     "status": "SUCCESS",
@@ -124,16 +125,16 @@ def add_simulation():
             bpy.ops.rigidbody.object_add()
             
             # Set rigid body type (ACTIVE or PASSIVE)
-            rb_type = {kwargs.get('rigid_body_type', 'ACTIVE').upper()}
+            rb_type = {kwargs.get("rigid_body_type", "ACTIVE").upper()}
             obj.rigid_body.type = rb_type
             
             # Set mass and other properties
             if 'mass' in {kwargs}:
-                obj.rigid_body.mass = {kwargs['mass']}
+                obj.rigid_body.mass = {kwargs["mass"]}
             if 'friction' in {kwargs}:
-                obj.rigid_body.friction = {kwargs['friction']}
+                obj.rigid_body.friction = {kwargs["friction"]}
             if 'restitution' in {kwargs}:
-                obj.rigid_body.restitution = {kwargs['restitution']}
+                obj.rigid_body.restitution = {kwargs["restitution"]}
             
             return {{
                 "status": "SUCCESS",
@@ -148,17 +149,17 @@ def add_simulation():
             
             # Set soft body settings
             if 'mass' in {kwargs}:
-                mod.settings.mass = {kwargs['mass']}
+                mod.settings.mass = {kwargs["mass"]}
             if 'stiffness' in {kwargs}:
-                mod.settings.bend = {kwargs['stiffness']}
+                mod.settings.bend = {kwargs["stiffness"]}
             if 'damping' in {kwargs}:
-                mod.settings.drag = {kwargs['damping']}
+                mod.settings.drag = {kwargs["damping"]}
             
             # Add goal settings
-            if 'goal' in {kwargs} and {kwargs['goal']}:
+            if 'goal' in {kwargs} and {kwargs["goal"]}:
                 mod.settings.use_goal = True
                 if 'goal_strength' in {kwargs}:
-                    mod.settings.goal_default = {kwargs['goal_strength']}
+                    mod.settings.goal_default = {kwargs["goal_strength"]}
         
         elif '{simulation_type}' == 'PARTICLE_SYSTEM':
             bpy.ops.object.particle_system_add()
@@ -166,15 +167,15 @@ def add_simulation():
             
             # Set particle settings
             if 'count' in {kwargs}:
-                ps.settings.count = {kwargs['count']}
+                ps.settings.count = {kwargs["count"]}
             if 'lifetime' in {kwargs}:
-                ps.settings.lifetime = {kwargs['lifetime']}
+                ps.settings.lifetime = {kwargs["lifetime"]}
             if 'size' in {kwargs}:
-                ps.settings.particle_size = {kwargs['size']}
+                ps.settings.particle_size = {kwargs["size"]}
             
             # Set emission type
             if 'emission_type' in {kwargs}:
-                ps.settings.emit_from = {kwargs['emission_type']}
+                ps.settings.emit_from = {kwargs["emission_type"]}
         
         elif '{simulation_type}' == 'OCEAN':
             bpy.ops.object.modifier_add(type='OCEAN')
@@ -182,13 +183,13 @@ def add_simulation():
             
             # Set ocean settings
             if 'resolution' in {kwargs}:
-                mod.resolution = {kwargs['resolution']}
+                mod.resolution = {kwargs["resolution"]}
             if 'wave_scale' in {kwargs}:
-                mod.wave_scale = {kwargs['wave_scale']}
+                mod.wave_scale = {kwargs["wave_scale"]}
             if 'choppiness' in {kwargs}:
-                mod.choppiness = {kwargs['choppiness']}
+                mod.choppiness = {kwargs["choppiness"]}
             if 'wind_velocity' in {kwargs}:
-                mod.wind_velocity = {kwargs['wind_velocity']}
+                mod.wind_velocity = {kwargs["wind_velocity"]}
         
         else:
             return {{"status": "ERROR", "error": f"Unsupported simulation type: {simulation_type}"}}
@@ -209,7 +210,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -217,14 +218,13 @@ except Exception as e:
         logger.error(f"Failed to add simulation: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("bake_simulation", log_args=True)
 async def bake_simulation(
-    object_name: str,
-    simulation_type: Optional[Union[SimulationType, str]] = None,
-    **kwargs: Any
+    object_name: str, simulation_type: Optional[Union[SimulationType, str]] = None, **kwargs: Any
 ) -> Dict[str, Any]:
     """Bake a physics simulation.
-    
+
     Args:
         object_name: Name of the object with the simulation
         simulation_type: Type of simulation to bake (optional, will detect if None)
@@ -233,15 +233,15 @@ async def bake_simulation(
             - end_frame: End frame for baking (default: 250)
             - cache_path: Path to save the cache (for fluid/particles)
             - use_disk_cache: Save cache to disk (default: False)
-            
+
     Returns:
         Dict containing bake status and details
     """
-    start_frame = kwargs.get('start_frame', 1)
-    end_frame = kwargs.get('end_frame', 250)
-    cache_path = kwargs.get('cache_path')
-    use_disk_cache = kwargs.get('use_disk_cache', False)
-    
+    start_frame = kwargs.get("start_frame", 1)
+    end_frame = kwargs.get("end_frame", 250)
+    cache_path = kwargs.get("cache_path")
+    use_disk_cache = kwargs.get("use_disk_cache", False)
+
     script = f"""
 import os
 
@@ -363,7 +363,7 @@ def bake_simulation():
             bpy.ops.ptcache.bake(bake=True)
             
             return {
-                "status": "SUCCESS",
+        "status": "SUCCESS",
                 "simulation_type": sim_type,
                 "object": obj.name,
                 "particle_systems": [ps.name for ps in obj.particle_systems],
@@ -382,7 +382,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -390,16 +390,17 @@ except Exception as e:
         logger.error(f"Failed to bake simulation: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("set_simulation_visibility", log_args=True)
 async def set_simulation_visibility(
     object_name: str,
     visible: bool = True,
     viewport: bool = True,
     render: bool = True,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Set the visibility of a simulation in viewport and render.
-    
+
     Args:
         object_name: Name of the object with the simulation
         visible: Overall visibility of the simulation
@@ -407,12 +408,12 @@ async def set_simulation_visibility(
         render: Show in render
         **kwargs: Additional parameters
             - simulation_type: Specific simulation type to affect (optional)
-            
+
     Returns:
         Dict containing visibility status
     """
-    simulation_type = kwargs.get('simulation_type')
-    
+    simulation_type = kwargs.get("simulation_type")
+
     script = f"""
 
 def set_sim_visibility():
@@ -463,7 +464,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}

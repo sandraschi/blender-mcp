@@ -6,23 +6,25 @@ This module provides a comprehensive help system that documents all available
 operations in the Blender MCP server. It's designed to be used by both users
 and AI assistants to understand the available functionality.
 """
-from typing import Dict, List, Optional, Any, Tuple
-from enum import Enum
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
-from pathlib import Path
+
 
 @dataclass
 class ParameterInfo:
     """Information about a function parameter."""
+
     name: str
     type: str
     default: Any = ""
     description: str = ""
     required: bool = False
 
+
 @dataclass
 class FunctionInfo:
     """Information about an available function."""
+
     name: str
     description: str
     parameters: List[ParameterInfo] = field(default_factory=list)
@@ -30,13 +32,14 @@ class FunctionInfo:
     example: str = ""
     category: str = "General"
 
+
 class HelpSystem:
     """Help system for the Blender MCP server."""
-    
+
     def __init__(self):
         self.functions: Dict[str, FunctionInfo] = {}
         self._initialize_help()
-    
+
     def _initialize_help(self):
         """Initialize the help system with all available functions."""
         # Mesh Handler Functions
@@ -50,13 +53,15 @@ class HelpSystem:
                     ParameterInfo("x", "float", "0.0", "X position"),
                     ParameterInfo("y", "float", "0.0", "Y position"),
                     ParameterInfo("z", "float", "0.0", "Z position"),
-                    ParameterInfo("style", "str", "'art_deco'", "Style: 'art_deco', 'victorian', 'modern'")
+                    ParameterInfo(
+                        "style", "str", "'art_deco'", "Style: 'art_deco', 'victorian', 'modern'"
+                    ),
                 ],
                 returns="str: Name of the created object",
-                example="create_vanity_table('MyTable', 0, 0, 0, 'modern')"
+                example="create_vanity_table('MyTable', 0, 0, 0, 'modern')",
             )
         )
-        
+
         self._add_function(
             FunctionInfo(
                 name="create_candle_set",
@@ -68,12 +73,14 @@ class HelpSystem:
                     ParameterInfo("y", "float", "0.0", "Y position"),
                     ParameterInfo("z", "float", "0.0", "Z position"),
                     ParameterInfo("count", "int", "3", "Number of candles"),
-                    ParameterInfo("style", "str", "'elegant'", "Style: 'elegant', 'romantic', 'minimal'")
+                    ParameterInfo(
+                        "style", "str", "'elegant'", "Style: 'elegant', 'romantic', 'minimal'"
+                    ),
                 ],
-                returns="str: Name of the created object collection"
+                returns="str: Name of the created object collection",
             )
         )
-        
+
         self._add_function(
             FunctionInfo(
                 name="create_ornate_mirror",
@@ -84,12 +91,14 @@ class HelpSystem:
                     ParameterInfo("x", "float", "0.0", "X position"),
                     ParameterInfo("y", "float", "0.0", "Y position"),
                     ParameterInfo("z", "float", "0.0", "Z position"),
-                    ParameterInfo("style", "str", "'baroque'", "Style: 'baroque', 'art_nouveau', 'modern'")
+                    ParameterInfo(
+                        "style", "str", "'baroque'", "Style: 'baroque', 'art_nouveau', 'modern'"
+                    ),
                 ],
-                returns="str: Name of the created object"
+                returns="str: Name of the created object",
             )
         )
-        
+
         self._add_function(
             FunctionInfo(
                 name="create_feather_duster",
@@ -100,12 +109,14 @@ class HelpSystem:
                     ParameterInfo("x", "float", "0.0", "X position"),
                     ParameterInfo("y", "float", "0.0", "Y position"),
                     ParameterInfo("z", "float", "0.0", "Z position"),
-                    ParameterInfo("style", "str", "'classic'", "Style: 'classic', 'fluffy', 'exotic'")
+                    ParameterInfo(
+                        "style", "str", "'classic'", "Style: 'classic', 'fluffy', 'exotic'"
+                    ),
                 ],
-                returns="str: Name of the created object"
+                returns="str: Name of the created object",
             )
         )
-        
+
         # Material Handler Functions
         self._add_function(
             FunctionInfo(
@@ -114,14 +125,21 @@ class HelpSystem:
                 description="Create a fabric material with various presets.",
                 parameters=[
                     ParameterInfo("name", "str", "'FabricMaterial'", "Name of the material"),
-                    ParameterInfo("fabric_type", "str", "'cotton'", "Type: 'cotton', 'silk', 'velvet', 'wool', 'leather', 'denim'"),
-                    ParameterInfo("color", "tuple[float, float, float]", "(0.8, 0.1, 0.3)", "RGB color (0-1)"),
-                    ParameterInfo("roughness", "float", "0.7", "Surface roughness (0-1)")
+                    ParameterInfo(
+                        "fabric_type",
+                        "str",
+                        "'cotton'",
+                        "Type: 'cotton', 'silk', 'velvet', 'wool', 'leather', 'denim'",
+                    ),
+                    ParameterInfo(
+                        "color", "tuple[float, float, float]", "(0.8, 0.1, 0.3)", "RGB color (0-1)"
+                    ),
+                    ParameterInfo("roughness", "float", "0.7", "Surface roughness (0-1)"),
                 ],
-                returns="str: Name of the created material"
+                returns="str: Name of the created material",
             )
         )
-        
+
         self._add_function(
             FunctionInfo(
                 name="create_metal_material",
@@ -129,14 +147,19 @@ class HelpSystem:
                 description="Create a metal material with various presets.",
                 parameters=[
                     ParameterInfo("name", "str", "'MetalMaterial'", "Name of the material"),
-                    ParameterInfo("metal_type", "str", "'gold'", "Type: 'gold', 'silver', 'copper', 'iron', 'aluminum', 'titanium', 'platinum', 'brass', 'bronze', 'chrome', 'steel', 'tungsten'"),
+                    ParameterInfo(
+                        "metal_type",
+                        "str",
+                        "'gold'",
+                        "Type: 'gold', 'silver', 'copper', 'iron', 'aluminum', 'titanium', 'platinum', 'brass', 'bronze', 'chrome', 'steel', 'tungsten'",
+                    ),
                     ParameterInfo("roughness", "float", "0.1", "Surface roughness (0-1)"),
-                    ParameterInfo("anisotropic", "float", "0.0", "Anisotropic effect (0-1)")
+                    ParameterInfo("anisotropic", "float", "0.0", "Anisotropic effect (0-1)"),
                 ],
-                returns="str: Name of the created material"
+                returns="str: Name of the created material",
             )
         )
-        
+
         self._add_function(
             FunctionInfo(
                 name="create_wood_material",
@@ -144,15 +167,20 @@ class HelpSystem:
                 description="Create a wood material with realistic grain.",
                 parameters=[
                     ParameterInfo("name", "str", "'WoodMaterial'", "Name of the material"),
-                    ParameterInfo("wood_type", "str", "'oak'", "Type: 'oak', 'mahogany', 'pine', 'walnut', 'cherry', 'maple'"),
+                    ParameterInfo(
+                        "wood_type",
+                        "str",
+                        "'oak'",
+                        "Type: 'oak', 'mahogany', 'pine', 'walnut', 'cherry', 'maple'",
+                    ),
                     ParameterInfo("grain_scale", "float", "5.0", "Scale of wood grain (0.1-20.0)"),
                     ParameterInfo("roughness", "float", "0.7", "Surface roughness (0-1)"),
-                    ParameterInfo("bump_strength", "float", "0.1", "Bump strength (0-1)")
+                    ParameterInfo("bump_strength", "float", "0.1", "Bump strength (0-1)"),
                 ],
-                returns="str: Name of the created material"
+                returns="str: Name of the created material",
             )
         )
-        
+
         # Export Handler Functions
         self._add_function(
             FunctionInfo(
@@ -160,33 +188,51 @@ class HelpSystem:
                 category="Export",
                 description="Export the current scene for Unity3D.",
                 parameters=[
-                    ParameterInfo("output_path", "str", required=True, description="Path to save the FBX file"),
+                    ParameterInfo(
+                        "output_path", "str", required=True, description="Path to save the FBX file"
+                    ),
                     ParameterInfo("scale", "float", "1.0", "Scale factor for the exported model"),
-                    ParameterInfo("apply_modifiers", "bool", "True", "Whether to apply modifiers before export"),
-                    ParameterInfo("optimize_materials", "bool", "True", "Whether to optimize materials for Unity"),
+                    ParameterInfo(
+                        "apply_modifiers",
+                        "bool",
+                        "True",
+                        "Whether to apply modifiers before export",
+                    ),
+                    ParameterInfo(
+                        "optimize_materials",
+                        "bool",
+                        "True",
+                        "Whether to optimize materials for Unity",
+                    ),
                     ParameterInfo("bake_textures", "bool", "False", "Whether to bake textures"),
-                    ParameterInfo("lod_levels", "int", "0", "Number of LOD levels to generate (0 = no LOD)")
+                    ParameterInfo(
+                        "lod_levels", "int", "0", "Number of LOD levels to generate (0 = no LOD)"
+                    ),
                 ],
-                returns="str: Success message with export details"
+                returns="str: Success message with export details",
             )
         )
-        
+
         self._add_function(
             FunctionInfo(
                 name="export_for_vrchat",
                 category="Export",
                 description="Export the current scene for VRChat with performance limits.",
                 parameters=[
-                    ParameterInfo("output_path", "str", required=True, description="Path to save the VRM file"),
+                    ParameterInfo(
+                        "output_path", "str", required=True, description="Path to save the VRM file"
+                    ),
                     ParameterInfo("polygon_limit", "int", "20000", "Maximum allowed polygons"),
                     ParameterInfo("material_limit", "int", "8", "Maximum allowed materials"),
-                    ParameterInfo("texture_size_limit", "int", "1024", "Maximum texture size in pixels"),
-                    ParameterInfo("performance_rank", "str", "'Good'", "Target performance rank")
+                    ParameterInfo(
+                        "texture_size_limit", "int", "1024", "Maximum texture size in pixels"
+                    ),
+                    ParameterInfo("performance_rank", "str", "'Good'", "Target performance rank"),
                 ],
-                returns="str: Success message with export details"
+                returns="str: Success message with export details",
             )
         )
-        
+
         # Render Handler Functions
         self._add_function(
             FunctionInfo(
@@ -194,31 +240,41 @@ class HelpSystem:
                 category="Rendering",
                 description="Render a high-quality preview of the current scene.",
                 parameters=[
-                    ParameterInfo("output_path", "str", required=True, description="Path to save the rendered image"),
+                    ParameterInfo(
+                        "output_path",
+                        "str",
+                        required=True,
+                        description="Path to save the rendered image",
+                    ),
                     ParameterInfo("resolution_x", "int", "1920", "Horizontal resolution in pixels"),
                     ParameterInfo("resolution_y", "int", "1080", "Vertical resolution in pixels"),
                     ParameterInfo("samples", "int", "256", "Number of samples per pixel"),
                     ParameterInfo("use_denoising", "bool", "True", "Whether to use AI denoising"),
                     ParameterInfo("format", "str", "'PNG'", "Output image format"),
-                    ParameterInfo("quality", "int", "90", "Output quality (1-100)")
+                    ParameterInfo("quality", "int", "90", "Output quality (1-100)"),
                 ],
-                returns="str: Success message with render details"
+                returns="str: Success message with render details",
             )
         )
-        
+
         self._add_function(
             FunctionInfo(
                 name="render_turntable",
                 category="Rendering",
                 description="Render a 360-degree turntable animation of the current scene.",
                 parameters=[
-                    ParameterInfo("output_dir", "str", required=True, description="Directory to save rendered frames"),
+                    ParameterInfo(
+                        "output_dir",
+                        "str",
+                        required=True,
+                        description="Directory to save rendered frames",
+                    ),
                     ParameterInfo("frames", "int", "60", "Number of frames for the animation"),
                     ParameterInfo("resolution_x", "int", "1280", "Horizontal resolution in pixels"),
                     ParameterInfo("resolution_y", "int", "720", "Vertical resolution in pixels"),
-                    ParameterInfo("format", "str", "'PNG'", "Output image format")
+                    ParameterInfo("format", "str", "'PNG'", "Output image format"),
                 ],
-                returns="str: Success message with render details"
+                returns="str: Success message with render details",
             )
         )
 
@@ -229,11 +285,18 @@ class HelpSystem:
                 category="Help & Documentation",
                 description="Get comprehensive help for Blender MCP tools and functions.",
                 parameters=[
-                    ParameterInfo("function_name", "Optional[str]", "None", "Name of specific function to get help for"),
-                    ParameterInfo("category", "Optional[str]", "None", "Category to filter help by")
+                    ParameterInfo(
+                        "function_name",
+                        "Optional[str]",
+                        "None",
+                        "Name of specific function to get help for",
+                    ),
+                    ParameterInfo(
+                        "category", "Optional[str]", "None", "Category to filter help by"
+                    ),
                 ],
                 returns="str: Formatted help text with function signatures and examples",
-                example="blender_help('create_cube') or blender_help(category='Mesh Creation')"
+                example="blender_help('create_cube') or blender_help(category='Mesh Creation')",
             )
         )
 
@@ -243,10 +306,12 @@ class HelpSystem:
                 category="Help & Documentation",
                 description="List all available Blender MCP tools with descriptions.",
                 parameters=[
-                    ParameterInfo("category", "Optional[str]", "None", "Category to filter tools by")
+                    ParameterInfo(
+                        "category", "Optional[str]", "None", "Category to filter tools by"
+                    )
                 ],
                 returns="Dict: Tools organized by categories with descriptions",
-                example="blender_list_tools('Mesh Creation')"
+                example="blender_list_tools('Mesh Creation')",
             )
         )
 
@@ -256,10 +321,15 @@ class HelpSystem:
                 category="Help & Documentation",
                 description="Search for Blender MCP tools by name or description.",
                 parameters=[
-                    ParameterInfo("query", "str", required=True, description="Search term to match against tool names and descriptions")
+                    ParameterInfo(
+                        "query",
+                        "str",
+                        required=True,
+                        description="Search term to match against tool names and descriptions",
+                    )
                 ],
                 returns="Dict: Matching tools grouped by relevance (exact, name, description)",
-                example="blender_search_tools('cube')"
+                example="blender_search_tools('cube')",
             )
         )
 
@@ -269,10 +339,15 @@ class HelpSystem:
                 category="Help & Documentation",
                 description="Get detailed information about a specific Blender MCP tool.",
                 parameters=[
-                    ParameterInfo("tool_name", "str", required=True, description="Name of the tool to get information about")
+                    ParameterInfo(
+                        "tool_name",
+                        "str",
+                        required=True,
+                        description="Name of the tool to get information about",
+                    )
                 ],
                 returns="Dict: Comprehensive tool information including parameters and usage",
-                example="blender_tool_info('create_cube')"
+                example="blender_tool_info('create_cube')",
             )
         )
 
@@ -283,7 +358,7 @@ class HelpSystem:
                 description="Get information about all available tool categories.",
                 parameters=[],
                 returns="Dict: All categories with tool counts and examples",
-                example="blender_categories()"
+                example="blender_categories()",
             )
         )
 
@@ -293,12 +368,21 @@ class HelpSystem:
                 category="System Status",
                 description="Get comprehensive system status and health information.",
                 parameters=[
-                    ParameterInfo("include_blender_info", "bool", "True", "Include Blender-specific information"),
-                    ParameterInfo("include_system_info", "bool", "True", "Include general system information"),
-                    ParameterInfo("include_performance", "bool", "True", "Include performance metrics")
+                    ParameterInfo(
+                        "include_blender_info",
+                        "bool",
+                        "True",
+                        "Include Blender-specific information",
+                    ),
+                    ParameterInfo(
+                        "include_system_info", "bool", "True", "Include general system information"
+                    ),
+                    ParameterInfo(
+                        "include_performance", "bool", "True", "Include performance metrics"
+                    ),
                 ],
                 returns="Dict: Complete system status including MCP server, Blender, and performance data",
-                example="blender_status()"
+                example="blender_status()",
             )
         )
 
@@ -309,7 +393,7 @@ class HelpSystem:
                 description="Get detailed system and environment information.",
                 parameters=[],
                 returns="Dict: Detailed system information including Python packages and configuration",
-                example="blender_system_info()"
+                example="blender_system_info()",
             )
         )
 
@@ -320,7 +404,7 @@ class HelpSystem:
                 description="Perform a comprehensive health check of the Blender MCP system.",
                 parameters=[],
                 returns="Dict: Health check results with status indicators for all components",
-                example="blender_health_check()"
+                example="blender_health_check()",
             )
         )
 
@@ -330,37 +414,39 @@ class HelpSystem:
                 category="System Status",
                 description="Monitor system performance over a specified duration.",
                 parameters=[
-                    ParameterInfo("duration_seconds", "int", "10", "How long to monitor (max 60 seconds)")
+                    ParameterInfo(
+                        "duration_seconds", "int", "10", "How long to monitor (max 60 seconds)"
+                    )
                 ],
                 returns="Dict: Performance monitoring results with samples and summary statistics",
-                example="blender_performance_monitor(30)"
+                example="blender_performance_monitor(30)",
             )
         )
-    
+
     def _add_function(self, func_info: FunctionInfo):
         """Add a function to the help system."""
         self.functions[func_info.name] = func_info
-    
+
     def get_function(self, name: str) -> Optional[FunctionInfo]:
         """Get information about a specific function."""
         return self.functions.get(name)
-    
+
     def list_functions(self, category: Optional[str] = None) -> List[FunctionInfo]:
         """List all available functions, optionally filtered by category."""
         if category:
             return [f for f in self.functions.values() if f.category == category]
         return list(self.functions.values())
-    
+
     def get_categories(self) -> List[str]:
         """Get a list of all available categories."""
         return sorted({f.category for f in self.functions.values()})
-    
+
     def format_function_help(self, name: str) -> str:
         """Format help for a specific function as a string."""
         func = self.get_function(name)
         if not func:
             return f"No help found for function: {name}"
-        
+
         # Format parameters
         params = []
         for param in func.parameters:
@@ -372,41 +458,41 @@ class HelpSystem:
             if param.description:
                 param_str += f" - {param.description}"
             params.append(param_str)
-        
+
         # Build help string
         help_str = f"""{name}
-{'=' * len(name)}
+{"=" * len(name)}
 {func.description}
 
 Parameters:
 """
         help_str += "\n".join(params) + "\n"
-        
+
         if func.returns:
             help_str += f"\nReturns:\n  {func.returns}\n"
-            
+
         if func.example:
             help_str += f"\nExample:\n  {func.example}\n"
-            
+
         return help_str
-    
+
     def format_category_help(self, category: str) -> str:
         """Format help for all functions in a category."""
         funcs = [f for f in self.functions.values() if f.category == category]
         if not funcs:
             return f"No functions found in category: {category}"
-        
+
         help_str = f"{category} Functions\n{'=' * (len(category) + 10)}\n\n"
-        
+
         for func in sorted(funcs, key=lambda x: x.name):
             help_str += f"{func.name}: {func.description}\n"
             help_str += "  " + ", ".join([f"{p.name}: {p.type}" for p in func.parameters[:3]])
             if len(func.parameters) > 3:
-                help_str += f"... (+{len(func.parameters)-3} more)"
+                help_str += f"... (+{len(func.parameters) - 3} more)"
             help_str += "\n\n"
-            
+
         return help_str
-    
+
     def format_all_help(self) -> str:
         """Format help for all functions, grouped by category."""
         help_str = """Blender MCP Server Help
@@ -414,15 +500,15 @@ Parameters:
 
 Available Commands:
 """
-        
+
         for category in self.get_categories():
             help_str += f"\n{category}:\n"
             help_str += "-" * (len(category) + 1) + "\n"
-            
+
             funcs = [f for f in self.functions.values() if f.category == category]
             for func in sorted(funcs, key=lambda x: x.name):
                 help_str += f"  {func.name}: {func.description}\n"
-                
+
         help_str += """
 
 For detailed help on a specific function, use: help('function_name')
@@ -430,10 +516,16 @@ For functions in a specific category, use: help_category('category_name')
 """
         return help_str
 
+
 # Create a singleton instance
 help_system = HelpSystem()
 
-def get_help(function_name: Optional[str] = None, category: Optional[str] = None, detail_level: str = "normal") -> str:
+
+def get_help(
+    function_name: Optional[str] = None,
+    category: Optional[str] = None,
+    detail_level: str = "normal",
+) -> str:
     """Get help for a specific function or list all available functions.
 
     Args:
@@ -467,15 +559,23 @@ def get_help(function_name: Optional[str] = None, category: Optional[str] = None
             for cat in categories:
                 category_counts[cat] = len(help_system.list_functions(cat))
             total_tools = sum(category_counts.values())
-            return f"Blender MCP: {total_tools} tools across {len(categories)} categories\n" + "\n".join([f"• {cat}: {count} tools" for cat, count in category_counts.items()])
+            return (
+                f"Blender MCP: {total_tools} tools across {len(categories)} categories\n"
+                + "\n".join([f"• {cat}: {count} tools" for cat, count in category_counts.items()])
+            )
         elif detail_level == "detailed":
-            return help_system.format_all_help() + "\n\nDetailed parameter information available for each tool."
+            return (
+                help_system.format_all_help()
+                + "\n\nDetailed parameter information available for each tool."
+            )
         else:
             return help_system.format_all_help()
+
 
 def list_categories() -> List[str]:
     """List all available categories."""
     return help_system.get_categories()
+
 
 def list_functions(category: Optional[str] = None) -> List[str]:
     """List all available functions, optionally filtered by category."""

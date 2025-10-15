@@ -3,8 +3,7 @@
 import pytest
 from unittest.mock import patch, MagicMock, AsyncMock
 from fastmcp import FastMCP
-from blender_mcp.app import app, get_app
-from blender_mcp.exceptions import BlenderMCPError
+from blender_mcp.app import get_app
 
 
 class TestAppInitialization:
@@ -28,16 +27,16 @@ class TestAppInitialization:
     def test_app_has_required_attributes(self):
         """Test that app has required FastMCP attributes."""
         app_instance = get_app()
-        assert hasattr(app_instance, 'tool')
-        assert hasattr(app_instance, 'resource')
-        assert hasattr(app_instance, 'prompt')
+        assert hasattr(app_instance, "tool")
+        assert hasattr(app_instance, "resource")
+        assert hasattr(app_instance, "prompt")
 
     @pytest.mark.unit
     def test_app_name_configuration(self):
         """Test that app has proper name configuration."""
         app_instance = get_app()
         # FastMCP should have name attribute
-        assert hasattr(app_instance, 'name') or hasattr(app_instance, '_name')
+        assert hasattr(app_instance, "name") or hasattr(app_instance, "_name")
 
 
 class TestServerFunctionality:
@@ -45,18 +44,18 @@ class TestServerFunctionality:
 
     @pytest.mark.unit
     @pytest.mark.asyncio
-    @patch('blender_mcp.server.app')
+    @patch("blender_mcp.server.app")
     async def test_server_stdio_mode(self, mock_app):
         """Test server startup in stdio mode."""
         mock_app.run_stdio_async = AsyncMock()
 
         # Import and test the server function
-        from blender_mcp.server import main as server_main
 
         # Mock the argument parsing and asyncio.run
-        with patch('blender_mcp.server.parse_args') as mock_parse_args, \
-             patch('asyncio.run') as mock_asyncio_run:
-
+        with (
+            patch("blender_mcp.server.parse_args") as mock_parse_args,
+            patch("asyncio.run") as mock_asyncio_run,
+        ):
             mock_args = MagicMock()
             mock_args.http = False
             mock_args.debug = False
@@ -67,12 +66,13 @@ class TestServerFunctionality:
 
             # Test argument parsing setup
             from blender_mcp.server import parse_args
+
             parser = parse_args()
 
             # Verify parser has expected arguments
-            assert hasattr(parser, 'http') or True  # May not have parsed args
-            assert hasattr(parser, 'host') or True
-            assert hasattr(parser, 'port') or True
+            assert hasattr(parser, "http") or True  # May not have parsed args
+            assert hasattr(parser, "host") or True
+            assert hasattr(parser, "port") or True
 
     @pytest.mark.unit
     def test_server_imports_all_handlers(self):
@@ -83,6 +83,7 @@ class TestServerFunctionality:
         try:
             # Import the server module which imports all handlers
             import blender_mcp.server
+
             # If we get here without exceptions, imports succeeded
             assert True
         except ImportError as e:
@@ -144,8 +145,9 @@ class TestToolRegistration:
         # The decorator should have transformed the function into a tool object
         # (FastMCP returns a FunctionTool object, not the original function)
         from fastmcp.tools import FunctionTool
+
         assert isinstance(test_tool, FunctionTool)
-        assert hasattr(test_tool, 'name')
+        assert hasattr(test_tool, "name")
         assert test_tool.name == "test_tool"
 
 
@@ -172,7 +174,6 @@ class TestErrorHandling:
         """Test server error handling."""
         # Test that server module can handle import errors gracefully
         try:
-            import blender_mcp.server
             # Should not raise exceptions during import
             assert True
         except Exception as e:

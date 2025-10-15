@@ -4,13 +4,13 @@ Furniture and complex object creation tools for Blender MCP.
 Provides tools for creating complex objects like furniture, buildings, and structures.
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Optional, Tuple, Union
+from typing import Tuple
 from blender_mcp.app import get_app
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -25,15 +25,15 @@ def _register_furniture_tools():
         style: str = "modern",
         dimensions: Tuple[float, float, float] = (1, 1, 1),
         location: Tuple[float, float, float] = (0, 0, 0),
-    material: str = "wood",
-    chair_type: str = "dining",
-    table_type: str = "dining",
-    bed_type: str = "single",
-    sofa_type: str = "three_seater",
-    cabinet_type: str = "kitchen",
-    desk_type: str = "office",
-    shelf_type: str = "bookshelf",
-    stool_type: str = "bar"
+        material: str = "wood",
+        chair_type: str = "dining",
+        table_type: str = "dining",
+        bed_type: str = "single",
+        sofa_type: str = "three_seater",
+        cabinet_type: str = "kitchen",
+        desk_type: str = "office",
+        shelf_type: str = "bookshelf",
+        stool_type: str = "bar",
     ) -> str:
         """
         Create furniture and complex objects in Blender.
@@ -62,17 +62,32 @@ def _register_furniture_tools():
             Success message with creation details
         """
         from blender_mcp.handlers.furniture_handler import (
-            create_chair, create_table, create_bed, create_sofa,
-            create_cabinet, create_desk, create_shelf, create_stool
+            create_chair,
+            create_table,
+            create_bed,
+            create_sofa,
+            create_cabinet,
+            create_desk,
+            create_shelf,
+            create_stool,
         )
 
         from loguru import logger
+
         logger.info(f"🪑 blender_furniture called with operation='{operation}', name='{name}'")
 
         try:
             # Convert tuple parameters to proper formats
-            dimensions_tuple = tuple(float(x) for x in dimensions) if hasattr(dimensions, '__iter__') and not isinstance(dimensions, str) else dimensions
-            location_tuple = tuple(float(x) for x in location) if hasattr(location, '__iter__') and not isinstance(location, str) else location
+            dimensions_tuple = (
+                tuple(float(x) for x in dimensions)
+                if hasattr(dimensions, "__iter__") and not isinstance(dimensions, str)
+                else dimensions
+            )
+            location_tuple = (
+                tuple(float(x) for x in location)
+                if hasattr(location, "__iter__") and not isinstance(location, str)
+                else location
+            )
 
             # Validate 3-element vectors
             if len(dimensions_tuple) != 3:
@@ -87,7 +102,7 @@ def _register_furniture_tools():
                     style=style,
                     dimensions=dimensions_tuple,
                     location=location_tuple,
-                    material=material
+                    material=material,
                 )
 
             elif operation == "create_table":
@@ -97,7 +112,7 @@ def _register_furniture_tools():
                     style=style,
                     dimensions=dimensions_tuple,
                     location=location_tuple,
-                    material=material
+                    material=material,
                 )
 
             elif operation == "create_bed":
@@ -107,7 +122,7 @@ def _register_furniture_tools():
                     style=style,
                     dimensions=dimensions_tuple,
                     location=location_tuple,
-                    material=material
+                    material=material,
                 )
 
             elif operation == "create_sofa":
@@ -117,7 +132,7 @@ def _register_furniture_tools():
                     style=style,
                     dimensions=dimensions_tuple,
                     location=location_tuple,
-                    material=material
+                    material=material,
                 )
 
             elif operation == "create_cabinet":
@@ -127,7 +142,7 @@ def _register_furniture_tools():
                     style=style,
                     dimensions=dimensions_tuple,
                     location=location_tuple,
-                    material=material
+                    material=material,
                 )
 
             elif operation == "create_desk":
@@ -137,7 +152,7 @@ def _register_furniture_tools():
                     style=style,
                     dimensions=dimensions_tuple,
                     location=location_tuple,
-                    material=material
+                    material=material,
                 )
 
             elif operation == "create_shelf":
@@ -147,7 +162,7 @@ def _register_furniture_tools():
                     style=style,
                     dimensions=dimensions_tuple,
                     location=location_tuple,
-                    material=material
+                    material=material,
                 )
 
             elif operation == "create_stool":
@@ -157,7 +172,7 @@ def _register_furniture_tools():
                     style=style,
                     dimensions=dimensions_tuple,
                     location=location_tuple,
-                    material=material
+                    material=material,
                 )
 
             else:

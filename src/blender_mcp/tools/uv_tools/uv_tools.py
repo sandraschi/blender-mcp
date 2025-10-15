@@ -4,13 +4,12 @@ UV tools for Blender MCP.
 Provides tools for UV mapping, unwrapping, and texture coordinate management.
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Optional, Tuple, Union
 from blender_mcp.app import get_app
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -22,8 +21,8 @@ def _register_uv_tools():
     async def blender_uv(
         operation: str = "unwrap",
         object_name: str = "",
-    unwrap_method: str = "ANGLE_BASED",
-    margin: float = 0.001
+        unwrap_method: str = "ANGLE_BASED",
+        margin: float = 0.001,
     ) -> str:
         """
         Manage UV mapping and texture coordinates.
@@ -47,53 +46,44 @@ def _register_uv_tools():
             Success message with UV operation details
         """
         from blender_mcp.handlers.uv_handler import (
-            unwrap, project_from_view, reset_uvs, get_uv_info
+            unwrap,
+            project_from_view,
+            reset_uvs,
+            get_uv_info,
         )
 
         try:
             if operation == "unwrap":
                 if not object_name:
                     return "object_name parameter required"
-                return await unwrap(
-                    object_name=object_name,
-                    method=unwrap_method,
-                    margin=margin
-                )
+                return await unwrap(object_name=object_name, method=unwrap_method, margin=margin)
 
             elif operation == "smart_project":
                 if not object_name:
                     return "object_name parameter required"
                 return await project_from_view(
-                    object_name=object_name,
-                    project_type="SMART_UV",
-                    margin=margin
+                    object_name=object_name, project_type="SMART_UV", margin=margin
                 )
 
             elif operation == "cube_project":
                 if not object_name:
                     return "object_name parameter required"
                 return await project_from_view(
-                    object_name=object_name,
-                    project_type="CUBE",
-                    margin=margin
+                    object_name=object_name, project_type="CUBE", margin=margin
                 )
 
             elif operation == "cylinder_project":
                 if not object_name:
                     return "object_name parameter required"
                 return await project_from_view(
-                    object_name=object_name,
-                    project_type="CYLINDER",
-                    margin=margin
+                    object_name=object_name, project_type="CYLINDER", margin=margin
                 )
 
             elif operation == "sphere_project":
                 if not object_name:
                     return "object_name parameter required"
                 return await project_from_view(
-                    object_name=object_name,
-                    project_type="SPHERE",
-                    margin=margin
+                    object_name=object_name, project_type="SPHERE", margin=margin
                 )
 
             elif operation == "reset_uvs":

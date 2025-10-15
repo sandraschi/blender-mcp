@@ -3,9 +3,6 @@
 This module provides scene management functions that can be registered as FastMCP tools.
 """
 
-from typing import List, Optional
-from loguru import logger
-
 from blender_mcp.compat import *
 from blender_mcp.utils.blender_executor import get_blender_executor
 from blender_mcp.decorators import blender_operation
@@ -14,14 +11,15 @@ from blender_mcp.decorators import blender_operation
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()
 
+
 # @app.tool  # Will be registered manually
 @blender_operation("create_scene")
 async def create_scene(scene_name: str = "NewScene") -> str:
     """Create a new Blender scene with the specified name.
-    
+
     Args:
         scene_name: Name for the new scene (default: "NewScene")
-        
+
     Returns:
         str: Confirmation message with the created scene name
     """
@@ -37,19 +35,20 @@ bpy.context.scene.name = "{scene_name}"
 print(f"Scene created: {{bpy.context.scene.name}}")
 print(f"Objects in scene: {{len(bpy.context.scene.objects)}}")
 '''
-    
+
     output = await _executor.execute_script(script)
     return f"Created scene: {scene_name}"
+
 
 # @app.tool  # Will be registered manually
 @blender_operation("list_scenes")
 async def list_scenes() -> str:
     """List all scenes in the current Blender file.
-    
+
     Returns:
         str: Formatted list of all scenes with object counts
     """
-    script = '''
+    script = """
 
 scenes = []
 for scene in bpy.data.scenes:
@@ -59,19 +58,20 @@ for scene in bpy.data.scenes:
 print("SCENES:")
 for scene in scenes:
     print(f"- {scene}")
-'''
+"""
     output = await _executor.execute_script(script)
     return "Listed all scenes"
+
 
 # @app.tool  # Will be registered manually
 @blender_operation("clear_scene")
 async def clear_scene() -> str:
     """Remove all objects from the current scene.
-    
+
     Returns:
         str: Confirmation message
     """
-    script = '''
+    script = """
 
 # Select and delete all objects
 bpy.ops.object.select_all(action='SELECT')
@@ -83,7 +83,7 @@ for material in bpy.data.materials:
         bpy.data.materials.remove(material)
 
 print("Scene cleared")
-'''
+"""
     output = await _executor.execute_script(script)
     return "Cleared the current scene"
 
@@ -92,10 +92,10 @@ print("Scene cleared")
 @blender_operation("set_active_scene")
 async def set_active_scene(scene_name: str) -> str:
     """Set the active scene by name.
-    
+
     Args:
         scene_name: Name of the scene to make active
-        
+
     Returns:
         str: Confirmation message
     """
@@ -114,11 +114,11 @@ else:
 @blender_operation("link_object_to_scene")
 async def link_object_to_scene(object_name: str, scene_name: str) -> str:
     """Link an object to a scene.
-    
+
     Args:
         object_name: Name of the object to link
         scene_name: Name of the target scene
-        
+
     Returns:
         str: Confirmation message
     """
@@ -142,10 +142,10 @@ else:
 @blender_operation("create_collection")
 async def create_collection(collection_name: str) -> str:
     """Create a new collection.
-    
+
     Args:
         collection_name: Name for the new collection
-        
+
     Returns:
         str: Confirmation message
     """
@@ -164,11 +164,11 @@ else:
 @blender_operation("add_to_collection")
 async def add_to_collection(collection_name: str, object_name: str) -> str:
     """Add an object to a collection.
-    
+
     Args:
         collection_name: Name of the collection
         object_name: Name of the object to add
-        
+
     Returns:
         str: Confirmation message
     """
@@ -197,10 +197,10 @@ else:
 @blender_operation("set_active_collection")
 async def set_active_collection(collection_name: str) -> str:
     """Set the active collection.
-    
+
     Args:
         collection_name: Name of the collection to make active
-        
+
     Returns:
         str: Confirmation message
     """
@@ -221,10 +221,10 @@ else:
 @blender_operation("set_view_layer")
 async def set_view_layer(layer_name: str) -> str:
     """Set the active view layer.
-    
+
     Args:
         layer_name: Name of the view layer to make active
-        
+
     Returns:
         str: Confirmation message
     """
@@ -241,16 +241,20 @@ else:
 
 # @app.tool  # Will be registered manually
 @blender_operation("setup_lighting")
-async def setup_lighting(light_type: str = "SUN", location: tuple = (0, 0, 5), 
-                        rotation: tuple = (0.785398, 0, 0), energy: float = 1.0) -> str:
+async def setup_lighting(
+    light_type: str = "SUN",
+    location: tuple = (0, 0, 5),
+    rotation: tuple = (0.785398, 0, 0),
+    energy: float = 1.0,
+) -> str:
     """Set up basic lighting in the scene.
-    
+
     Args:
         light_type: Type of light (POINT, SUN, SPOT, AREA)
         location: Position of the light
         rotation: Rotation of the light in radians
         energy: Light intensity
-        
+
     Returns:
         str: Confirmation message
     """
@@ -278,19 +282,20 @@ print(f"Added {{light_type}} light to scene")
 
 # @app.tool  # Will be registered manually
 @blender_operation("setup_camera")
-async def setup_camera(location: tuple = (0, -5, 2), rotation: tuple = (1.0, 0, 0), 
-                      lens: float = 50.0) -> str:
+async def setup_camera(
+    location: tuple = (0, -5, 2), rotation: tuple = (1.0, 0, 0), lens: float = 50.0
+) -> str:
     """Set up a camera in the scene.
-    
+
     Args:
         location: Position of the camera
         rotation: Rotation of the camera in radians
         lens: Focal length of the camera in mm
-        
+
     Returns:
         str: Confirmation message
     """
-    script = f'''
+    script = f"""
 import bpy
 
 # Clear existing cameras
@@ -310,23 +315,24 @@ camera_object.rotation_euler = {list(rotation)}
 bpy.context.scene.camera = camera_object
 
 print("Set up camera in the scene")
-'''
+"""
     output = await _executor.execute_script(script)
     return "Set up camera in the scene"
 
 
 # @app.tool  # Will be registered manually
 @blender_operation("set_render_settings")
-async def set_render_settings(resolution_x: int = 1920, resolution_y: int = 1080, 
-                            engine: str = "CYCLES", samples: int = 128) -> str:
+async def set_render_settings(
+    resolution_x: int = 1920, resolution_y: int = 1080, engine: str = "CYCLES", samples: int = 128
+) -> str:
     """Configure render settings.
-    
+
     Args:
         resolution_x: Horizontal resolution
         resolution_y: Vertical resolution
         engine: Render engine (CYCLES, EEVEE, WORKBENCH)
         samples: Number of samples for rendering
-        
+
     Returns:
         str: Confirmation message
     """

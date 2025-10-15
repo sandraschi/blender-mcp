@@ -7,8 +7,7 @@ This module provides advanced rendering functionality for Blender scenes,
 including EEVEE and Cycles render engine configuration, post-processing effects,
 render layer management, and output configuration.
 """
-from typing import Any, Dict, List, Optional, Tuple, Union
-import json
+from typing import Any, Dict, Union
 import logging
 
 from ..decorators import blender_operation
@@ -21,26 +20,29 @@ logger = logging.getLogger(__name__)
 _executor = BlenderExecutor()
 
 # Constants for render engines
-RENDER_ENGINE_EEVEE = 'BLENDER_EEVEE'
-RENDER_ENGINE_CYCLES = 'CYCLES'
-RENDER_ENGINE_WORKBENCH = 'BLENDER_WORKBENCH'
+RENDER_ENGINE_EEVEE = "BLENDER_EEVEE"
+RENDER_ENGINE_CYCLES = "CYCLES"
+RENDER_ENGINE_WORKBENCH = "BLENDER_WORKBENCH"
+
 
 class RenderEngineType:
     """Enum for render engine types."""
+
     EEVEE = RENDER_ENGINE_EEVEE
     CYCLES = RENDER_ENGINE_CYCLES
     WORKBENCH = RENDER_ENGINE_WORKBENCH
 
+
 @blender_operation("set_render_engine", log_args=True)
 async def set_render_engine(
     engine: Union[RenderEngineType, str] = RENDER_ENGINE_EEVEE,
-    device: str = 'GPU',
+    device: str = "GPU",
     use_denoising: bool = True,
     samples: int = 64,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Set the active render engine and its basic configuration.
-    
+
     Args:
         engine: Render engine to use (EEVEE, CYCLES, or WORKBENCH)
         device: Compute device to use ('CPU', 'GPU', or 'GPU_COMPATIBLE')
@@ -54,7 +56,7 @@ async def set_render_engine(
             - motion_blur_steps: For EEVEE (default: 1)
             - use_bloom: For EEVEE (default: True)
             - bloom_threshold: For EEVEE (default: 1.0)
-            
+
     Returns:
         Dict containing operation status and render settings
     """
@@ -63,18 +65,18 @@ async def set_render_engine(
     if engine not in valid_engines:
         return {
             "status": "ERROR",
-            "error": f"Invalid render engine. Must be one of: {', '.join(valid_engines)}"
+            "error": f"Invalid render engine. Must be one of: {', '.join(valid_engines)}",
         }
-    
+
     # Get additional settings with defaults
-    use_adaptive_sampling = kwargs.get('use_adaptive_sampling', True)
-    adaptive_threshold = kwargs.get('adaptive_threshold', 0.01)
-    tile_size = kwargs.get('tile_size', 2048)
-    use_motion_blur = kwargs.get('use_motion_blur', True)
-    motion_blur_steps = kwargs.get('motion_blur_steps', 1)
-    use_bloom = kwargs.get('use_bloom', True)
-    bloom_threshold = kwargs.get('bloom_threshold', 1.0)
-    
+    use_adaptive_sampling = kwargs.get("use_adaptive_sampling", True)
+    adaptive_threshold = kwargs.get("adaptive_threshold", 0.01)
+    tile_size = kwargs.get("tile_size", 2048)
+    use_motion_blur = kwargs.get("use_motion_blur", True)
+    motion_blur_steps = kwargs.get("motion_blur_steps", 1)
+    use_bloom = kwargs.get("use_bloom", True)
+    bloom_threshold = kwargs.get("bloom_threshold", 1.0)
+
     script = f"""
 
 def configure_render_engine():
@@ -131,13 +133,14 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
         logger.error(f"Failed to set render engine: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
+
 
 @blender_operation("configure_render_layers", log_args=True)
 async def configure_render_layers(
@@ -163,10 +166,10 @@ async def configure_render_layers(
     use_pass_cryptomatte_material: bool = False,
     use_pass_cryptomatte_asset: bool = False,
     use_pass_shadow_catcher: bool = False,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Configure render layers and passes for advanced rendering.
-    
+
     Args:
         layer_name: Name of the render layer to configure
         use_pass_*: Enable/disable specific render passes
@@ -181,22 +184,22 @@ async def configure_render_layers(
             - use_all_z: Use all Z values (default: False)
             - exclude_raytrace: Exclude from raytracing (default: False)
             - light_override: Override light settings (default: None)
-            
+
     Returns:
         Dict containing operation status and render layer configuration
     """
     # Get additional settings with defaults
-    use_solid = kwargs.get('use_solid', True)
-    use_halo = kwargs.get('use_halo', True)
-    use_ztransp = kwargs.get('use_ztransp', True)
-    use_strand = kwargs.get('use_strand', True)
-    use_freestyle = kwargs.get('use_freestyle', False)
-    use_sky = kwargs.get('use_sky', True)
-    use_edge_enhance = kwargs.get('use_edge_enhance', False)
-    use_all_z = kwargs.get('use_all_z', False)
-    exclude_raytrace = kwargs.get('exclude_raytrace', False)
-    light_override = kwargs.get('light_override', None)
-    
+    use_solid = kwargs.get("use_solid", True)
+    use_halo = kwargs.get("use_halo", True)
+    use_ztransp = kwargs.get("use_ztransp", True)
+    use_strand = kwargs.get("use_strand", True)
+    use_freestyle = kwargs.get("use_freestyle", False)
+    use_sky = kwargs.get("use_sky", True)
+    use_edge_enhance = kwargs.get("use_edge_enhance", False)
+    use_all_z = kwargs.get("use_all_z", False)
+    exclude_raytrace = kwargs.get("exclude_raytrace", False)
+    light_override = kwargs.get("light_override", None)
+
     script = f"""
 
 def configure_layers():
@@ -289,7 +292,7 @@ print(str(result))
         use_edge_enhance=use_edge_enhance,
         use_all_z=use_all_z,
         exclude_raytrace=exclude_raytrace,
-        light_override=light_override or '',
+        light_override=light_override or "",
         use_pass_combined=use_pass_combined,
         use_pass_z=use_pass_z,
         use_pass_normal=use_pass_normal,
@@ -310,9 +313,9 @@ print(str(result))
         use_pass_cryptomatte_object=use_pass_cryptomatte_object,
         use_pass_cryptomatte_material=use_pass_cryptomatte_material,
         use_pass_cryptomatte_asset=use_pass_cryptomatte_asset,
-        use_pass_shadow_catcher=use_pass_shadow_catcher
+        use_pass_shadow_catcher=use_pass_shadow_catcher,
     )
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -320,16 +323,17 @@ print(str(result))
         logger.error(f"Failed to configure render layers: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("setup_post_processing", log_args=True)
 async def setup_post_processing(
     use_bloom: bool = True,
     use_ssao: bool = True,
     use_motion_blur: bool = False,
     use_dof: bool = False,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Configure post-processing effects for the render.
-    
+
     Args:
         use_bloom: Enable bloom effect (default: True)
         use_ssao: Enable screen space ambient occlusion (default: True)
@@ -401,101 +405,84 @@ async def setup_post_processing(
             - use_compositing: Enable node-based compositing (default: True)
             - use_auto_tile: Enable auto-tile rendering (default: False)
             - tile_size: Tile size for rendering (default: 2048)
-    
+
     Returns:
         Dict containing operation status and post-processing settings
     """
     # Get all settings with defaults
     settings = {
         # Bloom
-        'bloom_threshold': kwargs.get('bloom_threshold', 1.0),
-        'bloom_radius': kwargs.get('bloom_radius', 6.5),
-        'bloom_color': kwargs.get('bloom_color', (1.0, 1.0, 1.0)),
-        
+        "bloom_threshold": kwargs.get("bloom_threshold", 1.0),
+        "bloom_radius": kwargs.get("bloom_radius", 6.5),
+        "bloom_color": kwargs.get("bloom_color", (1.0, 1.0, 1.0)),
         # SSAO
-        'ssao_factor': kwargs.get('ssao_factor', 1.0),
-        'ssao_distance': kwargs.get('ssao_distance', 0.2),
-        
+        "ssao_factor": kwargs.get("ssao_factor", 1.0),
+        "ssao_distance": kwargs.get("ssao_distance", 0.2),
         # Motion Blur
-        'motion_blur_shutter': kwargs.get('motion_blur_shutter', 0.5),
-        
+        "motion_blur_shutter": kwargs.get("motion_blur_shutter", 0.5),
         # Depth of Field
-        'dof_focus_object': kwargs.get('dof_focus_object', ''),
-        'dof_focus_distance': kwargs.get('dof_focus_distance', 10.0),
-        'dof_fstop': kwargs.get('dof_fstop', 2.8),
-        'dof_blades': kwargs.get('dof_blades', 0),
-        
+        "dof_focus_object": kwargs.get("dof_focus_object", ""),
+        "dof_focus_distance": kwargs.get("dof_focus_distance", 10.0),
+        "dof_fstop": kwargs.get("dof_fstop", 2.8),
+        "dof_blades": kwargs.get("dof_blades", 0),
         # Volumetrics
-        'use_volumetric_lights': kwargs.get('use_volumetric_lights', True),
-        'use_volumetric_shadows': kwargs.get('use_volumetric_shadows', True),
-        'volumetric_tile_size': kwargs.get('volumetric_tile_size', '2'),
-        'volumetric_samples': kwargs.get('volumetric_samples', 4),
-        
+        "use_volumetric_lights": kwargs.get("use_volumetric_lights", True),
+        "use_volumetric_shadows": kwargs.get("use_volumetric_shadows", True),
+        "volumetric_tile_size": kwargs.get("volumetric_tile_size", "2"),
+        "volumetric_samples": kwargs.get("volumetric_samples", 4),
         # SSS
-        'use_subsurface_scattering': kwargs.get('use_subsurface_scattering', True),
-        'sss_samples': kwargs.get('sss_samples', 4),
-        
+        "use_subsurface_scattering": kwargs.get("use_subsurface_scattering", True),
+        "sss_samples": kwargs.get("sss_samples", 4),
         # Screen Space Reflections
-        'use_screen_space_reflections': kwargs.get('use_screen_space_reflections', True),
-        'ssr_quality': kwargs.get('ssr_quality', 0.5),
-        'ssr_thickness': kwargs.get('ssr_thickness', 0.2),
-        'ssr_max_roughness': kwargs.get('ssr_max_roughness', 0.5),
-        
+        "use_screen_space_reflections": kwargs.get("use_screen_space_reflections", True),
+        "ssr_quality": kwargs.get("ssr_quality", 0.5),
+        "ssr_thickness": kwargs.get("ssr_thickness", 0.2),
+        "ssr_max_roughness": kwargs.get("ssr_max_roughness", 0.5),
         # Anti-aliasing
-        'use_taa': kwargs.get('use_taa', True),
-        'taa_samples': kwargs.get('taa_samples', 16),
-        'use_fxaa': kwargs.get('use_fxaa', False),
-        
+        "use_taa": kwargs.get("use_taa", True),
+        "taa_samples": kwargs.get("taa_samples", 16),
+        "use_fxaa": kwargs.get("use_fxaa", False),
         # Quality
-        'use_high_quality_normals': kwargs.get('use_high_quality_normals', True),
-        'use_soft_shadows': kwargs.get('use_soft_shadows', True),
-        'shadow_quality': kwargs.get('shadow_quality', 'HIGH'),
-        
+        "use_high_quality_normals": kwargs.get("use_high_quality_normals", True),
+        "use_soft_shadows": kwargs.get("use_soft_shadows", True),
+        "shadow_quality": kwargs.get("shadow_quality", "HIGH"),
         # Ambient Occlusion
-        'use_ambient_occlusion': kwargs.get('use_ambient_occlusion', True),
-        'ao_factor': kwargs.get('ao_factor', 1.0),
-        'ao_distance': kwargs.get('ao_distance', 0.2),
-        
+        "use_ambient_occlusion": kwargs.get("use_ambient_occlusion", True),
+        "ao_factor": kwargs.get("ao_factor", 1.0),
+        "ao_distance": kwargs.get("ao_distance", 0.2),
         # Glow
-        'glow_threshold': kwargs.get('glow_threshold', 1.0),
-        'glow_color': kwargs.get('glow_color', (1.0, 1.0, 1.0)),
-        'glow_radius': kwargs.get('glow_radius', 3.0),
-        
+        "glow_threshold": kwargs.get("glow_threshold", 1.0),
+        "glow_color": kwargs.get("glow_color", (1.0, 1.0, 1.0)),
+        "glow_radius": kwargs.get("glow_radius", 3.0),
         # Vignette
-        'vignette_scale': kwargs.get('vignette_scale', 1.0),
-        
+        "vignette_scale": kwargs.get("vignette_scale", 1.0),
         # Color Grading
-        'exposure': kwargs.get('exposure', 0.0),
-        'gamma': kwargs.get('gamma', 1.0),
-        'contrast': kwargs.get('contrast', 1.0),
-        'saturation': kwargs.get('saturation', 1.0),
-        'brightness': kwargs.get('brightness', 1.0),
-        'rgb_curves': kwargs.get('rgb_curves', []),
-        
+        "exposure": kwargs.get("exposure", 0.0),
+        "gamma": kwargs.get("gamma", 1.0),
+        "contrast": kwargs.get("contrast", 1.0),
+        "saturation": kwargs.get("saturation", 1.0),
+        "brightness": kwargs.get("brightness", 1.0),
+        "rgb_curves": kwargs.get("rgb_curves", []),
         # Lens Effects
-        'distortion': kwargs.get('distortion', 0.0),
-        'dispersion': kwargs.get('dispersion', 0.0),
-        
+        "distortion": kwargs.get("distortion", 0.0),
+        "dispersion": kwargs.get("dispersion", 0.0),
         # Film Grain
-        'grain_scale': kwargs.get('grain_scale', 1.0),
-        'grain_strength': kwargs.get('grain_strength', 0.1),
-        
+        "grain_scale": kwargs.get("grain_scale", 1.0),
+        "grain_strength": kwargs.get("grain_strength", 0.1),
         # Mist/Atmosphere
-        'mist_start': kwargs.get('mist_start', 5.0),
-        'mist_depth': kwargs.get('mist_depth', 25.0),
-        'mist_falloff': kwargs.get('mist_falloff', 'QUADRATIC'),
-        
+        "mist_start": kwargs.get("mist_start", 5.0),
+        "mist_depth": kwargs.get("mist_depth", 25.0),
+        "mist_falloff": kwargs.get("mist_falloff", "QUADRATIC"),
         # Stereo
-        'stereo_mode': kwargs.get('stereo_mode', 'STEREO'),
-        'stereo_eye_separation': kwargs.get('stereo_eye_separation', 0.065),
-        
+        "stereo_mode": kwargs.get("stereo_mode", "STEREO"),
+        "stereo_eye_separation": kwargs.get("stereo_eye_separation", 0.065),
         # Rendering
-        'tile_size': kwargs.get('tile_size', 2048)
+        "tile_size": kwargs.get("tile_size", 2048),
     }
-    
+
     # Convert settings to strings for the script
-    settings_str = '\n'.join(f'    {k} = {repr(v)}' for k, v in settings.items())
-    
+    settings_str = "\n".join(f"    {k} = {repr(v)}" for k, v in settings.items())
+
     script = f"""
 
 def setup_post_processing():
@@ -536,8 +523,8 @@ def setup_post_processing():
         scene.camera.data.dof.aperture_blades = dof_blades
     
     # Volumetrics
-    eevee.use_volumetric_lights = {str(settings['use_volumetric_lights']).lower()}
-    eevee.use_volumetric_shadows = {str(settings['use_volumetric_shadows']).lower()}
+    eevee.use_volumetric_lights = {str(settings["use_volumetric_lights"]).lower()}
+    eevee.use_volumetric_shadows = {str(settings["use_volumetric_shadows"]).lower()}
     eevee.volumetric_tile_size = volumetric_tile_size
     eevee.volumetric_samples = volumetric_samples
     
@@ -545,17 +532,17 @@ def setup_post_processing():
     eevee.sss_samples = sss_samples
     
     # Screen Space Reflections
-    eevee.use_ssr = {str(settings['use_screen_space_reflections']).lower()}
-    eevee.use_ssr_refraction = {str(settings['use_screen_space_reflections']).lower()}
+    eevee.use_ssr = {str(settings["use_screen_space_reflections"]).lower()}
+    eevee.use_ssr_refraction = {str(settings["use_screen_space_reflections"]).lower()}
     eevee.ssr_quality = ssr_quality
     eevee.ssr_thickness = ssr_thickness
     eevee.ssr_max_roughness = ssr_max_roughness
     
     # Anti-aliasing
     eevee.taa_render_samples = taa_samples
-    eevee.use_taa_reprojection = {str(settings['use_taa']).lower()}
-    eevee.use_taa = {str(settings['use_taa']).lower()}
-    eevee.use_gtao = {str(settings['use_ambient_occlusion']).lower()}
+    eevee.use_taa_reprojection = {str(settings["use_taa"]).lower()}
+    eevee.use_taa = {str(settings["use_taa"]).lower()}
+    eevee.use_gtao = {str(settings["use_ambient_occlusion"]).lower()}
     
     # Shadows
     eevee.shadow_cube_size = '1024' if shadow_quality in ['HIGH', 'ULTRA'] else '512'
@@ -589,7 +576,7 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}

@@ -11,9 +11,9 @@ import sys
 import os
 
 # Add src to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from blender_mcp.tools.download_tools import blender_download, blender_download_info
+from blender_mcp.tools.download_tools import blender_download_info
 
 
 async def demo_download_tools():
@@ -25,7 +25,7 @@ async def demo_download_tools():
     print("1. Getting information about supported download formats:")
     info = await blender_download_info()
     print(info)
-    print("\n" + "="*60 + "\n")
+    print("\n" + "=" * 60 + "\n")
 
     # Example download URLs (these are examples - replace with real URLs)
     example_urls = [
@@ -33,11 +33,9 @@ async def demo_download_tools():
         ("https://example.com/katana.obj", "OBJ model file"),
         ("https://example.com/character.fbx", "FBX character model"),
         ("https://example.com/scene.gltf", "glTF scene file"),
-
         # Textures
         ("https://example.com/texture.png", "PNG texture"),
         ("https://example.com/normal.jpg", "Normal map texture"),
-
         # Other formats
         ("https://example.com/model.stl", "STL 3D print file"),
         ("https://example.com/data.abc", "Alembic animation cache"),
@@ -54,7 +52,9 @@ async def demo_download_tools():
     print('# blender_download(url="https://example.com/texture.png", import_into_scene=False)')
     print()
     print("# Download with custom filename")
-    print('# blender_download(url="https://example.com/model.obj", custom_filename="my_custom_model")')
+    print(
+        '# blender_download(url="https://example.com/model.obj", custom_filename="my_custom_model")'
+    )
     print()
     print("# Download with longer timeout for large files")
     print('# blender_download(url="https://example.com/large_model.fbx", timeout=120)')

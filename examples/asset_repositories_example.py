@@ -12,7 +12,7 @@ from blender_mcp.handlers.asset_repository_handler import (
     list_available_assets,
     search_assets,
     AssetRepository,
-    AssetType
+    AssetType,
 )
 
 
@@ -23,14 +23,11 @@ async def example_kenney_assets():
     result = await download_and_import_asset(
         repository=AssetRepository.KENNEY,
         asset_name="fantasy-town-kit",
-        import_options={
-            "scale": 1.0,
-            "location": [0, 0, 0]
-        }
+        import_options={"scale": 1.0, "location": [0, 0, 0]},
     )
 
     print(f"✅ Result: {result['status']}")
-    if result['status'] == 'SUCCESS':
+    if result["status"] == "SUCCESS":
         print(f"📦 Downloaded: {result['asset_name']}")
         print(f"📁 Files: {len(result.get('all_downloaded_files', []))}")
     else:
@@ -44,14 +41,11 @@ async def example_quaternius_assets():
     result = await download_and_import_asset(
         repository=AssetRepository.QUATERNIUS,
         asset_name="ultimate-space-kit",
-        import_options={
-            "scale": 0.5,
-            "location": [10, 0, 0]
-        }
+        import_options={"scale": 0.5, "location": [10, 0, 0]},
     )
 
     print(f"✅ Result: {result['status']}")
-    if result['status'] == 'SUCCESS':
+    if result["status"] == "SUCCESS":
         print(f"📦 Downloaded: {result['asset_name']}")
         print(f"📁 Files: {len(result.get('all_downloaded_files', []))}")
     else:
@@ -68,17 +62,12 @@ async def example_opengameart_assets():
     result = await download_and_import_asset(
         repository=AssetRepository.OPEN_GAME_ART,
         asset_name="community_asset",
-        repository_specific_params={
-            "url": example_url
-        },
-        import_options={
-            "scale": 1.0,
-            "location": [0, 10, 0]
-        }
+        repository_specific_params={"url": example_url},
+        import_options={"scale": 1.0, "location": [0, 10, 0]},
     )
 
     print(f"✅ Result: {result['status']}")
-    if result['status'] == 'SUCCESS':
+    if result["status"] == "SUCCESS":
         print("📦 Downloaded from OpenGameArt")
     else:
         print(f"❌ Error: {result['error']}")
@@ -91,16 +80,12 @@ async def example_polyhaven_hdri():
     result = await download_and_import_asset(
         repository=AssetRepository.POLY_HAVEN,
         asset_name="lebombo",
-        repository_specific_params={
-            "type": "hdris"
-        },
-        import_options={
-            "format": "hdr"
-        }
+        repository_specific_params={"type": "hdris"},
+        import_options={"format": "hdr"},
     )
 
     print(f"✅ Result: {result['status']}")
-    if result['status'] == 'SUCCESS':
+    if result["status"] == "SUCCESS":
         print("📦 Downloaded HDRI: lebombo")
     else:
         print(f"❌ Error: {result['error']}")
@@ -113,16 +98,12 @@ async def example_polyhaven_texture():
     result = await download_and_import_asset(
         repository=AssetRepository.POLY_HAVEN,
         asset_name="wood_02",
-        repository_specific_params={
-            "type": "textures"
-        },
-        import_options={
-            "format": "png"
-        }
+        repository_specific_params={"type": "textures"},
+        import_options={"format": "png"},
     )
 
     print(f"✅ Result: {result['status']}")
-    if result['status'] == 'SUCCESS':
+    if result["status"] == "SUCCESS":
         print("📦 Downloaded texture: wood_02")
     else:
         print(f"❌ Error: {result['error']}")
@@ -133,12 +114,12 @@ async def list_repository_assets():
     print("\n📋 Listing available Kenney assets...")
 
     result = await list_available_assets(AssetRepository.KENNEY)
-    if result['status'] == 'SUCCESS':
+    if result["status"] == "SUCCESS":
         print(f"🏪 Repository: {result['repository']}")
         print(f"📝 Description: {result['description']}")
         print(f"🌐 Website: {result['website']}")
-        print("📦 Sample assets:"
-        for asset in result.get('sample_assets', []):
+        print("📦 Sample assets:")
+        for asset in result.get("sample_assets", []):
             print(f"  • {asset}")
     else:
         print(f"❌ Error: {result['error']}")
@@ -148,14 +129,11 @@ async def search_for_assets():
     """Search for assets across repositories."""
     print("\n🔍 Searching for 'fantasy' assets...")
 
-    result = await search_assets(
-        query="fantasy",
-        limit=5
-    )
+    result = await search_assets(query="fantasy", limit=5)
 
-    if result['status'] == 'SUCCESS':
+    if result["status"] == "SUCCESS":
         print(f"📊 Found {result['total_results']} results")
-        for asset in result['results']:
+        for asset in result["results"]:
             print(f"  • {asset['asset_name']} ({asset['repository']})")
     else:
         print(f"❌ Error: {result['error']}")
@@ -193,5 +171,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-

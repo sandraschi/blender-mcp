@@ -2,12 +2,12 @@
 
 import pytest
 import json
-import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
 from blender_mcp.utils.validation import (
-    validate_object_exists, validate_vertex_group, validate_frame_range,
-    validate_positive, validate_range, validate_with_model
+    validate_object_exists,
+    validate_vertex_group,
+    validate_frame_range,
+    validate_positive,
+    validate_range,
 )
 from blender_mcp.utils.error_handling import MCPError, ValidationError, BlenderOperationError
 
@@ -43,7 +43,9 @@ class TestObjectValidation:
     @pytest.mark.unit
     def test_validate_frame_range_invalid_end(self):
         """Test frame range validation with end before start."""
-        with pytest.raises(ValueError, match="End frame must be greater than or equal to start frame"):
+        with pytest.raises(
+            ValueError, match="End frame must be greater than or equal to start frame"
+        ):
             validate_frame_range(10, 5)
 
     @pytest.mark.unit
@@ -146,7 +148,7 @@ class TestJSONHandling:
             "boolean": True,
             "null": None,
             "array": [1, 2, 3],
-            "object": {"nested": "value"}
+            "object": {"nested": "value"},
         }
 
         json_str = json.dumps(data)

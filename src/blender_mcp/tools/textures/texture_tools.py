@@ -4,13 +4,12 @@ Texture creation and management tools for Blender MCP.
 Provides tools for creating procedural and image-based textures.
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Optional, Tuple, Union
 from blender_mcp.app import get_app
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -25,9 +24,9 @@ def _register_texture_tools():
         texture_type: str = "NOISE",
         width: int = 1024,
         height: int = 1024,
-    image_path: str = "",
-    material_name: str = "",
-    object_name: str = ""
+        image_path: str = "",
+        material_name: str = "",
+        object_name: str = "",
     ) -> str:
         """
         Create and manage textures in Blender.
@@ -54,7 +53,9 @@ def _register_texture_tools():
             Success message with texture details
         """
         from blender_mcp.handlers.texture_handler import (
-            create_texture, assign_texture_to_material, bake_texture
+            create_texture,
+            assign_texture_to_material,
+            bake_texture,
         )
 
         try:
@@ -62,28 +63,21 @@ def _register_texture_tools():
                 # Extract texture type from operation (e.g., "create_noise" -> "NOISE")
                 texture_type = operation.replace("create_", "").upper()
                 return await create_texture(
-                    name=name,
-                    texture_type=texture_type,
-                    width=width,
-                    height=height
+                    name=name, texture_type=texture_type, width=width, height=height
                 )
 
             elif operation == "assign_texture":
                 if not material_name:
                     return "material_name parameter required"
                 return await assign_texture_to_material(
-                    texture_name=name,
-                    material_name=material_name
+                    texture_name=name, material_name=material_name
                 )
 
             elif operation == "bake_texture":
                 if not object_name:
                     return "object_name parameter required for baking"
                 return await bake_texture(
-                    object_name=object_name,
-                    texture_name=name,
-                    width=width,
-                    height=height
+                    object_name=object_name, texture_name=name, width=width, height=height
                 )
 
             else:

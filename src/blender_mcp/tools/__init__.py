@@ -4,6 +4,7 @@ Tool definitions for Blender-MCP.
 This module provides decorators and utilities for registering and managing FastMCP tools.
 Tools can be registered using the @app.tool decorator from the FastMCP application instance.
 """
+
 from __future__ import annotations
 
 import importlib
@@ -15,9 +16,21 @@ from pathlib import Path
 
 # Import from our compatibility module
 from ..compat import (
-    JSONType, Dict, Any, Type, TypeVar, Callable,
-    Awaitable, Optional, Union, List, TypeAlias, Type,
-    Tool, FunctionTool, ToolManager, LowLevelServer
+    JSONType,
+    Dict,
+    Any,
+    TypeVar,
+    Callable,
+    Awaitable,
+    Optional,
+    Union,
+    List,
+    TypeAlias,
+    Type,
+    Tool,
+    FunctionTool,
+    ToolManager,
+    LowLevelServer,
 )
 
 # Import error handling utilities
@@ -25,14 +38,14 @@ from blender_mcp.utils.error_handling import (
     handle_errors,
     MCPError,
     ValidationError as MCPValidationError,
-    BlenderOperationError
+    BlenderOperationError,
 )
 
 # Type alias for tool functions
 ToolFunction: TypeAlias = Callable[..., Awaitable[JSONType]]
 
 # Type variable for tool classes
-T = TypeVar('T')
+T = TypeVar("T")
 
 # Logger
 logger = logging.getLogger(__name__)
@@ -40,16 +53,19 @@ logger = logging.getLogger(__name__)
 # Global tool registration
 _tools: Dict[str, Any] = {}
 
+
 class ToolRegistrationError(Exception):
     """Exception raised for errors in tool registration."""
+
     pass
+
 
 def register_tool(
     name: Optional[str] = None,
     description: Optional[str] = None,
     parameters: Optional[Dict[str, Any]] = None,
     require_validation: bool = True,
-    **kwargs
+    **kwargs,
 ) -> Callable[[ToolFunction], ToolFunction]:
     """
     Decorator to register a function as an MCP tool with enhanced error handling.
@@ -66,6 +82,7 @@ def register_tool(
     Returns:
         Decorator function that returns a wrapped tool function
     """
+
     def decorator(func: ToolFunction) -> ToolFunction:
         nonlocal name, description, parameters
 
@@ -78,7 +95,7 @@ def register_tool(
             description = inspect.cleandoc(func.__doc__)
 
         # Get the validation model if available
-        validation_model = getattr(func, '_validation_model', None)
+        validation_model = getattr(func, "_validation_model", None)
 
         # If we have a validation model, use its schema
         if validation_model is not None and parameters is None:
@@ -97,17 +114,17 @@ def register_tool(
                     except ValidationError as e:
                         error_details = {}
                         for error in e.errors():
-                            field = ".".join(str(loc) for loc in error['loc'])
-                            error_details[field] = error['msg']
+                            field = ".".join(str(loc) for loc in error["loc"])
+                            error_details[field] = error["msg"]
                         raise MCPValidationError("Invalid parameters", details=error_details)
 
                 # Call the original function
                 return await func(**params)
 
-            except MCPValidationError as e:
+            except MCPValidationError:
                 # Re-raise validation errors
                 raise
-            except BlenderOperationError as e:
+            except BlenderOperationError:
                 # Re-raise Blender operation errors
                 raise
             except Exception as e:
@@ -120,7 +137,7 @@ def register_tool(
             description=description or "",
             parameters=parameters or {"type": "object", "properties": {}},
             execute=handle_errors(wrapped_func),
-            **kwargs
+            **kwargs,
         )
 
         # Register the tool
@@ -134,6 +151,7 @@ def register_tool(
 
     return decorator
 
+
 def validate_with(model: Type[BaseModel]) -> Callable[[ToolFunction], ToolFunction]:
     """
     Decorator to associate a Pydantic model with a tool for parameter validation.
@@ -144,11 +162,14 @@ def validate_with(model: Type[BaseModel]) -> Callable[[ToolFunction], ToolFuncti
     Returns:
         Decorator that adds validation to the function
     """
+
     def decorator(func: ToolFunction) -> ToolFunction:
         # Store the model on the function
         func._validation_model = model
         return func
+
     return decorator
+
 
 def get_tool(name: str) -> Optional[Any]:
     """
@@ -162,6 +183,7 @@ def get_tool(name: str) -> Optional[Any]:
     """
     return _tools.get(name)
 
+
 def get_toolset() -> Any:
     """
     Get the MCP toolset with all registered tools.
@@ -170,6 +192,7 @@ def get_toolset() -> Any:
         ToolManager containing all registered tools
     """
     return ToolManager(tools=list(_tools.values()))
+
 
 def register_tools(server: Any) -> None:
     """
@@ -181,7 +204,8 @@ def register_tools(server: Any) -> None:
     for tool in _tools.values():
         server.register_tool(tool)
 
-def discover_tools(package: str = 'blender_mcp.tools') -> None:
+
+def discover_tools(package: str = "blender_mcp.tools") -> None:
     """
     Discover and import all modules in the tools package.
 
@@ -192,7 +216,9 @@ def discover_tools(package: str = 'blender_mcp.tools') -> None:
     """
     try:
         package_mod = importlib.import_module(package)
-        package_path = Path(package_mod.__file__).parent if hasattr(package_mod, '__file__') else None
+        package_path = (
+            Path(package_mod.__file__).parent if hasattr(package_mod, "__file__") else None
+        )
 
         if not package_path:
             raise ToolRegistrationError(f"Could not find package path for {package}")
@@ -201,7 +227,7 @@ def discover_tools(package: str = 'blender_mcp.tools') -> None:
         problematic_modules = set()
 
         for _, modname, _ in pkgutil.iter_modules([str(package_path)]):
-            if modname != '__init__' and not modname.startswith('_'):
+            if modname != "__init__" and not modname.startswith("_"):
                 if modname in problematic_modules:
                     logger.warning(f"Skipping problematic tool module: {modname}")
                     continue
@@ -222,18 +248,19 @@ def discover_tools(package: str = 'blender_mcp.tools') -> None:
         logger.error(f"Error discovering tools: {e}", exc_info=True)
         raise ToolRegistrationError(f"Failed to discover tools: {e}")
 
+
 # Re-export commonly used types and functions
 __all__ = [
-    'register_tool',
-    'validate_with',
-    'get_tool',
-    'get_toolset',
-    'register_tools',
-    'discover_tools',
-    'MCPError',
-    'MCPValidationError',
-    'BlenderOperationError',
-    'ToolFunction'
+    "register_tool",
+    "validate_with",
+    "get_tool",
+    "get_toolset",
+    "register_tools",
+    "discover_tools",
+    "MCPError",
+    "MCPValidationError",
+    "BlenderOperationError",
+    "ToolFunction",
 ]
 
 # Import all tool modules when this package is imported

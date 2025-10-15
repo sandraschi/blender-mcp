@@ -7,9 +7,11 @@ for all available Blender MCP functionality.
 
 from loguru import logger
 
+
 # Import app lazily to avoid circular imports
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -18,7 +20,9 @@ def _register_help_tools():
     app = get_app()
 
     @app.tool
-    async def blender_help(function_name: str = None, category: str = None, detail_level: str = "normal") -> str:
+    async def blender_help(
+        function_name: str = None, category: str = None, detail_level: str = "normal"
+    ) -> str:
         """
         Get comprehensive help for Blender MCP tools and functions.
 
@@ -39,8 +43,11 @@ def _register_help_tools():
             - blender_help(category="Mesh Creation") - All mesh tools
             - blender_help(detail_level="brief") - Brief overview
         """
-        logger.info(f"Getting help - function: {function_name}, category: {category}, detail_level: {detail_level}")
+        logger.info(
+            f"Getting help - function: {function_name}, category: {category}, detail_level: {detail_level}"
+        )
         from blender_mcp.help import get_help as _get_help
+
         return _get_help(function_name, category, detail_level)
 
     @app.tool
@@ -185,10 +192,11 @@ def _register_help_tools():
         func_info = help_system.get_function(tool_name)
         if not func_info:
             from blender_mcp.help import list_functions
+
             available_tools = list_functions()
             return f"""Tool '{tool_name}' not found.
 
-Available tools: {', '.join(available_tools[:10])}{'...' if len(available_tools) > 10 else ''}
+Available tools: {", ".join(available_tools[:10])}{"..." if len(available_tools) > 10 else ""}
 
 Try:
 • blender_search_tools('{tool_name}') to search for similar tools
@@ -196,7 +204,7 @@ Try:
 
         # Format the response
         result = f"""Tool: {func_info.name}
-{'=' * (6 + len(func_info.name))}
+{"=" * (6 + len(func_info.name))}
 
 Category: {func_info.category}
 

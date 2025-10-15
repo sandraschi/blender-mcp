@@ -4,13 +4,12 @@ Addon management tools for Blender MCP.
 Provides tools for installing, enabling, and managing Blender addons.
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Optional, Tuple, Union
 from blender_mcp.app import get_app
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -22,8 +21,8 @@ def _register_addon_tools():
     async def blender_addons(
         operation: str = "list_addons",
         addon_name: str = "",
-    addon_path: str = "",
-    enable_on_install: bool = True
+        addon_path: str = "",
+        enable_on_install: bool = True,
     ) -> str:
         """
         Manage Blender addons.
@@ -42,9 +41,7 @@ def _register_addon_tools():
         Returns:
             Success message with addon details
         """
-        from blender_mcp.handlers.addon_handler import (
-            install_addon, uninstall_addon, list_addons
-        )
+        from blender_mcp.handlers.addon_handler import install_addon, uninstall_addon, list_addons
 
         try:
             if operation == "list_addons":
@@ -54,8 +51,7 @@ def _register_addon_tools():
                 if not addon_path:
                     return "addon_path parameter required"
                 return await install_addon(
-                    addon_path=addon_path,
-                    enable_on_install=enable_on_install
+                    addon_path=addon_path, enable_on_install=enable_on_install
                 )
 
             elif operation == "uninstall_addon":

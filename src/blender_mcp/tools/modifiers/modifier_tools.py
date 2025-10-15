@@ -4,13 +4,12 @@ Modifier tools for Blender MCP.
 Provides tools for adding, managing, and applying mesh modifiers.
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Optional, Tuple, Union
 from blender_mcp.app import get_app
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -22,16 +21,16 @@ def _register_modifier_tools():
     async def blender_modifiers(
         operation: str = "add_subsurf",
         object_name: str = "",
-    modifier_name: str = "",
-    modifier_type: str = "SUBSURF",
-    levels: int = 2,
-    render_levels: int = 3,
-    segments: int = 8,
-    angle_limit: float = 30.0,
-    width: float = 0.1,
-    offset: float = 0.0,
-    count: int = 2,
-    merge_threshold: float = 0.001
+        modifier_name: str = "",
+        modifier_type: str = "SUBSURF",
+        levels: int = 2,
+        render_levels: int = 3,
+        segments: int = 8,
+        angle_limit: float = 30.0,
+        width: float = 0.1,
+        offset: float = 0.0,
+        count: int = 2,
+        merge_threshold: float = 0.001,
     ) -> str:
         """
         Apply and manage mesh modifiers in Blender.
@@ -69,7 +68,10 @@ def _register_modifier_tools():
             Success message with modifier operation details
         """
         from blender_mcp.handlers.modifier_handler import (
-            add_modifier, remove_modifier, get_modifiers, apply_modifier
+            add_modifier,
+            remove_modifier,
+            get_modifiers,
+            apply_modifier,
         )
 
         try:
@@ -81,61 +83,41 @@ def _register_modifier_tools():
                 mod_props = {}
 
                 if mod_type == "SUBSURF":
-                    mod_props.update({
-                        "levels": levels,
-                        "render_levels": render_levels
-                    })
+                    mod_props.update({"levels": levels, "render_levels": render_levels})
                 elif mod_type == "BEVEL":
-                    mod_props.update({
-                        "segments": segments,
-                        "width": width
-                    })
+                    mod_props.update({"segments": segments, "width": width})
                 elif mod_type == "SOLIDIFY":
-                    mod_props.update({
-                        "thickness": width,
-                        "offset": offset
-                    })
+                    mod_props.update({"thickness": width, "offset": offset})
                 elif mod_type == "ARRAY":
-                    mod_props.update({
-                        "count": count
-                    })
+                    mod_props.update({"count": count})
                 elif mod_type == "MIRROR":
-                    mod_props.update({
-                        "merge_threshold": merge_threshold
-                    })
+                    mod_props.update({"merge_threshold": merge_threshold})
                 elif mod_type == "BOOLEAN":
                     # Boolean modifier requires manual setup
-                    return f"Boolean modifier requires manual setup - use add_modifier directly"
+                    return "Boolean modifier requires manual setup - use add_modifier directly"
                 elif mod_type == "DECIMATE":
-                    mod_props.update({
-                        "ratio": 0.5  # Default decimation ratio
-                    })
+                    mod_props.update(
+                        {
+                            "ratio": 0.5  # Default decimation ratio
+                        }
+                    )
 
                 if not modifier_name:
                     modifier_name = f"{mod_type.lower()}_mod"
 
                 return await add_modifier(
-                    object_name=object_name,
-                    modifier_type=mod_type,
-                    name=modifier_name,
-                    **mod_props
+                    object_name=object_name, modifier_type=mod_type, name=modifier_name, **mod_props
                 )
 
             elif operation == "remove_modifier":
                 if not modifier_name:
                     return "modifier_name parameter required"
-                return await remove_modifier(
-                    object_name=object_name,
-                    modifier_name=modifier_name
-                )
+                return await remove_modifier(object_name=object_name, modifier_name=modifier_name)
 
             elif operation == "apply_modifier":
                 if not modifier_name:
                     return "modifier_name parameter required"
-                return await apply_modifier(
-                    object_name=object_name,
-                    modifier_name=modifier_name
-                )
+                return await apply_modifier(object_name=object_name, modifier_name=modifier_name)
 
             elif operation == "get_modifiers":
                 return await get_modifiers(object_name=object_name)

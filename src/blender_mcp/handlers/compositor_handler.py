@@ -2,7 +2,7 @@ from ..compat import *
 
 """Compositor operations handler for Blender MCP."""
 
-from typing import Optional, Tuple, Dict, Any, Union, List, Literal
+from typing import Tuple, Dict, Any, Union
 from enum import Enum
 from loguru import logger
 
@@ -11,8 +11,10 @@ from ..decorators import blender_operation
 
 _executor = get_blender_executor()
 
+
 class CompositorNodeType(str, Enum):
     """Common compositor node types."""
+
     BLUR = "CompositorNodeBlur"
     RGB = "CompositorNodeRGB"
     MIX = "CompositorNodeMixRGB"
@@ -94,11 +96,10 @@ class CompositorNodeType(str, Enum):
     ZCOMBINE_ALPHA_DIFF_PREMUL = "CompositorNodeZcombineAlphaDiffPremul"
     ZCOMBINE_NORMAL_DIFF_PREMUL = "CompositorNodeZcombineNormalDiffPremul"
 
+
 @blender_operation("enable_compositor", log_args=True)
 async def enable_compositor(
-    use_nodes: bool = True,
-    use_sequencer: bool = False,
-    **kwargs: Any
+    use_nodes: bool = True, use_sequencer: bool = False, **kwargs: Any
 ) -> Dict[str, Any]:
     """Enable the compositor and configure basic settings."""
     script = f"""
@@ -152,12 +153,13 @@ print(str(result))
         logger.error(f"Failed to enable compositor: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("add_compositor_node", log_args=True)
 async def add_compositor_node(
     node_type: Union[CompositorNodeType, str],
     node_name: str = None,
     location: Tuple[float, float] = (0.0, 0.0),
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Add a node to the compositor."""
     script = f"""
@@ -202,13 +204,10 @@ print(str(result))
         logger.error(f"Failed to add compositor node: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("connect_compositor_nodes", log_args=True)
 async def connect_compositor_nodes(
-    from_node: str,
-    from_socket: str,
-    to_node: str,
-    to_socket: str,
-    **kwargs: Any
+    from_node: str, from_socket: str, to_node: str, to_socket: str, **kwargs: Any
 ) -> Dict[str, Any]:
     """Connect two nodes in the compositor."""
     script = f"""
@@ -269,12 +268,10 @@ print(str(result))
         logger.error(f"Failed to connect compositor nodes: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("create_glow_effect", log_args=True)
 async def create_glow_effect(
-    threshold: float = 0.8,
-    size: int = 10,
-    quality: int = 2,
-    **kwargs: Any
+    threshold: float = 0.8, size: int = 10, quality: int = 2, **kwargs: Any
 ) -> Dict[str, Any]:
     """Create a glow effect in the compositor."""
     script = f"""

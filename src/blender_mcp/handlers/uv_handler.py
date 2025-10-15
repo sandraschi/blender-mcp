@@ -2,7 +2,7 @@ from ..compat import *
 
 """UV mapping operations handler for Blender MCP."""
 
-from typing import Optional, List, Dict, Any, Tuple, Union
+from typing import Optional, Dict, Any, Union
 from enum import Enum
 from loguru import logger
 
@@ -11,19 +11,24 @@ from ..decorators import blender_operation
 
 _executor = get_blender_executor()
 
+
 class UVUnwrapMethod(str, Enum):
     """UV unwrapping methods."""
+
     ANGLE_BASED = "ANGLE_BASED"
     CONFORMAL = "CONFORMAL"
     SMART = "SMART"
 
+
 class UVProjectionMethod(str, Enum):
     """UV projection methods."""
+
     VIEW = "VIEW"
     SPHERE = "SPHERE"
     CYLINDER = "CYLINDER"
     CUBE = "CUBE"
     CLIP = "CLIP"
+
 
 @blender_operation("unwrap", log_args=True)
 async def unwrap(
@@ -33,10 +38,10 @@ async def unwrap(
     fill_holes: bool = True,
     correct_aspect: bool = True,
     use_subsurf_data: bool = False,
-    margin: float = 0.001
+    margin: float = 0.001,
 ) -> Dict[str, Any]:
     """Unwrap the mesh for UV mapping.
-    
+
     Args:
         object_name: Name of the object to unwrap
         method: Unwrapping method to use
@@ -45,7 +50,7 @@ async def unwrap(
         correct_aspect: Correct UV aspect (default: True)
         use_subsurf_data: Use subdivision surface data (default: False)
         margin: Space between UV islands (default: 0.001)
-            
+
     Returns:
         Dict containing unwrap status and details
     """
@@ -117,7 +122,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -125,21 +130,22 @@ except Exception as e:
         logger.error(f"Failed to unwrap UVs: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("project_from_view", log_args=True)
 async def project_from_view(
     object_name: str,
     camera_name: Optional[str] = None,
     orthographic: bool = False,
-    margin: float = 0.0
+    margin: float = 0.0,
 ) -> Dict[str, Any]:
     """Project UVs from the current view or camera.
-    
+
     Args:
         object_name: Name of the object to project UVs for
         camera_name: Optional camera to use for projection
         orthographic: Use orthographic projection (default: False)
         margin: Space between UV islands (default: 0.0)
-            
+
     Returns:
         Dict containing projection status and details
     """
@@ -215,7 +221,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         result = await _executor.execute_script(script)
         return result
@@ -223,15 +229,14 @@ except Exception as e:
         logger.error(f"Failed to project UVs: {str(e)}")
         return {{"status": "ERROR", "error": str(e)}}
 
+
 @blender_operation("reset_uvs", log_args=True)
-async def reset_uvs(
-    object_name: str
-) -> Dict[str, Any]:
+async def reset_uvs(object_name: str) -> Dict[str, Any]:
     """Reset UV coordinates to default.
-    
+
     Args:
         object_name: Name of the object to reset UVs for
-        
+
     Returns:
         Dict containing reset status
     """
@@ -279,7 +284,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -287,15 +292,14 @@ except Exception as e:
         logger.error(f"Failed to reset UVs: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("get_uv_info", log_args=True)
-async def get_uv_info(
-    object_name: str
-) -> Dict[str, Any]:
+async def get_uv_info(object_name: str) -> Dict[str, Any]:
     """Get information about UV mapping for an object.
-    
+
     Args:
         object_name: Name of the object to get UV info for
-        
+
     Returns:
         Dict containing UV information
     """
@@ -338,7 +342,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         result = await _executor.execute_script(script)
         return result

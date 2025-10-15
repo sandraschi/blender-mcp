@@ -2,9 +2,16 @@
 
 import pytest
 from blender_mcp.exceptions import (
-    BlenderMCPError, BlenderNotFoundError, BlenderScriptError,
-    BlenderExportError, BlenderImportError, BlenderMaterialError,
-    BlenderRenderError, BlenderMeshError, BlenderAnimationError, BlenderLightingError
+    BlenderMCPError,
+    BlenderNotFoundError,
+    BlenderScriptError,
+    BlenderExportError,
+    BlenderImportError,
+    BlenderMaterialError,
+    BlenderRenderError,
+    BlenderMeshError,
+    BlenderAnimationError,
+    BlenderLightingError,
 )
 
 
@@ -99,19 +106,21 @@ class TestExceptionMessages:
         """Test BlenderScriptError with additional context."""
         error = BlenderScriptError("Script failed", script_path="/path/to/script.py", exit_code=1)
         assert "Script failed" in str(error)
-        assert hasattr(error, 'script_path')
-        assert hasattr(error, 'exit_code')
+        assert hasattr(error, "script_path")
+        assert hasattr(error, "exit_code")
         assert error.script_path == "/path/to/script.py"
         assert error.exit_code == 1
 
     @pytest.mark.unit
     def test_validation_error_with_field(self):
         """Test ValidationError with field information."""
-        error = ValidationError("Invalid value", field="timeout", value=-1, expected="positive integer")
+        error = ValidationError(
+            "Invalid value", field="timeout", value=-1, expected="positive integer"
+        )
         assert "Invalid value" in str(error)
-        assert hasattr(error, 'field')
-        assert hasattr(error, 'value')
-        assert hasattr(error, 'expected')
+        assert hasattr(error, "field")
+        assert hasattr(error, "value")
+        assert hasattr(error, "expected")
         assert error.field == "timeout"
         assert error.value == -1
         assert error.expected == "positive integer"
@@ -121,8 +130,8 @@ class TestExceptionMessages:
         """Test TimeoutError with timeout duration."""
         error = TimeoutError("Operation timed out", timeout_seconds=300, operation="render")
         assert "Operation timed out" in str(error)
-        assert hasattr(error, 'timeout_seconds')
-        assert hasattr(error, 'operation')
+        assert hasattr(error, "timeout_seconds")
+        assert hasattr(error, "operation")
         assert error.timeout_seconds == 300
         assert error.operation == "render"
 

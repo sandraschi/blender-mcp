@@ -14,17 +14,21 @@ from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 from ..exceptions import BlenderMaterialError
 
+
 # Import app lazily to avoid circular imports
 def get_app():
     from ..app import app
+
     return app
-from typing import Tuple, Optional, Union
+
 
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()
 
+
 class MaterialType(str, Enum):
     """Supported material types for type hints and validation."""
+
     FABRIC = "fabric"
     METAL = "metal"
     WOOD = "wood"
@@ -34,8 +38,10 @@ class MaterialType(str, Enum):
     STONE = "stone"
     EMISSIVE = "emissive"
 
+
 class MaterialPreset(str, Enum):
     """Available presets for each material type."""
+
     # Fabric presets
     VELVET = "velvet"
     SILK = "silk"
@@ -44,7 +50,7 @@ class MaterialPreset(str, Enum):
     BROCADE = "brocade"
     SATIN = "satin"
     WOOL = "wool"
-    
+
     # Metal presets
     GOLD = "gold"
     SILVER = "silver"
@@ -53,7 +59,7 @@ class MaterialPreset(str, Enum):
     IRON = "iron"
     ALUMINUM = "aluminum"
     CHROME = "chrome"
-    
+
     # Wood presets
     OAK = "oak"
     MAHOGANY = "mahogany"
@@ -61,39 +67,40 @@ class MaterialPreset(str, Enum):
     WALNUT = "walnut"
     CHERRY = "cherry"
     MAPLE = "maple"
-    
+
     # Glass presets
     CLEAR_GLASS = "clear_glass"
     FROSTED_GLASS = "frosted_glass"
     STAINED_GLASS = "stained_glass"
-    
+
     # Ceramic presets
     PORCELAIN = "porcelain"
     TERRA_COTTA = "terra_cotta"
-    
+
     # Leather presets
     LEATHER = "leather"
     PATENT_LEATHER = "patent_leather"
     SUEDE = "suede"
-    
+
     # Stone presets
     MARBLE = "marble"
     GRANITE = "granite"
     SLATE = "slate"
-    
+
     # Emissive presets
     LIGHT_BULB = "light_bulb"
     NEON = "neon"
     GLOW = "glow"
 
+
 @blender_operation
 def _create_base_material_script(name: str, material_type: Union[str, MaterialType]) -> str:
     """Generate a base material creation script with error handling.
-    
+
     Args:
         name: Name for the new material
         material_type: Type of material (from MaterialType or string)
-        
+
     Returns:
         str: Python script to create the base material
     """
@@ -156,6 +163,7 @@ except Exception as e:
     raise e
 """
 
+
 # Register tools after app is created to avoid circular imports
 def _register_material_tools():
     app = get_app()
@@ -171,7 +179,7 @@ def _register_material_tools():
         normal_strength: float = 0.5,
         velvet_softness: float = 0.5,
         silk_sheen: float = 0.8,
-        weave_scale: float = 1.0
+        weave_scale: float = 1.0,
     ) -> str:
         """Create comprehensive fabric material with PBR properties.
 
@@ -198,8 +206,9 @@ def _register_material_tools():
             normal_strength=normal_strength,
             velvet_softness=velvet_softness,
             silk_sheen=silk_sheen,
-            weave_scale=weave_scale
+            weave_scale=weave_scale,
         )
+
 
 # Keep the original function for backward compatibility
 @blender_operation("create_fabric_material", log_args=True)
@@ -212,10 +221,10 @@ async def create_fabric_material(
     normal_strength: float = 0.5,
     velvet_softness: float = 0.5,
     silk_sheen: float = 0.8,
-    weave_scale: float = 1.0
+    weave_scale: float = 1.0,
 ) -> str:
     """Create comprehensive fabric material with PBR properties.
-    
+
     Args:
         name: Name for the new material
         fabric_type: Type of fabric (velvet, silk, cotton, linen, brocade, satin, wool)
@@ -226,10 +235,10 @@ async def create_fabric_material(
         velvet_softness: For velvet materials (0-1)
         silk_sheen: For silk materials (0-1)
         weave_scale: For woven fabrics (0.1-10.0)
-            
+
     Returns:
         str: Confirmation message with created material name
-        
+
     Raises:
         BlenderMaterialError: If fabric type is invalid or creation fails
     """
@@ -238,25 +247,30 @@ async def create_fabric_material(
     # Convert string to MaterialPreset if needed
     if isinstance(fabric_type, str):
         fabric_type = MaterialPreset(fabric_type.lower())
-    
+
     # Validate fabric type
     valid_fabrics = [
-        MaterialPreset.VELVET, MaterialPreset.SILK, MaterialPreset.COTTON,
-        MaterialPreset.LINEN, MaterialPreset.BROCADE, MaterialPreset.SATIN,
-        MaterialPreset.WOOL
+        MaterialPreset.VELVET,
+        MaterialPreset.SILK,
+        MaterialPreset.COTTON,
+        MaterialPreset.LINEN,
+        MaterialPreset.BROCADE,
+        MaterialPreset.SATIN,
+        MaterialPreset.WOOL,
     ]
-    
+
     if fabric_type not in valid_fabrics:
         raise BlenderMaterialError(
-            name, "fabric_create", 
-            f"Invalid fabric type: {fabric_type}. Must be one of: {', '.join(f.value for f in valid_fabrics)}"
+            name,
+            "fabric_create",
+            f"Invalid fabric type: {fabric_type}. Must be one of: {', '.join(f.value for f in valid_fabrics)}",
         )
-    
+
     # Unpack base color
     base_r, base_g, base_b = base_color
-    
+
     # Use fabric-specific parameters (already passed as explicit parameters)
-    
+
     try:
         script = _create_base_material_script(name, f"fabric_{fabric_type.value}")
         script += f"""
@@ -316,7 +330,7 @@ links.new(noise_tex.outputs['Fac'], bump.inputs['Height'])
 links.new(bump.outputs['Normal'], bsdf.inputs['Normal'])
 """
         elif fabric_type == MaterialPreset.BROCADE:
-            script += f"""
+            script += """
 # Brocade fabric with pattern
 wave_tex = nodes.new(type='ShaderNodeTexWave')
 wave_tex.wave_type = 'RINGS'
@@ -359,11 +373,12 @@ print(f"SUCCESS: Created {{'{fabric_type.value}'}} fabric material: {{mat.name}}
 """
         await _executor.execute_script(script, script_name=f"fabric_{name}")
         return f"Created {fabric_type.value} fabric material: {name}"
-        
+
     except Exception as e:
         error_msg = f"Failed to create fabric material {name}: {str(e)}"
         logger.error(error_msg)
         raise BlenderMaterialError(name, "fabric_create", error_msg)
+
 
 @blender_operation("create_metal_material", log_args=True)
 async def create_metal_material(
@@ -375,10 +390,10 @@ async def create_metal_material(
     clearcoat_roughness: float = 0.1,
     oxidation: float = 0.0,
     fingerprint: float = 0.0,
-    edge_wear: float = 0.0
+    edge_wear: float = 0.0,
 ) -> str:
     """Create physically accurate metallic material with advanced PBR properties.
-    
+
     Args:
         name: Name for the new material
         metal_type: Type of metal (gold, silver, brass, copper, iron, aluminum, chrome)
@@ -389,10 +404,10 @@ async def create_metal_material(
         oxidation: For aged/weathered metals (0-1)
         fingerprint: Add fingerprint smudges (0-1)
         edge_wear: Edge wear amount (0-1)
-            
+
     Returns:
         str: Confirmation message with created material name
-        
+
     Raises:
         BlenderMaterialError: If metal type is invalid or creation fails
     """
@@ -401,88 +416,98 @@ async def create_metal_material(
     # Convert string to MaterialPreset if needed
     if isinstance(metal_type, str):
         metal_type = MaterialPreset(metal_type.lower())
-    
+
     # Define metal properties
     metal_properties = {
         MaterialPreset.GOLD: {
-            'color': (0.8, 0.6, 0.2, 1.0),
-            'roughness': 0.2,
-            'metallic': 1.0,
-            'specular': 0.5,
-            'anisotropic': 0.3,
-            'clearcoat': 0.2
+            "color": (0.8, 0.6, 0.2, 1.0),
+            "roughness": 0.2,
+            "metallic": 1.0,
+            "specular": 0.5,
+            "anisotropic": 0.3,
+            "clearcoat": 0.2,
         },
         MaterialPreset.SILVER: {
-            'color': (0.95, 0.95, 0.97, 1.0),
-            'roughness': 0.15,
-            'metallic': 1.0,
-            'specular': 0.5,
-            'anisotropic': 0.2,
-            'clearcoat': 0.3
+            "color": (0.95, 0.95, 0.97, 1.0),
+            "roughness": 0.15,
+            "metallic": 1.0,
+            "specular": 0.5,
+            "anisotropic": 0.2,
+            "clearcoat": 0.3,
         },
         MaterialPreset.BRASS: {
-            'color': (0.88, 0.78, 0.5, 1.0),
-            'roughness': 0.25,
-            'metallic': 1.0,
-            'specular': 0.5,
-            'anisotropic': 0.1,
-            'clearcoat': 0.1
+            "color": (0.88, 0.78, 0.5, 1.0),
+            "roughness": 0.25,
+            "metallic": 1.0,
+            "specular": 0.5,
+            "anisotropic": 0.1,
+            "clearcoat": 0.1,
         },
         MaterialPreset.COPPER: {
-            'color': (0.95, 0.64, 0.54, 1.0),
-            'roughness': 0.3,
-            'metallic': 1.0,
-            'specular': 0.5,
-            'anisotropic': 0.1,
-            'clearcoat': 0.1
+            "color": (0.95, 0.64, 0.54, 1.0),
+            "roughness": 0.3,
+            "metallic": 1.0,
+            "specular": 0.5,
+            "anisotropic": 0.1,
+            "clearcoat": 0.1,
         },
         MaterialPreset.IRON: {
-            'color': (0.56, 0.57, 0.58, 1.0),
-            'roughness': 0.4,
-            'metallic': 1.0,
-            'specular': 0.5,
-            'anisotropic': 0.05,
-            'clearcoat': 0.0
+            "color": (0.56, 0.57, 0.58, 1.0),
+            "roughness": 0.4,
+            "metallic": 1.0,
+            "specular": 0.5,
+            "anisotropic": 0.05,
+            "clearcoat": 0.0,
         },
         MaterialPreset.ALUMINUM: {
-            'color': (0.91, 0.92, 0.92, 1.0),
-            'roughness': 0.15,
-            'metallic': 1.0,
-            'specular': 0.5,
-            'anisotropic': 0.7,
-            'clearcoat': 0.2
+            "color": (0.91, 0.92, 0.92, 1.0),
+            "roughness": 0.15,
+            "metallic": 1.0,
+            "specular": 0.5,
+            "anisotropic": 0.7,
+            "clearcoat": 0.2,
         },
         MaterialPreset.CHROME: {
-            'color': (0.98, 0.98, 0.99, 1.0),
-            'roughness': 0.05,
-            'metallic': 1.0,
-            'specular': 0.5,
-            'anisotropic': 0.5,
-            'clearcoat': 0.5
-        }
+            "color": (0.98, 0.98, 0.99, 1.0),
+            "roughness": 0.05,
+            "metallic": 1.0,
+            "specular": 0.5,
+            "anisotropic": 0.5,
+            "clearcoat": 0.5,
+        },
     }
-    
+
     if metal_type not in metal_properties:
-        valid_metals = [m.value for m in [
-            MaterialPreset.GOLD, MaterialPreset.SILVER, MaterialPreset.BRASS,
-            MaterialPreset.COPPER, MaterialPreset.IRON, MaterialPreset.ALUMINUM,
-            MaterialPreset.CHROME
-        ]]
+        valid_metals = [
+            m.value
+            for m in [
+                MaterialPreset.GOLD,
+                MaterialPreset.SILVER,
+                MaterialPreset.BRASS,
+                MaterialPreset.COPPER,
+                MaterialPreset.IRON,
+                MaterialPreset.ALUMINUM,
+                MaterialPreset.CHROME,
+            ]
+        ]
         raise BlenderMaterialError(
-            name, "metal_create",
-            f"Invalid metal type: {metal_type}. Must be one of: {', '.join(valid_metals)}"
+            name,
+            "metal_create",
+            f"Invalid metal type: {metal_type}. Must be one of: {', '.join(valid_metals)}",
         )
-    
+
     # Get metal properties with overrides from kwargs
     props = metal_properties[metal_type].copy()
-    props.update({
-        'roughness': roughness or props['roughness'],
-        'anisotropic': anisotropic if anisotropic is not None else props['anisotropic'],
-        'clearcoat': clearcoat if clearcoat is not None else props['clearcoat']
-    })
-    
+    props.update(
+        {
+            "roughness": roughness or props["roughness"],
+            "anisotropic": anisotropic if anisotropic is not None else props["anisotropic"],
+            "clearcoat": clearcoat if clearcoat is not None else props["clearcoat"],
+        }
+    )
+
     # Additional parameters are now explicit function parameters
-    
+
     try:
         script = _create_base_material_script(name, f"metal_{metal_type.value}")
         script += f"""
@@ -494,13 +519,13 @@ bsdf = result['bsdf']
 mapping = result['mapping']
 
 # Base metal properties
-bsdf.inputs['Base Color'].default_value = {props['color']}
-bsdf.inputs['Metallic'].default_value = {props['metallic']}
-bsdf.inputs['Roughness'].default_value = {props['roughness']}
-bsdf.inputs['Specular'].default_value = {props['specular']}
-bsdf.inputs['Anisotropic'].default_value = {props['anisotropic']}
+bsdf.inputs['Base Color'].default_value = {props["color"]}
+bsdf.inputs['Metallic'].default_value = {props["metallic"]}
+bsdf.inputs['Roughness'].default_value = {props["roughness"]}
+bsdf.inputs['Specular'].default_value = {props["specular"]}
+bsdf.inputs['Anisotropic'].default_value = {props["anisotropic"]}
 bsdf.inputs['Anisotropic Rotation'].default_value = 0.2
-bsdf.inputs['Clearcoat'].default_value = {props['clearcoat']}
+bsdf.inputs['Clearcoat'].default_value = {props["clearcoat"]}
 bsdf.inputs['Clearcoat Roughness'].default_value = {clearcoat_roughness}
 
 # Metal-specific properties
@@ -526,7 +551,7 @@ else:
 
 offset = 0.2  # Base offset for node positioning
 oxidation_mix.inputs['Color1'].default_value = oxidized_color
-oxidation_mix.inputs['Color2'].default_value = {props['color']}
+oxidation_mix.inputs['Color2'].default_value = {props["color"]}
 
 # Connect to base color
 links.new(oxidation_mix.outputs['Color'], bsdf.inputs['Base Color'])
@@ -582,11 +607,12 @@ print(f"SUCCESS: Created {{'{metal_type.value}'}} metal material: {{mat.name}}")
 """
         await _executor.execute_script(script, script_name=f"metal_{name}")
         return f"Created {metal_type.value} metal material: {name}"
-        
+
     except Exception as e:
         error_msg = f"Failed to create metal material {name}: {str(e)}"
         logger.error(error_msg)
         raise BlenderMaterialError(name, "metal_create", error_msg)
+
 
 @blender_operation("create_wood_material", log_args=True)
 async def create_wood_material(
@@ -594,10 +620,10 @@ async def create_wood_material(
     wood_type: str = "oak",
     grain_scale: float = 5.0,
     roughness: float = 0.7,
-    bump_strength: float = 0.1
+    bump_strength: float = 0.1,
 ) -> str:
     """Create realistic wood material with grain texture.
-    
+
     Args:
         name: Material name
         wood_type: Type of wood (oak, mahogany, pine, walnut, cherry, maple)
@@ -606,22 +632,22 @@ async def create_wood_material(
         bump_strength: Bump strength (0-1)
     """
     wood_colors = {
-        "oak": {"base": (0.4,0.25,0.15), "ring": (0.3,0.2,0.1)},
-        "mahogany": {"base": (0.3,0.15,0.1), "ring": (0.2,0.1,0.05)},
-        "pine": {"base": (0.6,0.45,0.3), "ring": (0.5,0.35,0.2)},
-        "walnut": {"base": (0.25,0.15,0.1), "ring": (0.15,0.1,0.05)},
-        "cherry": {"base": (0.35,0.15,0.1), "ring": (0.25,0.1,0.05)},
-        "maple": {"base": (0.7,0.6,0.5), "ring": (0.6,0.5,0.4)}
+        "oak": {"base": (0.4, 0.25, 0.15), "ring": (0.3, 0.2, 0.1)},
+        "mahogany": {"base": (0.3, 0.15, 0.1), "ring": (0.2, 0.1, 0.05)},
+        "pine": {"base": (0.6, 0.45, 0.3), "ring": (0.5, 0.35, 0.2)},
+        "walnut": {"base": (0.25, 0.15, 0.1), "ring": (0.15, 0.1, 0.05)},
+        "cherry": {"base": (0.35, 0.15, 0.1), "ring": (0.25, 0.1, 0.05)},
+        "maple": {"base": (0.7, 0.6, 0.5), "ring": (0.6, 0.5, 0.4)},
     }
-    
+
     wood_type = wood_type.lower()
     if wood_type not in wood_colors:
         valid = ", ".join(wood_colors.keys())
         raise BlenderMaterialError(name, "wood_create", f"Invalid wood type. Use one of: {valid}")
-    
+
     base_r, base_g, base_b = wood_colors[wood_type]["base"]
     ring_r, ring_g, ring_b = wood_colors[wood_type]["ring"]
-    
+
     try:
         script = _create_base_material_script(name, f"wood_{wood_type}")
         script += f"""
@@ -665,7 +691,7 @@ print(f"SUCCESS: Created {{'{wood_type}'}} wood material: {{mat.name}}")
 """
         await _executor.execute_script(script, script_name=f"wood_{name}")
         return f"Created {wood_type} wood material: {name}"
-        
+
     except Exception as e:
         error_msg = f"Failed to create wood material {name}: {str(e)}"
         logger.error(error_msg)
@@ -679,10 +705,10 @@ async def create_glass_material(
     color: Tuple[float, float, float] = (1.0, 1.0, 1.0),
     roughness: float = 0.0,
     ior: float = 1.45,
-    **kwargs
+    **kwargs,
 ) -> str:
     """Create realistic glass material with customizable properties.
-    
+
     Args:
         name: Material name
         glass_type: Type of glass (clear_glass, frosted_glass, stained_glass)
@@ -698,30 +724,27 @@ async def create_glass_material(
     # Convert string to MaterialPreset if needed
     if isinstance(glass_type, str):
         glass_type = MaterialPreset(glass_type.lower())
-    
+
     # Validate glass type
     valid_glass_types = [
         MaterialPreset.CLEAR_GLASS,
         MaterialPreset.FROSTED_GLASS,
-        MaterialPreset.STAINED_GLASS
+        MaterialPreset.STAINED_GLASS,
     ]
-    
+
     if glass_type not in valid_glass_types:
         valid = ", ".join([t.value for t in valid_glass_types])
-        raise BlenderMaterialError(
-            name, "glass_create", 
-            f"Invalid glass type. Use one of: {valid}"
-        )
-    
+        raise BlenderMaterialError(name, "glass_create", f"Invalid glass type. Use one of: {valid}")
+
     # Get additional parameters with defaults
-    transmission = kwargs.get('transmission', 1.0)
-    dispersion = kwargs.get('dispersion', 0.0)
-    thickness = kwargs.get('thickness', 0.1)
-    normal_strength = kwargs.get('normal', 0.0)
-    
+    transmission = kwargs.get("transmission", 1.0)
+    dispersion = kwargs.get("dispersion", 0.0)
+    thickness = kwargs.get("thickness", 0.1)
+    normal_strength = kwargs.get("normal", 0.0)
+
     # Unpack color
     r, g, b = color
-    
+
     try:
         script = _create_base_material_script(name, f"glass_{glass_type.value}")
         script += f"""
@@ -790,7 +813,7 @@ links.new(color_ramp.outputs['Color'], bsdf.inputs['Base Color'])
 """
         # Add dispersion effect if enabled
         if dispersion > 0:
-            script += f"""
+            script += """
 # Chromatic aberration effect
 dispersion_group = nodes.new('ShaderNodeGroup')
 dispersion_group.node_tree = bpy.data.node_groups.new('Dispersion', 'ShaderNodeTree')
@@ -820,7 +843,7 @@ print(f"SUCCESS: Created {{'{glass_type.value}'}} glass material: {{mat.name}}")
 """
         await _executor.execute_script(script, script_name=f"glass_{name}")
         return f"Created {glass_type.value} glass material: {name}"
-        
+
     except Exception as e:
         error_msg = f"Failed to create glass material {name}: {str(e)}"
         logger.error(error_msg)
@@ -833,10 +856,10 @@ async def create_ceramic_material(
     ceramic_type: Union[str, MaterialPreset] = MaterialPreset.PORCELAIN,
     base_color: Tuple[float, float, float] = (0.9, 0.9, 0.9),
     roughness: float = 0.1,
-    **kwargs
+    **kwargs,
 ) -> str:
     """Create realistic ceramic/porcelain material with customizable properties.
-    
+
     Args:
         name: Material name
         ceramic_type: Type of ceramic (porcelain, earthenware, stoneware, terracotta)
@@ -850,31 +873,30 @@ async def create_ceramic_material(
     # Convert string to MaterialPreset if needed
     if isinstance(ceramic_type, str):
         ceramic_type = MaterialPreset(ceramic_type.lower())
-    
+
     # Validate ceramic type
     valid_ceramic_types = [
         MaterialPreset.PORCELAIN,
         MaterialPreset.EARTHENWARE,
         MaterialPreset.STONEWARE,
-        MaterialPreset.TERRACOTTA
+        MaterialPreset.TERRACOTTA,
     ]
-    
+
     if ceramic_type not in valid_ceramic_types:
         valid = ", ".join([t.value for t in valid_ceramic_types])
         raise BlenderMaterialError(
-            name, "ceramic_create", 
-            f"Invalid ceramic type. Use one of: {valid}"
+            name, "ceramic_create", f"Invalid ceramic type. Use one of: {valid}"
         )
-    
+
     # Get additional parameters with defaults
-    glaze_strength = kwargs.get('glaze_strength', 0.8)
-    glaze_roughness = kwargs.get('glaze_roughness', 0.2)
-    glaze_color = kwargs.get('glaze_color', (1.0, 1.0, 1.0))
-    
+    glaze_strength = kwargs.get("glaze_strength", 0.8)
+    glaze_roughness = kwargs.get("glaze_roughness", 0.2)
+    glaze_color = kwargs.get("glaze_color", (1.0, 1.0, 1.0))
+
     # Unpack colors
     r, g, b = base_color
     gr, gg, gb = glaze_color
-    
+
     try:
         script = _create_base_material_script(name, f"ceramic_{ceramic_type.value}")
         script += f"""
@@ -925,7 +947,7 @@ print(f"SUCCESS: Created {{'{ceramic_type.value}'}} ceramic material: {{mat.name
 """
         await _executor.execute_script(script, script_name=f"ceramic_{name}")
         return f"Created {ceramic_type.value} ceramic material: {name}"
-        
+
     except Exception as e:
         error_msg = f"Failed to create ceramic material {name}: {str(e)}"
         logger.error(error_msg)
@@ -938,10 +960,10 @@ async def create_leather_material(
     leather_type: Union[str, MaterialPreset] = MaterialPreset.LEATHER,
     base_color: Tuple[float, float, float] = (0.15, 0.05, 0.02),
     roughness: float = 0.7,
-    **kwargs
+    **kwargs,
 ) -> str:
     """Create realistic leather material with customizable properties.
-    
+
     Args:
         name: Material name
         leather_type: Type of leather (genuine, bonded, faux, suede, patent)
@@ -957,31 +979,30 @@ async def create_leather_material(
     # Convert string to MaterialPreset if needed
     if isinstance(leather_type, str):
         leather_type = MaterialPreset(leather_type.lower())
-    
+
     # Validate leather type
     valid_leather_types = [
         MaterialPreset.LEATHER,
         MaterialPreset.PATENT_LEATHER,
-        MaterialPreset.SUEDE
+        MaterialPreset.SUEDE,
     ]
-    
+
     if leather_type not in valid_leather_types:
         valid = ", ".join([t.value for t in valid_leather_types])
         raise BlenderMaterialError(
-            name, "leather_create", 
-            f"Invalid leather type. Use one of: {valid}"
+            name, "leather_create", f"Invalid leather type. Use one of: {valid}"
         )
-    
+
     # Get additional parameters with defaults
-    wear_amount = kwargs.get('wear_amount', 0.3)
-    bump_strength = kwargs.get('bump_strength', 0.5)
-    specular = kwargs.get('specular', 0.5)
-    sheen = kwargs.get('sheen', 0.3)
-    stitch_effect = kwargs.get('stitch_effect', False)
-    
+    wear_amount = kwargs.get("wear_amount", 0.3)
+    bump_strength = kwargs.get("bump_strength", 0.5)
+    specular = kwargs.get("specular", 0.5)
+    sheen = kwargs.get("sheen", 0.3)
+    stitch_effect = kwargs.get("stitch_effect", False)
+
     # Unpack color
     r, g, b = base_color
-    
+
     try:
         script = _create_base_material_script(name, f"leather_{leather_type.value}")
         script += f"""
@@ -1078,7 +1099,7 @@ print(f"SUCCESS: Created {{'{leather_type.value}'}} leather material: {{mat.name
 """
         await _executor.execute_script(script, script_name=f"leather_{name}")
         return f"Created {leather_type.value} leather material: {name}"
-        
+
     except Exception as e:
         error_msg = f"Failed to create leather material {name}: {str(e)}"
         logger.error(error_msg)
@@ -1092,10 +1113,10 @@ async def create_stone_material(
     base_color: Tuple[float, float, float] = (0.8, 0.8, 0.8),
     secondary_color: Optional[Tuple[float, float, float]] = None,
     roughness: float = 0.2,
-    **kwargs
+    **kwargs,
 ) -> str:
     """Create realistic stone/marble material with customizable properties.
-    
+
     Args:
         name: Material name
         stone_type: Type of stone (marble, granite, slate, sandstone, limestone, onyx)
@@ -1112,7 +1133,7 @@ async def create_stone_material(
     # Convert string to MaterialPreset if needed
     if isinstance(stone_type, str):
         stone_type = MaterialPreset(stone_type.lower())
-    
+
     # Validate stone type
     valid_stone_types = [
         MaterialPreset.MARBLE,
@@ -1120,36 +1141,33 @@ async def create_stone_material(
         MaterialPreset.SLATE,
         MaterialPreset.SANDSTONE,
         MaterialPreset.LIMESTONE,
-        MaterialPreset.ONYX
+        MaterialPreset.ONYX,
     ]
-    
+
     if stone_type not in valid_stone_types:
         valid = ", ".join([t.value for t in valid_stone_types])
-        raise BlenderMaterialError(
-            name, "stone_create", 
-            f"Invalid stone type. Use one of: {valid}"
-        )
-    
+        raise BlenderMaterialError(name, "stone_create", f"Invalid stone type. Use one of: {valid}")
+
     # Set default secondary color if not provided
     if secondary_color is None:
         if stone_type == MaterialPreset.MARBLE:
             secondary_color = (0.15, 0.15, 0.15)  # Dark gray for marble
         elif stone_type == MaterialPreset.GRANITE:
-            secondary_color = (0.4, 0.3, 0.25)    # Brown for granite
+            secondary_color = (0.4, 0.3, 0.25)  # Brown for granite
         else:
-            secondary_color = (base_color[0]*0.7, base_color[1]*0.7, base_color[2]*0.7)
-    
+            secondary_color = (base_color[0] * 0.7, base_color[1] * 0.7, base_color[2] * 0.7)
+
     # Get additional parameters with defaults
-    vein_scale = kwargs.get('vein_scale', 5.0)
-    vein_contrast = kwargs.get('vein_contrast', 0.8)
-    polish = kwargs.get('polish', 0.5)
-    normal_strength = kwargs.get('normal_strength', 0.3)
-    displacement = kwargs.get('displacement', 0.02)
-    
+    vein_scale = kwargs.get("vein_scale", 5.0)
+    vein_contrast = kwargs.get("vein_contrast", 0.8)
+    polish = kwargs.get("polish", 0.5)
+    normal_strength = kwargs.get("normal_strength", 0.3)
+    displacement = kwargs.get("displacement", 0.02)
+
     # Unpack colors
     r1, g1, b1 = base_color
     r2, g2, b2 = secondary_color
-    
+
     try:
         script = _create_base_material_script(name, f"stone_{stone_type.value}")
         script += f"""
@@ -1247,7 +1265,7 @@ print(f"SUCCESS: Created {{'{stone_type.value}'}} stone material: {{mat.name}}")
 """
         await _executor.execute_script(script, script_name=f"stone_{name}")
         return f"Created {stone_type.value} stone material: {name}"
-        
+
     except Exception as e:
         error_msg = f"Failed to create stone material {name}: {str(e)}"
         logger.error(error_msg)
@@ -1255,18 +1273,14 @@ print(f"SUCCESS: Created {{'{stone_type.value}'}} stone material: {{mat.name}}")
 
 
 @blender_operation
-def assign_material(
-    object_name: str,
-    material_name: str,
-    material_index: int = 0
-) -> str:
+def assign_material(object_name: str, material_name: str, material_index: int = 0) -> str:
     """Assign a material to an object.
-    
+
     Args:
         object_name: Name of the object to assign material to
         material_name: Name of the material to assign
         material_index: Material slot index (0-based)
-        
+
     Returns:
         str: Status message
     """
@@ -1299,16 +1313,13 @@ print(f"SUCCESS: Assigned material '{{material_name}}' to object '{{object_name}
 
 
 @blender_operation
-def remove_material(
-    object_name: str,
-    material_index: int = 0
-) -> str:
+def remove_material(object_name: str, material_index: int = 0) -> str:
     """Remove a material from an object.
-    
+
     Args:
         object_name: Name of the object to remove material from
         material_index: Material slot index to clear (0-based)
-        
+
     Returns:
         str: Status message
     """
@@ -1338,14 +1349,12 @@ print(f"SUCCESS: Removed material from slot {{material_index}} of object '{{obje
 
 
 @blender_operation
-def get_material_assignments(
-    object_name: str
-) -> str:
+def get_material_assignments(object_name: str) -> str:
     """Get all materials assigned to an object.
-    
+
     Args:
         object_name: Name of the object to check
-        
+
     Returns:
         str: Status message with material assignments
     """
@@ -1375,23 +1384,23 @@ else:
 
 @blender_operation("assign_material", log_args=True)
 async def assign_material_async(
-    object_name: str,
-    material_name: str,
-    material_index: int = 0
+    object_name: str, material_name: str, material_index: int = 0
 ) -> str:
     """Assign a material to an object asynchronously.
-    
+
     Args:
         object_name: Name of the object to assign material to
         material_name: Name of the material to assign
         material_index: Material slot index (0-based)
-        
+
     Returns:
         str: Status message
     """
     try:
         script = assign_material(object_name, material_name, material_index)
-        await _executor.execute_script(script, script_name=f"assign_material_{object_name}_{material_name}")
+        await _executor.execute_script(
+            script, script_name=f"assign_material_{object_name}_{material_name}"
+        )
         return f"Assigned material '{material_name}' to object '{object_name}' at slot {material_index}"
     except Exception as e:
         error_msg = f"Failed to assign material to object: {str(e)}"
@@ -1400,22 +1409,21 @@ async def assign_material_async(
 
 
 @blender_operation("remove_material", log_args=True)
-async def remove_material_async(
-    object_name: str,
-    material_index: int = 0
-) -> str:
+async def remove_material_async(object_name: str, material_index: int = 0) -> str:
     """Remove a material from an object asynchronously.
-    
+
     Args:
         object_name: Name of the object to remove material from
         material_index: Material slot index to clear (0-based)
-        
+
     Returns:
         str: Status message
     """
     try:
         script = remove_material(object_name, material_index)
-        await _executor.execute_script(script, script_name=f"remove_material_{object_name}_{material_index}")
+        await _executor.execute_script(
+            script, script_name=f"remove_material_{object_name}_{material_index}"
+        )
         return f"Removed material from slot {material_index} of object '{object_name}'"
     except Exception as e:
         error_msg = f"Failed to remove material from object: {str(e)}"
@@ -1424,20 +1432,20 @@ async def remove_material_async(
 
 
 @blender_operation("get_material_assignments", log_args=True)
-async def get_material_assignments_async(
-    object_name: str
-) -> str:
+async def get_material_assignments_async(object_name: str) -> str:
     """Get all materials assigned to an object asynchronously.
-    
+
     Args:
         object_name: Name of the object to check
-        
+
     Returns:
         str: Status message with material assignments
     """
     try:
         script = get_material_assignments(object_name)
-        result = await _executor.execute_script(script, script_name=f"get_material_assignments_{object_name}")
+        result = await _executor.execute_script(
+            script, script_name=f"get_material_assignments_{object_name}"
+        )
         return result or f"No material assignments found for object '{object_name}'"
     except Exception as e:
         error_msg = f"Failed to get material assignments: {str(e)}"
@@ -1447,25 +1455,25 @@ async def get_material_assignments_async(
 
 class MaterialLibrary:
     """A class to manage a library of material presets."""
-    
+
     def __init__(self, library_name: str = "default"):
         """Initialize the material library.
-        
+
         Args:
             library_name: Name of the library
         """
         self.library_name = library_name
         self.presets = {}
-        
+
     def add_preset(
-        self, 
-        name: str, 
-        material_type: str, 
+        self,
+        name: str,
+        material_type: str,
         parameters: Dict[str, Any],
-        category: str = "uncategorized"
+        category: str = "uncategorized",
     ) -> None:
         """Add a material preset to the library.
-        
+
         Args:
             name: Name of the preset
             material_type: Type of material (e.g., 'fabric', 'metal', 'wood')
@@ -1474,83 +1482,82 @@ class MaterialLibrary:
         """
         if not name:
             raise ValueError("Preset name cannot be empty")
-            
+
         self.presets[name] = {
-            'type': material_type,
-            'parameters': parameters,
-            'category': category,
-            'created_at': datetime.datetime.now().isoformat()
+            "type": material_type,
+            "parameters": parameters,
+            "category": category,
+            "created_at": datetime.datetime.now().isoformat(),
         }
-    
+
     def get_preset(self, name: str) -> Dict[str, Any]:
         """Get a material preset by name.
-        
+
         Args:
             name: Name of the preset to retrieve
-            
+
         Returns:
             Dict containing the preset data
         """
         if name not in self.presets:
             raise KeyError(f"Preset '{name}' not found in library")
         return self.presets[name]
-    
+
     def list_presets(self, category: Optional[str] = None) -> List[Dict[str, Any]]:
         """List all presets, optionally filtered by category.
-        
+
         Args:
             category: Optional category filter
-            
+
         Returns:
             List of preset dictionaries with name and metadata
         """
         result = []
         for name, preset in self.presets.items():
-            if category is None or preset['category'] == category:
-                result.append({
-                    'name': name,
-                    'type': preset['type'],
-                    'category': preset['category'],
-                    'created_at': preset['created_at']
-                })
+            if category is None or preset["category"] == category:
+                result.append(
+                    {
+                        "name": name,
+                        "type": preset["type"],
+                        "category": preset["category"],
+                        "created_at": preset["created_at"],
+                    }
+                )
         return result
-    
+
     def remove_preset(self, name: str) -> None:
         """Remove a preset from the library.
-        
+
         Args:
             name: Name of the preset to remove
         """
         if name in self.presets:
             del self.presets[name]
-    
+
     def save_to_file(self, filepath: str) -> None:
         """Save the library to a JSON file.
-        
+
         Args:
             filepath: Path to save the library file
         """
-        with open(filepath, 'w') as f:
-            json.dump({
-                'name': self.library_name,
-                'presets': self.presets
-            }, f, indent=2)
-    
+        with open(filepath, "w") as f:
+            json.dump({"name": self.library_name, "presets": self.presets}, f, indent=2)
+
     @classmethod
-    def load_from_file(cls, filepath: str) -> 'MaterialLibrary':
+    def load_from_file(cls, filepath: str) -> "MaterialLibrary":
         """Load a library from a JSON file.
-        
+
         Args:
             filepath: Path to the library file
-            
+
         Returns:
             Loaded MaterialLibrary instance
         """
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             data = json.load(f)
-            
-        library = cls(data.get('name', 'imported_library'))
-        library.presets = data.get('presets', {})
+
+        library = cls(data.get("name", "imported_library"))
+        library.presets = data.get("presets", {})
         return library
 
 
@@ -1560,7 +1567,7 @@ _default_library = MaterialLibrary("default")
 
 def get_default_library() -> MaterialLibrary:
     """Get the default material library.
-    
+
     Returns:
         The default MaterialLibrary instance
     """
@@ -1569,79 +1576,57 @@ def get_default_library() -> MaterialLibrary:
 
 @blender_operation("create_material_from_preset", log_args=True)
 async def create_material_from_preset(
-    preset_name: str,
-    material_name: Optional[str] = None,
-    library: Optional[MaterialLibrary] = None
+    preset_name: str, material_name: Optional[str] = None, library: Optional[MaterialLibrary] = None
 ) -> str:
     """Create a material from a preset in the library.
-    
+
     Args:
         preset_name: Name of the preset to use
         material_name: Optional name for the new material
         library: Optional library to use (defaults to default library)
-        
+
     Returns:
         str: Name of the created material
-        
+
     Raises:
         BlenderMaterialError: If preset not found or material creation fails
     """
     if library is None:
         library = get_default_library()
-    
+
     try:
         # Get the preset
         preset = library.get_preset(preset_name)
-        material_type = preset['type']
-        params = preset['parameters']
-        
+        material_type = preset["type"]
+        params = preset["parameters"]
+
         # Generate a name if not provided
         if material_name is None:
             material_name = f"{preset_name}_{int(time.time())}"
-        
+
         # Create the material based on type
-        if material_type == 'fabric':
-            return await create_fabric_material(
-                name=material_name,
-                **params
-            )
-        elif material_type == 'metal':
-            return await create_metal_material(
-                name=material_name,
-                **params
-            )
-        elif material_type == 'wood':
-            return await create_wood_material(
-                name=material_name,
-                **params
-            )
-        elif material_type == 'glass':
-            return await create_glass_material(
-                name=material_name,
-                **params
-            )
-        elif material_type == 'ceramic':
-            return await create_ceramic_material(
-                name=material_name,
-                **params
-            )
-        elif material_type == 'leather':
-            return await create_leather_material(
-                name=material_name,
-                **params
-            )
-        elif material_type == 'stone':
-            return await create_stone_material(
-                name=material_name,
-                **params
-            )
+        if material_type == "fabric":
+            return await create_fabric_material(name=material_name, **params)
+        elif material_type == "metal":
+            return await create_metal_material(name=material_name, **params)
+        elif material_type == "wood":
+            return await create_wood_material(name=material_name, **params)
+        elif material_type == "glass":
+            return await create_glass_material(name=material_name, **params)
+        elif material_type == "ceramic":
+            return await create_ceramic_material(name=material_name, **params)
+        elif material_type == "leather":
+            return await create_leather_material(name=material_name, **params)
+        elif material_type == "stone":
+            return await create_stone_material(name=material_name, **params)
         else:
             raise ValueError(f"Unsupported material type: {material_type}")
-            
+
     except Exception as e:
         error_msg = f"Failed to create material from preset '{preset_name}': {str(e)}"
         logger.error(error_msg)
         raise BlenderMaterialError(preset_name, "create_from_preset", error_msg)
+
 
 # Register tools when this module is imported
 _register_material_tools()

@@ -4,13 +4,12 @@ Import tools for Blender MCP.
 Provides tools for importing various file formats into Blender.
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Optional, Tuple, Union
 from blender_mcp.app import get_app
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -22,11 +21,11 @@ def _register_import_tools():
     async def blender_import(
         operation: str = "import_fbx",
         filepath: str = "",
-    file_format: str = "FBX",
-    global_scale: float = 1.0,
-    use_custom_normals: bool = True,
-    import_shading: bool = True,
-    asset_name: str = "LinkedAsset"
+        file_format: str = "FBX",
+        global_scale: float = 1.0,
+        use_custom_normals: bool = True,
+        import_shading: bool = True,
+        asset_name: str = "LinkedAsset",
     ) -> str:
         """
         Import 3D files into Blender scenes.
@@ -60,13 +59,12 @@ def _register_import_tools():
                     file_format=file_format,
                     global_scale=global_scale,
                     use_custom_normals=use_custom_normals,
-                    import_shading=import_shading
+                    import_shading=import_shading,
                 )
 
             elif operation == "link_asset":
                 return await link_asset(
-                    filepath=filepath,
-                    name=kwargs.get('asset_name', 'LinkedAsset')
+                    filepath=filepath, name=kwargs.get("asset_name", "LinkedAsset")
                 )
 
             else:

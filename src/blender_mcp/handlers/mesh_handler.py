@@ -4,11 +4,10 @@ Mesh creation and manipulation handler for Blender MCP.
 Provides functions for creating basic mesh primitives and manipulating mesh objects.
 """
 
-from typing import Tuple, Optional
+from typing import Tuple
 from loguru import logger
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
-from ..exceptions import BlenderMeshError
 
 _executor = get_blender_executor()
 
@@ -17,7 +16,7 @@ _executor = get_blender_executor()
 async def create_cube(
     name: str = "Cube",
     location: Tuple[float, float, float] = (0, 0, 0),
-    scale: Tuple[float, float, float] = (1, 1, 1)
+    scale: Tuple[float, float, float] = (1, 1, 1),
 ) -> str:
     """
     Create a cube primitive.
@@ -52,7 +51,7 @@ async def create_sphere(
     scale: Tuple[float, float, float] = (1, 1, 1),
     radius: float = 1.0,
     segments: int = 32,
-    rings: int = 16
+    rings: int = 16,
 ) -> str:
     """
     Create a sphere primitive.
@@ -96,7 +95,7 @@ async def create_cylinder(
     scale: Tuple[float, float, float] = (1, 1, 1),
     radius: float = 1.0,
     depth: float = 2.0,
-    vertices: int = 32
+    vertices: int = 32,
 ) -> str:
     """
     Create a cylinder primitive.
@@ -140,7 +139,7 @@ async def create_cone(
     scale: Tuple[float, float, float] = (1, 1, 1),
     radius1: float = 1.0,
     depth: float = 2.0,
-    vertices: int = 32
+    vertices: int = 32,
 ) -> str:
     """
     Create a cone primitive.
@@ -181,7 +180,7 @@ obj.name = {name!r}
 async def create_plane(
     name: str = "Plane",
     location: Tuple[float, float, float] = (0, 0, 0),
-    scale: Tuple[float, float, float] = (1, 1, 1)
+    scale: Tuple[float, float, float] = (1, 1, 1),
 ) -> str:
     """
     Create a plane primitive.
@@ -214,7 +213,7 @@ async def create_torus(
     name: str = "Torus",
     location: Tuple[float, float, float] = (0, 0, 0),
     major_radius: float = 1.0,
-    minor_radius: float = 0.25
+    minor_radius: float = 0.25,
 ) -> str:
     """
     Create a torus primitive.
@@ -228,7 +227,9 @@ async def create_torus(
     Returns:
         Success message
     """
-    logger.info(f"Creating torus '{name}' at {location} with major radius {major_radius}, minor radius {minor_radius}")
+    logger.info(
+        f"Creating torus '{name}' at {location} with major radius {major_radius}, minor radius {minor_radius}"
+    )
 
     script = f"""
 import bpy
@@ -251,7 +252,7 @@ obj.name = {name!r}
 async def create_monkey(
     name: str = "Suzanne",
     location: Tuple[float, float, float] = (0, 0, 0),
-    scale: Tuple[float, float, float] = (1, 1, 1)
+    scale: Tuple[float, float, float] = (1, 1, 1),
 ) -> str:
     """
     Create Suzanne (monkey) primitive.
@@ -280,10 +281,7 @@ obj.name = {name!r}
 
 
 @blender_operation("duplicate_object")
-async def duplicate_object(
-    source_name: str,
-    new_name: str
-) -> str:
+async def duplicate_object(source_name: str, new_name: str) -> str:
     """
     Duplicate an existing object.
 

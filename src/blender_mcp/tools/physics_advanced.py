@@ -5,50 +5,61 @@ This module provides tools for advanced physics simulations including cloth, flu
 The actual tool functions are defined in the handlers and registered with @app.tool decorators.
 This module provides parameter models and enums for documentation and validation purposes.
 """
-from typing import Dict, Any, List, Optional, Union, Tuple
+
 from enum import Enum
-from pydantic import BaseModel, Field, validator, conlist, conint, confloat
-from ..compat import JSONType
+from pydantic import BaseModel, Field
 
 # Note: The actual tool functions are defined in the handlers and registered with @app.tool decorators.
 # This module provides parameter models and enums for documentation and validation purposes.
 # We don't import from handlers to avoid circular imports.
 
+
 # Enums for physics types
 class ClothQualityPreset(str, Enum):
     """Cloth quality presets."""
+
     LOW = "LOW"
     MEDIUM = "MEDIUM"
     HIGH = "HIGH"
 
+
 class FluidDomainType(str, Enum):
     """Fluid domain types."""
+
     GAS = "GAS"
     LIQUID = "LIQUID"
 
+
 class ParticleSystemType(str, Enum):
     """Particle system types."""
+
     EMITTER = "EMITTER"
     HAIR = "HAIR"
     FLUID = "FLUID"
 
+
 class ConstraintType(str, Enum):
     """Physics constraint types."""
+
     FIXED = "FIXED"
     POINT = "POINT"
     HINGE = "HINGE"
     SLIDER = "SLIDER"
 
+
 class PhysicsType(str, Enum):
     """Physics simulation types."""
+
     RIGID_BODY = "RIGID_BODY"
     SOFT_BODY = "SOFT_BODY"
     CLOTH = "CLOTH"
     FLUID = "FLUID"
     PARTICLE = "PARTICLE"
 
+
 class CollisionShape(str, Enum):
     """Collision shape types."""
+
     CONVEX_HULL = "CONVEX_HULL"
     MESH = "MESH"
     SPHERE = "SPHERE"
@@ -57,8 +68,10 @@ class CollisionShape(str, Enum):
     CYLINDER = "CYLINDER"
     CONE = "CONE"
 
+
 class ForceFieldType(str, Enum):
     """Force field types."""
+
     FORCE = "FORCE"
     WIND = "WIND"
     VORTEX = "VORTEX"
@@ -73,11 +86,15 @@ class ForceFieldType(str, Enum):
     DRAG = "DRAG"
     FLUID_FLOW = "FLUID_FLOW"
 
+
 # Parameter Models for validation and documentation
 class ClothSimulationParams(BaseModel):
     """Parameters for cloth simulation."""
+
     object_name: str = Field(..., description="Name of the object to apply cloth simulation to")
-    quality_preset: ClothQualityPreset = Field(ClothQualityPreset.MEDIUM, description="Quality preset")
+    quality_preset: ClothQualityPreset = Field(
+        ClothQualityPreset.MEDIUM, description="Quality preset"
+    )
     mass: float = Field(1.0, gt=0.0, description="Cloth mass")
     structural_stiffness: float = Field(1.0, ge=0.0, le=1.0, description="Structural stiffness")
     bending_stiffness: float = Field(0.1, ge=0.0, le=1.0, description="Bending stiffness")
@@ -91,8 +108,10 @@ class ClothSimulationParams(BaseModel):
     use_self_collision: bool = Field(False, description="Use self collision")
     self_collision_distance: float = Field(0.01, gt=0.0, description="Self collision distance")
 
+
 class FluidSimulationParams(BaseModel):
     """Parameters for fluid simulation."""
+
     object_name: str = Field(..., description="Name of the object to apply fluid simulation to")
     domain_type: FluidDomainType = Field(FluidDomainType.LIQUID, description="Domain type")
     resolution: int = Field(64, ge=8, le=256, description="Simulation resolution")
@@ -104,8 +123,10 @@ class FluidSimulationParams(BaseModel):
     use_dissolve: bool = Field(False, description="Use dissolve")
     dissolve_speed: float = Field(1.0, gt=0.0, description="Dissolve speed")
 
+
 class ParticleSystemParams(BaseModel):
     """Parameters for particle system."""
+
     object_name: str = Field(..., description="Name of the object to apply particle system to")
     system_type: ParticleSystemType = Field(ParticleSystemType.EMITTER, description="System type")
     count: int = Field(1000, gt=0, description="Number of particles")
@@ -121,8 +142,10 @@ class ParticleSystemParams(BaseModel):
     use_gravity: bool = Field(True, description="Use gravity")
     gravity_strength: float = Field(1.0, description="Gravity strength")
 
+
 class RigidBodyConstraintParams(BaseModel):
     """Parameters for rigid body constraint."""
+
     object_a: str = Field(..., description="First object name")
     object_b: str = Field(..., description="Second object name")
     constraint_type: ConstraintType = Field(ConstraintType.FIXED, description="Constraint type")
@@ -145,8 +168,10 @@ class RigidBodyConstraintParams(BaseModel):
     limit_ang_z_lower: float = Field(-3.14159, description="Angular Z lower limit")
     limit_ang_z_upper: float = Field(3.14159, description="Angular Z upper limit")
 
+
 class DynamicPaintParams(BaseModel):
     """Parameters for dynamic paint."""
+
     object_name: str = Field(..., description="Name of the object to apply dynamic paint to")
     canvas_type: str = Field("PAINT", description="Canvas type (PAINT, WEIGHT)")
     brush_type: str = Field("PAINT", description="Brush type (PAINT, ERASE, WEIGHT)")
@@ -159,8 +184,10 @@ class DynamicPaintParams(BaseModel):
     use_smudge: bool = Field(False, description="Use smudge")
     smudge_strength: float = Field(1.0, gt=0.0, description="Smudge strength")
 
+
 class PhysicsBakeParams(BaseModel):
     """Parameters for physics baking."""
+
     object_name: str = Field(..., description="Name of the object to bake physics for")
     start_frame: int = Field(1, description="Start frame")
     end_frame: int = Field(250, description="End frame")
@@ -169,6 +196,7 @@ class PhysicsBakeParams(BaseModel):
     cache_type: str = Field("MODULAR", description="Cache type (MODULAR, REPLACE)")
     use_disk_cache: bool = Field(False, description="Use disk cache")
     disk_cache_dir: str = Field("", description="Disk cache directory")
+
 
 # Tool Definitions
 # Note: The actual tool functions are defined in the handlers and registered with @app.tool decorators.
@@ -186,10 +214,12 @@ class PhysicsBakeParams(BaseModel):
 # - create_particle_system: Create a particle system
 # - control_particle_emission: Control particle emission settings
 
+
 def register() -> None:
     """Register all physics tools."""
     # Tools are already registered via @app.tool decorators in handlers
     pass
+
 
 # Auto-register tools when module is imported
 register()

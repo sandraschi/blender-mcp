@@ -107,10 +107,12 @@ def temp_dir() -> Generator[Path, None, None]:
 @pytest.fixture
 def temp_file(temp_dir: Path) -> Generator[Path, None, None]:
     """Create a temporary file for individual tests."""
+
     def _temp_file(suffix: str = "") -> Path:
         fd, path = tempfile.mkstemp(dir=temp_dir, suffix=suffix)
         os.close(fd)
         return Path(path)
+
     return _temp_file
 
 
@@ -149,11 +151,15 @@ def setup_test_environment(test_config: Dict[str, Any]):
 # Custom pytest markers
 def pytest_configure(config):
     """Configure pytest with custom markers."""
-    config.addinivalue_line("markers", "unit: pure unit tests that don't require external dependencies")
+    config.addinivalue_line(
+        "markers", "unit: pure unit tests that don't require external dependencies"
+    )
     config.addinivalue_line("markers", "integration: integration tests that test full workflows")
     config.addinivalue_line("markers", "slow: marks tests as slow (may take >5 seconds)")
     config.addinivalue_line("markers", "performance: performance benchmark tests")
-    config.addinivalue_line("markers", "requires_blender: tests that require Blender to be installed")
+    config.addinivalue_line(
+        "markers", "requires_blender: tests that require Blender to be installed"
+    )
     config.addinivalue_line("markers", "ci_skip: tests to skip in CI environment")
     config.addinivalue_line("markers", "local_only: tests that only run in local development")
 
@@ -183,7 +189,7 @@ def mock_blender_executor():
 @pytest.fixture
 def sample_blender_script():
     """Sample Blender Python script for testing."""
-    return '''
+    return """
 import bpy
 import sys
 
@@ -201,7 +207,7 @@ material.use_nodes = True
 cube.data.materials.append(material)
 
 print("Test scene created successfully")
-'''
+"""
 
 
 @pytest.fixture

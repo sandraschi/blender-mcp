@@ -2,9 +2,8 @@ from ..compat import *
 
 """Texture operations handler for Blender MCP."""
 
-from typing import Optional, List, Dict, Any, Union, Tuple
+from typing import Dict, Any, Union
 from enum import Enum
-from pathlib import Path
 from loguru import logger
 
 from ..utils.blender_executor import get_blender_executor
@@ -12,8 +11,10 @@ from ..decorators import blender_operation
 
 _executor = get_blender_executor()
 
+
 class TextureType(str, Enum):
     """Supported texture types."""
+
     IMAGE = "IMAGE"
     NOISE = "NOISE"
     VORONOI = "VORONOI"
@@ -28,8 +29,10 @@ class TextureType(str, Enum):
     ENVIRONMENT_MAP = "ENVIRONMENT_MAP"
     POINT_DENSITY = "POINT_DENSITY"
 
+
 class ImageSourceType(str, Enum):
     """Image source types for textures."""
+
     FILE = "FILE"
     GENERATED = "GENERATED"
     MOVIE = "MOVIE"
@@ -37,14 +40,13 @@ class ImageSourceType(str, Enum):
     TILED = "TILED"
     VIEWER = "VIEWER"
 
+
 @blender_operation("create_texture", log_args=True)
 async def create_texture(
-    name: str,
-    texture_type: Union[TextureType, str],
-    **kwargs: Any
+    name: str, texture_type: Union[TextureType, str], **kwargs: Any
 ) -> Dict[str, Any]:
     """Create a new texture.
-    
+
     Args:
         name: Name for the new texture
         texture_type: Type of texture to create
@@ -53,15 +55,15 @@ async def create_texture(
             - height: Height for generated textures (default: 1024)
             - color: Base color for generated textures (default: [0.8, 0.8, 0.8, 1.0])
             - filepath: Path to image file for IMAGE type
-            
+
     Returns:
         Dict containing texture creation status and details
     """
-    width = kwargs.get('width', 1024)
-    height = kwargs.get('height', 1024)
-    color = kwargs.get('color', [0.8, 0.8, 0.8, 1.0])
-    filepath = kwargs.get('filepath')
-    
+    width = kwargs.get("width", 1024)
+    height = kwargs.get("height", 1024)
+    color = kwargs.get("color", [0.8, 0.8, 0.8, 1.0])
+    filepath = kwargs.get("filepath")
+
     script = f"""
 import os
 
@@ -131,7 +133,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -139,15 +141,13 @@ except Exception as e:
         logger.error(f"Failed to create texture: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("assign_texture_to_material", log_args=True)
 async def assign_texture_to_material(
-    material_name: str,
-    texture_name: str,
-    texture_slot: str = "Base Color",
-    **kwargs: Any
+    material_name: str, texture_name: str, texture_slot: str = "Base Color", **kwargs: Any
 ) -> Dict[str, Any]:
     """Assign a texture to a material slot.
-    
+
     Args:
         material_name: Name of the material
         texture_name: Name of the texture to assign
@@ -155,13 +155,13 @@ async def assign_texture_to_material(
         **kwargs: Additional parameters
             - node_group: Node group to use (default: 'ShaderNodeTexImage' for image textures)
             - strength: Influence strength (default: 1.0)
-            
+
     Returns:
         Dict containing assignment status and details
     """
-    node_group = kwargs.get('node_group')
-    strength = kwargs.get('strength', 1.0)
-    
+    node_group = kwargs.get("node_group")
+    strength = kwargs.get("strength", 1.0)
+
     script = f"""
 
 def assign_texture():
@@ -181,7 +181,7 @@ def assign_texture():
         links = mat.node_tree.links
         
         # Clear existing nodes if requested
-        if {str(kwargs.get('clear_nodes', False)).lower()}:
+        if {str(kwargs.get("clear_nodes", False)).lower()}:
             nodes.clear()
         
         # Get or create Principled BSDF
@@ -256,13 +256,14 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
         logger.error(f"Failed to assign texture to material: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
+
 
 @blender_operation("bake_texture", log_args=True)
 async def bake_texture(
@@ -272,10 +273,10 @@ async def bake_texture(
     margin: int = 16,
     use_selected_to_active: bool = False,
     cage_extrusion: float = 0.1,
-    filepath: str = ""
+    filepath: str = "",
 ) -> Dict[str, Any]:
     """Bake textures for selected objects.
-    
+
     Args:
         bake_type: Type of baking ('DIFFUSE', 'NORMAL', 'ROUGHNESS', 'METALLIC', 'EMIT', etc.)
         width: Width of the baked texture (default: 1024)
@@ -284,7 +285,7 @@ async def bake_texture(
         use_selected_to_active: Bake from selected to active (default: False)
         cage_extrusion: Cage extrusion for ray casting (default: 0.1)
         filepath: Where to save the baked texture (default: "")
-            
+
     Returns:
         Dict containing baking status and details
     """
@@ -392,7 +393,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}

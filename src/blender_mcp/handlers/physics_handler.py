@@ -5,7 +5,7 @@ from ..compat import *
 This module provides physics simulation and rigid body functions that can be registered as FastMCP tools.
 """
 
-from typing import Optional, Tuple, Dict, Any, Union, List, Literal
+from typing import Optional, Tuple, Dict, Any, Union
 from enum import Enum
 from loguru import logger
 
@@ -15,8 +15,10 @@ from ..decorators import blender_operation
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()
 
+
 class PhysicsType(str, Enum):
     """Supported physics types."""
+
     RIGID_BODY = "RIGID_BODY"
     SOFT_BODY = "SOFT_BODY"
     CLOTH = "CLOTH"
@@ -24,13 +26,17 @@ class PhysicsType(str, Enum):
     SMOKE = "SMOKE"
     DYNAMIC_PAINT = "DYNAMIC_PAINT"
 
+
 class RigidBodyType(str, Enum):
     """Rigid body types."""
+
     ACTIVE = "ACTIVE"
     PASSIVE = "PASSIVE"
 
+
 class RigidBodyConstraintType(str, Enum):
     """Rigid body constraint types."""
+
     FIXED = "FIXED"
     POINT = "POINT"
     HINGE = "HINGE"
@@ -40,8 +46,10 @@ class RigidBodyConstraintType(str, Enum):
     GENERIC_SPRING = "GENERIC_SPRING"
     MOTOR = "MOTOR"
 
+
 class CollisionShapeType(str, Enum):
     """Collision shape types for rigid bodies."""
+
     BOX = "BOX"
     SPHERE = "SPHERE"
     CAPSULE = "CAPSULE"
@@ -51,6 +59,7 @@ class CollisionShapeType(str, Enum):
     MESH = "MESH"
     COMPOUND = "COMPOUND"
 
+
 @blender_operation("enable_physics", log_args=True)
 async def enable_physics(
     object_name: str,
@@ -59,10 +68,10 @@ async def enable_physics(
     mass: float = 1.0,
     friction: float = 0.5,
     bounciness: float = 0.5,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Enable physics simulation for an object.
-    
+
     Args:
         object_name: Name of the object to enable physics for
         physics_type: Type of physics to enable (RIGID_BODY, SOFT_BODY, CLOTH, etc.)
@@ -75,16 +84,16 @@ async def enable_physics(
             - damping_linear/angular: Linear/angular damping (0.0-1.0)
             - use_margin: Enable collision margin (bool)
             - collision_margin: Collision margin distance
-            
+
     Returns:
         Dict containing operation status and physics settings
     """
-    collision_shape = kwargs.get('collision_shape', 'MESH')
-    damping_linear = kwargs.get('damping_linear', 0.1)
-    damping_angular = kwargs.get('damping_angular', 0.1)
-    use_margin = kwargs.get('use_margin', False)
-    collision_margin = kwargs.get('collision_margin', 0.04)
-    
+    collision_shape = kwargs.get("collision_shape", "MESH")
+    damping_linear = kwargs.get("damping_linear", 0.1)
+    damping_angular = kwargs.get("damping_angular", 0.1)
+    use_margin = kwargs.get("use_margin", False)
+    collision_margin = kwargs.get("collision_margin", 0.04)
+
     script = f"""
 import math
 
@@ -114,8 +123,8 @@ def setup_physics():
         obj.rigid_body.collision_margin = {collision_margin}
         
         # Set collision group/mask if provided
-        if {kwargs.get('collision_groups', None)} is not None:
-            for i, enabled in enumerate({kwargs.get('collision_groups', [])}):
+        if {kwargs.get("collision_groups", None)} is not None:
+            for i, enabled in enumerate({kwargs.get("collision_groups", [])}):
                 if i < 20:  # Blender supports 20 collision groups
                     obj.rigid_body.collision_groups[i] = bool(enabled)
     
@@ -130,28 +139,28 @@ def setup_physics():
         
         # Configure cloth settings
         settings = cloth.settings
-        settings.quality = {kwargs.get('quality', 5)}  # Default quality level
+        settings.quality = {kwargs.get("quality", 5)}  # Default quality level
         settings.mass = {mass}
-        settings.air_damping = {kwargs.get('air_damping', 1.0)}
-        settings.tension_stiffness = {kwargs.get('tension_stiffness', 15.0)}
-        settings.compression_stiffness = {kwargs.get('compression_stiffness', 15.0)}
-        settings.shear_stiffness = {kwargs.get('shear_stiffness', 5.0)}
-        settings.bending_stiffness = {kwargs.get('bending_stiffness', 0.5)}
+        settings.air_damping = {kwargs.get("air_damping", 1.0)}
+        settings.tension_stiffness = {kwargs.get("tension_stiffness", 15.0)}
+        settings.compression_stiffness = {kwargs.get("compression_stiffness", 15.0)}
+        settings.shear_stiffness = {kwargs.get("shear_stiffness", 5.0)}
+        settings.bending_stiffness = {kwargs.get("bending_stiffness", 0.5)}
         
         # Collision settings
-        settings.use_collision = {str(kwargs.get('use_collision', True)).lower()}
-        settings.use_self_collision = {str(kwargs.get('use_self_collision', True)).lower()}
-        settings.self_collision_quality = {kwargs.get('self_collision_quality', 5)}
-        settings.self_collision_distance = {kwargs.get('self_collision_distance', 0.015)}
+        settings.use_collision = {str(kwargs.get("use_collision", True)).lower()}
+        settings.use_self_collision = {str(kwargs.get("use_self_collision", True)).lower()}
+        settings.self_collision_quality = {kwargs.get("self_collision_quality", 5)}
+        settings.self_collision_distance = {kwargs.get("self_collision_distance", 0.015)}
         
         # Cache settings
         if 'cache' not in settings:
-            settings.use_internal_springs = {str(kwargs.get('use_internal_springs', True)).lower()}
+            settings.use_internal_springs = {str(kwargs.get("use_internal_springs", True)).lower()}
         
         # Pin group for cloth (vertex group to pin parts of the cloth)
         if '{kwargs.get("pin_group", "")}':
             settings.vertex_group_mass = '{kwargs["pin_group"]}'
-            settings.pin_stiffness = {kwargs.get('pin_stiffness', 0.5)}
+            settings.pin_stiffness = {kwargs.get("pin_stiffness", 0.5)}
     
     return {{
         'status': 'SUCCESS',
@@ -172,7 +181,7 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -180,15 +189,13 @@ print(str(result))
         logger.error(f"Failed to enable physics: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("bake_physics_simulation", log_args=True)
 async def bake_physics_simulation(
-    frame_start: int = 1,
-    frame_end: int = 250,
-    step: int = 1,
-    **kwargs: Any
+    frame_start: int = 1, frame_end: int = 250, step: int = 1, **kwargs: Any
 ) -> Dict[str, Any]:
     """Bake physics simulation to keyframes.
-    
+
     Args:
         frame_start: First frame to bake
         frame_end: Last frame to bake
@@ -196,13 +203,13 @@ async def bake_physics_simulation(
         **kwargs: Additional parameters
             - only_selected: Only bake selected objects (bool, default: False)
             - clear_cached: Clear cached simulation data (bool, default: True)
-            
+
     Returns:
         Dict containing operation status and bake details
     """
-    only_selected = kwargs.get('only_selected', False)
-    clear_cached = kwargs.get('clear_cached', True)
-    
+    only_selected = kwargs.get("only_selected", False)
+    clear_cached = kwargs.get("clear_cached", True)
+
     script = f"""
 
 def bake_simulation():
@@ -246,7 +253,7 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -254,16 +261,17 @@ print(str(result))
         logger.error(f"Failed to bake physics simulation: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("add_force_field", log_args=True)
 async def add_force_field(
     field_type: str = "FORCE",
     location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
     strength: float = 1.0,
     falloff: float = 2.0,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Add a force field to the scene.
-    
+
     Args:
         field_type: Type of force field (FORCE, WIND, VORTEX, etc.)
         location: Location of the force field (x, y, z)
@@ -274,15 +282,15 @@ async def add_force_field(
             - flow: Flow type for wind/turbulence
             - use_max_distance: Enable maximum distance
             - max_distance: Maximum distance of effect
-            
+
     Returns:
         Dict containing operation status and force field details
     """
-    direction = kwargs.get('direction', (0.0, 0.0, 1.0))
-    flow = kwargs.get('flow', 0)
-    use_max_distance = kwargs.get('use_max_distance', False)
-    max_distance = kwargs.get('max_distance', 10.0)
-    
+    direction = kwargs.get("direction", (0.0, 0.0, 1.0))
+    flow = kwargs.get("flow", 0)
+    use_max_distance = kwargs.get("use_max_distance", False)
+    max_distance = kwargs.get("max_distance", 10.0)
+
     script = f"""
 from mathutils import Vector
 
@@ -311,9 +319,9 @@ def add_force_field():
     
     # Additional field type specific settings
     if '{field_type}' == 'WIND':
-        field.noise = {kwargs.get('noise', 0.0)}
+        field.noise = {kwargs.get("noise", 0.0)}
     elif '{field_type}' == 'VORTEX':
-        field.falloff_type = '{kwargs.get('falloff_type', 'TUBE')}'
+        field.falloff_type = '{kwargs.get("falloff_type", "TUBE")}'
     
     return {{
         'status': 'SUCCESS',
@@ -333,13 +341,14 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
         logger.error(f"Failed to add force field: {str(e)}")
     return {"status": "ERROR", "error": str(e)}
+
 
 @blender_operation("configure_cloth_simulation", log_args=True)
 async def configure_cloth_simulation(
@@ -358,10 +367,10 @@ async def configure_cloth_simulation(
     use_internal_springs: bool = True,
     pin_group: str = "",
     pin_stiffness: float = 0.5,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Configure cloth simulation settings for an object.
-    
+
     Args:
         object_name: Name of the object with cloth simulation
         quality: Simulation quality (1-10)
@@ -382,14 +391,14 @@ async def configure_cloth_simulation(
             - pressure: Pressure for closed meshes (0.0-10.0)
             - shrink_min: Minimum shrink factor (0.0-1.0)
             - shrink_max: Maximum shrink factor (0.0-1.0)
-            
+
     Returns:
         Dict containing operation status and cloth settings
     """
-    pressure = kwargs.get('pressure', 0.0)
-    shrink_min = kwargs.get('shrink_min', 0.0)
-    shrink_max = kwargs.get('shrink_max', 1.0)
-    
+    pressure = kwargs.get("pressure", 0.0)
+    shrink_min = kwargs.get("shrink_min", 0.0)
+    shrink_max = kwargs.get("shrink_max", 1.0)
+
     script = f"""
 
 def configure_cloth():
@@ -465,13 +474,14 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
         logger.error(f"Failed to configure cloth simulation: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
+
 
 @blender_operation("bake_cloth_simulation", log_args=True)
 async def bake_cloth_simulation(
@@ -480,10 +490,10 @@ async def bake_cloth_simulation(
     frame_end: int = 250,
     step: int = 1,
     clear_previous: bool = True,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Bake cloth simulation to keyframes.
-    
+
     Args:
         object_name: Name of the object with cloth simulation
         frame_start: First frame to bake
@@ -494,14 +504,14 @@ async def bake_cloth_simulation(
             - use_gravity: Apply gravity during bake (default: True)
             - use_subsurf: Apply subdivision surface during bake (default: True)
             - use_shape_keys: Bake to shape keys (default: False)
-            
+
     Returns:
         Dict containing operation status and bake information
     """
-    use_gravity = kwargs.get('use_gravity', True)
-    use_subsurf = kwargs.get('use_subsurf', True)
-    use_shape_keys = kwargs.get('use_shape_keys', False)
-    
+    use_gravity = kwargs.get("use_gravity", True)
+    use_subsurf = kwargs.get("use_subsurf", True)
+    use_shape_keys = kwargs.get("use_shape_keys", False)
+
     script = f"""
 
 def bake_cloth():
@@ -590,13 +600,14 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
         logger.error(f"Failed to bake cloth simulation: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
+
 
 @blender_operation("add_rigid_body_constraint", log_args=True)
 async def add_rigid_body_constraint(
@@ -608,10 +619,10 @@ async def add_rigid_body_constraint(
     use_spring: bool = False,
     spring_stiffness: float = 10.0,
     spring_damping: float = 0.5,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Add a constraint between two rigid bodies.
-    
+
     Args:
         object_a: Name of the first rigid body
         object_b: Name of the second rigid body (or empty for world)
@@ -627,7 +638,7 @@ async def add_rigid_body_constraint(
             - use_motor: Enable motor for the constraint
             - motor_velocity: Target velocity for the motor
             - motor_max_impulse: Maximum impulse for the motor
-            
+
     Returns:
         Dict containing operation status and constraint details
     """
@@ -717,13 +728,14 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
         logger.error(f"Failed to add rigid body constraint: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
+
 
 @blender_operation("configure_rigid_body_world", log_args=True)
 async def configure_rigid_body_world(
@@ -733,10 +745,10 @@ async def configure_rigid_body_world(
     solver_iterations: int = 10,
     use_split_impulse: bool = True,
     split_impulse_threshold: float = 0.01,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Configure the rigid body world simulation settings.
-    
+
     Args:
         gravity: Gravity vector (x, y, z)
         time_scale: Time scale for the simulation (0.1 = slow motion, 1.0 = normal, 2.0 = double speed)
@@ -752,18 +764,18 @@ async def configure_rigid_body_world(
             - use_continuous_collision: Enable continuous collision detection (default: False)
             - ccd_mode: Continuous collision detection mode ('NONE', 'STATIC', 'DYNAMIC', 'ALL')
             - ccd_threshold: Threshold for CCD (default: 0.1)
-            
+
     Returns:
         Dict containing operation status and simulation settings
     """
-    use_deactivation = kwargs.get('use_deactivation', True)
-    deactivate_linear_threshold = kwargs.get('deactivate_linear_threshold', 0.1)
-    deactivate_angular_threshold = kwargs.get('deactivate_angular_threshold', 0.1)
-    deactivate_time = kwargs.get('deactivate_time', 2.0)
-    use_continuous_collision = kwargs.get('use_continuous_collision', False)
-    ccd_mode = kwargs.get('ccd_mode', 'NONE')
-    ccd_threshold = kwargs.get('ccd_threshold', 0.1)
-    
+    use_deactivation = kwargs.get("use_deactivation", True)
+    deactivate_linear_threshold = kwargs.get("deactivate_linear_threshold", 0.1)
+    deactivate_angular_threshold = kwargs.get("deactivate_angular_threshold", 0.1)
+    deactivate_time = kwargs.get("deactivate_time", 2.0)
+    use_continuous_collision = kwargs.get("use_continuous_collision", False)
+    ccd_mode = kwargs.get("ccd_mode", "NONE")
+    ccd_threshold = kwargs.get("ccd_threshold", 0.1)
+
     script = f"""
 
 def configure_world():
@@ -820,13 +832,14 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
         logger.error(f"Failed to configure rigid body world: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
+
 
 @blender_operation("set_rigid_body_collision_shape", log_args=True)
 async def set_rigid_body_collision_shape(
@@ -835,10 +848,10 @@ async def set_rigid_body_collision_shape(
     source_object: Optional[str] = None,
     use_deform: bool = False,
     use_mesh: bool = False,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Set the collision shape for a rigid body.
-    
+
     Args:
         object_name: Name of the object to set collision shape for
         shape_type: Type of collision shape (BOX, SPHERE, CAPSULE, etc.)
@@ -851,16 +864,16 @@ async def set_rigid_body_collision_shape(
             - margin: Collision margin (default: 0.04)
             - use_compound: Use compound collision shape (default: False)
             - use_scale: Apply object scale to collision shape (default: True)
-            
+
     Returns:
         Dict containing operation status and collision shape details
     """
-    radius = kwargs.get('radius', 'AUTO')  # 'AUTO' will calculate from bounds
-    height = kwargs.get('height', 'AUTO')
-    margin = kwargs.get('margin', 0.04)
-    use_compound = kwargs.get('use_compound', False)
-    use_scale = kwargs.get('use_scale', True)
-    
+    radius = kwargs.get("radius", "AUTO")  # 'AUTO' will calculate from bounds
+    height = kwargs.get("height", "AUTO")
+    margin = kwargs.get("margin", 0.04)
+    use_compound = kwargs.get("use_compound", False)
+    use_scale = kwargs.get("use_scale", True)
+
     script = f"""
 import mathutils
 
@@ -982,13 +995,14 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
         logger.error(f"Failed to set rigid body collision shape: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
+
 
 @blender_operation("create_particle_system", log_args=True)
 async def create_particle_system(
@@ -1001,10 +1015,10 @@ async def create_particle_system(
     lifetime: float = 50.0,
     emit_from: str = "FACE",
     physics_type: str = "NEWTONIAN",
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Create and configure a particle system on an object.
-    
+
     Args:
         object_name: Name of the object to add the particle system to
         system_name: Name for the particle system
@@ -1030,26 +1044,26 @@ async def create_particle_system(
             - use_dynamic_rotation: Dynamic rotation (default: False)
             - angular_velocity_mode: Angular velocity mode ('NONE', 'VELOCITY', 'HORIZONTAL', 'VERTICAL')
             - angular_velocity_factor: Angular velocity factor (default: 0.0)
-            
+
     Returns:
         Dict containing operation status and particle system details
     """
     # Get kwargs with defaults
-    use_emit_random = kwargs.get('use_emit_random', True)
-    use_even_distribution = kwargs.get('use_even_distribution', True)
-    use_modifier_stack = kwargs.get('use_modifier_stack', True)
-    normal_factor = kwargs.get('normal_factor', 0.0)
-    size = kwargs.get('size', 0.05)
-    size_random = kwargs.get('size_random', 0.0)
-    mass = kwargs.get('mass', 1.0)
-    use_multiply_size_mass = kwargs.get('use_multiply_size_mass', False)
-    use_rotations = kwargs.get('use_rotations', False)
-    rotation_factor = kwargs.get('rotation_factor', 0.0)
-    phase_factor = kwargs.get('phase_factor', 0.0)
-    use_dynamic_rotation = kwargs.get('use_dynamic_rotation', False)
-    angular_velocity_mode = kwargs.get('angular_velocity_mode', 'NONE')
-    angular_velocity_factor = kwargs.get('angular_velocity_factor', 0.0)
-    
+    use_emit_random = kwargs.get("use_emit_random", True)
+    use_even_distribution = kwargs.get("use_even_distribution", True)
+    use_modifier_stack = kwargs.get("use_modifier_stack", True)
+    normal_factor = kwargs.get("normal_factor", 0.0)
+    size = kwargs.get("size", 0.05)
+    size_random = kwargs.get("size_random", 0.0)
+    mass = kwargs.get("mass", 1.0)
+    use_multiply_size_mass = kwargs.get("use_multiply_size_mass", False)
+    use_rotations = kwargs.get("use_rotations", False)
+    rotation_factor = kwargs.get("rotation_factor", 0.0)
+    phase_factor = kwargs.get("phase_factor", 0.0)
+    use_dynamic_rotation = kwargs.get("use_dynamic_rotation", False)
+    angular_velocity_mode = kwargs.get("angular_velocity_mode", "NONE")
+    angular_velocity_factor = kwargs.get("angular_velocity_factor", 0.0)
+
     script = f"""
 
 def create_particles():
@@ -1131,7 +1145,7 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -1139,15 +1153,13 @@ print(str(result))
         logger.error(f"Failed to configure particle physics: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("control_particle_emission", log_args=True)
 async def control_particle_emission(
-    object_name: str,
-    system_name: str = "ParticleSystem",
-    action: str = "PAUSE",
-    **kwargs: Any
+    object_name: str, system_name: str = "ParticleSystem", action: str = "PAUSE", **kwargs: Any
 ) -> Dict[str, Any]:
     """Control particle emission and caching.
-    
+
     Args:
         object_name: Name of the object with the particle system
         system_name: Name of the particle system to control
@@ -1163,21 +1175,21 @@ async def control_particle_emission(
             - use_even_distribution: Distribute emission evenly (default: True)
             - use_rotations: Enable particle rotations (default: False)
             - use_dynamic_rotation: Dynamic rotation (default: False)
-            
+
     Returns:
         Dict containing operation status and control details
     """
-    frame_start = kwargs.get('frame_start', 1)
-    frame_end = kwargs.get('frame_end', 250)
-    clear_bake = kwargs.get('clear_bake', True)
-    use_disk_cache = kwargs.get('use_disk_cache', False)
-    cache_directory = kwargs.get('cache_directory', '')
-    use_render_emitter = kwargs.get('use_render_emitter', True)
-    use_emit_random = kwargs.get('use_emit_random', True)
-    use_even_distribution = kwargs.get('use_even_distribution', True)
-    use_rotations = kwargs.get('use_rotations', False)
-    use_dynamic_rotation = kwargs.get('use_dynamic_rotation', False)
-    
+    frame_start = kwargs.get("frame_start", 1)
+    frame_end = kwargs.get("frame_end", 250)
+    clear_bake = kwargs.get("clear_bake", True)
+    use_disk_cache = kwargs.get("use_disk_cache", False)
+    cache_directory = kwargs.get("cache_directory", "")
+    use_render_emitter = kwargs.get("use_render_emitter", True)
+    use_emit_random = kwargs.get("use_emit_random", True)
+    use_even_distribution = kwargs.get("use_even_distribution", True)
+    use_rotations = kwargs.get("use_rotations", False)
+    use_dynamic_rotation = kwargs.get("use_dynamic_rotation", False)
+
     script = f"""
 
 def control_emission():
@@ -1270,7 +1282,7 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}

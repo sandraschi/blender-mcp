@@ -6,8 +6,6 @@ Supports multiple repositories including BlenderKit, Kenney Assets, Quaternius, 
 """
 
 from typing import Optional, Dict, Any, List, Union, Tuple
-import asyncio
-import json
 import os
 import tempfile
 import urllib.request
@@ -34,6 +32,7 @@ _executor = get_blender_executor()
 
 class AssetRepository(str, Enum):
     """Supported asset repositories."""
+
     BLENDERKIT = "blenderkit"
     KENNEY = "kenney"
     QUATERNIUS = "quaternius"
@@ -44,6 +43,7 @@ class AssetRepository(str, Enum):
 
 class AssetType(str, Enum):
     """Types of assets that can be imported."""
+
     MODEL = "model"
     MATERIAL = "material"
     TEXTURE = "texture"
@@ -54,6 +54,7 @@ class AssetType(str, Enum):
 
 class AssetFormat(str, Enum):
     """File formats supported for import."""
+
     BLEND = "blend"
     FBX = "fbx"
     OBJ = "obj"
@@ -78,7 +79,7 @@ class RepositoryManager:
         try:
             logger.info(f"Downloading from {url} to {local_path}")
             with urllib.request.urlopen(url) as response:
-                with open(local_path, 'wb') as f:
+                with open(local_path, "wb") as f:
                     f.write(response.read())
 
             logger.info(f"Successfully downloaded {filename}")
@@ -93,15 +94,17 @@ class RepositoryManager:
         extracted_files = []
 
         try:
-            if archive_path.endswith('.zip'):
-                with zipfile.ZipFile(archive_path, 'r') as zip_ref:
+            if archive_path.endswith(".zip"):
+                with zipfile.ZipFile(archive_path, "r") as zip_ref:
                     zip_ref.extractall(extract_to)
                     extracted_files = [os.path.join(extract_to, f) for f in zip_ref.namelist()]
 
-            elif archive_path.endswith(('.tar.gz', '.tar.bz2', '.tar.xz')):
-                with tarfile.open(archive_path, 'r:*') as tar_ref:
+            elif archive_path.endswith((".tar.gz", ".tar.bz2", ".tar.xz")):
+                with tarfile.open(archive_path, "r:*") as tar_ref:
                     tar_ref.extractall(extract_to)
-                    extracted_files = [os.path.join(extract_to, m.name) for m in tar_ref.getmembers()]
+                    extracted_files = [
+                        os.path.join(extract_to, m.name) for m in tar_ref.getmembers()
+                    ]
 
             logger.info(f"Extracted {len(extracted_files)} files from {archive_path}")
             return extracted_files
@@ -125,13 +128,13 @@ class RepositoryManager:
             extracted_files = self._extract_archive(local_zip, extract_dir)
 
             # Find Blender files (.blend)
-            blend_files = [f for f in extracted_files if f.endswith('.blend')]
+            blend_files = [f for f in extracted_files if f.endswith(".blend")]
 
             if blend_files:
                 return blend_files[0], extracted_files
             else:
                 # Look for other 3D formats
-                supported_formats = ['.fbx', '.obj', '.gltf', '.glb']
+                supported_formats = [".fbx", ".obj", ".gltf", ".glb"]
                 for fmt in supported_formats:
                     model_files = [f for f in extracted_files if f.endswith(fmt)]
                     if model_files:
@@ -154,12 +157,12 @@ class RepositoryManager:
             extracted_files = self._extract_archive(local_zip, extract_dir)
 
             # Find Blender files
-            blend_files = [f for f in extracted_files if f.endswith('.blend')]
+            blend_files = [f for f in extracted_files if f.endswith(".blend")]
             if blend_files:
                 return blend_files[0], extracted_files
 
             # Look for FBX files (common format for Quaternius)
-            fbx_files = [f for f in extracted_files if f.endswith('.fbx')]
+            fbx_files = [f for f in extracted_files if f.endswith(".fbx")]
             if fbx_files:
                 return fbx_files[0], extracted_files
 
@@ -172,15 +175,15 @@ class RepositoryManager:
         """Download an asset from OpenGameArt.org."""
         try:
             # Extract filename from URL
-            filename = asset_url.split('/')[-1]
+            filename = asset_url.split("/")[-1]
             if not filename:
                 filename = "opengameart_asset.zip"
 
             local_file = self._download_file(asset_url, filename)
 
             # If it's an archive, extract it
-            if filename.endswith(('.zip', '.tar.gz', '.tar.bz2')):
-                extract_dir = str(self.temp_dir / filename.replace('.', '_'))
+            if filename.endswith((".zip", ".tar.gz", ".tar.bz2")):
+                extract_dir = str(self.temp_dir / filename.replace(".", "_"))
                 extracted_files = self._extract_archive(local_file, extract_dir)
                 return extracted_files[0] if extracted_files else local_file, extracted_files
             else:
@@ -189,7 +192,9 @@ class RepositoryManager:
         except Exception as e:
             raise Exception(f"Failed to get OpenGameArt asset from {asset_url}: {str(e)}")
 
-    def get_polyhaven_asset(self, asset_name: str, asset_type: str = "hdris") -> Tuple[str, List[str]]:
+    def get_polyhaven_asset(
+        self, asset_name: str, asset_type: str = "hdris"
+    ) -> Tuple[str, List[str]]:
         """Download an asset from Poly Haven."""
         base_url = f"https://dl.polyhaven.org/file/ph-assets/{asset_type}/{asset_name}"
 
@@ -224,7 +229,7 @@ async def download_and_import_asset(
     repository: Union[AssetRepository, str],
     asset_name: str,
     repository_specific_params: Optional[Dict[str, Any]] = None,
-    import_options: Optional[Dict[str, Any]] = None
+    import_options: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Download and import an asset from a free repository.
@@ -266,7 +271,7 @@ async def download_and_import_asset(
             if not asset_url:
                 return {
                     "status": "ERROR",
-                    "error": "OpenGameArt requires 'url' parameter with download link"
+                    "error": "OpenGameArt requires 'url' parameter with download link",
                 }
             asset_file, all_files = repo_manager.get_opengameart_asset(asset_url)
 
@@ -277,28 +282,25 @@ async def download_and_import_asset(
         elif repository == AssetRepository.BLENDERKIT:
             return {
                 "status": "ERROR",
-                "error": "BlenderKit integration requires API key and official add-on. Use BlenderKit add-on directly."
+                "error": "BlenderKit integration requires API key and official add-on. Use BlenderKit add-on directly.",
             }
 
         elif repository == AssetRepository.SKETCHFAB:
             return {
                 "status": "ERROR",
-                "error": "Sketchfab integration not yet implemented. Download manually and use import_file tool."
+                "error": "Sketchfab integration not yet implemented. Download manually and use import_file tool.",
             }
 
         else:
-            return {
-                "status": "ERROR",
-                "error": f"Unsupported repository: {repository}"
-            }
+            return {"status": "ERROR", "error": f"Unsupported repository: {repository}"}
 
         logger.info(f"Downloaded asset to: {asset_file}")
 
         # Determine file format for import
-        file_ext = Path(asset_file).suffix.lower().lstrip('.')
+        file_ext = Path(asset_file).suffix.lower().lstrip(".")
 
         # Import the asset into Blender
-        if file_ext == 'blend':
+        if file_ext == "blend":
             # For .blend files, use append/link
             import_result = await import_blend_asset(asset_file, import_options)
         else:
@@ -306,13 +308,15 @@ async def download_and_import_asset(
             import_result = await import_scene_asset(asset_file, file_ext, import_options)
 
         # Add repository and download info
-        import_result.update({
-            "repository": repository.value,
-            "asset_name": asset_name,
-            "downloaded_file": asset_file,
-            "all_downloaded_files": all_files,
-            "repository_params": repository_specific_params
-        })
+        import_result.update(
+            {
+                "repository": repository.value,
+                "asset_name": asset_name,
+                "downloaded_file": asset_file,
+                "all_downloaded_files": all_files,
+                "repository_params": repository_specific_params,
+            }
+        )
 
         return import_result
 
@@ -321,8 +325,8 @@ async def download_and_import_asset(
         return {
             "status": "ERROR",
             "error": str(e),
-            "repository": repository.value if 'repository' in locals() else str(repository),
-            "asset_name": asset_name
+            "repository": repository.value if "repository" in locals() else str(repository),
+            "asset_name": asset_name,
         }
 
 
@@ -339,44 +343,39 @@ async def import_blend_asset(asset_file: str, import_options: Dict[str, Any]) ->
         filepath=asset_file,
         asset_name=asset_name,
         directory=directory,
-        link=import_options.get("link", False)
+        link=import_options.get("link", False),
     )
 
 
-async def import_scene_asset(asset_file: str, file_format: str, import_options: Dict[str, Any]) -> Dict[str, Any]:
+async def import_scene_asset(
+    asset_file: str, file_format: str, import_options: Dict[str, Any]
+) -> Dict[str, Any]:
     """Import a scene asset using import_scene operators."""
     from .import_handler import import_file
 
     # Map file extensions to import formats
     format_mapping = {
-        'fbx': 'FBX',
-        'obj': 'OBJ',
-        'gltf': 'GLTF',
-        'glb': 'GLTF',
-        'dae': 'COLLADA',
-        'abc': 'ABC',
-        'ply': 'PLY',
-        'stl': 'STL',
-        'x3d': 'X3D'
+        "fbx": "FBX",
+        "obj": "OBJ",
+        "gltf": "GLTF",
+        "glb": "GLTF",
+        "dae": "COLLADA",
+        "abc": "ABC",
+        "ply": "PLY",
+        "stl": "STL",
+        "x3d": "X3D",
     }
 
     import_format = format_mapping.get(file_format.lower())
     if not import_format:
-        return {
-            "status": "ERROR",
-            "error": f"Unsupported file format: {file_format}"
-        }
+        return {"status": "ERROR", "error": f"Unsupported file format: {file_format}"}
 
     # Add import options
     import_kwargs = {}
     if "scale" in import_options:
         import_kwargs["global_scale"] = import_options["scale"]
 
-    return await import_file(
-        filepath=asset_file,
-        file_format=import_format,
-        **import_kwargs
-    )
+    return await import_file(filepath=asset_file, file_format=import_format, **import_kwargs)
 
 
 @blender_operation("list_available_assets", log_args=True)
@@ -407,10 +406,10 @@ async def list_available_assets(repository: Union[AssetRepository, str]) -> Dict
                     "modular-dungeon-kit",
                     "city-kit-industrial",
                     "blocky-characters",
-                    "blaster-kit"
+                    "blaster-kit",
                 ],
                 "usage": "Use asset name from URL, e.g., 'fantasy-town-kit'",
-                "note": "Visit https://kenney.nl/assets to see all available assets"
+                "note": "Visit https://kenney.nl/assets to see all available assets",
             }
 
         elif repository == AssetRepository.QUATERNIUS:
@@ -424,10 +423,10 @@ async def list_available_assets(repository: Union[AssetRepository, str]) -> Dict
                     "medieval-village-megakit",
                     "cyberpunk-game-kit",
                     "platformer-game-kit",
-                    "toon-shooter-game-kit"
+                    "toon-shooter-game-kit",
                 ],
                 "usage": "Use pack name from URL, e.g., 'ultimate-space-kit'",
-                "note": "Visit https://quaternius.com/ to see all available packs"
+                "note": "Visit https://quaternius.com/ to see all available packs",
             }
 
         elif repository == AssetRepository.OPEN_GAME_ART:
@@ -436,11 +435,9 @@ async def list_available_assets(repository: Union[AssetRepository, str]) -> Dict
                 "repository": "Open Game Art",
                 "description": "Community-contributed free game assets",
                 "website": "https://opengameart.org/",
-                "sample_assets": [
-                    "Various community assets"
-                ],
+                "sample_assets": ["Various community assets"],
                 "usage": "Provide direct download URL in repository_specific_params",
-                "note": "Browse https://opengameart.org/ and copy download links"
+                "note": "Browse https://opengameart.org/ and copy download links",
             }
 
         elif repository == AssetRepository.POLY_HAVEN:
@@ -452,9 +449,9 @@ async def list_available_assets(repository: Union[AssetRepository, str]) -> Dict
                 "asset_types": ["hdris", "textures", "models"],
                 "sample_assets": {
                     "hdris": ["studio_small_08", "lebombo_1k", "kloppenheim_06"],
-                    "textures": ["wood_02", "fabric_01", "metal_01"]
+                    "textures": ["wood_02", "fabric_01", "metal_01"],
                 },
-                "usage": "Specify asset_name and type in repository_specific_params"
+                "usage": "Specify asset_name and type in repository_specific_params",
             }
 
         elif repository == AssetRepository.BLENDERKIT:
@@ -464,20 +461,17 @@ async def list_available_assets(repository: Union[AssetRepository, str]) -> Dict
                 "description": "Blender add-on required for downloads",
                 "website": "https://www.blenderkit.com/",
                 "note": "Install BlenderKit add-on in Blender for direct access",
-                "integration_status": "Not implemented - use BlenderKit add-on"
+                "integration_status": "Not implemented - use BlenderKit add-on",
             }
 
         else:
             return {
                 "status": "ERROR",
-                "error": f"Repository '{repository}' not supported for listing"
+                "error": f"Repository '{repository}' not supported for listing",
             }
 
     except Exception as e:
-        return {
-            "status": "ERROR",
-            "error": str(e)
-        }
+        return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("search_assets", log_args=True)
@@ -485,7 +479,7 @@ async def search_assets(
     query: str,
     repository: Optional[Union[AssetRepository, str]] = None,
     asset_type: Optional[Union[AssetType, str]] = None,
-    limit: int = 10
+    limit: int = 10,
 ) -> Dict[str, Any]:
     """
     Search for assets across repositories.
@@ -507,9 +501,15 @@ async def search_assets(
     # Basic keyword matching for demonstration
     if not repository:
         # Search all repositories
-        repos_to_search = [AssetRepository.KENNEY, AssetRepository.QUATERNIUS, AssetRepository.POLY_HAVEN]
+        repos_to_search = [
+            AssetRepository.KENNEY,
+            AssetRepository.QUATERNIUS,
+            AssetRepository.POLY_HAVEN,
+        ]
     else:
-        repos_to_search = [AssetRepository(repository) if isinstance(repository, str) else repository]
+        repos_to_search = [
+            AssetRepository(repository) if isinstance(repository, str) else repository
+        ]
 
     query_lower = query.lower()
 
@@ -521,17 +521,19 @@ async def search_assets(
             if isinstance(assets, list):
                 for asset in assets:
                     if query_lower in asset.lower():
-                        results.append({
-                            "repository": repo.value,
-                            "asset_name": asset,
-                            "match_score": 1.0,
-                            "description": f"Asset from {repo_results.get('description', repo.value)}"
-                        })
+                        results.append(
+                            {
+                                "repository": repo.value,
+                                "asset_name": asset,
+                                "match_score": 1.0,
+                                "description": f"Asset from {repo_results.get('description', repo.value)}",
+                            }
+                        )
 
     return {
         "status": "SUCCESS",
         "query": query,
         "total_results": len(results),
         "results": results[:limit],
-        "note": "This is a basic search. For comprehensive results, visit repository websites directly."
+        "note": "This is a basic search. For comprehensive results, visit repository websites directly.",
     }

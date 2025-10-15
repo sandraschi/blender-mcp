@@ -2,10 +2,6 @@ from ..compat import *
 
 """Blender MCP Server - FastMCP 2.10 compliant implementation."""
 
-import asyncio
-import sys
-from pathlib import Path
-from typing import Any, Dict
 from loguru import logger
 
 from fastmcp import FastMCP
@@ -16,12 +12,12 @@ from .handlers.mesh_handler import (
     create_chaiselongue,
     create_candle_set,
     create_ornate_mirror,
-    create_feather_duster
+    create_feather_duster,
 )
 from .handlers.material_handler import (
     create_fabric_material,
     create_metal_material,
-    create_wood_material
+    create_wood_material,
 )
 from .handlers.export_handler import export_for_unity, export_for_vrchat
 from .handlers.render_handler import render_preview, render_turntable
@@ -30,7 +26,7 @@ from .handlers.render_handler import render_preview, render_turntable
 app = FastMCP(
     name="blender-mcp",
     version="1.0.0",
-    description="Blender MCP Server for 3D content creation and automation"
+    description="Blender MCP Server for 3D content creation and automation",
 )
 
 # Register all tools with the FastMCP app

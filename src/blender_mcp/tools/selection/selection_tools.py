@@ -4,14 +4,14 @@ Selection tools for Blender MCP.
 Provides tools for selecting objects and elements in Blender scenes.
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Optional, Tuple, Union
+from typing import List
 from loguru import logger
 from blender_mcp.app import get_app
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -24,9 +24,9 @@ def _register_selection_tools():
         operation: str = "select_objects",
         object_names: List[str] = [],
         object_type: str = "MESH",
-    material_name: str = "",
-    mode: str = "REPLACE",
-    active_object: str = ""
+        material_name: str = "",
+        mode: str = "REPLACE",
+        active_object: str = "",
     ) -> str:
         """
         Select objects and elements in Blender scenes.
@@ -51,7 +51,9 @@ def _register_selection_tools():
             Success message with selection details
         """
         from blender_mcp.handlers.selection_handler import (
-            select_objects, select_by_type, select_by_material
+            select_objects,
+            select_by_type,
+            select_by_material,
         )
 
         try:
@@ -61,22 +63,16 @@ def _register_selection_tools():
                 return await select_objects(
                     object_names=object_names,
                     mode=mode,
-                    active_object=active_object if active_object else None
+                    active_object=active_object if active_object else None,
                 )
 
             elif operation == "select_by_type":
-                return await select_by_type(
-                    object_type=object_type,
-                    mode=mode
-                )
+                return await select_by_type(object_type=object_type, mode=mode)
 
             elif operation == "select_by_material":
                 if not material_name:
                     return "material_name parameter required for material selection"
-                return await select_by_material(
-                    material_name=material_name,
-                    mode=mode
-                )
+                return await select_by_material(material_name=material_name, mode=mode)
 
             elif operation == "select_all":
                 # Select all objects
@@ -86,11 +82,14 @@ bpy.ops.object.select_all(action='SELECT')
 selected_count = len([obj for obj in bpy.context.selected_objects])
 """
                 from ..utils.blender_executor import get_blender_executor
+
                 executor = get_blender_executor()
                 result = await executor.execute_script(script)
-                selected_count = len([obj for obj in result.split() if obj.isdigit()])  # Extract count from result if needed
-                logger.info(f"🎯 Selected all objects in scene")
-                return f"Selected all objects in scene"
+                selected_count = len(
+                    [obj for obj in result.split() if obj.isdigit()]
+                )  # Extract count from result if needed
+                logger.info("🎯 Selected all objects in scene")
+                return "Selected all objects in scene"
 
             elif operation == "select_none":
                 # Deselect all objects
@@ -99,10 +98,11 @@ import bpy
 bpy.ops.object.select_all(action='DESELECT')
 """
                 from ..utils.blender_executor import get_blender_executor
+
                 executor = get_blender_executor()
                 result = await executor.execute_script(script)
                 logger.info("🎯 Deselected all objects")
-                return f"Deselected all objects"
+                return "Deselected all objects"
 
             elif operation == "invert_selection":
                 # Invert selection
@@ -112,11 +112,12 @@ bpy.ops.object.select_all(action='INVERT')
 selected_count = len([obj for obj in bpy.context.selected_objects])
 """
                 from ..utils.blender_executor import get_blender_executor
+
                 executor = get_blender_executor()
                 result = await executor.execute_script(script)
                 # Try to extract the count from the result or use a default message
                 logger.info("🎯 Inverted object selection")
-                return f"Inverted object selection"
+                return "Inverted object selection"
 
             else:
                 return f"Unknown selection operation: {operation}. Available: select_objects, select_by_type, select_by_material, select_all, select_none, invert_selection"

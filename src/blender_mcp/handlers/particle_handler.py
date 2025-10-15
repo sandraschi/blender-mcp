@@ -2,7 +2,7 @@ from ..compat import *
 
 """Particle system operations handler for Blender MCP."""
 
-from typing import Optional, Tuple, Dict, Any, Union, List, Literal
+from typing import Dict, Any, Union
 from enum import Enum
 from loguru import logger
 
@@ -11,16 +11,19 @@ from ..decorators import blender_operation
 
 _executor = get_blender_executor()
 
+
 class ParticleType(str, Enum):
     EMITTER = "EMITTER"
     HAIR = "HAIR"
     KEYED = "KEYED"
     FLUID_FLOW = "FLUID_FLOW"
 
+
 class ParticleEmitFrom(str, Enum):
     VERT = "VERT"
     FACE = "FACE"
     VOLUME = "VOLUME"
+
 
 @blender_operation("create_particle_system", log_args=True)
 async def create_particle_system(
@@ -32,7 +35,7 @@ async def create_particle_system(
     frame_end: int = 200,
     lifetime: float = 50.0,
     emit_from: Union[ParticleEmitFrom, str] = ParticleEmitFrom.FACE,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Create a particle system on an object."""
     script = f"""
@@ -58,7 +61,7 @@ def create_particle_system():
     settings.frame_start = {frame_start}
     settings.frame_end = {frame_end}
     settings.lifetime = {lifetime}
-    settings.particle_size = {kwargs.get('size', 0.1)}
+    settings.particle_size = {kwargs.get("size", 0.1)}
     settings.emit_from = '{emit_from}'
     
     return {{'status': 'SUCCESS', 'system': ps.name}}
@@ -77,13 +80,14 @@ print(str(result))
         logger.error(f"Failed to create particle system: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("bake_particles", log_args=True)
 async def bake_particles(
     object_name: str,
     system_name: str = None,
     frame_start: int = 1,
     frame_end: int = 250,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Bake particle simulation."""
     script = f"""
@@ -116,7 +120,7 @@ def bake_particles():
             bake=True,
             frame_start={frame_start},
             frame_end={frame_end},
-            use_memory_cache={str(kwargs.get('use_memory_cache', True)).lower()}
+            use_memory_cache={str(kwargs.get("use_memory_cache", True)).lower()}
         )
         results.append(ps.name)
     

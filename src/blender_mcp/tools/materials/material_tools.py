@@ -5,20 +5,28 @@ Provides comprehensive tools for creating various types of materials including
 fabrics, metals, woods, glass, ceramics, leather, stone, and more.
 """
 
-from typing import List, Optional, Union
+from typing import List, Optional
 from pydantic import BaseModel, Field
+
 
 # Import app lazily to avoid circular imports
 def get_app():
     from blender_mcp.app import app
+
     return app
+
 
 # Parameter schemas for material creation
 class CreateFabricMaterialParams(BaseModel):
     """Parameters for creating fabric materials."""
+
     name: str = Field("ElegantFabric", description="Name for the new material")
-    fabric_type: str = Field("velvet", description="Type of fabric (velvet, silk, cotton, linen, brocade, satin, wool)")
-    base_color: List[float] = Field([0.8, 0.75, 0.7], description="Base color as RGB (0-1)", min_length=3, max_length=3)
+    fabric_type: str = Field(
+        "velvet", description="Type of fabric (velvet, silk, cotton, linen, brocade, satin, wool)"
+    )
+    base_color: List[float] = Field(
+        [0.8, 0.75, 0.7], description="Base color as RGB (0-1)", min_length=3, max_length=3
+    )
     roughness: float = Field(0.8, ge=0.0, le=1.0, description="Roughness value")
     sub_surface: float = Field(0.2, ge=0.0, le=1.0, description="Subsurface scattering")
     normal_strength: float = Field(0.5, ge=0.0, le=1.0, description="Normal map strength")
@@ -26,49 +34,78 @@ class CreateFabricMaterialParams(BaseModel):
     silk_sheen: float = Field(0.8, ge=0.0, le=1.0, description="Silk sheen")
     weave_scale: float = Field(1.0, ge=0.1, le=10.0, description="Weave scale")
 
+
 class CreateMetalMaterialParams(BaseModel):
     """Parameters for creating metal materials."""
+
     name: str = Field("MetalMaterial", description="Name for the new material")
-    metal_type: str = Field("gold", description="Type of metal (gold, silver, brass, copper, iron, aluminum)")
-    base_color: List[float] = Field([1.0, 0.8, 0.0], description="Base color as RGB (0-1)", min_length=3, max_length=3)
+    metal_type: str = Field(
+        "gold", description="Type of metal (gold, silver, brass, copper, iron, aluminum)"
+    )
+    base_color: List[float] = Field(
+        [1.0, 0.8, 0.0], description="Base color as RGB (0-1)", min_length=3, max_length=3
+    )
     roughness: float = Field(0.2, ge=0.0, le=1.0, description="Roughness value")
     metallic: float = Field(1.0, ge=0.0, le=1.0, description="Metallic value")
     anisotropy: float = Field(0.0, ge=0.0, le=1.0, description="Anisotropy")
 
+
 class CreateWoodMaterialParams(BaseModel):
     """Parameters for creating wood materials."""
+
     name: str = Field("WoodMaterial", description="Name for the new material")
-    wood_type: str = Field("oak", description="Type of wood (oak, pine, mahogany, walnut, cherry, beech)")
-    base_color: List[float] = Field([0.6, 0.4, 0.2], description="Base color as RGB (0-1)", min_length=3, max_length=3)
+    wood_type: str = Field(
+        "oak", description="Type of wood (oak, pine, mahogany, walnut, cherry, beech)"
+    )
+    base_color: List[float] = Field(
+        [0.6, 0.4, 0.2], description="Base color as RGB (0-1)", min_length=3, max_length=3
+    )
     roughness: float = Field(0.7, ge=0.0, le=1.0, description="Roughness value")
     grain_scale: float = Field(1.0, ge=0.1, le=5.0, description="Wood grain scale")
 
+
 class CreateGlassMaterialParams(BaseModel):
     """Parameters for creating glass materials."""
+
     name: str = Field("GlassMaterial", description="Name for the new material")
     glass_type: str = Field("clear", description="Type of glass (clear, tinted, frosted, stained)")
-    base_color: List[float] = Field([0.9, 0.95, 1.0], description="Base color as RGB (0-1)", min_length=3, max_length=3)
+    base_color: List[float] = Field(
+        [0.9, 0.95, 1.0], description="Base color as RGB (0-1)", min_length=3, max_length=3
+    )
     transmission: float = Field(1.0, ge=0.0, le=1.0, description="Transmission amount")
     roughness: float = Field(0.0, ge=0.0, le=1.0, description="Roughness")
     ior: float = Field(1.45, ge=1.0, le=2.5, description="Index of refraction")
 
+
 class CreateCeramicMaterialParams(BaseModel):
     """Parameters for creating ceramic materials."""
+
     name: str = Field("CeramicMaterial", description="Name for the new material")
-    ceramic_type: str = Field("porcelain", description="Type of ceramic (porcelain, ceramic, terra_cotta)")
-    base_color: List[float] = Field([0.95, 0.95, 0.95], description="Base color as RGB (0-1)", min_length=3, max_length=3)
+    ceramic_type: str = Field(
+        "porcelain", description="Type of ceramic (porcelain, ceramic, terra_cotta)"
+    )
+    base_color: List[float] = Field(
+        [0.95, 0.95, 0.95], description="Base color as RGB (0-1)", min_length=3, max_length=3
+    )
     roughness: float = Field(0.1, ge=0.0, le=1.0, description="Roughness value")
     glossiness: float = Field(0.9, ge=0.0, le=1.0, description="Surface glossiness")
 
+
 class AssignMaterialParams(BaseModel):
     """Parameters for assigning materials to objects."""
+
     object_name: str = Field(..., description="Name of the object to assign material to")
     material_name: str = Field(..., description="Name of the material to assign")
 
+
 class CreateMaterialFromPresetParams(BaseModel):
     """Parameters for creating materials from presets."""
+
     preset_name: str = Field(..., description="Name of the material preset to use")
-    material_name: Optional[str] = Field(None, description="Optional custom name for the new material")
+    material_name: Optional[str] = Field(
+        None, description="Optional custom name for the new material"
+    )
+
 
 # Tool registration functions
 def _register_material_tools():
@@ -85,7 +122,7 @@ def _register_material_tools():
         normal_strength: float = 0.5,
         velvet_softness: float = 0.5,
         silk_sheen: float = 0.8,
-        weave_scale: float = 1.0
+        weave_scale: float = 1.0,
     ) -> str:
         """
         Create a comprehensive fabric material with PBR properties.
@@ -108,6 +145,7 @@ def _register_material_tools():
             Confirmation message about material creation
         """
         from blender_mcp.handlers.material_handler import create_fabric_material
+
         return await create_fabric_material(
             name=name,
             fabric_type=fabric_type,
@@ -117,7 +155,7 @@ def _register_material_tools():
             normal_strength=normal_strength,
             velvet_softness=velvet_softness,
             silk_sheen=silk_sheen,
-            weave_scale=weave_scale
+            weave_scale=weave_scale,
         )
 
     @app.tool
@@ -127,7 +165,7 @@ def _register_material_tools():
         base_color: List[float] = [1.0, 0.8, 0.0],
         roughness: float = 0.2,
         metallic: float = 1.0,
-        anisotropy: float = 0.0
+        anisotropy: float = 0.0,
     ) -> str:
         """
         Create a realistic metal material with PBR properties.
@@ -147,13 +185,14 @@ def _register_material_tools():
             Confirmation message about material creation
         """
         from blender_mcp.handlers.material_handler import create_metal_material
+
         return await create_metal_material(
             name=name,
             metal_type=metal_type,
             base_color=tuple(base_color),
             roughness=roughness,
             metallic=metallic,
-            anisotropy=anisotropy
+            anisotropy=anisotropy,
         )
 
     @app.tool
@@ -162,7 +201,7 @@ def _register_material_tools():
         wood_type: str = "oak",
         base_color: List[float] = [0.6, 0.4, 0.2],
         roughness: float = 0.7,
-        grain_scale: float = 1.0
+        grain_scale: float = 1.0,
     ) -> str:
         """
         Create a realistic wood material with grain textures.
@@ -181,12 +220,13 @@ def _register_material_tools():
             Confirmation message about material creation
         """
         from blender_mcp.handlers.material_handler import create_wood_material
+
         return await create_wood_material(
             name=name,
             wood_type=wood_type,
             base_color=tuple(base_color),
             roughness=roughness,
-            grain_scale=grain_scale
+            grain_scale=grain_scale,
         )
 
     @app.tool
@@ -196,7 +236,7 @@ def _register_material_tools():
         base_color: List[float] = [0.9, 0.95, 1.0],
         transmission: float = 1.0,
         roughness: float = 0.0,
-        ior: float = 1.45
+        ior: float = 1.45,
     ) -> str:
         """
         Create a realistic glass material with transparency.
@@ -216,13 +256,14 @@ def _register_material_tools():
             Confirmation message about material creation
         """
         from blender_mcp.handlers.material_handler import create_glass_material
+
         return await create_glass_material(
             name=name,
             glass_type=glass_type,
             base_color=tuple(base_color),
             transmission=transmission,
             roughness=roughness,
-            ior=ior
+            ior=ior,
         )
 
     @app.tool
@@ -231,7 +272,7 @@ def _register_material_tools():
         ceramic_type: str = "porcelain",
         base_color: List[float] = [0.95, 0.95, 0.95],
         roughness: float = 0.1,
-        glossiness: float = 0.9
+        glossiness: float = 0.9,
     ) -> str:
         """
         Create a ceramic material with glossy surface properties.
@@ -250,19 +291,17 @@ def _register_material_tools():
             Confirmation message about material creation
         """
         from blender_mcp.handlers.material_handler import create_ceramic_material
+
         return await create_ceramic_material(
             name=name,
             ceramic_type=ceramic_type,
             base_color=tuple(base_color),
             roughness=roughness,
-            glossiness=glossiness
+            glossiness=glossiness,
         )
 
     @app.tool
-    async def assign_material_to_object(
-        object_name: str,
-        material_name: str
-    ) -> str:
+    async def assign_material_to_object(object_name: str, material_name: str) -> str:
         """
         Assign a material to an object in the scene.
 
@@ -277,12 +316,12 @@ def _register_material_tools():
             Confirmation message about material assignment
         """
         from blender_mcp.handlers.material_handler import assign_material_async
+
         return await assign_material_async(object_name, material_name)
 
     @app.tool
     async def create_material_from_preset(
-        preset_name: str,
-        material_name: Optional[str] = None
+        preset_name: str, material_name: Optional[str] = None
     ) -> str:
         """
         Create a material from a predefined preset.
@@ -298,7 +337,9 @@ def _register_material_tools():
             Confirmation message about material creation from preset
         """
         from blender_mcp.handlers.material_handler import create_material_from_preset
+
         return await create_material_from_preset(preset_name, material_name)
+
 
 # Register tools when this module is imported
 _register_material_tools()

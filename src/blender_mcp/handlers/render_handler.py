@@ -7,16 +7,15 @@ This module provides rendering functions that can be registered as FastMCP tools
 
 import os
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Tuple
-from loguru import logger
+from typing import Optional
 
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 from ..exceptions import BlenderRenderError
-from ..app import app
 
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()
+
 
 @blender_operation("render_turntable", log_args=True)
 async def render_turntable(
@@ -24,20 +23,20 @@ async def render_turntable(
     frames: int = 60,
     resolution_x: int = 1280,
     resolution_y: int = 720,
-    format: str = "PNG"
+    format: str = "PNG",
 ) -> str:
     """Render 360-degree turntable animation of the current scene.
-    
+
     Args:
         output_dir: Directory where rendered frames will be saved
         frames: Number of frames for the animation (default: 60)
         resolution_x: Horizontal resolution in pixels (default: 1280)
         resolution_y: Vertical resolution in pixels (default: 720)
         format: Output image format (default: "PNG")
-        
+
     Returns:
         str: Success message with render details
-        
+
     Raises:
         BlenderRenderError: If rendering fails
     """
@@ -45,7 +44,7 @@ async def render_turntable(
         # Ensure output directory exists
         output_dir = str(Path(output_dir).absolute())
         os.makedirs(output_dir, exist_ok=True)
-        
+
         script = f"""
 import os
 import math
@@ -120,9 +119,10 @@ except Exception as e:
 
         await _executor.execute_script(script)
         return f"Rendered {frames}-frame turntable animation to {output_dir}"
-        
+
     except Exception as e:
         raise BlenderRenderError("turntable_animation", f"Failed to render turntable: {str(e)}")
+
 
 @blender_operation("render_preview", log_args=True)
 async def render_preview(
@@ -136,10 +136,10 @@ async def render_preview(
     quality: int = 90,
     camera_name: Optional[str] = None,
     use_environment: bool = True,
-    use_film_transparent: bool = False
+    use_film_transparent: bool = False,
 ) -> str:
     """Render a high-quality preview of the current scene.
-    
+
     Args:
         output_path: Full path where the rendered image will be saved
         resolution_x: Horizontal resolution in pixels (default: 1920)
@@ -152,10 +152,10 @@ async def render_preview(
         camera_name: Name of the camera to use (default: active camera)
         use_environment: Whether to use environment lighting (default: True)
         use_film_transparent: Whether to render with transparent background (default: False)
-        
+
     Returns:
         str: Success message with render details
-        
+
     Raises:
         BlenderRenderError: If rendering fails or camera is not found
     """
@@ -165,7 +165,7 @@ async def render_preview(
         output_dir = os.path.dirname(output_path)
         if output_dir:
             os.makedirs(output_dir, exist_ok=True)
-        
+
         script = f"""
 import os
 from mathutils import Vector
@@ -267,6 +267,6 @@ except Exception as e:
         # Execute the render script
         await _executor.execute_script(script, script_name="render_preview")
         return f"Rendered preview to {output_path}"
-        
+
     except Exception as e:
         raise BlenderRenderError("preview_render", f"Failed to render preview: {str(e)}")

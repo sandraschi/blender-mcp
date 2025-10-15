@@ -8,8 +8,7 @@ Supports models, textures, and other assets with automatic format detection.
 import os
 import requests
 import tempfile
-from pathlib import Path
-from typing import Optional, List
+from typing import Optional
 from urllib.parse import urlparse
 from loguru import logger
 from ..app import app
@@ -19,33 +18,31 @@ from ..utils.error_handling import MCPError
 # Supported file extensions and their Blender import methods
 SUPPORTED_FORMATS = {
     # 3D Models
-    '.obj': 'import_scene.obj',
-    '.fbx': 'import_scene.fbx',
-    '.dae': 'import_scene.dae',
-    '.3ds': 'import_scene.autodesk_3ds',
-    '.ply': 'import_mesh.ply',
-    '.stl': 'import_mesh.stl',
-    '.x3d': 'import_scene.x3d',
-    '.gltf': 'import_scene.gltf',
-    '.glb': 'import_scene.gltf',
-    '.abc': 'import_scene.alembic',
-    '.usd': 'import_scene.usd',
-    '.usda': 'import_scene.usd',
-    '.usdc': 'import_scene.usd',
-    '.usdz': 'import_scene.usd',
-
+    ".obj": "import_scene.obj",
+    ".fbx": "import_scene.fbx",
+    ".dae": "import_scene.dae",
+    ".3ds": "import_scene.autodesk_3ds",
+    ".ply": "import_mesh.ply",
+    ".stl": "import_mesh.stl",
+    ".x3d": "import_scene.x3d",
+    ".gltf": "import_scene.gltf",
+    ".glb": "import_scene.gltf",
+    ".abc": "import_scene.alembic",
+    ".usd": "import_scene.usd",
+    ".usda": "import_scene.usd",
+    ".usdc": "import_scene.usd",
+    ".usdz": "import_scene.usd",
     # Images/Textures
-    '.png': 'image',
-    '.jpg': 'image',
-    '.jpeg': 'image',
-    '.tiff': 'image',
-    '.tif': 'image',
-    '.bmp': 'image',
-    '.exr': 'image',
-    '.hdr': 'image',
-
+    ".png": "image",
+    ".jpg": "image",
+    ".jpeg": "image",
+    ".tiff": "image",
+    ".tif": "image",
+    ".bmp": "image",
+    ".exr": "image",
+    ".hdr": "image",
     # Other
-    '.blend': 'link_blend',  # Can link or append from .blend files
+    ".blend": "link_blend",  # Can link or append from .blend files
 }
 
 
@@ -58,7 +55,7 @@ def _get_file_type_from_url(url: str) -> str:
         if path.endswith(ext):
             return ext
 
-    return 'unknown'
+    return "unknown"
 
 
 def _download_file(url: str, output_path: str, timeout: int = 30) -> bool:
@@ -71,9 +68,9 @@ def _download_file(url: str, output_path: str, timeout: int = 30) -> bool:
         response.raise_for_status()
 
         # Get file size for progress indication
-        total_size = int(response.headers.get('content-length', 0))
+        total_size = int(response.headers.get("content-length", 0))
 
-        with open(output_path, 'wb') as file:
+        with open(output_path, "wb") as file:
             downloaded = 0
             for chunk in response.iter_content(chunk_size=8192):
                 if chunk:
@@ -177,7 +174,7 @@ async def blender_download(
     url: str,
     import_into_scene: bool = True,
     custom_filename: Optional[str] = None,
-    timeout: int = 30
+    timeout: int = 30,
 ) -> str:
     """
     Download files from URLs and optionally import them into the Blender scene.
@@ -210,12 +207,12 @@ async def blender_download(
             raise MCPError(f"timeout must be between 1 and 300 seconds, got {timeout}")
 
         # Validate URL
-        if not url.startswith(('http://', 'https://')):
-            raise MCPError(f"Invalid URL format. Must start with http:// or https://")
+        if not url.startswith(("http://", "https://")):
+            raise MCPError("Invalid URL format. Must start with http:// or https://")
 
         # Detect file type from URL
         file_ext = _get_file_type_from_url(url)
-        if file_ext == 'unknown':
+        if file_ext == "unknown":
             raise MCPError(f"Could not determine file type from URL: {url}")
 
         # Create temp directory for downloads
@@ -260,7 +257,9 @@ async def blender_download(
 
         # Parse the result
         if "SUCCESS:" in import_result:
-            success_line = [line for line in import_result.split('\n') if line.startswith("SUCCESS:")]
+            success_line = [
+                line for line in import_result.split("\n") if line.startswith("SUCCESS:")
+            ]
             if success_line:
                 return success_line[0].replace("SUCCESS: ", "")
             else:
@@ -289,7 +288,7 @@ async def blender_download_info() -> str:
         formats_list.append(f"  {ext.upper()} - {importer}")
 
     result = f"""Blender Download Tool Information
-{'='*40}
+{"=" * 40}
 
 Supported File Formats:
 {chr(10).join(formats_list)}

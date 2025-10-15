@@ -6,18 +6,16 @@ This module provides export functions that can be registered as FastMCP tools.
 """
 
 import os
-import json
-from typing import Optional, Dict, List, Tuple, Any
 from pathlib import Path
 from loguru import logger
 
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
-from ..exceptions import BlenderExportError, BlenderRenderError
-from ..app import app
+from ..exceptions import BlenderExportError
 
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()
+
 
 @blender_operation
 def _get_export_script_setup(output_path: str) -> str:
@@ -49,6 +47,7 @@ except Exception as e:
     raise e
 """
 
+
 @blender_operation("export_for_unity", log_args=True)
 async def export_for_unity(
     output_path: str,
@@ -56,10 +55,10 @@ async def export_for_unity(
     apply_modifiers: bool = True,
     optimize_materials: bool = True,
     bake_textures: bool = False,
-    lod_levels: int = 0
+    lod_levels: int = 0,
 ) -> str:
     """Export scene optimized for Unity3D with full pipeline support.
-    
+
     Args:
         output_path: Full path where the FBX file will be saved
         scale: Scale factor for the exported model (default: 1.0)
@@ -67,10 +66,10 @@ async def export_for_unity(
         optimize_materials: Whether to optimize materials for Unity (default: True)
         bake_textures: Whether to bake textures (default: False)
         lod_levels: Number of LOD levels to generate (0 = no LOD) (default: 0)
-        
+
     Returns:
         str: Success message with export details
-        
+
     Raises:
         BlenderExportError: If export fails
     """
@@ -80,7 +79,7 @@ async def export_for_unity(
         output_dir = os.path.dirname(output_path)
         if not output_dir:
             raise BlenderExportError("FBX", output_path, "Invalid output directory")
-            
+
         # Generate the export script
         script = _get_export_script_setup(output_path)
         script += f"""
@@ -120,10 +119,11 @@ print(f"Export details: {{json.dumps(stats, indent=2)}}")
         # Execute the export script
         await _executor.execute_script(script, script_name="unity_export")
         return f"Successfully exported to {output_path}"
-        
+
     except Exception as e:
         logger.error(f"Failed to export for Unity: {str(e)}")
         raise BlenderExportError("FBX", output_path, str(e)) from e
+
 
 @blender_operation("export_for_vrchat", log_args=True)
 async def export_for_vrchat(
@@ -131,20 +131,20 @@ async def export_for_vrchat(
     polygon_limit: int = 20000,
     material_limit: int = 8,
     texture_size_limit: int = 1024,
-    performance_rank: str = "Good"
+    performance_rank: str = "Good",
 ) -> str:
     """Export scene optimized for VRChat with strict performance limits.
-    
+
     Args:
         output_path: Full path where the VRM file will be saved
         polygon_limit: Maximum allowed polygons (default: 20000)
         material_limit: Maximum allowed materials (default: 8)
         texture_size_limit: Maximum texture size in pixels (default: 1024)
         performance_rank: Target performance rank (default: "Good")
-        
+
     Returns:
         str: Success message with export details
-        
+
     Raises:
         BlenderExportError: If export fails or performance limits are exceeded
     """
@@ -154,7 +154,7 @@ async def export_for_vrchat(
         output_dir = os.path.dirname(output_path)
         if not output_dir:
             raise BlenderExportError("VRM", output_path, "Invalid output directory")
-            
+
         # Generate the export script
         script = _get_export_script_setup(output_path)
         script += f"""
@@ -194,8 +194,10 @@ else:
 """
         # Execute the export script
         await _executor.execute_script(script, script_name="vrc_export")
-        return f"Successfully exported to {output_path} with {performance_rank} performance settings"
-        
+        return (
+            f"Successfully exported to {output_path} with {performance_rank} performance settings"
+        )
+
     except Exception as e:
         logger.error(f"Failed to export for VRChat: {str(e)}")
         raise BlenderExportError("VRM", output_path, str(e)) from e

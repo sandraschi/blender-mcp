@@ -55,6 +55,16 @@ logs/
 .env.local
 .env.*.local
 
+# UV
+.uv/
+.venv/
+venv/
+env/
+ENV/
+
+# MCPB
+*.mcpb
+
 # Test coverage
 .coverage
 htmlcov/

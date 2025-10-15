@@ -8,7 +8,6 @@ from typing import Tuple, Optional
 from loguru import logger
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
-from ..exceptions import BlenderLightingError
 
 _executor = get_blender_executor()
 
@@ -20,7 +19,7 @@ async def create_sun_light(
     rotation: Tuple[float, float, float] = (0, 0, 0),
     energy: float = 5.0,
     color: Tuple[float, float, float] = (1, 1, 1),
-    shadow_soft_size: float = 0.1
+    shadow_soft_size: float = 0.1,
 ) -> str:
     """
     Create a sun (directional) light.
@@ -67,7 +66,7 @@ async def create_point_light(
     name: str = "Point",
     location: Tuple[float, float, float] = (0, 0, 5),
     energy: float = 1000.0,
-    color: Tuple[float, float, float] = (1, 1, 1)
+    color: Tuple[float, float, float] = (1, 1, 1),
 ) -> str:
     """
     Create a point (omnidirectional) light.
@@ -111,7 +110,7 @@ async def create_spot_light(
     energy: float = 1000.0,
     color: Tuple[float, float, float] = (1, 1, 1),
     spot_size: float = 45.0,
-    spot_blend: float = 0.15
+    spot_blend: float = 0.15,
 ) -> str:
     """
     Create a spot light.
@@ -162,7 +161,7 @@ async def create_area_light(
     rotation: Tuple[float, float, float] = (0, 0, 0),
     energy: float = 100.0,
     color: Tuple[float, float, float] = (1, 1, 1),
-    size: float = 1.0
+    size: float = 1.0,
 ) -> str:
     """
     Create an area light.
@@ -298,7 +297,7 @@ async def adjust_light(
     location: Optional[Tuple[float, float, float]] = None,
     rotation: Optional[Tuple[float, float, float]] = None,
     energy: Optional[float] = None,
-    color: Optional[Tuple[float, float, float]] = None
+    color: Optional[Tuple[float, float, float]] = None,
 ) -> str:
     """
     Adjust properties of existing light.
@@ -316,7 +315,11 @@ async def adjust_light(
     logger.info(f"Adjusting light '{name}' - location: {location}, energy: {energy}")
 
     location_str = f"light_obj.location = {location}" if location else ""
-    rotation_str = f"light_obj.rotation_euler = ({rotation[0]} * 3.14159/180, {rotation[1]} * 3.14159/180, {rotation[2]} * 3.14159/180)" if rotation else ""
+    rotation_str = (
+        f"light_obj.rotation_euler = ({rotation[0]} * 3.14159/180, {rotation[1]} * 3.14159/180, {rotation[2]} * 3.14159/180)"
+        if rotation
+        else ""
+    )
     energy_str = f"light.energy = {energy}" if energy is not None else ""
     color_str = f"light.color = {color}" if color else ""
 

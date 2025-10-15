@@ -4,13 +4,12 @@ Physics tools for Blender MCP.
 Provides tools for rigid body, cloth, soft body, and fluid simulations.
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Optional, Tuple, Union
 from blender_mcp.app import get_app
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -29,7 +28,7 @@ def _register_physics_tools():
         bounciness: float = 0.0,
         collision_shape: str = "MESH",
         damping_linear: float = 0.04,
-    damping_angular: float = 0.1
+        damping_angular: float = 0.1,
     ) -> str:
         """
         Enable and configure physics simulations for objects.
@@ -60,9 +59,12 @@ def _register_physics_tools():
             Success message with physics setup details
         """
         from blender_mcp.handlers.physics_handler import (
-            enable_physics, bake_physics_simulation, add_force_field,
-            create_rigid_body_constraint, configure_rigid_body_world,
-            set_rigid_body_collision_shape, configure_cloth_simulation
+            enable_physics,
+            bake_physics_simulation,
+            add_force_field,
+            configure_rigid_body_world,
+            set_rigid_body_collision_shape,
+            configure_cloth_simulation,
         )
 
         try:
@@ -78,7 +80,7 @@ def _register_physics_tools():
                     bounciness=bounciness,
                     collision_shape=collision_shape,
                     damping_linear=damping_linear,
-                    damping_angular=damping_angular
+                    damping_angular=damping_angular,
                 )
 
             elif operation == "enable_cloth":
@@ -92,26 +94,17 @@ def _register_physics_tools():
                     "use_pressure": False,
                     "uniform_pressure_force": 1000.0,
                 }
-                return await configure_cloth_simulation(
-                    object_name=object_name,
-                    **cloth_settings
-                )
+                return await configure_cloth_simulation(object_name=object_name, **cloth_settings)
 
             elif operation == "enable_soft_body":
                 if not object_name:
                     return "object_name parameter required"
-                return await enable_physics(
-                    object_name=object_name,
-                    physics_type="SOFT_BODY"
-                )
+                return await enable_physics(object_name=object_name, physics_type="SOFT_BODY")
 
             elif operation == "enable_fluid":
                 if not object_name:
                     return "object_name parameter required"
-                return await enable_physics(
-                    object_name=object_name,
-                    physics_type="FLUID"
-                )
+                return await enable_physics(object_name=object_name, physics_type="FLUID")
 
             elif operation == "bake_physics":
                 if not object_name:
@@ -119,39 +112,32 @@ def _register_physics_tools():
                 start_frame = 1
                 end_frame = 250
                 return await bake_physics_simulation(
-                    object_name=object_name,
-                    start_frame=start_frame,
-                    end_frame=end_frame
+                    object_name=object_name, start_frame=start_frame, end_frame=end_frame
                 )
 
             elif operation == "add_force_field":
-                field_type = 'FORCE'
+                field_type = "FORCE"
                 strength = 10.0
                 location = (0, 0, 0)
                 return await add_force_field(
-                    field_type=field_type,
-                    strength=strength,
-                    location=location
+                    field_type=field_type, strength=strength, location=location
                 )
 
             elif operation == "set_rigid_body_constraint":
                 if not object_name:
                     return "object_name parameter required"
                 # Constraint setup requires manual configuration
-                return f"Rigid body constraints require manual setup - use add_rigid_body_constraint directly"
+                return "Rigid body constraints require manual setup - use add_rigid_body_constraint directly"
 
             elif operation == "configure_world":
                 gravity = (0, 0, -9.81)
-                return await configure_rigid_body_world(
-                    gravity=gravity
-                )
+                return await configure_rigid_body_world(gravity=gravity)
 
             elif operation == "set_collision_shape":
                 if not object_name:
                     return "object_name parameter required"
                 return await set_rigid_body_collision_shape(
-                    object_name=object_name,
-                    collision_shape=collision_shape
+                    object_name=object_name, collision_shape=collision_shape
                 )
 
             else:

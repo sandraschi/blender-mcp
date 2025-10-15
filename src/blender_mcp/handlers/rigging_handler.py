@@ -2,7 +2,7 @@ from ..compat import *
 
 """Rigging and armature operations handler for Blender MCP."""
 
-from typing import Optional, Tuple, Dict, Any, Union, List, Literal
+from typing import Tuple, Dict, Any
 from enum import Enum
 from loguru import logger
 
@@ -10,6 +10,7 @@ from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 
 _executor = get_blender_executor()
+
 
 class BoneAxis(str, Enum):
     X = "X"
@@ -19,11 +20,10 @@ class BoneAxis(str, Enum):
     NEGATIVE_Y = "NEGATIVE_Y"
     NEGATIVE_Z = "NEGATIVE_Z"
 
+
 @blender_operation("create_armature", log_args=True)
 async def create_armature(
-    name: str = "Armature",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    **kwargs: Any
+    name: str = "Armature", location: Tuple[float, float, float] = (0.0, 0.0, 0.0), **kwargs: Any
 ) -> Dict[str, Any]:
     """Create a new armature object."""
     script = f"""
@@ -57,6 +57,7 @@ print(str(result))
         logger.error(f"Failed to create armature: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("add_bone", log_args=True)
 async def add_bone(
     armature_name: str,
@@ -65,7 +66,7 @@ async def add_bone(
     tail: Tuple[float, float, float],
     parent: str = None,
     connected: bool = False,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Add a bone to an armature."""
     script = f"""
@@ -118,13 +119,10 @@ print(str(result))
         logger.error(f"Failed to add bone: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("create_bone_ik", log_args=True)
 async def create_bone_ik(
-    armature_name: str,
-    bone_name: str,
-    target_name: str,
-    chain_length: int = 2,
-    **kwargs: Any
+    armature_name: str, bone_name: str, target_name: str, chain_length: int = 2, **kwargs: Any
 ) -> Dict[str, Any]:
     """Create an IK constraint for a bone."""
     script = f"""

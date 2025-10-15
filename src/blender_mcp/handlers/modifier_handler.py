@@ -2,7 +2,7 @@ from ..compat import *
 
 """Modifier operations handler for Blender MCP."""
 
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, Dict, Any, Union
 from enum import Enum
 from loguru import logger
 
@@ -11,8 +11,10 @@ from ..decorators import blender_operation
 
 _executor = get_blender_executor()
 
+
 class ModifierType(str, Enum):
     """Supported modifier types."""
+
     ARRAY = "ARRAY"
     BEVEL = "BEVEL"
     BOOLEAN = "BOOLEAN"
@@ -54,31 +56,32 @@ class ModifierType(str, Enum):
     SOFT_BODY = "SOFT_BODY"
     SURFACE = "SURFACE"
 
+
 @blender_operation("add_modifier", log_args=True)
 async def add_modifier(
     object_name: str,
     modifier_type: Union[ModifierType, str],
     name: Optional[str] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Add a modifier to an object.
-    
+
     Args:
         object_name: Name of the object to add the modifier to
         modifier_type: Type of modifier to add
         name: Name for the new modifier (optional)
         **kwargs: Modifier properties to set
-            
+
     Returns:
         Dict containing modifier creation status and details
     """
     if not name:
         name = f"{modifier_type.lower()}_mod"
-    
+
     # Convert kwargs to a string representation of a dictionary
     # that can be used in the Blender script
     props_str = ", ".join(f"{k}={repr(v)}" for k, v in kwargs.items())
-    
+
     script = f"""
 
 def add_modifier():
@@ -114,7 +117,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -122,18 +125,15 @@ except Exception as e:
         logger.error(f"Failed to add modifier: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("remove_modifier", log_args=True)
-async def remove_modifier(
-    object_name: str,
-    modifier_name: str,
-    **kwargs: Any
-) -> Dict[str, Any]:
+async def remove_modifier(object_name: str, modifier_name: str, **kwargs: Any) -> Dict[str, Any]:
     """Remove a modifier from an object.
-    
+
     Args:
         object_name: Name of the object
         modifier_name: Name of the modifier to remove
-        
+
     Returns:
         Dict containing removal status
     """
@@ -175,7 +175,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -183,18 +183,17 @@ except Exception as e:
         logger.error(f"Failed to remove modifier: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("get_modifiers", log_args=True)
 async def get_modifiers(
-    object_name: str,
-    modifier_type: Optional[Union[ModifierType, str]] = None,
-    **kwargs: Any
+    object_name: str, modifier_type: Optional[Union[ModifierType, str]] = None, **kwargs: Any
 ) -> Dict[str, Any]:
     """Get information about modifiers on an object.
-    
+
     Args:
         object_name: Name of the object
         modifier_type: Optional filter for modifier type
-        
+
     Returns:
         Dict containing modifier information
     """
@@ -248,7 +247,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -256,18 +255,15 @@ except Exception as e:
         logger.error(f"Failed to get modifiers: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("apply_modifier", log_args=True)
-async def apply_modifier(
-    object_name: str,
-    modifier_name: str,
-    **kwargs: Any
-) -> Dict[str, Any]:
+async def apply_modifier(object_name: str, modifier_name: str, **kwargs: Any) -> Dict[str, Any]:
     """Apply a modifier to the object's geometry.
-    
+
     Args:
         object_name: Name of the object
         modifier_name: Name of the modifier to apply
-        
+
     Returns:
         Dict containing apply status
     """
@@ -310,7 +306,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}

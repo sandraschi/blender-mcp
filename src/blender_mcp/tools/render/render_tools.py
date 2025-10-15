@@ -4,13 +4,12 @@ Render tools for Blender MCP.
 Provides tools for rendering scenes, animations, and previews.
 """
 
-from pydantic import BaseModel, Field
-from typing import List, Optional, Tuple, Union
 from blender_mcp.app import get_app
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -28,9 +27,9 @@ def _register_render_tools():
         frames: int = 60,
         frame_start: int = 1,
         frame_end: int = 250,
-    file_format: str = "PNG",
-    render_engine: str = "CYCLES",
-    samples: int = 128
+        file_format: str = "PNG",
+        render_engine: str = "CYCLES",
+        samples: int = 128,
     ) -> str:
         """
         Render Blender scenes and animations.
@@ -57,9 +56,7 @@ def _register_render_tools():
         Returns:
             Success message with render details
         """
-        from blender_mcp.handlers.render_handler import (
-            render_turntable, render_preview
-        )
+        from blender_mcp.handlers.render_handler import render_turntable, render_preview
 
         try:
             if operation == "render_turntable":
@@ -70,16 +67,14 @@ def _register_render_tools():
                     frames=frames,
                     resolution_x=resolution_x,
                     resolution_y=resolution_y,
-                    format=file_format
+                    format=file_format,
                 )
 
             elif operation == "render_preview":
                 if not output_path:
                     return "output_path parameter required for preview rendering"
                 return await render_preview(
-                    output_path=output_path,
-                    resolution_x=resolution_x,
-                    resolution_y=resolution_y
+                    output_path=output_path, resolution_x=resolution_x, resolution_y=resolution_y
                 )
 
             elif operation == "render_animation":
@@ -90,9 +85,7 @@ def _register_render_tools():
                 if not output_path:
                     return "output_path parameter required for frame rendering"
                 return await render_preview(
-                    output_path=output_path,
-                    resolution_x=resolution_x,
-                    resolution_y=resolution_y
+                    output_path=output_path, resolution_x=resolution_x, resolution_y=resolution_y
                 )
 
             else:

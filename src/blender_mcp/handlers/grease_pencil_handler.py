@@ -11,42 +11,47 @@ from ..decorators import blender_operation
 
 _executor = get_blender_executor()
 
+
 class GPStrokePlacement(str, Enum):
     """Grease Pencil stroke placement modes."""
+
     ORIGIN = "ORIGIN"  # Draw at origin
     CURSOR = "CURSOR"  # Draw at 3D cursor
     SURFACE = "SURFACE"  # Draw on surface under cursor
     VIEW = "VIEW"  # Draw on view plane
 
+
 class GPStrokeType(str, Enum):
     """Grease Pencil stroke types."""
+
     LINE = "LINE"
     BOX = "BOX"
     CIRCLE = "CIRCLE"
     ARC = "ARC"
     CURVE = "CURVE"
 
+
 @blender_operation("create_grease_pencil", log_args=True)
 async def create_grease_pencil(
     name: str = "GPencil",
     placement: Union[GPStrokePlacement, str] = GPStrokePlacement.ORIGIN,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Create a new Grease Pencil object.
-    
+
     Args:
         name: Name for the new Grease Pencil object
         placement: Where to place the Grease Pencil object
         **kwargs: Additional parameters
             - location: Custom location as [x, y, z] (overrides placement)
             - parent: Parent object name
-            
+
     Returns:
         Dict containing creation status and details
     """
-    location = kwargs.get('location')
-    parent = kwargs.get('parent')
-    
+    location = kwargs.get("location")
+    parent = kwargs.get("parent")
+
     script = f"""
 
 def create_gp():
@@ -100,7 +105,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -108,15 +113,16 @@ except Exception as e:
         logger.error(f"Failed to create Grease Pencil: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("draw_grease_pencil_stroke", log_args=True)
 async def draw_grease_pencil_stroke(
     gp_object: str,
     stroke_type: Union[GPStrokeType, str] = GPStrokeType.LINE,
     points: Optional[List[Tuple[float, float, float]]] = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Draw a stroke with the Grease Pencil.
-    
+
     Args:
         gp_object: Name of the Grease Pencil object
         stroke_type: Type of stroke to draw
@@ -127,19 +133,19 @@ async def draw_grease_pencil_stroke(
             - color: Stroke color as [r, g, b, a] (0-1 range)
             - thickness: Stroke thickness (default: 1.0)
             - cyclic: Whether to close the stroke (default: False)
-            
+
     Returns:
         Dict containing drawing status and details
     """
     if points is None:
         points = []
-    
-    layer_name = kwargs.get('layer_name', 'GP_Layer')
-    frame_number = kwargs.get('frame_number', 1)
-    color = kwargs.get('color', [0.0, 0.0, 0.0, 1.0])
-    thickness = kwargs.get('thickness', 1.0)
-    cyclic = kwargs.get('cyclic', False)
-    
+
+    layer_name = kwargs.get("layer_name", "GP_Layer")
+    frame_number = kwargs.get("frame_number", 1)
+    color = kwargs.get("color", [0.0, 0.0, 0.0, 1.0])
+    thickness = kwargs.get("thickness", 1.0)
+    cyclic = kwargs.get("cyclic", False)
+
     script = f"""
 import math
 
@@ -178,8 +184,8 @@ def draw_stroke():
     
     elif '{stroke_type}' == 'BOX':
         # Draw a rectangle
-        width = {kwargs.get('width', 2.0)}
-        height = {kwargs.get('height', 2.0)}
+        width = {kwargs.get("width", 2.0)}
+        height = {kwargs.get("height", 2.0)}
         
         points = [
             (-width/2, -height/2, 0),
@@ -195,8 +201,8 @@ def draw_stroke():
     
     elif '{stroke_type}' == 'CIRCLE':
         # Draw a circle
-        radius = {kwargs.get('radius', 1.0)}
-        segments = {kwargs.get('segments', 32)}
+        radius = {kwargs.get("radius", 1.0)}
+        segments = {kwargs.get("segments", 32)}
         
         stroke.points.add(count=segments)
         for i in range(segments):
@@ -258,7 +264,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -266,27 +272,26 @@ except Exception as e:
         logger.error(f"Failed to draw Grease Pencil stroke: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("convert_grease_pencil", log_args=True)
 async def convert_grease_pencil(
-    gp_object: str,
-    target_type: str = "MESH",
-    **kwargs: Any
+    gp_object: str, target_type: str = "MESH", **kwargs: Any
 ) -> Dict[str, Any]:
     """Convert Grease Pencil object to another type.
-    
+
     Args:
         gp_object: Name of the Grease Pencil object to convert
         target_type: Target type ('MESH', 'CURVE', 'GP_STROKES')
         **kwargs: Additional parameters
             - keep_original: Keep the original object (default: False)
             - thickness: Thickness for converted geometry (default: 0.1)
-            
+
     Returns:
         Dict containing conversion status and details
     """
-    keep_original = kwargs.get('keep_original', False)
-    thickness = kwargs.get('thickness', 0.1)
-    
+    keep_original = kwargs.get("keep_original", False)
+    thickness = kwargs.get("thickness", 0.1)
+
     script = f"""
 
 def convert_gp():
@@ -350,7 +355,7 @@ try:
 except Exception as e:
     print(str({{'status': 'ERROR', 'error': str(e)}}))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}

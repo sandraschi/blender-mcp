@@ -5,7 +5,7 @@ from ..compat import *
 This module provides camera creation and manipulation functions that can be registered as FastMCP tools.
 """
 
-from typing import Optional, Tuple, Dict, Any, Union, Literal
+from typing import Tuple, Dict, Any, Union
 from enum import Enum
 from loguru import logger
 
@@ -15,11 +15,14 @@ from ..decorators import blender_operation
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()
 
+
 class CameraType(str, Enum):
     """Supported camera types."""
+
     PERSP = "PERSP"
     ORTHO = "ORTHO"
     PANO = "PANO"
+
 
 @blender_operation("create_camera", log_args=True)
 async def create_camera(
@@ -32,10 +35,10 @@ async def create_camera(
     clip_start: float = 0.1,
     clip_end: float = 100.0,
     sensor_fit: str = "AUTO",
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """Create a camera in the scene.
-    
+
     Args:
         name: Name for the camera object
         camera_type: Type of camera (PERSP, ORTHO, PANO)
@@ -47,7 +50,7 @@ async def create_camera(
         clip_end: Far clipping distance
         sensor_fit: Sensor fit mode (AUTO, HORIZONTAL, VERTICAL)
         **kwargs: Additional camera properties
-            
+
     Returns:
         Dict containing operation status and camera details
     """
@@ -102,7 +105,7 @@ except Exception as e:
 
 print(str(result))
 """
-    
+
     try:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
@@ -110,17 +113,15 @@ print(str(result))
         logger.error(f"Failed to create camera: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("set_active_camera", log_args=True)
-async def set_active_camera(
-    camera_name: str,
-    **kwargs: Any
-) -> Dict[str, Any]:
+async def set_active_camera(camera_name: str, **kwargs: Any) -> Dict[str, Any]:
     """Set the active camera for the scene.
-    
+
     Args:
         camera_name: Name of the camera to set as active
         **kwargs: Additional parameters
-            
+
     Returns:
         Dict containing operation status
     """
@@ -140,19 +141,16 @@ else:
         logger.error(f"Failed to set active camera: {str(e)}")
         return {"status": "ERROR", "error": str(e)}
 
+
 @blender_operation("set_camera_lens", log_args=True)
-async def set_camera_lens(
-    camera_name: str,
-    lens: float,
-    **kwargs: Any
-) -> Dict[str, Any]:
+async def set_camera_lens(camera_name: str, lens: float, **kwargs: Any) -> Dict[str, Any]:
     """Set the lens/focal length of a camera.
-    
+
     Args:
         camera_name: Name of the camera
         lens: Focal length in millimeters
         **kwargs: Additional parameters
-            
+
     Returns:
         Dict containing operation status
     """
