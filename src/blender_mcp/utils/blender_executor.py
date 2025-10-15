@@ -1,20 +1,22 @@
-from ..compat import *
-
 """Comprehensive Blender script executor with extensive error handling and logging."""
 
 import asyncio
-import subprocess
-import tempfile
 import os
 import shutil
-import psutil
+import subprocess
+import tempfile
+import time
 from pathlib import Path
 from typing import Optional, List, TypeVar
-from loguru import logger
-import time
 
-from ..exceptions import BlenderNotFoundError, BlenderScriptError
+from loguru import logger
+
+from ..compat import *
 from ..config import BLENDER_EXECUTABLE, validate_blender_executable
+from ..exceptions import BlenderNotFoundError, BlenderScriptError
+
+# Third-party imports
+import psutil
 
 # Type variable for the BlenderExecutor class
 T = TypeVar("T", bound="BlenderExecutor")

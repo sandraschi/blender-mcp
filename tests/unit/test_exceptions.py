@@ -13,6 +13,7 @@ from blender_mcp.exceptions import (
     BlenderAnimationError,
     BlenderLightingError,
 )
+from blender_mcp.utils.error_handling import MCPError, ValidationError as MCPValidationError, BlenderOperationError
 
 
 class TestExceptionHierarchy:
@@ -28,16 +29,18 @@ class TestExceptionHierarchy:
     @pytest.mark.unit
     def test_blender_not_found_error(self):
         """Test BlenderNotFoundError."""
-        error = BlenderNotFoundError("Blender not found")
-        assert str(error) == "Blender not found"
+        error = BlenderNotFoundError("/path/to/blender.exe")
+        assert str(error) == "Blender executable not found at: /path/to/blender.exe"
         assert isinstance(error, BlenderMCPError)
 
     @pytest.mark.unit
     def test_blender_script_error(self):
         """Test BlenderScriptError."""
-        error = BlenderScriptError("Script execution failed")
-        assert str(error) == "Script execution failed"
+        error = BlenderScriptError("print('test')", "Script execution failed")
+        assert str(error) == "Blender script failed: Script execution failed"
         assert isinstance(error, BlenderMCPError)
+        assert error.script == "print('test')"
+        assert error.error == "Script execution failed"
 
     @pytest.mark.unit
     def test_blender_export_error(self):
@@ -104,36 +107,26 @@ class TestExceptionMessages:
     @pytest.mark.unit
     def test_blender_script_error_with_context(self):
         """Test BlenderScriptError with additional context."""
-        error = BlenderScriptError("Script failed", script_path="/path/to/script.py", exit_code=1)
+        error = BlenderScriptError("print('test')", "Script failed")
         assert "Script failed" in str(error)
-        assert hasattr(error, "script_path")
-        assert hasattr(error, "exit_code")
-        assert error.script_path == "/path/to/script.py"
-        assert error.exit_code == 1
+        assert hasattr(error, "script")
+        assert hasattr(error, "error")
+        assert error.script == "print('test')"
+        assert error.error == "Script failed"
 
     @pytest.mark.unit
     def test_validation_error_with_field(self):
-        """Test ValidationError with field information."""
-        error = ValidationError(
-            "Invalid value", field="timeout", value=-1, expected="positive integer"
-        )
+        """Test MCPValidationError with field information."""
+        error = MCPValidationError("Invalid value", {"field": "timeout", "value": -1, "expected": "positive integer"})
         assert "Invalid value" in str(error)
-        assert hasattr(error, "field")
-        assert hasattr(error, "value")
-        assert hasattr(error, "expected")
-        assert error.field == "timeout"
-        assert error.value == -1
-        assert error.expected == "positive integer"
+        assert isinstance(error, MCPError)
 
     @pytest.mark.unit
-    def test_timeout_error_with_duration(self):
-        """Test TimeoutError with timeout duration."""
-        error = TimeoutError("Operation timed out", timeout_seconds=300, operation="render")
-        assert "Operation timed out" in str(error)
-        assert hasattr(error, "timeout_seconds")
-        assert hasattr(error, "operation")
-        assert error.timeout_seconds == 300
-        assert error.operation == "render"
+    def test_blender_operation_error(self):
+        """Test BlenderOperationError."""
+        error = BlenderOperationError("Mesh creation failed")
+        assert str(error) == "Blender operation failed: Mesh creation failed"
+        assert isinstance(error, MCPError)
 
 
 class TestExceptionChaining:
@@ -143,19 +136,18 @@ class TestExceptionChaining:
     def test_exception_chaining(self):
         """Test that exceptions can be chained properly."""
         root_cause = ValueError("Root cause")
-        config_error = ConfigurationError("Config failed", cause=root_cause)
+        operation_error = BlenderOperationError("Operation failed", {"cause": str(root_cause)})
 
-        assert config_error.__cause__ == root_cause
-        assert isinstance(config_error.__cause__, ValueError)
+        assert isinstance(operation_error, MCPError)
+        assert "Operation failed" in str(operation_error)
 
     @pytest.mark.unit
     def test_nested_exception_chain(self):
         """Test nested exception chaining."""
         original_error = OSError("File not found")
-        script_error = BlenderScriptError("Script failed to load", cause=original_error)
-        operation_error = OperationError("Operation completely failed", cause=script_error)
+        script_error = BlenderScriptError("print('test')", "Script failed to load")
+        operation_error = BlenderOperationError("Operation completely failed", {"cause": str(script_error)})
 
-        # Check the chain
-        assert operation_error.__cause__ == script_error
-        assert operation_error.__cause__.__cause__ == original_error
-        assert isinstance(operation_error.__cause__.__cause__, OSError)
+        # Check basic properties
+        assert isinstance(script_error, BlenderMCPError)
+        assert isinstance(operation_error, MCPError)

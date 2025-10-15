@@ -3,6 +3,7 @@
 import pytest
 import subprocess
 import os
+import sys
 from pathlib import Path
 
 
@@ -52,37 +53,41 @@ except Exception as e:
         env["BLENDER_EXECUTABLE"] = blender_executable
 
         test_script = f'''
-import sys
-import os
-sys.path.insert(0, r"{Path(__file__).parent.parent.parent / "src"}")
+    import sys
+    import os
+    import asyncio
+    sys.path.insert(0, r"{Path(__file__).parent.parent.parent / "src"}")
 
-try:
-    # Import server which imports all handlers
-    from blender_mcp.server import app
-    print("Server and all handlers imported successfully")
+    async def main():
+        try:
+            # Import server which imports all handlers
+            from blender_mcp.server import app
+            print("Server and all handlers imported successfully")
 
-    # Try to get tools
-    tools = app.get_tools()
-    print(f"Found {{len(tools)}} tools registered")
+            # Try to get tools (async call)
+            tools = await app.get_tools()
+            print(f"Found {{len(tools)}} tools registered")
 
-    # Check that we have expected tools
-    tool_names = [tool.name for tool in tools]
-    expected_tools = ["blender_mesh", "blender_animation", "blender_lighting"]
+            # Check that we have expected tools
+            tool_names = [tool.name for tool in tools]
+            expected_tools = ["blender_mesh", "blender_animation", "blender_lighting"]
 
-    for expected_tool in expected_tools:
-        if expected_tool in tool_names:
-            print(f"Found expected tool: {{expected_tool}}")
-        else:
-            print(f"Missing expected tool: {{expected_tool}}")
+            for expected_tool in expected_tools:
+                if expected_tool in tool_names:
+                    print(f"Found expected tool: {{expected_tool}}")
+                else:
+                    print(f"Missing expected tool: {{expected_tool}}")
 
-    print("Tool registration test completed")
+            print("Tool registration test completed")
 
-except Exception as e:
-    import traceback
-    print(f"Tool import test failed: {{e}}")
-    traceback.print_exc()
-    sys.exit(1)
-'''
+        except Exception as e:
+            import traceback
+            print(f"Tool import test failed: {{e}}")
+            traceback.print_exc()
+            sys.exit(1)
+
+    asyncio.run(main())
+    '''
 
         test_file = temp_dir / "tool_test.py"
         test_file.write_text(test_script)

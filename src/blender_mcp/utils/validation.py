@@ -1,12 +1,14 @@
-from ..compat import *
-
 """
 Validation utilities for Blender MCP.
 
 This module provides common validation functions for MCP tools.
 """
+
 from typing import Any, Dict, Type, TypeVar
+
 from pydantic import BaseModel, field_validator, model_validator, ConfigDict
+
+from ..compat import *
 
 # Conditional bpy import - only available when running inside Blender
 try:

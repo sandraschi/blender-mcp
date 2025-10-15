@@ -149,7 +149,7 @@ logger.info(f"🔥 Created fire particle effect for '{object_name}'")
                 from ..utils.blender_executor import get_blender_executor
 
                 executor = get_blender_executor()
-                result = await executor.execute_script(script)
+                await executor.execute_script(script)
                 return "Created fire effect system"
 
             else:

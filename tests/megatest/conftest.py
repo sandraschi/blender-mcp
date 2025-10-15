@@ -236,6 +236,15 @@ def pytest_sessionfinish(session, exitstatus):
         print("🧹 Cleanup: Already performed during tests")
     elif config.cleanup_mode == "on_success" and exitstatus == 0:
         print("🧹 Cleanup: Removing test data (all tests passed)")
+        # Preserve safety log before cleanup
+        safety_log = config.results_path / "safety_check.log"
+        if safety_log.exists():
+            preserved_log = config.base_path / "LAST_SUCCESS_SAFETY_CHECK.log"
+            try:
+                shutil.copy2(safety_log, preserved_log)
+                print(f"📋 Safety log preserved at: {preserved_log}")
+            except Exception as e:
+                print(f"⚠️  Failed to preserve safety log: {e}")
         shutil.rmtree(config.base_path, ignore_errors=True)
     else:
         print(f"🧹 Cleanup: Preserving test data at {config.base_path}")

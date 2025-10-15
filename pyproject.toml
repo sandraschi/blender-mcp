@@ -71,6 +71,11 @@ package-dir = { "" = "src" }
 target-version = "py311"
 line-length = 100
 
+[tool.ruff.lint]
+ignore = [
+    "F403",  # Star imports for compat module are intentional
+]
+
 [tool.pyright]
 include = ["src/"]
 pythonVersion = "3.11"
@@ -79,6 +84,7 @@ pythonVersion = "3.11"
 testpaths = ["tests"]
 python_files = "test_*.py"
 addopts = "-v --cov=src --cov-report=term-missing"
+# asyncio_mode = "auto"  # Using pytest.mark.asyncio instead
 
 [tool.coverage.run]
 source = ["src"]

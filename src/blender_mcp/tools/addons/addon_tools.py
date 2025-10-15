@@ -7,12 +7,6 @@ Provides tools for installing, enabling, and managing Blender addons.
 from blender_mcp.app import get_app
 
 
-def get_app():
-    from blender_mcp.app import app
-
-    return app
-
-
 def _register_addon_tools():
     """Register all addon-related tools."""
     app = get_app()

@@ -4,7 +4,7 @@ import pytest
 import json
 from pathlib import Path
 from blender_mcp.utils.blender_executor import BlenderExecutor
-from blender_mcp.exceptions import BlenderNotFoundError
+from blender_mcp.exceptions import BlenderNotFoundError, BlenderScriptError
 
 
 class TestBlenderExecutorIntegration:
@@ -16,11 +16,12 @@ class TestBlenderExecutorIntegration:
         """Test that BlenderExecutor can be created with real Blender."""
         executor = BlenderExecutor(blender_executable)
         assert executor is not None
-        assert executor.blender_path == blender_executable
+        assert str(executor.blender_path) == blender_executable
 
     @pytest.mark.integration
     @pytest.mark.requires_blender
-    def test_basic_script_execution(self, blender_executable: str):
+    @pytest.mark.asyncio
+    async def test_basic_script_execution(self, blender_executable: str):
         """Test basic script execution in Blender."""
         executor = BlenderExecutor(blender_executable)
 
@@ -29,14 +30,15 @@ import bpy
 print("Hello from Blender integration test")
 """
 
-        result = executor.execute_script(script)
+        result = await executor.execute_script(script)
 
-        assert result["success"] is True
-        assert "Hello from Blender integration test" in result["output"]
+        assert isinstance(result, str)
+        assert "Hello from Blender integration test" in result
 
     @pytest.mark.integration
     @pytest.mark.requires_blender
-    def test_scene_creation_script(self, blender_executable: str):
+    @pytest.mark.asyncio
+    async def test_scene_creation_script(self, blender_executable: str):
         """Test scene creation script execution."""
         executor = BlenderExecutor(blender_executable)
 
@@ -58,14 +60,15 @@ sphere.name = "TestSphere"
 print(f"Created {len(bpy.data.objects)} objects")
 """
 
-        result = executor.execute_script(script)
+        result = await executor.execute_script(script)
 
-        assert result["success"] is True
-        assert "Created 2 objects" in result["output"]
+        assert isinstance(result, str)
+        assert "Created 2 objects" in result
 
     @pytest.mark.integration
     @pytest.mark.requires_blender
-    def test_material_creation(self, blender_executable: str):
+    @pytest.mark.asyncio
+    async def test_material_creation(self, blender_executable: str):
         """Test material creation and assignment."""
         executor = BlenderExecutor(blender_executable)
 
@@ -94,14 +97,15 @@ print(f"Created material: {material.name}")
 print(f"Assigned to object: {cube.name}")
 """
 
-        result = executor.execute_script(script)
+        result = await executor.execute_script(script)
 
-        assert result["success"] is True
-        assert "Created material: TestMaterial" in result["output"]
+        assert isinstance(result, str)
+        assert "Created material: TestMaterial" in result
 
     @pytest.mark.integration
     @pytest.mark.requires_blender
-    def test_script_error_handling(self, blender_executable: str):
+    @pytest.mark.asyncio
+    async def test_script_error_handling(self, blender_executable: str):
         """Test error handling when script has syntax errors."""
         executor = BlenderExecutor(blender_executable)
 
@@ -113,15 +117,14 @@ print("This is fine"
 print("This won't execute")
 """
 
-        result = executor.execute_script(script)
-
-        # Should still succeed but may have error output
-        assert isinstance(result, dict)
-        assert "success" in result
+        # Should raise BlenderScriptError due to syntax error
+        with pytest.raises(BlenderScriptError):
+            await executor.execute_script(script)
 
     @pytest.mark.integration
     @pytest.mark.requires_blender
-    def test_complex_scene_operations(self, blender_executable: str):
+    @pytest.mark.asyncio
+    async def test_complex_scene_operations(self, blender_executable: str):
         """Test complex scene operations."""
         executor = BlenderExecutor(blender_executable)
 
@@ -177,12 +180,12 @@ scene_info = {
 print(json.dumps(scene_info))
 """
 
-        result = executor.execute_script(script)
+        result = await executor.execute_script(script)
 
-        assert result["success"] is True
+        assert isinstance(result, str)
 
-        # Parse the JSON output
-        output_lines = result["output"].strip().split("\n")
+        # Parse the JSON output from the result string
+        output_lines = result.strip().split("\n")
         json_line = None
         for line in output_lines:
             if line.strip().startswith("{"):
@@ -199,9 +202,10 @@ print(json.dumps(scene_info))
 
     @pytest.mark.integration
     @pytest.mark.requires_blender
-    def test_timeout_handling(self, blender_executable: str):
+    @pytest.mark.asyncio
+    async def test_timeout_handling(self, blender_executable: str):
         """Test timeout handling for long-running scripts."""
-        executor = BlenderExecutor(blender_executable, timeout=5)  # Short timeout
+        executor = BlenderExecutor(blender_executable)
 
         # Script that should take longer than timeout
         script = """
@@ -213,15 +217,14 @@ time.sleep(10)  # This should timeout
 print("This should not print")
 """
 
-        result = executor.execute_script(script)
-
-        # Should fail due to timeout
-        assert result["success"] is False
-        assert "timeout" in result.get("error", "").lower()
+        # Should raise BlenderScriptError due to timeout
+        with pytest.raises(BlenderScriptError):
+            await executor.execute_script(script, timeout=5)  # Short timeout
 
     @pytest.mark.integration
     @pytest.mark.requires_blender
-    def test_file_output_operations(self, blender_executable: str, temp_dir: Path):
+    @pytest.mark.asyncio
+    async def test_file_output_operations(self, blender_executable: str, temp_dir: Path):
         """Test operations that create file outputs."""
         executor = BlenderExecutor(blender_executable)
 
@@ -264,10 +267,10 @@ print(f"Rendered to: {output_path}")
 """
         )
 
-        result = executor.execute_script(script)
+        result = await executor.execute_script(script)
 
-        assert result["success"] is True
-        assert "Rendered to:" in result["output"]
+        assert isinstance(result, str)
+        assert "Rendered to:" in result
 
         # Check if file was actually created
         assert output_path.exists(), "Render output file was not created"
@@ -285,7 +288,8 @@ class TestBlenderExecutorErrorCases:
 
     @pytest.mark.integration
     @pytest.mark.requires_blender
-    def test_invalid_script_execution(self, blender_executable: str):
+    @pytest.mark.asyncio
+    async def test_invalid_script_execution(self, blender_executable: str):
         """Test execution of invalid Python script."""
         executor = BlenderExecutor(blender_executable)
 
@@ -296,8 +300,6 @@ import bpy
 nonexistent_object.some_method()
 """
 
-        result = executor.execute_script(script)
-
-        # Should fail but not crash
-        assert isinstance(result, dict)
-        assert "success" in result
+        # Should raise BlenderScriptError due to invalid script
+        with pytest.raises(BlenderScriptError):
+            await executor.execute_script(script)

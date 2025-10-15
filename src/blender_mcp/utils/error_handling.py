@@ -24,7 +24,7 @@ class MCPError(Exception):
         super().__init__(self.message)
 
 
-class ValidationError(MCPError):
+class MCPValidationError(MCPError):
     """Raised when input validation fails."""
 
     def __init__(self, message: str, details: Optional[dict] = None):

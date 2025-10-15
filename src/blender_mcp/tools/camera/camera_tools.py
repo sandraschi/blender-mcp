@@ -8,12 +8,6 @@ from typing import Optional, Tuple
 from blender_mcp.app import get_app
 
 
-def get_app():
-    from blender_mcp.app import app
-
-    return app
-
-
 def _register_camera_tools():
     """Register all camera-related tools."""
     app = get_app()

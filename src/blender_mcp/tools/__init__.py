@@ -23,15 +23,15 @@ from ..compat import (
     Callable,
     Awaitable,
     Optional,
-    Union,
     List,
     TypeAlias,
     Type,
-    Tool,
     FunctionTool,
     ToolManager,
-    LowLevelServer,
 )
+
+# Import pydantic for validation
+from pydantic import BaseModel, ValidationError
 
 # Import error handling utilities
 from blender_mcp.utils.error_handling import (
