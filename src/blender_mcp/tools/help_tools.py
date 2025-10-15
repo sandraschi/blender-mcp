@@ -5,6 +5,8 @@ Provides comprehensive help system, tool discovery, and documentation
 for all available Blender MCP functionality.
 """
 
+from ..compat import *
+
 from loguru import logger
 
 

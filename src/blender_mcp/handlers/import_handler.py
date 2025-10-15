@@ -13,6 +13,7 @@ _executor = get_blender_executor()
 
 class ImportFormat(str, Enum):
     """Supported import formats."""
+
 from ..compat import *
 
     OBJ = "OBJ"

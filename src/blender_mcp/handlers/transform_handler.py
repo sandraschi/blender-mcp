@@ -12,6 +12,7 @@ _executor = get_blender_executor()
 
 class TransformSpace(str, Enum):
     """Coordinate spaces for transformations."""
+
 from ..compat import *
 
     WORLD = "WORLD"

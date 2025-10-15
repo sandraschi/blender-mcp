@@ -4,6 +4,8 @@ Lighting creation and management handler for Blender MCP.
 Provides functions for creating and managing lights in Blender scenes.
 """
 
+from ..compat import *
+
 from typing import Tuple, Optional
 from loguru import logger
 from ..utils.blender_executor import get_blender_executor

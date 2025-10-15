@@ -18,6 +18,9 @@ def blender_operation(
     validate_blender: bool = True,
 ) -> Callable[[F], F]:
     """
+from ..compat import *
+
+
     Decorator for Blender operations with comprehensive logging and error handling.
 
     Args:

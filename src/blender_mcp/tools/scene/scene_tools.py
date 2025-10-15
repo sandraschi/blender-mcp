@@ -5,6 +5,8 @@ Provides tools for creating, managing, and manipulating Blender scenes,
 collections, view layers, and basic scene setup operations.
 """
 
+from ..compat import *
+
 from typing import List
 from pydantic import BaseModel, Field
 

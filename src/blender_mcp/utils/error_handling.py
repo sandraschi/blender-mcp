@@ -5,6 +5,8 @@ This module provides decorators and utilities for consistent error handling
 across the Blender-MCP application.
 """
 
+from ..compat import *
+
 from functools import wraps
 from typing import Any, Callable, Type, TypeVar, Optional
 from pydantic import BaseModel, ValidationError

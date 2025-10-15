@@ -25,6 +25,7 @@ async def create_armature(
 ) -> Dict[str, Any]:
     """Create a new armature object."""
 from ..compat import *
+
     script = f"""
 
 def create_armature():

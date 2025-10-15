@@ -6,6 +6,8 @@ This script will:
 2. Update imports to use the compatibility module
 3. Remove direct imports of JSONType from fastmcp.types
 """
+from ..compat import *
+
 
 import os
 import re

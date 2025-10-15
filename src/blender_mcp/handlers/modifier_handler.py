@@ -12,6 +12,7 @@ _executor = get_blender_executor()
 
 class ModifierType(str, Enum):
     """Supported modifier types."""
+
 from ..compat import *
 
     ARRAY = "ARRAY"

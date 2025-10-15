@@ -12,6 +12,7 @@ _executor = get_blender_executor()
 
 class GPStrokePlacement(str, Enum):
     """Grease Pencil stroke placement modes."""
+
 from ..compat import *
 
     ORIGIN = "ORIGIN"  # Draw at origin

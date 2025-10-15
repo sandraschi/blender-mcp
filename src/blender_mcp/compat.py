@@ -5,6 +5,8 @@ This module provides type definitions and compatibility shims to handle differen
 between Python versions and FastMCP implementations.
 """
 
+from ..compat import *
+
 from __future__ import annotations
 
 from typing import (

@@ -4,6 +4,8 @@ Furniture and complex object creation tools for Blender MCP.
 Provides tools for creating complex objects like furniture, buildings, and structures.
 """
 
+from ..compat import *
+
 from typing import Tuple
 from blender_mcp.app import get_app
 

@@ -15,6 +15,7 @@ _executor = get_blender_executor()
 
 class ScriptLanguage(str, Enum):
     """Supported scripting languages."""
+
 from ..compat import *
 
     PYTHON = "PYTHON"

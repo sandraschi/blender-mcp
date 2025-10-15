@@ -12,6 +12,7 @@ _executor = get_blender_executor()
 
 class SelectMode(str, Enum):
     """Selection modes."""
+
 from ..compat import *
 
     REPLACE = "REPLACE"

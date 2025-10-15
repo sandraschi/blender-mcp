@@ -5,6 +5,8 @@ This module provides tools for downloading and importing assets from free Blende
 Supports multiple repositories including BlenderKit, Kenney Assets, Quaternius, Open Game Art, and more.
 """
 
+from ..compat import *
+
 from typing import Optional, Dict, Any, List, Union, Tuple
 import os
 import tempfile

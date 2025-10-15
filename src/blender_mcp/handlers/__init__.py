@@ -5,6 +5,8 @@ including scene management, mesh creation, material handling, and more. These ha
 to be used with the Blender MCP server to provide a clean API for Blender automation.
 """
 
+from ..compat import *
+
 from blender_mcp.compat import *
 
 # Scene handlers

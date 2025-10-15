@@ -5,6 +5,8 @@ This module provides tools for creating various furniture and structural element
 All implementations are marked as MOCK for now.
 """
 
+from ..compat import *
+
 from typing import Tuple, Dict, Any, Union
 from enum import Enum
 import logging

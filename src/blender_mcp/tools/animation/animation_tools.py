@@ -4,6 +4,8 @@ Animation and motion tools for Blender MCP.
 Provides tools for creating keyframes, basic animations, and object motion.
 """
 
+from ..compat import *
+
 from typing import Optional, Tuple, Union
 from blender_mcp.app import get_app
 

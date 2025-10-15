@@ -4,6 +4,8 @@ Export tools for Blender MCP.
 Provides tools for exporting scenes and objects in various formats.
 """
 
+from ..compat import *
+
 from typing import List, Optional
 from blender_mcp.app import get_app
 

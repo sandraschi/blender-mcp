@@ -25,6 +25,7 @@ async def read_file(
 ) -> Dict[str, Any]:
     """Read a file's contents."""
 from ..compat import *
+
     filepath = str(Path(filepath).absolute())
 
     try:

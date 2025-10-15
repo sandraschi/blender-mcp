@@ -37,6 +37,7 @@ async def create_particle_system(
 ) -> Dict[str, Any]:
     """Create a particle system on an object."""
 from ..compat import *
+
     script = f"""
 
 def create_particle_system():

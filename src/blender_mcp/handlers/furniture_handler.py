@@ -4,6 +4,8 @@ Furniture Handler for Blender MCP
 This module provides tools for creating and managing furniture in Blender.
 All implementations are marked as MOCK for now."""
 
+from ..compat import *
+
 from typing import Tuple, Dict, Any, Union
 from enum import Enum
 import logging

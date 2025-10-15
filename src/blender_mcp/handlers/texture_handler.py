@@ -12,6 +12,7 @@ _executor = get_blender_executor()
 
 class TextureType(str, Enum):
     """Supported texture types."""
+
 from ..compat import *
 
     IMAGE = "IMAGE"

@@ -4,6 +4,8 @@ This version avoids circular imports by registering tools manually after
 all modules are loaded.
 """
 
+from ..compat import *
+
 import asyncio
 import sys
 import os

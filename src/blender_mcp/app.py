@@ -9,6 +9,7 @@ app = None
 
 def get_app():
     """Get or create the FastMCP application instance with lazy initialization."""
+
     global app
     if app is None:
         from fastmcp import FastMCP

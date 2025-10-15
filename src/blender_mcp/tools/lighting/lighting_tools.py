@@ -4,6 +4,8 @@ Lighting creation and management tools for Blender MCP.
 Provides tools for creating various types of lights and managing lighting setups.
 """
 
+from ..compat import *
+
 from typing import Tuple
 from blender_mcp.app import get_app
 

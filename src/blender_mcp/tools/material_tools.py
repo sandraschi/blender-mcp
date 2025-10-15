@@ -6,6 +6,8 @@ The actual tool functions are defined in the handlers and registered with @app.t
 This module provides parameter models and enums for documentation and validation purposes.
 """
 
+from ..compat import *
+
 from typing import List, Optional
 from enum import Enum
 from pydantic import BaseModel, Field

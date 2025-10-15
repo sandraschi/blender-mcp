@@ -4,6 +4,8 @@ Physics tools for Blender MCP.
 Provides tools for rigid body, cloth, soft body, and fluid simulations.
 """
 
+from ..compat import *
+
 from blender_mcp.app import get_app
 
 

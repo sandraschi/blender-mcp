@@ -13,6 +13,8 @@ Features:
 - VRChat optimization tools
 """
 
+from ..compat import *
+
 # No typing imports needed in __init__.py
 
 # Import custom types from compat

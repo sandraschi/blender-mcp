@@ -5,6 +5,8 @@ Provides comprehensive system information, health checks, and monitoring
 capabilities for the Blender MCP server and Blender environment.
 """
 
+from ..compat import *
+
 import os
 import sys
 import psutil

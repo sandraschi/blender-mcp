@@ -12,6 +12,7 @@ _executor = get_blender_executor()
 
 class UVUnwrapMethod(str, Enum):
     """UV unwrapping methods."""
+
 from ..compat import *
 
     ANGLE_BASED = "ANGLE_BASED"

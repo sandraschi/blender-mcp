@@ -4,6 +4,7 @@ from typing import Tuple, Dict, Any, Union
 from enum import Enum
 from loguru import logger
 
+from ..compat import *
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
 
@@ -12,7 +13,6 @@ _executor = get_blender_executor()
 
 class CompositorNodeType(str, Enum):
     """Common compositor node types."""
-from ..compat import *
 
     BLUR = "CompositorNodeBlur"
     RGB = "CompositorNodeRGB"

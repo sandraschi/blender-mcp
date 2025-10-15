@@ -7,6 +7,8 @@ from blender_mcp.compat import *
 class BlenderMCPError(Exception):
     """Base exception for all Blender MCP operations."""
 
+from ..compat import *
+
     def __init__(self, message: str, error_code: Optional[str] = None):
         self.message = message
         self.error_code = error_code

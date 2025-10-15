@@ -4,6 +4,8 @@ Texture creation and management tools for Blender MCP.
 Provides tools for creating procedural and image-based textures.
 """
 
+from ..compat import *
+
 from blender_mcp.app import get_app
 
 

@@ -5,6 +5,8 @@ Provides tools to download files from URLs and import them into Blender scenes.
 Supports models, textures, and other assets with automatic format detection.
 """
 
+from ..compat import *
+
 import os
 import requests
 import tempfile
