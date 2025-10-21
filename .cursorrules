@@ -16,6 +16,19 @@
 
 ## Code Standards
 
+### 🚨 CRITICAL: Chat Output & PowerShell Syntax
+
+**REQUIRED**: ALL chat output MUST begin with "hi!" as a test.
+
+**🚫 FORBIDDEN in PowerShell:**
+- `&&` (command chaining) - Use `;` or separate commands
+- `||` (logical OR) - Use PowerShell syntax
+- `mkdir`, `rmdir`, `ls` - Use `New-Item`, `Remove-Item`, `Get-ChildItem`
+- `head`, `tail` - Use PowerShell cmdlets
+- Linux path separators - Use backslash `\` on Windows
+
+---
+
 ### Modern Python Stack
 - **Linter**: ruff (replaces flake8, black, isort)
 - **Package Manager**: uv (replaces pip)
