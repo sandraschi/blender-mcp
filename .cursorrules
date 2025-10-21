@@ -1,0 +1,55 @@
+# blender-mcp Cursor Rules
+
+## Triple Initiatives (Active)
+
+**This repo is part of three parallel improvement initiatives:**
+
+1. **Great Doc Bash** - Documentation Quality (Target: 9.0+/10)
+2. **GitHub Dash** - CI/CD Modernization (Target: 8.0+/10)  
+3. **Release Flash** - Successful Releases (Target: Zero errors)
+
+📋 **Improvement Plan**: docs-private/TRIPLE_INITIATIVES_GUIDE.md  
+📚 **Central Docs**: D:\Dev\repos\mcp-central-docs\  
+🔗 **Standards**: mcp-central-docs/STANDARDS.md
+
+---
+
+## Code Standards
+
+### Modern Python Stack
+- **Linter**: ruff (replaces flake8, black, isort)
+- **Package Manager**: uv (replaces pip)
+- **Testing**: pytest with pytest-cov
+- **Type Hints**: Required for all functions
+- **Async**: MCP tools must be async
+
+### Commands
+```bash
+uv run ruff check .
+uv run ruff format .
+uv run python -m pytest -v
+```
+
+---
+
+## Release Flash Checklist
+
+Before creating release tag:
+- Zero ruff errors
+- All tests passing
+- Version updated
+
+```bash
+git tag v1.0.0b1
+git push origin v1.0.0b1
+```
+
+---
+
+## References
+
+- Improvement Plan: docs-private/TRIPLE_INITIATIVES_GUIDE.md
+- Central Standards: D:\Dev\repos\mcp-central-docs\STANDARDS.md
+- Workflow Strategy: mcp-central-docs/docs-private/CURSOR_WORKFLOW_STRATEGY.md
+
+**Last Updated**: 2025-10-21 (Triple Initiatives Day 1)
