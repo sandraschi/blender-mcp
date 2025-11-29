@@ -20,6 +20,7 @@ def _register_rigging_tools():
         armature_name: str = "Armature",
         bone_name: str = "Bone",
         location: Tuple[float, float, float] = (0, 0, 0),
+        rotation: Tuple[float, float, float] = (0, 0, 0),
         head: Tuple[float, float, float] = (0, 0, 0),
         tail: Tuple[float, float, float] = (0, 1, 0),
         parent_bone: str = "",
@@ -27,6 +28,8 @@ def _register_rigging_tools():
         target_bone: str = "",
         pole_target: str = "",
         chain_length: int = 2,
+        frame: int = 1,
+        rotation_mode: str = "XYZ",
     ) -> str:
         """
         Create and manage armatures and character rigging.
@@ -35,27 +38,35 @@ def _register_rigging_tools():
         - create_armature: Create a new armature object
         - add_bone: Add a bone to an existing armature
         - create_bone_ik: Create inverse kinematics constraint
-        - parent_bone: Parent one bone to another
-        - mirror_bones: Mirror bones across axis
         - create_basic_rig: Create basic biped rig
+        - list_bones: List all bones in an armature (useful for VRM models)
+        - pose_bone: Set bone rotation/location in pose mode
+        - set_bone_keyframe: Insert keyframe for bone pose
+        - reset_pose: Reset armature to rest position
 
         Args:
             operation: Rigging operation type
             armature_name: Name of armature to work with
-            bone_name: Name of bone to create/modify
-            location: Position for armature or bone
-            head: Head position for bone
-            tail: Tail position for bone
+            bone_name: Name of bone to create/modify/pose
+            location: Position for armature, bone, or pose offset
+            rotation: Rotation in degrees for pose_bone (Euler XYZ)
+            head: Head position for bone creation
+            tail: Tail position for bone creation
             parent_bone: Parent bone name for hierarchy
             connected: Connect bone to parent
             target_bone: Target bone for IK constraints
             pole_target: Pole target for IK
             chain_length: Number of bones in IK chain
+            frame: Frame number for keyframing
+            rotation_mode: Euler rotation order (XYZ, ZYX, etc.)
 
         Returns:
             Success message with rigging details
         """
-        from blender_mcp.handlers.rigging_handler import create_armature, add_bone, create_bone_ik
+        from blender_mcp.handlers.rigging_handler import (
+            create_armature, add_bone, create_bone_ik,
+            list_bones, pose_bone, set_bone_keyframe, reset_pose
+        )
 
         from loguru import logger
 
@@ -150,8 +161,47 @@ def _register_rigging_tools():
 
                 return f"Created basic biped rig '{armature_name}_basic' with {len(bones)} bones"
 
+            elif operation == "list_bones":
+                # List all bones in armature (great for VRM models)
+                result = await list_bones(armature_name=armature_name)
+                return str(result)
+
+            elif operation == "pose_bone":
+                # Pose a specific bone (rotate arm, leg, etc.)
+                if not bone_name:
+                    return "bone_name parameter required for pose_bone"
+                rotation_tuple = (
+                    tuple(float(x) for x in rotation)
+                    if hasattr(rotation, "__iter__") and not isinstance(rotation, str)
+                    else rotation
+                )
+                result = await pose_bone(
+                    armature_name=armature_name,
+                    bone_name=bone_name,
+                    rotation=rotation_tuple,
+                    location=location_tuple if any(location_tuple) else None,
+                    rotation_mode=rotation_mode,
+                )
+                return str(result)
+
+            elif operation == "set_bone_keyframe":
+                # Keyframe current bone pose
+                if not bone_name:
+                    return "bone_name parameter required for set_bone_keyframe"
+                result = await set_bone_keyframe(
+                    armature_name=armature_name,
+                    bone_name=bone_name,
+                    frame=frame,
+                )
+                return str(result)
+
+            elif operation == "reset_pose":
+                # Reset all bones to rest position
+                result = await reset_pose(armature_name=armature_name)
+                return str(result)
+
             else:
-                return f"Unknown rigging operation: {operation}. Available: create_armature, add_bone, create_bone_ik, create_basic_rig"
+                return f"Unknown rigging operation: {operation}. Available: create_armature, add_bone, create_bone_ik, create_basic_rig, list_bones, pose_bone, set_bone_keyframe, reset_pose"
 
         except Exception as e:
             logger.error(f"❌ Error in rigging operation '{operation}': {str(e)}")
