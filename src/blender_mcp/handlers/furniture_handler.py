@@ -2,7 +2,7 @@
 Furniture Handler for Blender MCP
 
 This module provides tools for creating and managing furniture in Blender.
-All implementations are marked as MOCK for now."""
+All implementations use real Blender API (bmesh, bpy.ops) to generate actual geometry."""
 
 from ..compat import *
 
