@@ -1,21 +1,23 @@
 # Blender MCP Server
 
-A comprehensive FastMCP 2.12 compliant MCP server for Blender automation, designed to provide programmatic control over Blender's extensive 3D creation, manipulation, and rendering capabilities. Connects via stdio to Claude Desktop and via HTTP transport to other MCP-compatible tools.
+A comprehensive FastMCP 2.12+ MCP server for Blender automation, designed to provide programmatic control over Blender's extensive 3D creation, manipulation, and rendering capabilities. **Full VRM avatar workflow support** for character animation.
 
 ## What is This?
 
-This is a **FastMCP 2.12 server** that exposes Blender's powerful 3D creation and manipulation capabilities as standardized MCP tools. It allows AI assistants like Claude to:
+This is a **FastMCP 2.12+ server** that exposes Blender's powerful 3D creation and manipulation capabilities as standardized MCP tools. It allows AI assistants like Claude to:
 
 - **Create 3D scenes, objects, and materials programmatically**
+- **Animate VRM avatars** with bone posing and facial expressions
 - **Automate complex Blender workflows**
-- **Generate content for games, visualization, and media production**
+- **Generate content for games, VRChat, and media production**
 - **Batch process 3D assets and exports**
 
 ## Architecture
 
-**FastMCP 2.12 Standard Compliance:**
-- ✅ Proper `@app.tool` decorators
-- ✅ Multiline self-documenting docstrings (no """ inside)
+**FastMCP 2.12+ Standard Compliance:**
+- ✅ Proper `@app.tool` decorators with Literal types
+- ✅ Portmanteau pattern (32 tools, 100+ operations)
+- ✅ Multiline self-documenting docstrings
 - ✅ Pydantic parameter validation
 - ✅ Async/await pattern
 - ✅ Stdio and HTTP transport support
@@ -27,77 +29,89 @@ This is a **FastMCP 2.12 server** that exposes Blender's powerful 3D creation an
 
 ## Available Tools
 
-This server provides **50 working tools** for comprehensive Blender automation:
+This server provides **32 portmanteau tools** with **100+ operations**:
 
-### 🎨 Object Creation & Mesh (1 tool - 7 operations)
-- **`blender_mesh`** - Create and manipulate 3D objects ✅ **TESTED & WORKING**
-  - `create_cube` - Create cube primitives
-  - `create_sphere` - Create sphere primitives
-  - `create_cylinder` - Create cylinder primitives
-  - `create_cone` - Create cone primitives
-  - `create_plane` - Create plane primitives
-  - `create_torus` - Create torus primitives
-  - `create_monkey` - Create Suzanne (monkey) primitives
-  - `duplicate_object` - Duplicate existing objects
-  - `delete_object` - Delete objects by name
+### 🎨 Object Creation & Mesh
+- **`blender_mesh`** (9 ops) - Create and manipulate 3D primitives
+  - `create_cube`, `create_sphere`, `create_cylinder`, `create_cone`
+  - `create_plane`, `create_torus`, `create_monkey`
+  - `duplicate_object`, `delete_object`
 
-### 🎬 Animation & Motion (1 tool - 6 operations)
-- **`blender_animation`** - Create animations and keyframes ✅ **FRAMEWORK WORKING**
-  - `set_keyframe` - Set keyframes for object properties
-  - `animate_location` - Animate object movement over time
-  - `animate_rotation` - Animate object rotation over time
-  - `animate_scale` - Animate object scaling over time
-  - `play_animation` - Start animation playback
-  - `set_frame_range` - Set animation frame range
-  - `clear_animation` - Clear all keyframes from objects
+### 🎬 Animation & Motion (21 operations) ⭐ NEW
+- **`blender_animation`** - Complete animation system
+  - **Basic**: `set_keyframe`, `animate_location/rotation/scale`, `play_animation`, `set_frame_range`, `clear_animation`
+  - **Shape Keys (VRM)**: `list_shape_keys`, `set_shape_key`, `keyframe_shape_key`, `create_shape_key`
+  - **Actions**: `list_actions`, `create_action`, `set_active_action`, `push_to_nla`
+  - **Interpolation**: `set_interpolation`, `set_easing`
+  - **Constraints**: `add_constraint`, `add_bone_constraint`
+  - **Baking**: `bake_action`, `bake_all_actions`
 
-### 💡 Lighting & Rendering (2 tools - 7 operations)
-- **`blender_lighting`** - Create and manage lights ✅ **TESTED & WORKING**
-  - `create_sun` - Create directional sun lights
-  - `create_point` - Create omnidirectional point lights
-  - `create_spot` - Create focused spot lights
-  - `create_area` - Create area lights for soft shadows
-  - `setup_three_point` - Create three-point lighting rigs
-  - `setup_hdri` - Set up HDRI environment lighting
-  - `adjust_light` - Modify existing light properties
-- **`setup_lighting`** - Legacy lighting setup tool
+### 🦴 Rigging & Bones (8 operations) ⭐ NEW
+- **`blender_rigging`** - Armature and bone control
+  - `create_armature`, `add_bone`, `create_bone_ik`, `create_basic_rig`
+  - **VRM Support**: `list_bones`, `pose_bone`, `set_bone_keyframe`, `reset_pose`
 
-### 🎨 Scene Management (12 tools)
-- `create_scene` - Create new Blender scenes
-- `list_scenes` - List all scenes in the project ✅ **TESTED & WORKING**
-- `clear_scene` - Remove all objects from active scene
-- `set_active_scene` - Switch between scenes
-- `link_object_to_scene` - Share objects between scenes
-- `create_collection` - Organize objects in collections
-- `add_to_collection` - Add objects to collections
-- `set_active_collection` - Set working collection
-- `set_view_layer` - Control render layers
-- `setup_lighting` - Automated lighting rigs
-- `setup_camera` - Camera positioning
-- `set_render_settings` - Basic render configuration
+### 🎨 Scene Management
+- **`blender_scene`** (12 ops) - Scene, collection, view layer control
+  - `create_scene`, `list_scenes`, `clear_scene`, `set_active_scene`
+  - `create_collection`, `add_to_collection`, `set_active_collection`
+  - `link_object_to_scene`, `set_view_layer`
+  - `setup_lighting`, `setup_camera`, `set_render_settings`
 
-### 📤 Export & Import (2 tools - 5+ operations)
-- **`blender_export`** - Export scenes for Unity and VRChat ✅ **WORKING**
-  - `export_unity` - Export to Unity-compatible formats
-  - `export_vrchat` - Export to VRChat-compatible formats
-- **`blender_import`** - Import various 3D file formats ✅ **WORKING**
-  - `import_[format]` - Import FBX, OBJ, GLTF, STL, PLY, etc.
-  - `link_asset` - Link external assets
+### 🎨 Materials
+- **`blender_materials`** (7 ops) - PBR material creation
+  - `create_fabric`, `create_metal`, `create_wood`, `create_glass`, `create_ceramic`
+  - `assign_to_object`, `create_from_preset`
 
-### 🪑 Complex Objects & Furniture (1 tool - 9 operations)
-- **`blender_furniture`** - Create furniture and complex objects ✅ **WORKING**
-  - `create_chair` - Create dining/office/arm chairs
-  - `create_table` - Create dining/coffee/desks
-  - `create_bed` - Create single/double/bunk beds
-  - `create_sofa` - Create sofas and couches
-  - `create_cabinet` - Create storage cabinets
-  - `create_desk` - Create office workstations
-  - `create_shelf` - Create bookshelves
-  - `create_stool` - Create stools and bar stools
+### 💡 Lighting & Rendering
+- **`blender_lighting`** (7 ops) - Light management
+- **`blender_render`** (4 ops) - Preview, turntable, animation render
+- **`blender_camera`** (3 ops) - Camera creation and settings
 
-### 🎨 Textures & Materials (2 tools - 10+ operations)
-- **`blender_textures`** - Create and manage textures ✅ **WORKING**
-  - `create_[type]` - Create noise/voronoi/musgrave/wave textures
+### 📤 Import & Export
+- **`blender_import`** (2 ops) - FBX, OBJ, glTF, VRM import
+- **`blender_export`** (2 ops) - Unity/VRChat export
+
+### 🔧 Additional Tools
+- `blender_physics`, `blender_particles`, `blender_modifiers`
+- `blender_transform`, `blender_selection`, `blender_textures`, `blender_uv`
+- `blender_furniture`, `blender_addons`
+- `blender_help`, `blender_status`, `blender_download`, `blender_view_logs`
+
+## VRM Avatar Workflow ⭐
+
+Complete workflow for VRM character animation:
+
+```python
+# 1. Import VRM model
+blender_import(operation="import_gltf", filepath="avatar.vrm")
+
+# 2. Discover bone structure
+blender_rigging(operation="list_bones", armature_name="Armature")
+# Returns: hips, spine, chest, leftUpperArm, leftLowerArm, ...
+
+# 3. Find facial expressions
+blender_animation(operation="list_shape_keys", object_name="Face")
+# Returns: happy, sad, angry, blink, ...
+
+# 4. Pose bones (raise left arm)
+blender_rigging(operation="pose_bone", armature_name="Armature", 
+                bone_name="leftUpperArm", rotation=[0, 0, 90])
+
+# 5. Set facial expression
+blender_animation(operation="set_shape_key", object_name="Face", 
+                  shape_key_name="happy", value=1.0)
+
+# 6. Keyframe at frame 1
+blender_rigging(operation="set_bone_keyframe", armature_name="Armature", 
+                bone_name="leftUpperArm", frame=1)
+blender_animation(operation="keyframe_shape_key", object_name="Face", 
+                  shape_key_name="happy", frame=1)
+
+# 7. Bake for clean export
+blender_animation(operation="bake_action", object_name="Armature", 
+                  start_frame=1, end_frame=120)
+```
   - `assign_texture` - Assign textures to materials
   - `bake_texture` - Bake textures from objects
 - **`blender_materials`** - Material creation and management
