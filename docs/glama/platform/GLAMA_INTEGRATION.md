@@ -2,7 +2,7 @@
 
 ## 🏆 Gold Status Achievement
 
-Our **notepadpp-mcp** repository has achieved **Gold Status** on the Glama.ai platform with a quality score of **85/100 points**.
+Our **blender-mcp** repository has achieved **Gold Status** on the Glama.ai platform with a quality score of **85/100 points**.
 
 ### Quality Metrics
 - **Code Quality**: 9/10
@@ -16,7 +16,7 @@ Our **notepadpp-mcp** repository has achieved **Gold Status** on the Glama.ai pl
 
 ### Repository Discovery
 - **URL**: https://glama.ai
-- **Search Terms**: `notepadpp-mcp`, `sandraschi`, `notepadpp`
+- **Search Terms**: `blender-mcp`, `sandraschi`, `notepadpp`
 - **Status**: ✅ Indexed and Discoverable
 - **Tier**: 🏆 Gold Status
 
@@ -46,7 +46,7 @@ Glama.ai automatically scans our repository for updates through:
 ### glama.yml
 Repository metadata and tool catalog for Glama.ai indexing:
 ```yaml
-name: notepadpp-mcp
+name: blender-mcp
 quality:
   status: "gold"
   score: 85
@@ -167,7 +167,7 @@ Glama.ai scans repositories:
 ## 🔗 Platform Links
 
 - **Main Platform**: https://glama.ai
-- **Our Repository**: Search for `notepadpp-mcp` or `sandraschi`
+- **Our Repository**: Search for `blender-mcp` or `sandraschi`
 - **Community Discord**: https://discord.gg/glama
 - **API Documentation**: https://docs.glama.ai
 - **Support**: support@glama.ai
@@ -177,5 +177,5 @@ Glama.ai scans repositories:
 **Integration Status**: ✅ Complete  
 **Achievement**: 🏆 Gold Status (85/100)  
 **Last Updated**: October 5, 2025  
-**Repository**: notepadpp-mcp  
+**Repository**: blender-mcp  
 **Platform**: Glama.ai MCP Directory

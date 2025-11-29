@@ -10,10 +10,11 @@ from ..decorators import blender_operation
 _executor = get_blender_executor()
 
 
-class TextureType(str, Enum):
-    """Supported texture types."""
-
 from ..compat import *
+
+
+class TextureType(str, Enum):
+    """Types of textures."""
 
     IMAGE = "IMAGE"
     NOISE = "NOISE"

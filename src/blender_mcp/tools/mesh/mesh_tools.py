@@ -4,7 +4,7 @@ Mesh creation and manipulation tools for Blender MCP.
 Provides portmanteau tools for creating basic mesh primitives and manipulating objects.
 """
 
-from ..compat import *
+from blender_mcp.compat import *
 
 from pydantic import BaseModel, Field
 from typing import Tuple

@@ -5,6 +5,6 @@ This module provides comprehensive tools for creating various types of materials
 including fabrics, metals, woods, glass, ceramics, leather, stone, and more.
 """
 
-from ..compat import *
+from blender_mcp.compat import *
 
 from .material_tools import *

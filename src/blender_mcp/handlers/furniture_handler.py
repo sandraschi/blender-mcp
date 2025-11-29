@@ -38,7 +38,6 @@ except ImportError:
 
 from fastmcp import FastMCP
 from ..decorators import blender_operation
-from blender_mcp.tools.furniture_tools import create_room
 
 logger = logging.getLogger(__name__)
 

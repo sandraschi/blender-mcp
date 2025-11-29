@@ -13,8 +13,8 @@ The Glama.ai GitHub App provides automatic integration and real-time updates to 
 
 ### Step 2: Select Repository
 1. Choose **"Selected repositories"**
-2. Search for: `notepadpp-mcp`
-3. Select the repository: **sandraschi/notepadpp-mcp**
+2. Search for: `blender-mcp`
+3. Select the repository: **sandraschi/blender-mcp**
 4. Click **"Install"**
 
 ### Step 3: Grant Permissions
@@ -48,7 +48,7 @@ The following files are automatically created for Glama.ai integration:
 #### `glama.yml`
 Repository metadata and tool catalog:
 ```yaml
-name: notepadpp-mcp
+name: blender-mcp
 quality:
   status: "gold"
   score: 85
@@ -195,5 +195,5 @@ name: "Glama.ai GitHub App Integration"
 **Setup Status**: ✅ Complete  
 **App Status**: 🏆 Gold Tier Integration  
 **Last Updated**: October 5, 2025  
-**Repository**: notepadpp-mcp  
+**Repository**: blender-mcp  
 **Platform**: Glama.ai GitHub App Integration

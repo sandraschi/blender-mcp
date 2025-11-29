@@ -4,15 +4,9 @@ UV tools for Blender MCP.
 Provides tools for UV mapping, unwrapping, and texture coordinate management.
 """
 
-from ..compat import *
+from blender_mcp.compat import *
 
 from blender_mcp.app import get_app
-
-
-def get_app():
-    from blender_mcp.app import app
-
-    return app
 
 
 def _register_uv_tools():

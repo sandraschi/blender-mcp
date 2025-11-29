@@ -13,12 +13,10 @@ Features:
 - VRChat optimization tools
 """
 
-from ..compat import *
-
 # No typing imports needed in __init__.py
 
 # Import custom types from compat
-from .compat import JSONType, JSONPrimitive
+from .compat import *
 
 # Import exceptions first to prevent circular imports
 from .exceptions import *

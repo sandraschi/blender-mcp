@@ -17,7 +17,7 @@
 
 ## 🎯 Overview
 
-This document provides a comprehensive guide to our **enterprise-grade CI/CD pipeline** and **Glama.ai platform optimization** for the `notepadpp-mcp` repository. Our setup achieves **Gold Status certification** with a quality score of **85/100 points** on the Glama.ai platform.
+This document provides a comprehensive guide to our **enterprise-grade CI/CD pipeline** and **Glama.ai platform optimization** for the `blender-mcp` repository. Our setup achieves **Gold Status certification** with a quality score of **85/100 points** on the Glama.ai platform.
 
 ### Key Achievements
 - 🏆 **Gold Status** on Glama.ai platform (85/100 points)
@@ -344,7 +344,7 @@ on:
 
 #### 1. `glama.yml` - Platform Metadata
 ```yaml
-name: notepadpp-mcp
+name: blender-mcp
 version: "0.1.0"
 description: "FastMCP 2.12 compatible MCP server for Notepad++ automation - Gold Status Certified"
 
@@ -380,7 +380,7 @@ FastMCP 2.12 compatible MCP server for Notepad++ automation - Gold Status Certif
 
 #### Installation Process
 1. **Visit**: https://github.com/apps/glama-ai
-2. **Install**: Select `sandraschi/notepadpp-mcp` repository
+2. **Install**: Select `sandraschi/blender-mcp` repository
 3. **Permissions**: Grant metadata, contents, releases, workflows access
 4. **Webhooks**: Configure automatic update notifications
 
@@ -393,7 +393,7 @@ FastMCP 2.12 compatible MCP server for Notepad++ automation - Gold Status Certif
 ### Platform Visibility Optimization
 
 #### Search Optimization
-- **Primary Keywords**: `notepadpp-mcp`, `mcp-server`, `windows-automation`
+- **Primary Keywords**: `blender-mcp`, `mcp-server`, `windows-automation`
 - **Secondary Keywords**: `fastmcp`, `gold-status`, `production-ready`
 - **Long-tail Keywords**: `notepad++ automation`, `text editor mcp`, `windows file operations`
 
@@ -803,7 +803,7 @@ curl -X POST \
 ## 📞 Support & Resources
 
 ### Documentation
-- **Repository**: https://github.com/sandraschi/notepadpp-mcp
+- **Repository**: https://github.com/sandraschi/blender-mcp
 - **CI/CD Guide**: This document
 - **Glama.ai Integration**: `GLAMA_INTEGRATION.md`
 - **GitHub App Setup**: `docs/GLAMA_GITHUB_APP_SETUP.md`
@@ -844,7 +844,7 @@ curl -X POST \
 
 **Document Version**: 1.0  
 **Last Updated**: October 5, 2025  
-**Repository**: notepadpp-mcp  
+**Repository**: blender-mcp  
 **Status**: 🏆 Gold Tier (85/100)  
 **Platform**: Glama.ai MCP Directory  
 **CI/CD**: Enterprise Production Ready

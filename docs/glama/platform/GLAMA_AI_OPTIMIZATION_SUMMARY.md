@@ -2,7 +2,7 @@
 
 ## Executive Overview
 
-The **notepadpp-mcp** repository has been successfully optimized for the Glama.ai platform, achieving **Gold Status certification** with a quality score of **85/100 points**. This comprehensive optimization includes enterprise-grade CI/CD workflows, automated quality assurance, and seamless platform integration.
+The **blender-mcp** repository has been successfully optimized for the Glama.ai platform, achieving **Gold Status certification** with a quality score of **85/100 points**. This comprehensive optimization includes enterprise-grade CI/CD workflows, automated quality assurance, and seamless platform integration.
 
 ---
 
@@ -116,7 +116,7 @@ The **notepadpp-mcp** repository has been successfully optimized for the Glama.a
 - **Security Status**: Zero high-severity vulnerabilities
 
 ### Platform Rankings
-- **Search Visibility**: Top 10 for "notepadpp-mcp"
+- **Search Visibility**: Top 10 for "blender-mcp"
 - **Community Engagement**: Active Discord participation
 - **Download Metrics**: Stable usage patterns
 - **Quality Trends**: Maintained Gold Status
@@ -155,7 +155,7 @@ The **notepadpp-mcp** repository has been successfully optimized for the Glama.a
 
 ### Community
 - **Glama.ai Discord**: https://discord.gg/glama (1,754 members)
-- **GitHub Repository**: https://github.com/sandraschi/notepadpp-mcp
+- **GitHub Repository**: https://github.com/sandraschi/blender-mcp
 - **Platform Directory**: https://glama.ai
 - **Support Email**: support@glama.ai
 

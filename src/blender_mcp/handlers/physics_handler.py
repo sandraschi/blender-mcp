@@ -346,7 +346,7 @@ print(str(result))
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
         logger.error(f"Failed to add force field: {str(e)}")
-    return {"status": "ERROR", "error": str(e)}
+        return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("configure_cloth_simulation", log_args=True)

@@ -11,14 +11,11 @@ This directory contains comprehensive documentation for the Glama AI platform, i
 ```
 docs/glama/
 ├── README.md                           # This overview
-├── GLAMA_AI_PLATFORM.md               # Core platform documentation
-├── GLAMA_AI_CRITICISM_ANALYSIS.md     # Platform analysis and feedback
-├── GLAMA_AI_RESCAN_GUIDE.md          # Rescan procedures and guides
-├── GOLD_STATUS_ACHIEVEMENT.md         # Gold status achievement tracking
+├── GLAMA_AI_REQUIREMENTS.md            # Platform requirements and prerequisites
 └── platform/                          # Platform-specific documentation
     ├── README.md                      # Platform integration overview
-    ├── GLAMA_INTEGRATION.md           # Integration setup and configuration
     ├── GLAMA_AI_PLATFORM.md           # Platform features and capabilities
+    ├── GLAMA_INTEGRATION.md           # Integration setup and configuration
     ├── GLAMA_AI_OPTIMIZATION_SUMMARY.md # Performance optimization
     ├── GLAMA_AI_CRITICISM_ANALYSIS.md  # Analysis and improvements
     ├── GLAMA_AI_RESCAN_GUIDE.md       # Rescan procedures
@@ -32,18 +29,17 @@ docs/glama/
 ## Core Documentation
 
 ### Platform Overview
-- **[GLAMA_AI_PLATFORM.md](GLAMA_AI_PLATFORM.md)** - Complete platform documentation
+- **[GLAMA_AI_PLATFORM.md](platform/GLAMA_AI_PLATFORM.md)** - Complete platform documentation
+- **[GLAMA_AI_REQUIREMENTS.md](GLAMA_AI_REQUIREMENTS.md)** - Platform requirements and prerequisites
 - **[GLAMA_INTEGRATION.md](platform/GLAMA_INTEGRATION.md)** - Integration setup and configuration
 - **[GLAMA_AI_OPTIMIZATION_SUMMARY.md](platform/GLAMA_AI_OPTIMIZATION_SUMMARY.md)** - Performance optimization guide
 
 ### Analysis & Feedback
-- **[GLAMA_AI_CRITICISM_ANALYSIS.md](GLAMA_AI_CRITICISM_ANALYSIS.md)** - Platform analysis and improvements
-- **[GLAMA_AI_CRITICISM_ANALYSIS.md](platform/GLAMA_AI_CRITICISM_ANALYSIS.md)** - Detailed criticism analysis
+- **[GLAMA_AI_CRITICISM_ANALYSIS.md](platform/GLAMA_AI_CRITICISM_ANALYSIS.md)** - Platform analysis and improvements
 - **[GOLD_STATUS_ACHIEVEMENT.md](platform/GOLD_STATUS_ACHIEVEMENT.md)** - Achievement tracking
 
 ### Operations & Maintenance
-- **[GLAMA_AI_RESCAN_GUIDE.md](GLAMA_AI_RESCAN_GUIDE.md)** - Rescan procedures
-- **[GLAMA_AI_RESCAN_GUIDE.md](platform/GLAMA_AI_RESCAN_GUIDE.md)** - Detailed rescan guide
+- **[GLAMA_AI_RESCAN_GUIDE.md](platform/GLAMA_AI_RESCAN_GUIDE.md)** - Rescan procedures
 - **[GLAMA_RESCAN_EMAIL.txt](platform/GLAMA_RESCAN_EMAIL.txt)** - Email templates
 
 ### CI/CD & Deployment
@@ -53,12 +49,13 @@ docs/glama/
 ## Quick Start
 
 ### For New Users
-1. **Read**: [GLAMA_AI_PLATFORM.md](GLAMA_AI_PLATFORM.md) - Understand the platform
-2. **Read**: [GLAMA_INTEGRATION.md](platform/GLAMA_INTEGRATION.md) - Setup integration
-3. **Follow**: [GLAMA_AI_OPTIMIZATION_SUMMARY.md](platform/GLAMA_AI_OPTIMIZATION_SUMMARY.md) - Optimize performance
+1. **Read**: [GLAMA_AI_PLATFORM.md](platform/GLAMA_AI_PLATFORM.md) - Understand the platform
+2. **Read**: [GLAMA_AI_REQUIREMENTS.md](GLAMA_AI_REQUIREMENTS.md) - Check prerequisites
+3. **Read**: [GLAMA_INTEGRATION.md](platform/GLAMA_INTEGRATION.md) - Setup integration
+4. **Follow**: [GLAMA_AI_OPTIMIZATION_SUMMARY.md](platform/GLAMA_AI_OPTIMIZATION_SUMMARY.md) - Optimize performance
 
 ### For Existing Users
-1. **Check**: [GOLD_STATUS_ACHIEVEMENT.md](GOLD_STATUS_ACHIEVEMENT.md) - Achievement status
+1. **Check**: [GOLD_STATUS_ACHIEVEMENT.md](platform/GOLD_STATUS_ACHIEVEMENT.md) - Achievement status
 2. **Review**: [GOLD_STATUS_UPDATE_2025_10_08.md](platform/GOLD_STATUS_UPDATE_2025_10_08.md) - Latest updates
 3. **Follow**: [GLAMA_AI_CRITICISM_ANALYSIS.md](platform/GLAMA_AI_CRITICISM_ANALYSIS.md) - Platform feedback
 4. **Optimize**: [CI_CD_GLAMA_OPTIMIZATION_GUIDE.md](platform/CI_CD_GLAMA_OPTIMIZATION_GUIDE.md) - CI/CD improvements
@@ -155,9 +152,10 @@ docs/glama/
 **📖 Access via MkDocs:** `mkdocs serve -f docs/docsviewer/mkdocs.yml`
 
 **🔗 Quick Links:**
-- [Platform Overview](GLAMA_AI_PLATFORM.md)
+- [Platform Overview](platform/GLAMA_AI_PLATFORM.md)
+- [Requirements](GLAMA_AI_REQUIREMENTS.md)
 - [Integration Guide](platform/GLAMA_INTEGRATION.md)
 - [CI/CD Optimization](platform/CI_CD_GLAMA_OPTIMIZATION_GUIDE.md)
-- [Gold Status Achievement](GOLD_STATUS_ACHIEVEMENT.md)
+- [Gold Status Achievement](platform/GOLD_STATUS_ACHIEVEMENT.md)
 
 **🚀 Integration Status:** Gold Level Achievement ✨

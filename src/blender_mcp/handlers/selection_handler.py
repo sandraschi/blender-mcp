@@ -10,10 +10,11 @@ from ..decorators import blender_operation
 _executor = get_blender_executor()
 
 
+from ..compat import *
+
+
 class SelectMode(str, Enum):
     """Selection modes."""
-
-from ..compat import *
 
     REPLACE = "REPLACE"
     ADD = "ADD"

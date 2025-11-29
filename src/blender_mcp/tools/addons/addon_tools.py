@@ -4,7 +4,7 @@ Addon management tools for Blender MCP.
 Provides tools for installing, enabling, and managing Blender addons.
 """
 
-from ..compat import *
+from blender_mcp.compat import *
 
 from blender_mcp.app import get_app
 

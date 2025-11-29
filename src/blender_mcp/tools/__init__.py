@@ -5,9 +5,9 @@ This module provides decorators and utilities for registering and managing FastM
 Tools can be registered using the @app.tool decorator from the FastMCP application instance.
 """
 
-from ..compat import *
-
 from __future__ import annotations
+
+from ..compat import *
 
 import importlib
 import inspect

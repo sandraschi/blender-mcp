@@ -13,10 +13,11 @@ from ..decorators import blender_operation
 _executor = get_blender_executor()
 
 
+from ..compat import *
+
+
 class ScriptLanguage(str, Enum):
     """Supported scripting languages."""
-
-from ..compat import *
 
     PYTHON = "PYTHON"
     EXPRESSION = "EXPRESSION"

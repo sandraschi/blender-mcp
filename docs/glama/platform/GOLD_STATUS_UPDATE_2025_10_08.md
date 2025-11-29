@@ -69,7 +69,7 @@ The Notepad++ MCP Server has not only maintained its Gold Status (85/100) but ha
 - `manifest.json` - Runtime configuration (26 tools listed)
 - `scripts/build-mcpb-package.ps1` - Professional build script
 - `.github/workflows/build-mcpb.yml` - Automated CI/CD
-- `dist/notepadpp-mcp.mcpb` - Production package
+- `dist/blender-mcp.mcpb` - Production package
 
 **Impact**: **+10 points** in packaging category (8/10 → 10/10)
 

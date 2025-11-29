@@ -1,13 +1,13 @@
-Subject: Request repository rescan for Gold status update - notepadpp-mcp
+Subject: Request repository rescan for Gold status update - blender-mcp
 
 Dear Glama.ai Team,
 
 I hope this email finds you well. I'm writing to request a repository rescan for our Notepad++ MCP server project, which has recently achieved Gold status with comprehensive quality improvements.
 
 Repository Details:
-- Name: notepadpp-mcp
+- Name: blender-mcp
 - Owner: sandraschi
-- GitHub URL: https://github.com/sandraschi/notepadpp-mcp
+- GitHub URL: https://github.com/sandraschi/blender-mcp
 - Current Status: Bronze tier → Gold tier (85/100 points)
 
 Recent Improvements (v1.1.0 Release):
@@ -38,6 +38,6 @@ Thank you for maintaining such an excellent platform for MCP server discovery!
 
 Best regards,
 Sandra Schi
-Repository Owner: sandraschi/notepadpp-mcp
+Repository Owner: sandraschi/blender-mcp
 Contact: sandra@sandraschi.dev
 

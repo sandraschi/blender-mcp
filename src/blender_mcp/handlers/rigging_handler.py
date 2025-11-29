@@ -26,6 +26,9 @@ async def create_armature(
     """Create a new armature object."""
 from ..compat import *
 
+
+def _create_rigging_script():
+    """Create the rigging script."""
     script = f"""
 
 def create_armature():

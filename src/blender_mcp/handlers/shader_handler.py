@@ -39,7 +39,7 @@ class ShaderOperationResult(BaseModel):
         )
 
     @classmethod
-    def error(cls, message: str, error: Exception = None) -> "ShaderOperationResult":
+    def error_result(cls, message: str, error: Exception = None) -> "ShaderOperationResult":
         """Create an error response."""
         return cls(
             status="ERROR",

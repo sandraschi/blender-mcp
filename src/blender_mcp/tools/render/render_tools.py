@@ -4,15 +4,9 @@ Render tools for Blender MCP.
 Provides tools for rendering scenes, animations, and previews.
 """
 
-from ..compat import *
+from blender_mcp.compat import *
 
 from blender_mcp.app import get_app
-
-
-def get_app():
-    from blender_mcp.app import app
-
-    return app
 
 
 def _register_render_tools():

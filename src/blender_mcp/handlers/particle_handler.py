@@ -38,6 +38,9 @@ async def create_particle_system(
     """Create a particle system on an object."""
 from ..compat import *
 
+
+def _create_particle_script():
+    """Create the particle system script."""
     script = f"""
 
 def create_particle_system():

@@ -5,7 +5,7 @@ Provides comprehensive tools for creating various types of materials including
 fabrics, metals, woods, glass, ceramics, leather, stone, and more.
 """
 
-from ..compat import *
+from blender_mcp.compat import *
 
 from typing import List, Optional
 from pydantic import BaseModel, Field

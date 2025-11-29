@@ -4,15 +4,9 @@ Particle tools for Blender MCP.
 Provides tools for creating particle systems and effects.
 """
 
-from ..compat import *
+from blender_mcp.compat import *
 
 from blender_mcp.app import get_app
-
-
-def get_app():
-    from blender_mcp.app import app
-
-    return app
 
 
 def _register_particle_tools():

@@ -6,14 +6,13 @@ from loguru import logger
 
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
+from ..compat import *
 
 _executor = get_blender_executor()
 
 
 class TransformSpace(str, Enum):
     """Coordinate spaces for transformations."""
-
-from ..compat import *
 
     WORLD = "WORLD"
     LOCAL = "LOCAL"

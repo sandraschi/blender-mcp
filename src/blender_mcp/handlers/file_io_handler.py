@@ -8,6 +8,7 @@ from loguru import logger
 
 from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
+from ..compat import *
 
 _executor = get_blender_executor()
 
@@ -24,7 +25,6 @@ async def read_file(
     filepath: str, file_type: Union[FileType, str] = FileType.TEXT, **kwargs: Any
 ) -> Dict[str, Any]:
     """Read a file's contents."""
-from ..compat import *
 
     filepath = str(Path(filepath).absolute())
 

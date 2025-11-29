@@ -4,16 +4,10 @@ Rigging tools for Blender MCP.
 Provides tools for creating armatures and character rigging systems.
 """
 
-from ..compat import *
+from blender_mcp.compat import *
 
 from typing import Tuple
 from blender_mcp.app import get_app
-
-
-def get_app():
-    from blender_mcp.app import app
-
-    return app
 
 
 def _register_rigging_tools():

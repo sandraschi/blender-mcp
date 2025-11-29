@@ -1,68 +1,63 @@
-# blender-mcp Cursor Rules
+# Central Documentation Rules
 
-## Triple Initiatives (Active)
+## Rule #1: Read Central Docs First
 
-**This repo is part of three parallel improvement initiatives:**
+**BEFORE making any changes or starting work, ALWAYS:**
 
-1. **Great Doc Bash** - Documentation Quality (Target: 9.0+/10)
-2. **GitHub Dash** - CI/CD Modernization (Target: 8.0+/10)  
-3. **Release Flash** - Successful Releases (Target: Zero errors)
+1. **Read the Central Documentation README:**
+   - Location: `D:\Dev\repos\mcp-central-docs\README.md`
+   - This shows all important documentation "branches" (folder trees)
+   - Navigate from there to find specific information
 
-📋 **Improvement Plan**: docs-private/TRIPLE_INITIATIVES_GUIDE.md  
-📚 **Central Docs**: D:\Dev\repos\mcp-central-docs\  
-🔗 **Standards**: mcp-central-docs/STANDARDS.md
+2. **Follow Documentation Branches:**
+   - Central docs are organized by topic (Anthropic ecosystem, Google ecosystem, patterns, projects, etc.)
+   - Each branch has its own README explaining what's inside
+   - Use the branch structure to find relevant docs
 
----
+3. **Check for Existing Patterns:**
+   - Look in `docs/patterns/` for design patterns
+   - Check `templates/` for reusable templates
+   - Review `docs/projects/` for similar project examples
 
-## Code Standards
-
-### 🚨 CRITICAL: Chat Output & PowerShell Syntax
-
-**REQUIRED**: ALL chat output MUST begin with "hi!" as a test.
-
-**🚫 FORBIDDEN in PowerShell:**
-- `&&` (command chaining) - Use `;` or separate commands
-- `||` (logical OR) - Use PowerShell syntax
-- `mkdir`, `rmdir`, `ls` - Use `New-Item`, `Remove-Item`, `Get-ChildItem`
-- `head`, `tail` - Use PowerShell cmdlets
-- Linux path separators - Use backslash `\` on Windows
+4. **Avoid Duplication:**
+   - Search existing docs before creating new ones
+   - Update existing docs rather than creating duplicates
+   - Reference central docs instead of copying content
 
 ---
 
-### Modern Python Stack
-- **Linter**: ruff (replaces flake8, black, isort)
-- **Package Manager**: uv (replaces pip)
-- **Testing**: pytest with pytest-cov
-- **Type Hints**: Required for all functions
-- **Async**: MCP tools must be async
+## Documentation Branches (from Central README)
 
-### Commands
-```bash
-uv run ruff check .
-uv run ruff format .
-uv run python -m pytest -v
-```
+### Core Standards
+- `STANDARDS.md` - Documentation quality standards
+- `STRUCTURE.md` - Directory layout guide
+- `CONTRIBUTING.md` - How to contribute
 
----
+### Anthropic Ecosystem (`docs/anthropic-ecosystem/`)
+- MCP Protocol, FastMCP, MCPB, Claude Desktop, Glama
 
-## Release Flash Checklist
+### Google Ecosystem (`docs/google-ecosystem/`)
+- Gemini 3, Antigravity IDE, Nano Banana Pro, DeepMind, TPU infrastructure
 
-Before creating release tag:
-- Zero ruff errors
-- All tests passing
-- Version updated
+### Patterns (`docs/patterns/`)
+- Design patterns for MCP servers and development
 
-```bash
-git tag v1.0.0b1
-git push origin v1.0.0b1
-```
+### Projects (`docs/projects/`)
+- myai, veogen, mywienerlinien, autohotkey
+
+### Monitoring (`monitoring/`)
+- Prometheus/Grafana/Loki stack
+
+### Templates (`templates/`)
+- Reusable templates and scripts
 
 ---
 
-## References
+## Quick Reference
 
-- Improvement Plan: docs-private/TRIPLE_INITIATIVES_GUIDE.md
-- Central Standards: D:\Dev\repos\mcp-central-docs\STANDARDS.md
-- Workflow Strategy: mcp-central-docs/docs-private/CURSOR_WORKFLOW_STRATEGY.md
+**Central Docs Location:** `D:\Dev\repos\mcp-central-docs\`
 
-**Last Updated**: 2025-10-21 (Triple Initiatives Day 1)
+**Start Here:** `D:\Dev\repos\mcp-central-docs\README.md`
+
+**When in doubt:** Read the central README and navigate from there.
+

@@ -4,17 +4,11 @@ Selection tools for Blender MCP.
 Provides tools for selecting objects and elements in Blender scenes.
 """
 
-from ..compat import *
+from blender_mcp.compat import *
 
 from typing import List
 from loguru import logger
 from blender_mcp.app import get_app
-
-
-def get_app():
-    from blender_mcp.app import app
-
-    return app
 
 
 def _register_selection_tools():

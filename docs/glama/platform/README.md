@@ -248,7 +248,7 @@ All documentation related to:
 
 ### **Path 2: Understanding Current Status (30 min)**
 
-**For understanding notepadpp-mcp's status:**
+**For understanding blender-mcp's status:**
 
 1. [Gold Status Achievement](GOLD_STATUS_ACHIEVEMENT.md) - Original 85/100
 2. [Gold Status Update](GOLD_STATUS_UPDATE_2025_10_08.md) - Current 90/100
@@ -601,7 +601,7 @@ After:
 ### **External Links**
 
 - [Glama.ai Platform](https://glama.ai)
-- [GitHub Repository](https://github.com/sandraschi/notepadpp-mcp)
+- [GitHub Repository](https://github.com/sandraschi/blender-mcp)
 - [MCP Specification](https://modelcontextprotocol.io)
 
 ---

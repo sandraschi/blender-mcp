@@ -1,13 +1,11 @@
+from __future__ import annotations
+
 """
 Compatibility module for Blender-MCP.
 
 This module provides type definitions and compatibility shims to handle differences
 between Python versions and FastMCP implementations.
 """
-
-from ..compat import *
-
-from __future__ import annotations
 
 from typing import (
     Dict,
