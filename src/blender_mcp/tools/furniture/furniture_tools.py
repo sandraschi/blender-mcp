@@ -30,6 +30,15 @@ def _register_furniture_tools():
         desk_type: str = "office",
         shelf_type: str = "bookshelf",
         stool_type: str = "bar",
+        # Room parameters
+        room_type: str = "living",
+        length: float = 4.0,
+        width: float = 4.0,
+        height: float = 2.7,
+        wall_thickness: float = 0.2,
+        has_windows: bool = True,
+        window_count: int = 2,
+        has_door: bool = True,
     ) -> str:
         """
         Create furniture and complex objects in Blender.
@@ -43,6 +52,7 @@ def _register_furniture_tools():
         - create_shelf: Create bookshelves and shelving
         - create_desk: Create desks and workstations
         - create_stool: Create stools and bar stools
+        - create_room: Create room with walls, floor, ceiling, windows, doors
 
         Args:
             operation: Furniture creation operation
@@ -66,6 +76,7 @@ def _register_furniture_tools():
             create_desk,
             create_shelf,
             create_stool,
+            create_room,
         )
 
         from loguru import logger
@@ -169,6 +180,21 @@ def _register_furniture_tools():
                     dimensions=dimensions_tuple,
                     location=location_tuple,
                     material=material,
+                )
+
+            elif operation == "create_room":
+                return await create_room(
+                    name=name,
+                    location=location_tuple,
+                    room_type=room_type,
+                    style=style,
+                    length=length,
+                    width=width,
+                    height=height,
+                    wall_thickness=wall_thickness,
+                    has_windows=has_windows,
+                    window_count=window_count,
+                    has_door=has_door,
                 )
 
             else:

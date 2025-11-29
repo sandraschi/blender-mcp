@@ -15,17 +15,34 @@ _executor = get_blender_executor()
 class ImportFormat(str, Enum):
     """Supported import formats."""
 
+    # Standard 3D formats
     OBJ = "OBJ"
     FBX = "FBX"
     GLTF = "GLTF"
+    GLB = "GLB"  # Binary GLTF
+    VRM = "VRM"  # VRChat avatar format (GLTF-based)
     COLLADA = "COLLADA"
     USD = "USD"
+    USDA = "USDA"
+    USDC = "USDC"
+    USDZ = "USDZ"
     ABC = "ALEMBIC"
-    PLY = "PLY"
+    
+    # Mesh/geometry formats
+    PLY = "PLY"  # Also used for point clouds and gaussian splats
     STL = "STL"
+    
+    # Animation/curve formats
     BVH = "BVH"
     SVG = "SVG"
     DXF = "DXF"
+    
+    # Point cloud / AI-generated formats
+    XYZ = "XYZ"  # Point cloud
+    E57 = "E57"  # LiDAR point cloud
+    LAS = "LAS"  # LiDAR
+    
+    # Legacy
     FBX_BINARY = "FBX_BINARY"
 
 
@@ -65,7 +82,8 @@ async def import_file(
         options.setdefault("global_scale", 1.0)
         options.setdefault("use_custom_normals", True)
 
-    elif file_format == ImportFormat.GLTF:
+    elif file_format in (ImportFormat.GLTF, ImportFormat.GLB, ImportFormat.VRM):
+        # GLTF, GLB, and VRM all use the same importer
         operator = "bpy.ops.import_scene.gltf"
         options.setdefault("import_pack_images", True)
         options.setdefault("merge_vertices", False)
@@ -76,15 +94,46 @@ async def import_file(
         options.setdefault("import_units", False)
         options.setdefault("fix_orientation", False)
 
-    elif file_format == ImportFormat.USD:
+    elif file_format in (ImportFormat.USD, ImportFormat.USDA, ImportFormat.USDC, ImportFormat.USDZ):
+        # All USD variants use the same importer
         operator = "bpy.ops.wm.usd_import"
         options.setdefault("import_meshes", True)
         options.setdefault("import_materials", True)
+        options.setdefault("import_lights", True)
+        options.setdefault("import_cameras", True)
 
     elif file_format == ImportFormat.ABC:
         operator = "bpy.ops.wm.alembic_import"
         options.setdefault("as_background_job", False)
         options.setdefault("is_sequence", False)
+
+    elif file_format == ImportFormat.PLY:
+        operator = "bpy.ops.wm.ply_import"
+        options.setdefault("global_scale", 1.0)
+
+    elif file_format == ImportFormat.STL:
+        operator = "bpy.ops.wm.stl_import"
+        options.setdefault("global_scale", 1.0)
+
+    elif file_format == ImportFormat.BVH:
+        operator = "bpy.ops.import_anim.bvh"
+        options.setdefault("global_scale", 1.0)
+
+    elif file_format == ImportFormat.SVG:
+        operator = "bpy.ops.import_curve.svg"
+
+    elif file_format == ImportFormat.DXF:
+        operator = "bpy.ops.import_scene.dxf"
+
+    elif file_format in (ImportFormat.XYZ, ImportFormat.E57, ImportFormat.LAS):
+        # Point cloud formats require addons
+        # Recommend: "Point Cloud Visualizer" or "E57 Importer" from Blender extensions
+        return {
+            "status": "ERROR",
+            "error": f"Point cloud format {file_format} requires addon installation. "
+                     f"Install 'Point Cloud Visualizer' or import as PLY instead.",
+            "hint": "Convert point cloud to PLY format, or use blender_addons to install a point cloud addon."
+        }
 
     else:
         return {"status": "ERROR", "error": f"Unsupported import format: {file_format}"}
