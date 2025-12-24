@@ -1,0 +1,43 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": ["sandraschi"],
+  "name": "blender-mcp",
+  "description": "FastMCP 2.13+ server for Blender automation - programmatic control over 3D creation, manipulation, and rendering. Full VRM avatar workflow support for character animation.",
+  "type": "mcp_server",
+  "status": "alpha",
+  "framework": "FastMCP 2.13+",
+  "tools": 33,
+  "transport": ["stdio", "http"],
+  "keywords": [
+    "blender",
+    "3d",
+    "modeling",
+    "animation",
+    "vrm",
+    "avatar",
+    "mcp-server",
+    "fastmcp",
+    "3d-automation",
+    "rendering"
+  ],
+  "features": {
+    "3d_creation": {
+      "enabled": true,
+      "operations": ["scenes", "objects", "materials", "rendering"]
+    },
+    "vrm_avatar": {
+      "enabled": true,
+      "workflow": "full",
+      "features": ["bone_posing", "facial_expressions", "animation"]
+    },
+    "batch_processing": {
+      "enabled": true,
+      "method": "macro_tool"
+    },
+    "export_formats": {
+      "enabled": true,
+      "formats": ["FBX", "GLB", "OBJ", "VRM"]
+    }
+  }
+}
+

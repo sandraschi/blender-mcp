@@ -52,10 +52,14 @@ def _register_export_tools():
 
         try:
             if operation == "export_unity":
-                return await export_for_unity(output_path=output_path, object_names=object_names)
+                # export_for_unity doesn't accept object_names parameter
+                # TODO: Add object_names support to export_for_unity if needed
+                return await export_for_unity(output_path=output_path)
 
             elif operation == "export_vrchat":
-                return await export_for_vrchat(output_path=output_path, object_names=object_names)
+                # export_for_vrchat doesn't accept object_names parameter
+                # TODO: Add object_names support to export_for_vrchat if needed
+                return await export_for_vrchat(output_path=output_path)
 
             else:
                 return (

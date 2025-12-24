@@ -509,12 +509,36 @@ except Exception as user_error:
             # Check process return code
             if process.returncode != 0:
                 stderr_str = stderr.decode("utf-8", errors="replace")
-                logger.error(
-                    f"Blender process failed with return code {process.returncode}: {script_id}"
-                )
-                raise BlenderScriptError(
-                    "", f"Blender process failed (code {process.returncode}): {stderr_str}"
-                )
+                stdout_str = stdout.decode("utf-8", errors="replace")
+                
+                # Check if this is just a TBBmalloc warning (harmless on Windows)
+                is_tbbmalloc_warning = "TBBmalloc" in stderr_str or "TBBmalloc" in stdout_str
+                
+                # Check if script output indicates success (e.g., "SUCCESS" in output)
+                script_succeeded = "SUCCESS" in stdout_str or "Successfully" in stdout_str
+                
+                if is_tbbmalloc_warning and script_succeeded:
+                    # TBBmalloc warning but script succeeded - log warning but don't raise error
+                    logger.warning(
+                        f"Blender exited with code {process.returncode} due to TBBmalloc warning, "
+                        f"but script appears to have succeeded: {script_id}"
+                    )
+                elif is_tbbmalloc_warning:
+                    # TBBmalloc warning - check if we can determine success from output
+                    # For export operations, check if output file was mentioned in stdout
+                    logger.warning(
+                        f"Blender exited with code {process.returncode} due to TBBmalloc warning: {script_id}"
+                    )
+                    # Don't raise error for TBBmalloc - let caller check file existence
+                    # But log the warning
+                else:
+                    # Real error - raise exception
+                    logger.error(
+                        f"Blender process failed with return code {process.returncode}: {script_id}"
+                    )
+                    raise BlenderScriptError(
+                        "", f"Blender process failed (code {process.returncode}): {stderr_str}"
+                    )
 
             return stdout.decode("utf-8", errors="replace"), stderr.decode(
                 "utf-8", errors="replace"

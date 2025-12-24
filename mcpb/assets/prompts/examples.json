@@ -1,0 +1,137 @@
+{
+  "examples": [
+    {
+      "title": "Create Basic Scene",
+      "description": "Create a simple scene with a cube, light, and camera",
+      "tools": [
+        "blender_mesh",
+        "blender_lighting",
+        "blender_camera",
+        "blender_render"
+      ],
+      "steps": [
+        "Create a cube at origin",
+        "Add a sun light above the scene",
+        "Position camera to view the cube",
+        "Render a preview image"
+      ]
+    },
+    {
+      "title": "Character Animation",
+      "description": "Create and animate a simple character",
+      "tools": [
+        "blender_mesh",
+        "blender_rigging",
+        "blender_animation",
+        "blender_render"
+      ],
+      "steps": [
+        "Create basic character mesh",
+        "Add armature and bones",
+        "Skin mesh to armature",
+        "Create walking animation cycle"
+      ]
+    },
+    {
+      "title": "Game Asset Export",
+      "description": "Model and export a game-ready asset",
+      "tools": [
+        "blender_mesh",
+        "blender_modifiers",
+        "blender_uv",
+        "blender_textures",
+        "blender_export"
+      ],
+      "steps": [
+        "Model the asset geometry",
+        "Add subdivision surface modifier",
+        "UV unwrap the mesh",
+        "Create PBR materials",
+        "Export as FBX for Unity"
+      ]
+    },
+    {
+      "title": "Architectural Visualization",
+      "description": "Create a furnished room scene",
+      "tools": [
+        "blender_furniture",
+        "blender_lighting",
+        "blender_camera",
+        "blender_render"
+      ],
+      "steps": [
+        "Create room geometry",
+        "Add furniture pieces",
+        "Set up realistic lighting",
+        "Configure camera for presentation",
+        "Render high-quality image"
+      ]
+    },
+    {
+      "title": "Procedural Environment",
+      "description": "Generate a natural environment",
+      "tools": [
+        "blender_mesh",
+        "blender_modifiers",
+        "blender_textures",
+        "blender_particles",
+        "blender_physics"
+      ],
+      "steps": [
+        "Create terrain base mesh",
+        "Add displacement modifier",
+        "Generate procedural textures",
+        "Add grass particle system",
+        "Set up wind physics"
+      ]
+    }
+  ],
+  "quick_commands": [
+    {
+      "command": "Create a red cube",
+      "tools": ["blender_mesh"],
+      "description": "Quick mesh creation with basic material"
+    },
+    {
+      "command": "Set up three-point lighting",
+      "tools": ["blender_lighting"],
+      "description": "Professional lighting setup"
+    },
+    {
+      "command": "Render 1920x1080 preview",
+      "tools": ["blender_render"],
+      "description": "High-quality preview render"
+    },
+    {
+      "command": "Export scene as FBX",
+      "tools": ["blender_export"],
+      "description": "Unity-ready export"
+    }
+  ],
+  "workflows": {
+    "modeling": [
+      "Start with primitives (cube, cylinder, sphere)",
+      "Use modifiers to add complexity (subdivision, bevel)",
+      "Apply transformations (move, rotate, scale)",
+      "Add materials and textures"
+    ],
+    "animation": [
+      "Create or import character model",
+      "Add armature and rig the character",
+      "Set keyframes for movement",
+      "Test and refine animation timing",
+      "Bake physics if needed"
+    ],
+    "rendering": [
+      "Position camera and lighting",
+      "Set render engine and quality settings",
+      "Configure output format and resolution",
+      "Render test frames",
+      "Final render with optimal settings"
+    ]
+  }
+}
+
+
+
+

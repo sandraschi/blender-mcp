@@ -1,5 +1,7 @@
 # Blender MCP Server
 
+**By FlowEngineer sandraschi**
+
 A comprehensive FastMCP 2.13+ MCP server for Blender automation, providing programmatic control over Blender's 3D creation, manipulation, and rendering capabilities. **Full VRM avatar workflow support** for character animation.
 
 ## What is This?
