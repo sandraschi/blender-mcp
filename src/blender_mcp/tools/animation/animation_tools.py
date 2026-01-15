@@ -5,10 +5,10 @@ Comprehensive animation support including keyframes, shape keys (VRM expressions
 action management, constraints, and animation baking for export.
 """
 
-from blender_mcp.compat import *
+from typing import Literal, Optional, Tuple
 
-from typing import Optional, Tuple, Union, Literal
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_animation_tools():
@@ -129,23 +129,41 @@ def _register_animation_tools():
         Returns:
             Operation result message
         """
-        from blender_mcp.handlers.animation_handler import (
-            # Basic
-            set_keyframe, animate_location, animate_rotation, animate_scale,
-            play_animation, set_frame_range, clear_animation,
-            # Shape keys
-            list_shape_keys, set_shape_key, keyframe_shape_key, create_shape_key,
-            # Actions
-            list_actions, create_action, set_active_action, push_action_to_nla,
-            # Interpolation
-            set_interpolation as _set_interpolation, set_easing as _set_easing,
-            # Constraints
-            add_constraint, add_bone_constraint,
-            # Baking
-            bake_action, bake_all_actions,
-        )
-
         from loguru import logger
+
+        from blender_mcp.handlers.animation_handler import (
+            add_bone_constraint,
+            # Constraints
+            add_constraint,
+            animate_location,
+            animate_rotation,
+            animate_scale,
+            # Baking
+            bake_action,
+            bake_all_actions,
+            clear_animation,
+            create_action,
+            create_shape_key,
+            keyframe_shape_key,
+            # Actions
+            list_actions,
+            # Shape keys
+            list_shape_keys,
+            play_animation,
+            push_action_to_nla,
+            set_active_action,
+            set_frame_range,
+            # Basic
+            set_keyframe,
+            set_shape_key,
+        )
+        from blender_mcp.handlers.animation_handler import (
+            set_easing as _set_easing,
+        )
+        from blender_mcp.handlers.animation_handler import (
+            # Interpolation
+            set_interpolation as _set_interpolation,
+        )
         logger.info(f"🎬 blender_animation: {operation}")
 
         try:

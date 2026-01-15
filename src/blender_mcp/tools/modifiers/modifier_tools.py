@@ -4,9 +4,8 @@ Modifier tools for Blender MCP.
 Provides tools for adding, managing, and applying mesh modifiers.
 """
 
-from blender_mcp.compat import *
-
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_modifier_tools():
@@ -65,9 +64,9 @@ def _register_modifier_tools():
         """
         from blender_mcp.handlers.modifier_handler import (
             add_modifier,
-            remove_modifier,
-            get_modifiers,
             apply_modifier,
+            get_modifiers,
+            remove_modifier,
         )
 
         try:

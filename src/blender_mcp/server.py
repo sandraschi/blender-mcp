@@ -4,15 +4,16 @@ This module provides the main entry point for the Blender MCP server, which expo
 various Blender operations as FastMCP tools using the decorator pattern.
 """
 
-import sys
 import argparse
-from loguru import logger
+import sys
 
-# Import from our compatibility module
-from blender_mcp.compat import *
+from loguru import logger
 
 # Import the app instance
 from blender_mcp.app import app
+
+# Import from our compatibility module
+from blender_mcp.compat import *
 
 # Import all handlers to ensure tool registration
 # These imports are necessary for the @app.tool decorators to register the tools
@@ -135,6 +136,65 @@ def main():
     except KeyboardInterrupt:
         logger.info("[SHUTDOWN] Shutting down gracefully...")
         sys.exit(0)
+
+
+# =============================================================================
+# MCP Entry Points - Industry Standard Installation
+# =============================================================================
+
+def create_server():
+    """Create and return the MCP server instance.
+
+    This function is used by MCP client libraries to automatically
+    discover and instantiate the server.
+
+    Returns:
+        FastMCP app instance
+    """
+    return app
+
+
+def main_stdio():
+    """Entry point for stdio mode - used by most MCP clients.
+
+    This is the standard way MCP servers communicate with clients
+    through stdin/stdout streams.
+    """
+    import logging
+    logging.basicConfig(level=logging.INFO)
+
+    logger.info("[MCP] Starting Blender MCP server in stdio mode")
+    logger.info("[MCP] Ready to accept MCP protocol messages")
+
+    try:
+        app.run(transport="stdio")
+    except KeyboardInterrupt:
+        logger.info("[MCP] Server stopped by user")
+    except Exception as e:
+        logger.error(f"[MCP] Server error: {e}")
+        raise
+
+
+def main_http(host="127.0.0.1", port=8000):
+    """Entry point for HTTP mode - for web-based MCP clients.
+
+    Args:
+        host: Host to bind to
+        port: Port to bind to
+    """
+    import logging
+    logging.basicConfig(level=logging.INFO)
+
+    logger = logging.getLogger(__name__)
+    logger.info(f"[HTTP] Starting Blender MCP server on {host}:{port}")
+
+    try:
+        app.run(transport="http", host=host, port=port)
+    except KeyboardInterrupt:
+        logger.info("[HTTP] Server stopped by user")
+    except Exception as e:
+        logger.error(f"[HTTP] Server error: {e}")
+        raise
 
 
 if __name__ == "__main__":

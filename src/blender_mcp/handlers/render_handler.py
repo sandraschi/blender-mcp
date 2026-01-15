@@ -2,15 +2,14 @@
 
 This module provides rendering functions that can be registered as FastMCP tools.
 """
-from ..compat import *
-
 import os
 from pathlib import Path
 from typing import Optional
 
-from ..utils.blender_executor import get_blender_executor
+from ..compat import *
 from ..decorators import blender_operation
 from ..exceptions import BlenderRenderError
+from ..utils.blender_executor import get_blender_executor
 
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()

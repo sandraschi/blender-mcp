@@ -1,7 +1,74 @@
 {
   "name": "blender-mcp",
   "version": "1.0.0",
-  "description": "Complete Blender 3D automation MCP server",
-  "author": "Blender MCP Team",
-  "license": "MIT"
+  "description": "AI-powered 3D creation and manipulation MCP server",
+  "author": "FlowEngineer sandraschi",
+  "license": "MIT",
+  "homepage": "https://github.com/sandraschi/blender-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sandraschi/blender-mcp.git"
+  },
+  "dependencies": {
+    "python": ">=3.8",
+    "blender": ">=3.0",
+    "fastmcp": ">=0.9.0",
+    "numpy": ">=1.21.0",
+    "pillow": ">=8.0.0"
+  },
+  "build": {
+    "output_dir": "../dist",
+    "include_patterns": [
+      "*.py",
+      "*.json",
+      "*.svg",
+      "*.md",
+      "assets/**",
+      "prompts/**"
+    ],
+    "exclude_patterns": [
+      ".git/**",
+      "__pycache__/**",
+      "*.pyc",
+      "*.log",
+      ".DS_Store",
+      "node_modules/**",
+      "dist/**",
+      ".pytest_cache/**",
+      "*.egg-info/**"
+    ],
+    "compression": "gzip",
+    "signing": {
+      "enabled": false,
+      "key_file": null
+    }
+  },
+  "validation": {
+    "strict_mode": true,
+    "check_dependencies": true,
+    "verify_imports": true
+  },
+  "metadata": {
+    "tags": [
+      "3d-modeling",
+      "blender",
+      "ai-automation",
+      "creative-tools",
+      "animation",
+      "rendering",
+      "mcp-server",
+      "fastmcp"
+    ],
+    "categories": [
+      "creative-tools",
+      "3d-modeling",
+      "ai-automation",
+      "productivity"
+    ],
+    "platforms": [
+      "windows",
+      "macos",
+      "linux"
+    ]
+  }
 }

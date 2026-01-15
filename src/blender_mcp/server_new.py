@@ -1,26 +1,25 @@
 """Blender MCP Server - FastMCP 2.10 compliant implementation."""
 
+from fastmcp import FastMCP
 from loguru import logger
 
-from fastmcp import FastMCP
-
 from ..compat import *
-
-# Import tool functions from handlers
-from .handlers.scene_handler import create_scene, list_scenes, clear_scene
-from .handlers.mesh_handler import (
-    create_chaiselongue,
-    create_candle_set,
-    create_ornate_mirror,
-    create_feather_duster,
-)
+from .handlers.export_handler import export_for_unity, export_for_vrchat
 from .handlers.material_handler import (
     create_fabric_material,
     create_metal_material,
     create_wood_material,
 )
-from .handlers.export_handler import export_for_unity, export_for_vrchat
+from .handlers.mesh_handler import (
+    create_candle_set,
+    create_chaiselongue,
+    create_feather_duster,
+    create_ornate_mirror,
+)
 from .handlers.render_handler import render_preview, render_turntable
+
+# Import tool functions from handlers
+from .handlers.scene_handler import clear_scene, create_scene, list_scenes
 
 # Initialize FastMCP application
 app = FastMCP(

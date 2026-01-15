@@ -5,12 +5,13 @@ This module provides advanced rendering functionality for Blender scenes,
 including EEVEE and Cycles render engine configuration, post-processing effects,
 render layer management, and output configuration.
 """
-from ..compat import *
-from typing import Any, Dict, Union
 import logging
+from typing import Any, Dict, Union
 
-from ..decorators import blender_operation
 from blender_mcp.utils.blender_executor import BlenderExecutor
+
+from ..compat import *
+from ..decorators import blender_operation
 
 # Initialize logger
 logger = logging.getLogger(__name__)

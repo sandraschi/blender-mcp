@@ -5,12 +5,11 @@ Execute multiple Blender operations in a single call, reducing round-trips
 and enabling complex workflows to be saved and reused.
 """
 
-from blender_mcp.compat import *
-
-from typing import List, Dict, Any, Optional, Literal
 import json
-from blender_mcp.app import get_app
+from typing import Any, Dict, List, Literal, Optional
 
+from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 # Predefined workflow templates
 WORKFLOW_TEMPLATES = {
@@ -139,12 +138,12 @@ def _register_workflow_tools():
         elif operation == "execute":
             # Get steps from template or direct input
             workflow_steps = []
-            
+
             if template:
                 if template not in WORKFLOW_TEMPLATES:
                     return f"Error: Template '{template}' not found. Available: {list(WORKFLOW_TEMPLATES.keys())}"
                 workflow_steps = [dict(s) for s in WORKFLOW_TEMPLATES[template]["steps"]]
-                
+
                 # Apply parameter overrides
                 if params:
                     for step in workflow_steps:
@@ -159,14 +158,14 @@ def _register_workflow_tools():
             # Execute steps
             results = []
             variables = {}  # Store named results
-            
+
             for i, step in enumerate(workflow_steps):
                 step_num = i + 1
                 tool_name = step.get("tool")
                 tool_operation = step.get("operation")
                 var_name = step.pop("as", None)
                 condition = step.pop("if_result", None)
-                
+
                 if not tool_name or not tool_operation:
                     error = f"Step {step_num}: Missing 'tool' or 'operation'"
                     if stop_on_error:
@@ -205,7 +204,6 @@ def _register_workflow_tools():
                     # Import tool modules dynamically
                     tool_func = None
                     if tool_name == "blender_mesh":
-                        from blender_mcp.tools.mesh.mesh_tools import _register_mesh_tools
                         tool_func = app._tool_manager._tools.get("blender_mesh")
                     elif tool_name == "blender_animation":
                         tool_func = app._tool_manager._tools.get("blender_animation")
@@ -241,17 +239,17 @@ def _register_workflow_tools():
                     # Execute the tool
                     logger.info(f"🔧 Workflow step {step_num}: {tool_name}.{tool_operation}")
                     step_params["operation"] = tool_operation
-                    
+
                     # Call the tool's function
                     if hasattr(tool_func, 'fn'):
                         result = await tool_func.fn(**step_params)
                     else:
                         result = await tool_func(**step_params)
-                    
+
                     # Store result
                     step_result = {"step": step_num, "tool": tool_name, "operation": tool_operation, "result": result}
                     results.append(step_result)
-                    
+
                     # Store named variable
                     if var_name:
                         variables[var_name] = result

@@ -4,18 +4,18 @@ Furniture Handler for Blender MCP
 This module provides tools for creating and managing furniture in Blender.
 All implementations use real Blender API (bmesh, bpy.ops) to generate actual geometry."""
 
-from ..compat import *
-
-from typing import Tuple, Dict, Any, Union
-from enum import Enum
 import logging
 import math
+from enum import Enum
 from math import radians
+from typing import Any, Dict, Tuple, Union
+
+from ..compat import *
 
 # Try to import Blender modules, with fallback for non-Blender environments
 try:
     import bpy
-    from mathutils import Vector, Matrix
+    from mathutils import Matrix, Vector
 
     HAS_BPY = True
 except ImportError:
@@ -37,6 +37,7 @@ except ImportError:
     HAS_BPY = False
 
 from fastmcp import FastMCP
+
 from ..decorators import blender_operation
 
 logger = logging.getLogger(__name__)

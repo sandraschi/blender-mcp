@@ -4,10 +4,10 @@ Camera control and management tools for Blender MCP.
 Provides tools for creating and controlling cameras in Blender scenes.
 """
 
-from blender_mcp.compat import *
-
 from typing import Optional, Tuple
+
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_camera_tools():
@@ -50,13 +50,13 @@ def _register_camera_tools():
         Returns:
             Success message with camera details
         """
+        from loguru import logger
+
         from blender_mcp.handlers.camera_handler import (
             create_camera,
             set_active_camera,
             set_camera_lens,
         )
-
-        from loguru import logger
 
         logger.info(
             f"📷 blender_camera called with operation='{operation}', camera_name='{camera_name}', location={location}"

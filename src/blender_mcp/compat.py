@@ -8,19 +8,21 @@ between Python versions and FastMCP implementations.
 """
 
 from typing import (
-    Dict,
     Any,
-    Type,
-    TypeVar,
-    Callable,
     Awaitable,
-    Optional,
-    Union,
+    Callable,
+    Dict,
     List,
-    Tuple,
-    TypeAlias,
     Mapping,
+    Optional,
     Sequence,
+    Tuple,
+    Type,
+    TypeAlias,
+    TypeVar,
+    Union,
+)
+from typing import (
     Set as TypingSet,
 )
 
@@ -45,9 +47,10 @@ def _import_fastmcp_components():
     if Tool is None:
         try:
             # Import FastMCP components
-            from fastmcp.tools.tool import Tool as _Tool, FunctionTool as _FunctionTool
-            from fastmcp.tools.tool_manager import ToolManager as _ToolManager
             from fastmcp.server.low_level import LowLevelServer as _LowLevelServer
+            from fastmcp.tools.tool import FunctionTool as _FunctionTool
+            from fastmcp.tools.tool import Tool as _Tool
+            from fastmcp.tools.tool_manager import ToolManager as _ToolManager
 
             # Assign to global variables
             Tool = _Tool

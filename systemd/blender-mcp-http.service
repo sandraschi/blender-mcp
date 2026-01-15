@@ -1,0 +1,52 @@
+# Blender MCP HTTP Service
+# Runs the MCP server in HTTP mode for web-based MCP clients
+# Install with: sudo cp blender-mcp-http.service /etc/systemd/system/
+# Enable with: sudo systemctl enable blender-mcp-http
+# Start with: sudo systemctl start blender-mcp-http
+
+[Unit]
+Description=Blender MCP HTTP Server - AI-Powered 3D Creation (HTTP Mode)
+Documentation=https://github.com/sandraschi/blender-mcp
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=mcp
+Group=mcp
+Environment=PYTHONPATH=/opt/blender-mcp/src
+Environment=MCP_ENV=production
+Environment=BLENDER_PATH=/usr/bin/blender
+ExecStart=/opt/blender-mcp/venv/bin/python -m blender_mcp.cli --http --host 0.0.0.0 --port 8000
+ExecReload=/bin/kill -HUP $MAINPID
+
+# Security settings
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/opt/blender-mcp /tmp /var/tmp
+ProtectHome=yes
+PrivateDevices=yes
+
+# Resource limits
+MemoryLimit=2G
+CPUQuota=200%
+
+# Restart settings
+Restart=always
+RestartSec=5
+StartLimitInterval=400
+StartLimitBurst=5
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=blender-mcp-http
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+

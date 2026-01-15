@@ -4,9 +4,8 @@ Texture creation and management tools for Blender MCP.
 Provides tools for creating procedural and image-based textures.
 """
 
-from blender_mcp.compat import *
-
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_texture_tools():
@@ -49,9 +48,9 @@ def _register_texture_tools():
             Success message with texture details
         """
         from blender_mcp.handlers.texture_handler import (
-            create_texture,
             assign_texture_to_material,
             bake_texture,
+            create_texture,
         )
 
         try:

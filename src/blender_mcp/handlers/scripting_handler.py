@@ -1,14 +1,15 @@
 """Scripting operations handler for Blender MCP."""
 
 import json
-from typing import Dict, Any, Union
+import uuid
 from enum import Enum
 from pathlib import Path
-import uuid
+from typing import Any, Dict, Union
+
 from loguru import logger
 
-from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
+from ..utils.blender_executor import get_blender_executor
 
 _executor = get_blender_executor()
 
@@ -228,7 +229,7 @@ async def create_driver(
     use_self = kwargs.get("use_self", False)
     is_simple_expression = kwargs.get("is_simple_expression", False)
 
-    script = f"""
+    script = rf"""
 import json
 
 def create_driver():

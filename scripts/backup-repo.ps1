@@ -592,7 +592,19 @@ $exclusions = @(
     "MagicMock", "sandboxes", "quarantine", "analysis", "backups",
     "*.dxt", "*.db-shm", "*.db-wal",
     "gtfs_data", "gtfs_output", "extracted_data",
-    "*.csv", "*.tsv", "*.txt", "*.bin", "*.dat"
+    "*.csv", "*.tsv", "*.txt", "*.bin", "*.dat",
+    # Rust-specific exclusions (CRITICAL for rustdesk repos)
+    "target", "Cargo.lock",
+    # Additional locked file exclusions
+    "*.exe", "*.dll", "*.pdb", "*.so", "*.dylib",
+    "rustdesk.exe", "hbbs.exe", "hbbr.exe",
+    "target/debug/*.exe", "target/release/*.exe",
+    "target/*/deps/*.rlib",
+    "*.db", "*.sqlite", "*.sqlite3",
+    "*.lock", "*.pid", "*.pidfile",
+    "*.swp", "*.swo", "*.cache", "*.lockfile",
+    "docker-compose.override.yml",
+    "Procfile"
 )
 
 $excludeLargeTestFiles = @(

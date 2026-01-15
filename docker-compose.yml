@@ -1,0 +1,130 @@
+# Docker Compose configuration for Blender MCP
+# Supports development, testing, and production deployments
+
+version: '3.8'
+
+services:
+  # =============================================================================
+  # Development service - with hot reload and debugging
+  # =============================================================================
+  blender-mcp-dev:
+    build:
+      context: .
+      target: development
+      args:
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        VERSION: ${VERSION:-dev}
+        VCS_REF: ${VCS_REF:-$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")}
+    container_name: blender-mcp-dev
+    volumes:
+      - .:/app
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw  # For GUI access (optional)
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+      - MCP_DEBUG=true
+      - BLENDER_PATH=/opt/blender/blender
+      - DISPLAY=${DISPLAY:-:0}  # For GUI access
+    ports:
+      - "8000:8000"  # HTTP mode
+    stdin_open: true
+    tty: true
+    command: ["python", "-m", "blender_mcp.cli", "--http", "--host", "0.0.0.0", "--debug"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import blender_mcp; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - mcp-network
+    profiles:
+      - dev
+
+  # =============================================================================
+  # Production service - optimized for performance
+  # =============================================================================
+  blender-mcp:
+    build:
+      context: .
+      target: production
+      args:
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        VERSION: ${VERSION:-latest}
+        VCS_REF: ${VCS_REF:-$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")}
+    container_name: blender-mcp
+    environment:
+      - MCP_ENV=production
+      - BLENDER_PATH=/opt/blender/blender
+    ports:
+      - "8001:8000"  # HTTP mode on different port
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import blender_mcp; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - mcp-network
+    profiles:
+      - prod
+
+  # =============================================================================
+  # Testing service - for CI/CD pipelines
+  # =============================================================================
+  blender-mcp-test:
+    build:
+      context: .
+      target: development
+    container_name: blender-mcp-test
+    environment:
+      - PYTHONPATH=/app/src
+      - MCP_ENV=test
+      - BLENDER_PATH=/opt/blender/blender
+    volumes:
+      - .:/app
+    command: ["python", "-m", "pytest", "tests/", "-v", "--tb=short"]
+    networks:
+      - mcp-network
+    profiles:
+      - test
+
+  # =============================================================================
+  # Minimal runtime service - for registry-style deployments
+  # =============================================================================
+  blender-mcp-runtime:
+    build:
+      context: .
+      target: runtime
+    container_name: blender-mcp-runtime
+    environment:
+      - MCP_ENV=runtime
+      - BLENDER_PATH=/opt/blender/blender
+    ports:
+      - "8002:8000"
+    networks:
+      - mcp-network
+    profiles:
+      - runtime
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  mcp-network:
+    driver: bridge
+    name: blender-mcp-network
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  blender-cache:
+    driver: local
+    name: blender-mcp-cache
+
+
+
+
+

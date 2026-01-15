@@ -3,6 +3,7 @@
 import functools
 import time
 from typing import Any, Callable, TypeVar
+
 from loguru import logger
 
 from blender_mcp.compat import *

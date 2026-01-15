@@ -4,11 +4,11 @@ Animation and motion handler for Blender MCP.
 Provides functions for creating keyframes and basic animations.
 """
 
-from ..compat import *
+from typing import Optional, Tuple
 
-from typing import Tuple, Optional
-from ..utils.blender_executor import get_blender_executor
+from ..compat import *
 from ..decorators import blender_operation
+from ..utils.blender_executor import get_blender_executor
 
 _executor = get_blender_executor()
 

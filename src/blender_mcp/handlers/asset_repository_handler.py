@@ -5,20 +5,20 @@ This module provides tools for downloading and importing assets from free Blende
 Supports multiple repositories including BlenderKit, Kenney Assets, Quaternius, Open Game Art, and more.
 """
 
-from ..compat import *
-
-from typing import Optional, Dict, Any, List, Union, Tuple
-import os
-import tempfile
-import urllib.request
-import urllib.parse
-from pathlib import Path
-from enum import Enum
 import logging
-import zipfile
+import os
 import tarfile
+import tempfile
+import urllib.parse
+import urllib.request
+import zipfile
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from fastmcp import FastMCP
+
+from ..compat import *
 from ..decorators import blender_operation
 from ..utils.blender_executor import get_blender_executor
 

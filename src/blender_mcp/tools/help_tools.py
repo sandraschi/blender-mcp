@@ -5,9 +5,9 @@ Provides comprehensive help system, tool discovery, and documentation
 for all available Blender MCP functionality.
 """
 
-from ..compat import *
-
 from loguru import logger
+
+from ..compat import *
 
 
 # Import app lazily to avoid circular imports
@@ -69,7 +69,7 @@ def _register_help_tools():
             - blender_list_tools() - All tools
         """
         logger.info(f"Listing tools - category: {category}")
-        from blender_mcp.help import list_functions, list_categories
+        from blender_mcp.help import list_categories, list_functions
 
         categories = list_categories()
 

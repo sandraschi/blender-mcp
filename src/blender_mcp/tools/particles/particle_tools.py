@@ -4,9 +4,8 @@ Particle tools for Blender MCP.
 Provides tools for creating particle systems and effects.
 """
 
-from blender_mcp.compat import *
-
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_particle_tools():
@@ -49,7 +48,7 @@ def _register_particle_tools():
         Returns:
             Success message with particle system details
         """
-        from blender_mcp.handlers.particle_handler import create_particle_system, bake_particles
+        from blender_mcp.handlers.particle_handler import bake_particles, create_particle_system
 
         try:
             if operation == "create_particle_system":

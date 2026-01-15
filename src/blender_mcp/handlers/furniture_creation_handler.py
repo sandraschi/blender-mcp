@@ -5,19 +5,19 @@ This module provides tools for creating various furniture and structural element
 All implementations are marked as MOCK for now.
 """
 
-from ..compat import *
-
-from typing import Tuple, Dict, Any, Union
-from enum import Enum
 import logging
 from datetime import datetime
+from enum import Enum
 from math import radians
+from typing import Any, Dict, Tuple, Union
+
+from ..compat import *
 
 # Try to import Blender modules, with fallback for non-Blender environments
 try:
-    import bpy
     import bmesh
-    from mathutils import Vector, Matrix
+    import bpy
+    from mathutils import Matrix, Vector
 
     HAS_BPY = True
 except ImportError:
@@ -40,6 +40,7 @@ except ImportError:
     HAS_BPY = False
 
 from fastmcp import FastMCP
+
 from blender_mcp.decorators import blender_operation
 
 # Initialize logger

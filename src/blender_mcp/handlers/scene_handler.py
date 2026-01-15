@@ -3,11 +3,12 @@
 This module provides scene management functions that can be registered as FastMCP tools.
 """
 
+from blender_mcp.compat import *
+from blender_mcp.decorators import blender_operation
+from blender_mcp.utils.blender_executor import get_blender_executor
+
 from ..compat import *
 
-from blender_mcp.compat import *
-from blender_mcp.utils.blender_executor import get_blender_executor
-from blender_mcp.decorators import blender_operation
 # from blender_mcp.app import app  # REMOVED to fix circular import
 
 # Initialize the executor with default Blender executable

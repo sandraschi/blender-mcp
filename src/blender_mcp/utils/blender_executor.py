@@ -7,16 +7,15 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
-from typing import Optional, List, TypeVar
+from typing import List, Optional, TypeVar
 
+# Third-party imports
+import psutil
 from loguru import logger
 
 from ..compat import *
 from ..config import BLENDER_EXECUTABLE, validate_blender_executable
 from ..exceptions import BlenderNotFoundError, BlenderScriptError
-
-# Third-party imports
-import psutil
 
 # Type variable for the BlenderExecutor class
 T = TypeVar("T", bound="BlenderExecutor")
@@ -510,13 +509,13 @@ except Exception as user_error:
             if process.returncode != 0:
                 stderr_str = stderr.decode("utf-8", errors="replace")
                 stdout_str = stdout.decode("utf-8", errors="replace")
-                
+
                 # Check if this is just a TBBmalloc warning (harmless on Windows)
                 is_tbbmalloc_warning = "TBBmalloc" in stderr_str or "TBBmalloc" in stdout_str
-                
+
                 # Check if script output indicates success (e.g., "SUCCESS" in output)
                 script_succeeded = "SUCCESS" in stdout_str or "Successfully" in stdout_str
-                
+
                 if is_tbbmalloc_warning and script_succeeded:
                     # TBBmalloc warning but script succeeded - log warning but don't raise error
                     logger.warning(

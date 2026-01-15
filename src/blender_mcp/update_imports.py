@@ -6,18 +6,17 @@ This script will:
 2. Update imports to use the compatibility module
 3. Remove direct imports of JSONType from fastmcp.types
 """
-from ..compat import *
-
-
 import os
 import re
 from pathlib import Path
+
+from ..compat import *
 
 
 def update_file(file_path: Path) -> bool:
     """Update imports in a single file."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
 
         # Skip if already updated

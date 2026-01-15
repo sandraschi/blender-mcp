@@ -5,12 +5,12 @@ operations in the Blender MCP server. It's designed to be used by both users
 and AI assistants to understand the available functionality.
 """
 
-from ..compat import *
-
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
 
 from blender_mcp.compat import *
+
+from ..compat import *
 
 
 @dataclass

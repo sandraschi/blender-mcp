@@ -4,9 +4,8 @@ Physics tools for Blender MCP.
 Provides tools for rigid body, cloth, soft body, and fluid simulations.
 """
 
-from blender_mcp.compat import *
-
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_physics_tools():
@@ -55,12 +54,12 @@ def _register_physics_tools():
             Success message with physics setup details
         """
         from blender_mcp.handlers.physics_handler import (
-            enable_physics,
-            bake_physics_simulation,
             add_force_field,
-            configure_rigid_body_world,
-            set_rigid_body_collision_shape,
+            bake_physics_simulation,
             configure_cloth_simulation,
+            configure_rigid_body_world,
+            enable_physics,
+            set_rigid_body_collision_shape,
         )
 
         try:

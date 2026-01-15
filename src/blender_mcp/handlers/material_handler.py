@@ -3,15 +3,15 @@
 This module provides material creation functions that can be registered as FastMCP tools.
 Supports physically-based rendering (PBR) materials with advanced node setups.
 """
-from ..compat import *
-
-from typing import Dict, Tuple, List, Optional, Union
 from enum import Enum
+from typing import Dict, List, Optional, Tuple, Union
+
 from loguru import logger
 
-from ..utils.blender_executor import get_blender_executor
+from ..compat import *
 from ..decorators import blender_operation
 from ..exceptions import BlenderMaterialError
+from ..utils.blender_executor import get_blender_executor
 
 
 # Import app lazily to avoid circular imports
@@ -1552,7 +1552,7 @@ class MaterialLibrary:
         Returns:
             Loaded MaterialLibrary instance
         """
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             data = json.load(f)
 
         library = cls(data.get("name", "imported_library"))

@@ -7,40 +7,42 @@ Tools can be registered using the @app.tool decorator from the FastMCP applicati
 
 from __future__ import annotations
 
-from ..compat import *
-
+import functools
 import importlib
 import inspect
 import logging
 import pkgutil
-import functools
 from pathlib import Path
-
-# Import from our compatibility module
-from ..compat import (
-    JSONType,
-    Dict,
-    Any,
-    TypeVar,
-    Callable,
-    Awaitable,
-    Optional,
-    List,
-    TypeAlias,
-    Type,
-    FunctionTool,
-    ToolManager,
-)
 
 # Import pydantic for validation
 from pydantic import BaseModel, ValidationError
 
 # Import error handling utilities
 from blender_mcp.utils.error_handling import (
-    handle_errors,
-    MCPError,
-    ValidationError as MCPValidationError,
     BlenderOperationError,
+    MCPError,
+    handle_errors,
+)
+from blender_mcp.utils.error_handling import (
+    ValidationError as MCPValidationError,
+)
+
+from ..compat import *
+
+# Import from our compatibility module
+from ..compat import (
+    Any,
+    Awaitable,
+    Callable,
+    Dict,
+    FunctionTool,
+    JSONType,
+    List,
+    Optional,
+    ToolManager,
+    Type,
+    TypeAlias,
+    TypeVar,
 )
 
 # Type alias for tool functions

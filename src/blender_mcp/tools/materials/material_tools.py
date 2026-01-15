@@ -4,10 +4,9 @@ Material creation portmanteau tool for Blender MCP.
 Provides a single comprehensive tool for creating and managing PBR materials.
 """
 
-from blender_mcp.compat import *
+from typing import List, Literal
 
-from typing import List, Optional, Literal
-from pydantic import BaseModel, Field
+from blender_mcp.compat import *
 
 
 def get_app():
@@ -97,13 +96,13 @@ def _register_material_tools():
             Confirmation message about material operation
         """
         from blender_mcp.handlers.material_handler import (
+            assign_material_async,
+            create_ceramic_material,
             create_fabric_material,
+            create_glass_material,
+            create_material_from_preset,
             create_metal_material,
             create_wood_material,
-            create_glass_material,
-            create_ceramic_material,
-            assign_material_async,
-            create_material_from_preset,
         )
 
         try:

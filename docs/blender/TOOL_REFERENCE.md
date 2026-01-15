@@ -1,10 +1,13 @@
 # Blender-MCP Tool Reference
 
-This document provides detailed documentation for all **32 portmanteau tools** available in the Blender-MCP server. Each tool supports multiple operations via the `operation` parameter.
+This document provides detailed documentation for all **40 portmanteau tools** available in the Blender-MCP server. Each tool supports multiple operations via the `operation` parameter.
+
+**🎯 Project AG Integration**: This reference now includes 8 advanced VR tools specifically designed for professional avatar workflows in VRChat, Resonite, and Unity.
 
 ## Table of Contents
 - [Animation & Motion](#animation--motion)
 - [Rigging & Bones](#rigging--bones)
+- [VR Avatar Tools](#vr-avatar-tools)
 - [Scene Management](#scene-management)
 - [Materials](#materials)
 - [Mesh & Objects](#mesh--objects)
@@ -91,9 +94,9 @@ blender_animation(operation="keyframe_shape_key", object_name="Face",
 
 ## Rigging & Bones
 
-### `blender_rigging` (8 operations)
+### `blender_rigging` (12 operations)
 
-Armature creation and bone animation for VRM/humanoid models.
+Advanced armature creation, bone animation, and rigging for VRM/humanoid models with Project AG enhancements.
 
 | Operation | Description |
 |-----------|-------------|
@@ -105,6 +108,9 @@ Armature creation and bone animation for VRM/humanoid models.
 | `pose_bone` | Set bone rotation/position |
 | `set_bone_keyframe` | Keyframe bone pose |
 | `reset_pose` | Return to rest position |
+| `transfer_weights` | Transfer vertex weights between meshes (clothing workflow) |
+| `manage_vertex_groups` | Create/rename/mirror/remove vertex groups |
+| `humanoid_mapping` | Apply VRChat/Unity humanoid bone naming standards |
 
 **Example - VRM Bone Posing:**
 ```python
@@ -118,6 +124,198 @@ blender_rigging(operation="pose_bone", armature_name="Armature",
 # Keyframe the pose
 blender_rigging(operation="set_bone_keyframe", armature_name="Armature",
                 bone_name="leftUpperArm", frame=1)
+
+# Transfer weights from body to clothing
+blender_rigging(operation="transfer_weights", source_mesh="Body",
+                target_mesh="Clothing", armature_name="Armature")
+
+# Apply humanoid bone mapping
+blender_rigging(operation="humanoid_mapping", armature_name="Armature",
+                mapping_preset="VRCHAT")
+```
+
+---
+
+## VR Avatar Tools
+
+### `blender_validation` (2 operations)
+
+Pre-flight validation for VR platforms ensuring avatar compatibility.
+
+| Operation | Description |
+|-----------|-------------|
+| `validate_avatar` | Check polycount, bones, materials against platform limits |
+| `spawn_benny` | Spawn test German Shepherd for state persistence verification |
+
+**Platform Limits:**
+- VRChat: 70k triangles, 256 bones, 8 materials max
+- Resonite: 100k triangles, 512 bones
+- Unity: 32k triangles recommended for mobile
+
+**Example - VRChat Validation:**
+```python
+# Validate avatar for VRChat
+blender_validation(operation="validate_avatar", target_platform="VRCHAT")
+# Returns: polycount check, bone count, material density, transform validation
+```
+
+### `blender_splatting` (4 operations)
+
+Gaussian Splatting (3DGS) support for hybrid environments and high-fidelity scene creation.
+
+| Operation | Description |
+|-----------|-------------|
+| `import_gs` | Import .ply/.spz splat files with proxy objects |
+| `crop_and_clean` | Remove noise/floater splats from scans |
+| `generate_collision_mesh` | Create walkable collision geometry |
+| `export_for_resonite` | Export splats with collision for Resonite |
+
+**Example - Environment Creation:**
+```python
+# Import scanned room
+blender_splatting(operation="import_gs", file_path="room_scan.ply",
+                  setup_proxy=True)
+
+# Generate collision for walking
+blender_splatting(operation="generate_collision_mesh", density_threshold=0.1)
+
+# Export for Resonite
+blender_splatting(operation="export_for_resonite", target_format="SPZ",
+                  include_collision=True)
+```
+
+### `blender_materials_baking` (3 operations)
+
+Advanced material conversion and optimization for cross-platform compatibility.
+
+| Operation | Description |
+|-----------|-------------|
+| `bake_toon_to_pbr` | Convert cel-shaded materials to PBR textures |
+| `consolidate_materials` | Merge materials into atlas textures |
+| `convert_vrm_shader_to_pbr` | Convert VRM/MToon shaders to standard PBR |
+
+**Example - VRChat Material Optimization:**
+```python
+# Convert toon shaders to PBR
+blender_materials_baking(operation="convert_vrm_shader_to_pbr",
+                        target_mesh="Avatar", resolution=2048)
+
+# Consolidate materials to reduce draw calls
+blender_materials_baking(operation="consolidate_materials",
+                        target_mesh="Avatar", max_atlas_size=2048)
+```
+
+### `blender_vrm_metadata` (5 operations)
+
+VRM-specific metadata management for avatar functionality.
+
+| Operation | Description |
+|-----------|-------------|
+| `set_first_person_offset` | Configure first-person camera position |
+| `setup_blink_viseme_mappings` | Setup facial animation mappings |
+| `configure_spring_bones` | Configure dynamic hair/cloth physics |
+| `set_vrm_look_at` | Configure eye-tracking behavior |
+| `export_vrm_metadata` | Export VRM settings to JSON |
+
+**Example - Complete VRM Setup:**
+```python
+# Set first person view
+blender_vrm_metadata(operation="set_first_person_offset",
+                    offset_z=0.15)
+
+# Configure facial animations
+blender_vrm_metadata(operation="setup_blink_viseme_mappings",
+                    blink_shape_key="blink")
+
+# Setup spring bone hair physics
+blender_vrm_metadata(operation="configure_spring_bones",
+                    spring_bone_settings={"stiffness": 0.5, "gravity_power": 0.0})
+
+# Export metadata
+blender_vrm_metadata(operation="export_vrm_metadata",
+                    output_path="//vrm_settings.json")
+```
+
+### `blender_atlasing` (4 operations)
+
+Material and texture atlasing for mobile VR performance optimization.
+
+| Operation | Description |
+|-----------|-------------|
+| `create_material_atlas` | Combine materials into atlas textures |
+| `merge_texture_atlas` | Merge multiple texture files |
+| `optimize_draw_calls` | Intelligent material consolidation |
+| `get_atlas_uv_layout` | Generate UV mapping coordinates |
+
+**Example - Performance Optimization:**
+```python
+# Create material atlas
+blender_atlasing(operation="create_material_atlas",
+                target_mesh="Avatar", atlas_size=2048)
+
+# Optimize for mobile VR
+blender_atlasing(operation="optimize_draw_calls",
+                target_mesh="Avatar", max_materials=4)
+```
+
+### `blender_shapekeys` (5 operations)
+
+Advanced facial animation and lip sync support.
+
+| Operation | Description |
+|-----------|-------------|
+| `create_viseme_shapekeys` | Create VRM visemes (A, I, U, E, O) |
+| `create_blink_shapekey` | Setup eyelid blink animation |
+| `set_viseme_weights` | Animate mouth shapes for lip sync |
+| `create_facial_expression` | Combine visemes into expressions |
+| `analyze_shapekeys` | Check VRM compliance and status |
+
+**Example - Lip Sync Setup:**
+```python
+# Create VRM visemes
+blender_shapekeys(operation="create_viseme_shapekeys",
+                 viseme_type="vrm", auto_generate=True)
+
+# Setup blink animation
+blender_shapekeys(operation="create_blink_shapekey",
+                 blink_intensity=1.0)
+
+# Set mouth to "A" sound
+blender_shapekeys(operation="set_viseme_weights",
+                 viseme_weights={"aa": 1.0}, frame=1)
+
+# Create happy expression
+blender_shapekeys(operation="create_facial_expression",
+                 expression_name="happy", base_visemes={"ee": 0.8})
+```
+
+### `blender_export_presets` (4 operations)
+
+Platform-specific export configurations with validation.
+
+| Operation | Description |
+|-----------|-------------|
+| `export_with_preset` | Export using platform-specific settings |
+| `validate_export_preset` | Pre-export validation against limits |
+| `get_platform_presets` | List available platform configurations |
+| `create_custom_preset` | Create custom export configuration |
+
+**Platform Presets:**
+- `VRCHAT`: Unity scale 1.0, FBX, 256 bones max
+- `RESONITE`: GLTF format, 512 bones max
+- `UNITY`: Generic Unity export settings
+- `LEGACY_VRCHAT`: 0.01 scale for old workflows
+
+**Example - VRChat Export:**
+```python
+# Validate before export
+blender_export_presets(operation="validate_export_preset",
+                      target_objects=["Avatar"], platform="VRCHAT")
+
+# Export with VRChat settings
+blender_export_presets(operation="export_with_preset",
+                      target_objects=["Avatar"], platform="VRCHAT",
+                      output_path="//avatar_vrchat.fbx")
 ```
 
 ---
@@ -424,46 +622,126 @@ Addon management.
 ## Complete VRM Workflow Example
 
 ```python
-# 1. Import VRM avatar
+# === PHASE 1: IMPORT & VALIDATION ===
+
+# Import VRM avatar
 blender_import(operation="import_gltf", filepath="avatar.vrm")
 
-# 2. Discover bones
-blender_rigging(operation="list_bones", armature_name="Armature")
-# Returns: hips, spine, chest, neck, head, leftUpperArm, leftLowerArm, ...
+# Validate against VRChat limits (70k tris, 256 bones, 8 materials)
+blender_validation(operation="validate_avatar", target_platform="VRCHAT")
 
-# 3. Discover facial expressions
-blender_animation(operation="list_shape_keys", object_name="Face")
-# Returns: happy, sad, angry, blink, ...
+# === PHASE 2: MATERIAL OPTIMIZATION ===
 
-# 4. Create animation at frame 1 (neutral)
-blender_animation(operation="set_frame_range", start_frame=1, end_frame=60)
+# Convert stylized MToon shaders to PBR for cross-platform compatibility
+blender_materials_baking(operation="convert_vrm_shader_to_pbr",
+                        target_mesh="Body", resolution=2048)
 
-# 5. Set initial pose
+# Consolidate materials into atlases to reduce draw calls
+blender_materials_baking(operation="consolidate_materials",
+                        target_mesh="Body", max_atlas_size=2048)
+
+# Create comprehensive material atlas for mobile VR performance
+blender_atlasing(operation="create_material_atlas",
+                target_mesh="Body", atlas_size=2048)
+
+# === PHASE 3: VRM METADATA SETUP ===
+
+# Configure first-person camera offset (VRChat standard: 0.1-0.2m)
+blender_vrm_metadata(operation="set_first_person_offset",
+                    target_armature="Armature", offset_z=0.15)
+
+# Setup facial animation mappings for lip sync and expressions
+blender_vrm_metadata(operation="setup_blink_viseme_mappings",
+                    target_mesh="Face",
+                    blink_shape_key="blink",
+                    viseme_mappings={"aa": "v_a", "ih": "v_i", "ou": "v_u",
+                                   "ee": "v_e", "oh": "v_o"})
+
+# Configure spring bone physics for hair/cloth dynamics
+blender_vrm_metadata(operation="configure_spring_bones",
+                    target_armature="Armature",
+                    spring_bone_settings={"bones": ["hair_front_L", "hair_back_R"],
+                                        "stiffness": 0.5, "gravity_power": 0.0})
+
+# Setup eye tracking behavior
+blender_vrm_metadata(operation="set_vrm_look_at",
+                    target_armature="Armature",
+                    look_at_settings={"type": "bone", "horizontal_inner": {"curve": [0,0,0,1]}})
+
+# === PHASE 4: FACIAL ANIMATION SETUP ===
+
+# Create VRM-compliant viseme shape keys (A, I, U, E, O)
+blender_shapekeys(operation="create_viseme_shapekeys",
+                 target_mesh="Face", viseme_type="vrm", auto_generate=True)
+
+# Setup eyelid blink animation
+blender_shapekeys(operation="create_blink_shapekey",
+                 target_mesh="Face", blink_intensity=1.0)
+
+# Analyze shape key compliance and completeness
+blender_shapekeys(operation="analyze_shapekeys", target_mesh="Face")
+
+# === PHASE 5: RIGGING & WEIGHTS ===
+
+# Apply humanoid bone mapping for VRChat/Unity compatibility
+blender_rigging(operation="humanoid_mapping", armature_name="Armature",
+                humanoid_preset="VRCHAT")
+
+# If adding clothing, transfer weights from body to clothing mesh
+blender_rigging(operation="transfer_weights", source_mesh="Body",
+                target_mesh="Clothing", armature_name="Armature")
+
+# === PHASE 6: ANIMATION & POSES ===
+
+# Set animation timeline
+blender_animation(operation="set_frame_range", start_frame=1, end_frame=120)
+
+# Create neutral pose at frame 1
 blender_rigging(operation="pose_bone", armature_name="Armature",
                 bone_name="leftUpperArm", rotation=[0, 0, 0])
 blender_rigging(operation="set_bone_keyframe", armature_name="Armature",
                 bone_name="leftUpperArm", frame=1)
 
-# 6. Set wave pose at frame 30
+# Create wave pose at frame 60
 blender_rigging(operation="pose_bone", armature_name="Armature",
                 bone_name="leftUpperArm", rotation=[0, 0, 120])
 blender_rigging(operation="set_bone_keyframe", armature_name="Armature",
-                bone_name="leftUpperArm", frame=30)
+                bone_name="leftUpperArm", frame=60)
 
-# 7. Add happy expression at frame 30
-blender_animation(operation="set_shape_key", object_name="Face",
-                  shape_key_name="happy", value=1.0)
-blender_animation(operation="keyframe_shape_key", object_name="Face",
-                  shape_key_name="happy", frame=30)
+# Add facial expressions synchronized with poses
+blender_shapekeys(operation="set_viseme_weights", target_mesh="Face",
+                 viseme_weights={"ee": 1.0}, frame=60)  # Happy mouth
 
-# 8. Set smooth interpolation
+# Set smooth interpolation for natural movement
 blender_animation(operation="set_interpolation", object_name="Armature",
                   interpolation="BEZIER")
 
-# 9. Bake for export
+# Bake animation for export
 blender_animation(operation="bake_action", object_name="Armature",
-                  start_frame=1, end_frame=60)
+                  start_frame=1, end_frame=120)
 
-# 10. Export for VRChat
-blender_export(operation="export_vrchat", output_path="avatar_animated.fbx")
+# === PHASE 7: FINAL EXPORT VALIDATION ===
+
+# Final validation check before export
+blender_export_presets(operation="validate_export_preset",
+                      target_objects=["Body", "Armature"], platform="VRCHAT")
+
+# Export with VRChat-optimized settings
+blender_export_presets(operation="export_with_preset",
+                      target_objects=["Body", "Armature"], platform="VRCHAT",
+                      output_path="//exports/avatar_complete_VRC.fbx",
+                      include_materials=True, apply_modifiers=True)
+
+# === BONUS: HYBRID ENVIRONMENT CREATION ===
+
+# Import Gaussian Splat environment (if available)
+blender_splatting(operation="import_gs", file_path="environment.ply",
+                  setup_proxy=True)
+
+# Generate collision mesh for physical interaction
+blender_splatting(operation="generate_collision_mesh", density_threshold=0.1)
+
+# Export hybrid environment for Resonite
+blender_splatting(operation="export_for_resonite", target_format="SPZ",
+                  include_collision=True)
 ```

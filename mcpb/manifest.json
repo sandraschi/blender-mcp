@@ -1,137 +1,27 @@
 {
   "manifest_version": "0.2",
   "name": "blender-mcp",
-  "version": "1.0.0",
-  "description": "Complete Blender 3D automation MCP server with 50 tools across 19 categories for professional 3D content creation",
+  "version": "0.1.0",
+  "description": "MCP server for Blender 3D creation and manipulation",
   "author": {
-    "name": "Blender MCP Team",
-    "email": "blender-mcp@example.com",
-    "url": "https://github.com/sandraschi/blender-mcp"
+    "name": "Sandra Schi",
+    "email": "sandra@example.com"
   },
   "license": "MIT",
-  "homepage": "https://github.com/sandraschi/blender-mcp",
   "repository": {
     "type": "git",
     "url": "https://github.com/sandraschi/blender-mcp"
   },
   "server": {
     "type": "python",
-    "entry_point": "src/blender_mcp/__main__.py",
+    "entry_point": "src/blender_mcp/server.py",
     "mcp_config": {
       "command": "python",
-      "args": ["-m", "blender_mcp"],
+      "args": ["src/blender_mcp/server.py"],
       "env": {
-        "PYTHONPATH": "${CWD}/src",
-        "BLENDER_EXECUTABLE": "${user_config.blender_executable}",
+        "PYTHONPATH": "${__dirname}/src",
         "PYTHONUNBUFFERED": "1"
       }
     }
-  },
-  "user_config": {
-    "blender_executable": {
-      "type": "file",
-      "title": "Blender Executable Path",
-      "description": "Path to Blender executable file",
-      "default": "C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe",
-      "required": true
-    },
-    "operation_timeout": {
-      "type": "string",
-      "title": "Operation Timeout (seconds)",
-      "description": "Maximum time allowed for each Blender operation",
-      "default": "300"
-    },
-    "max_parallel_operations": {
-      "type": "string",
-      "title": "Maximum Parallel Operations",
-      "description": "Maximum number of Blender operations that can run simultaneously",
-      "default": "1"
-    }
-  },
-  "tools": [
-    {
-      "name": "blender_mesh",
-      "description": "Create and manipulate 3D mesh objects and primitives"
-    },
-    {
-      "name": "blender_animation",
-      "description": "Create animations and keyframes for objects"
-    },
-    {
-      "name": "blender_lighting",
-      "description": "Create and manage lighting setups"
-    },
-    {
-      "name": "blender_export",
-      "description": "Export scenes for Unity and VRChat"
-    },
-    {
-      "name": "blender_import",
-      "description": "Import various 3D file formats"
-    },
-    {
-      "name": "blender_furniture",
-      "description": "Create furniture and complex objects"
-    },
-    {
-      "name": "blender_textures",
-      "description": "Create procedural and image textures"
-    },
-    {
-      "name": "blender_camera",
-      "description": "Camera creation and control"
-    },
-    {
-      "name": "blender_modifiers",
-      "description": "Apply and manage mesh modifiers"
-    },
-    {
-      "name": "blender_render",
-      "description": "Render scenes and animations"
-    },
-    {
-      "name": "blender_transform",
-      "description": "Transform objects in 3D space"
-    },
-    {
-      "name": "blender_selection",
-      "description": "Select objects and elements"
-    },
-    {
-      "name": "blender_rigging",
-      "description": "Create armatures and character rigging"
-    },
-    {
-      "name": "blender_physics",
-      "description": "Enable physics simulations"
-    },
-    {
-      "name": "blender_particles",
-      "description": "Create particle systems and effects"
-    },
-    {
-      "name": "blender_uv",
-      "description": "Manage UV mapping and unwrapping"
-    }
-  ],
-  "compatibility": {
-    "platforms": ["win32", "darwin", "linux"],
-    "python": ">=3.10"
-  },
-  "keywords": [
-    "blender",
-    "3d",
-    "automation",
-    "mcp",
-    "modeling",
-    "rendering",
-    "animation",
-    "physics",
-    "export",
-    "import"
-  ]
+  }
 }
-
-
-
-

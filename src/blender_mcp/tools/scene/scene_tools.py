@@ -5,10 +5,9 @@ Provides a single comprehensive tool for scene, collection, view layer,
 lighting, camera, and render settings management.
 """
 
-from blender_mcp.compat import *
+from typing import List, Literal
 
-from typing import List, Optional, Literal
-from pydantic import BaseModel, Field
+from blender_mcp.compat import *
 
 
 def get_app():
@@ -71,18 +70,40 @@ def _register_scene_tools():
             Operation result message
         """
         from blender_mcp.handlers.scene_handler import (
-            create_scene as _create_scene,
-            list_scenes as _list_scenes,
-            clear_scene as _clear_scene,
-            set_active_scene as _set_active_scene,
-            link_object_to_scene as _link_object_to_scene,
-            create_collection as _create_collection,
             add_to_collection as _add_to_collection,
+        )
+        from blender_mcp.handlers.scene_handler import (
+            clear_scene as _clear_scene,
+        )
+        from blender_mcp.handlers.scene_handler import (
+            create_collection as _create_collection,
+        )
+        from blender_mcp.handlers.scene_handler import (
+            create_scene as _create_scene,
+        )
+        from blender_mcp.handlers.scene_handler import (
+            link_object_to_scene as _link_object_to_scene,
+        )
+        from blender_mcp.handlers.scene_handler import (
+            list_scenes as _list_scenes,
+        )
+        from blender_mcp.handlers.scene_handler import (
             set_active_collection as _set_active_collection,
-            set_view_layer as _set_view_layer,
-            setup_lighting as _setup_lighting,
-            setup_camera as _setup_camera,
+        )
+        from blender_mcp.handlers.scene_handler import (
+            set_active_scene as _set_active_scene,
+        )
+        from blender_mcp.handlers.scene_handler import (
             set_render_settings as _set_render_settings,
+        )
+        from blender_mcp.handlers.scene_handler import (
+            set_view_layer as _set_view_layer,
+        )
+        from blender_mcp.handlers.scene_handler import (
+            setup_camera as _setup_camera,
+        )
+        from blender_mcp.handlers.scene_handler import (
+            setup_lighting as _setup_lighting,
         )
 
         try:

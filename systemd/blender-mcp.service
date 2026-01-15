@@ -1,0 +1,51 @@
+# Blender MCP Systemd Service
+# Install with: sudo cp blender-mcp.service /etc/systemd/system/
+# Enable with: sudo systemctl enable blender-mcp
+# Start with: sudo systemctl start blender-mcp
+
+[Unit]
+Description=Blender MCP Server - AI-Powered 3D Creation
+Documentation=https://github.com/sandraschi/blender-mcp
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=mcp
+Group=mcp
+Environment=PYTHONPATH=/opt/blender-mcp/src
+Environment=MCP_ENV=production
+Environment=BLENDER_PATH=/usr/bin/blender
+ExecStart=/opt/blender-mcp/venv/bin/python -m blender_mcp.cli --stdio
+ExecReload=/bin/kill -HUP $MAINPID
+
+# Security settings
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ReadWritePaths=/opt/blender-mcp /tmp /var/tmp
+ProtectHome=yes
+PrivateDevices=yes
+
+# Resource limits
+MemoryLimit=2G
+CPUQuota=200%
+
+# Restart settings
+Restart=always
+RestartSec=5
+StartLimitInterval=400
+StartLimitBurst=5
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=blender-mcp
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+
+
