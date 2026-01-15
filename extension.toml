@@ -1,0 +1,10 @@
+id = "blender-mcp"
+name = "Blender3DModeling"
+version = "0.1.0"
+schema_version = 1
+authors = ["Sandra <sandraschipal@hotmail.com>"]
+description = "3D modeling, animation, and rendering tools"
+repository = "https://github.com/sandraschi/blender-mcp"
+
+[context_servers.blender-mcp]
+name = "Blender 3D Tools"
