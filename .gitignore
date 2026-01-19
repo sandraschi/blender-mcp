@@ -65,6 +65,55 @@ ENV/
 # MCPB
 *.mcpb
 
+# Rust build artifacts
+target/
+Cargo.lock
+
+# Python compiled files and cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.dll
+*.dylib
+
+# Debug files
+*.pdb
+*.debug
+
+# Build directories
+build/
+dist/
+*.egg-info/
+
+# Virtual environments (all variations)
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS specific files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs and temporary files
+logs/
+*.log
+*.tmp
+*.temp
+
 # Test coverage
 .coverage
 htmlcov/

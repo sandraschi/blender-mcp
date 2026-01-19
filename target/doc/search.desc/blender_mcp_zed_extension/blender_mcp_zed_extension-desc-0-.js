@@ -1,1 +1,0 @@
-searchState.loadedDescShard("blender_mcp_zed_extension", 0, "")
