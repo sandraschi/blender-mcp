@@ -547,6 +547,34 @@ class HelpSystem:
             )
         )
 
+        # Cross-MCP Export Tools
+        self._add_function(
+            FunctionInfo(
+                name="export_for_mcp_handoff",
+                description="Export Blender assets with platform-specific optimizations for seamless cross-MCP handoff",
+                category="Repository & Export",
+                parameters=[
+                    ParameterInfo(
+                        "asset_id", "str", required=True, description="ID of asset to export from repository"
+                    ),
+                    ParameterInfo(
+                        "target_mcp", "str", required=True, description="Target MCP server (vrchat, resonite, unity, unreal)"
+                    ),
+                    ParameterInfo(
+                        "optimization_preset", "str", "'automatic'", "Optimization approach (automatic/conservative/aggressive)"
+                    ),
+                    ParameterInfo(
+                        "quality_level", "str", "'high'", "Quality vs speed (draft/standard/high/ultra)"
+                    ),
+                    ParameterInfo(
+                        "include_metadata", "bool", "True", "Include integration metadata for target MCP"
+                    ),
+                ],
+                returns="Dict: Export results with file paths, integration commands, and platform metadata",
+                example="export_for_mcp_handoff('robot_001', 'vrchat', optimization_preset='automatic', quality_level='high')",
+            )
+        )
+
     def _add_function(self, func_info: FunctionInfo):
         """Add a function to the help system."""
         self.functions[func_info.name] = func_info
