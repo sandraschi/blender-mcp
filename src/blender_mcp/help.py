@@ -426,6 +426,43 @@ class HelpSystem:
             )
         )
 
+        # AI Construction Tools
+        self._add_function(
+            FunctionInfo(
+                name="construct_object",
+                category="AI Construction",
+                description="Universal 3D object construction using natural language and LLM-generated Blender scripts.",
+                parameters=[
+                    ParameterInfo(
+                        "description",
+                        "str",
+                        required=True,
+                        description="Natural language description of the object to create"
+                    ),
+                    ParameterInfo(
+                        "name", "str", "'ConstructedObject'", "Name for the created object in Blender scene"
+                    ),
+                    ParameterInfo(
+                        "complexity", "str", "'standard'", "Complexity level (simple/standard/complex)"
+                    ),
+                    ParameterInfo(
+                        "style_preset", "Optional[str]", "None", "Style preset (realistic/stylized/lowpoly/scifi)"
+                    ),
+                    ParameterInfo(
+                        "reference_objects", "Optional[List[str]]", "None", "Existing objects to use as reference"
+                    ),
+                    ParameterInfo(
+                        "allow_modifications", "bool", "True", "Whether LLM can modify existing objects"
+                    ),
+                    ParameterInfo(
+                        "max_iterations", "int", "3", "Maximum refinement iterations"
+                    ),
+                ],
+                returns="Dict: Construction results with success status, object info, and next steps",
+                example="construct_object('a robot like Robbie from Forbidden Planet', complexity='complex')",
+            )
+        )
+
     def _add_function(self, func_info: FunctionInfo):
         """Add a function to the help system."""
         self.functions[func_info.name] = func_info

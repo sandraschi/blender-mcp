@@ -383,6 +383,11 @@
       "name": "blender_performance_monitor",
       "description": "Monitor system performance over a specified duration",
       "category": "System Status"
+    },
+    {
+      "name": "construct_object",
+      "description": "Universal 3D object construction using natural language and LLM-generated Blender scripts",
+      "category": "AI Construction"
     }
   ],
 
