@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-01-19
+
+### Added
+- **🎨 Revolutionary AI Construction System**: Complete natural language to 3D object conversion
+  - `manage_object_construction`: Universal object creation with LLM-generated Blender scripts
+  - `manage_object_repo`: Comprehensive object repository with versioning and search
+  - FastMCP 2.14.3 sampling integration for conversational 3D creation
+  - Multi-layer security validation (syntax, security scoring, sandbox execution)
+  - Iterative refinement system with automatic failure recovery
+- **🤖 Agentic Construction Pipeline**: End-to-end AI-powered 3D creation workflow
+  - Natural language parsing with contextual understanding
+  - LLM script generation with scene context and reference objects
+  - Complexity levels (simple/standard/complex) and style presets (realistic/stylized/lowpoly/scifi)
+  - Conversational refinement with max iteration limits
+- **📚 MCP Resource System**: Structured script collections accessible via URIs
+  - `blender://scripts/robots`, `blender://scripts/furniture`, `blender://scripts/rooms`
+  - Mock script collections for robots, furniture, rooms, houses, vehicles, nature
+  - Resource-based access for LLM-guided construction
+- **🔧 Enhanced CLI**: Comprehensive command-line interface improvements
+  - `--list-tools`: Display all available MCP tools with descriptions
+  - `--show-config`: Show current configuration, environment, and system status
+  - Improved help text with detailed examples and environment variables
+  - Cross-platform compatibility fixes (removed Unicode emojis)
+- **🛡️ Security Architecture**: Production-ready validation and sandboxing
+  - Script validation pipeline with security scoring (0-100 scale)
+  - Complexity assessment and resource limit enforcement
+  - Safe execution environment with timeout and error containment
+
+### Technical Improvements
+- **FastMCP 2.14.3 Compliance**: Updated from 2.12.0 to 2.14.3 with sampling capabilities
+- **Portmanteau Tool Consolidation**: Reduced tool explosion with versatile multi-operation tools
+- **Context Preservation**: Maintains conversational state across LLM sampling calls
+- **Import Error Fixes**: Resolved critical import issues for Context and ScriptValidationResult
+- **Logger Standardization**: Replaced print statements with proper logging infrastructure
+- **Cross-Platform Compatibility**: Windows/PowerShell environment optimizations
+
+### Documentation
+- **AI Construction Assessment**: Comprehensive technical analysis in `docs/AI_CONSTRUCTION_ASSESSMENT.md`
+- **Enhanced README**: Emphasized revolutionary AI construction capabilities
+- **MCPB Manifest Updates**: Added resources capability and tool registration
+- **CLI Documentation**: Complete command reference with examples
+
 ## [0.2.0] - 2026-01-15
 
 ### Added
