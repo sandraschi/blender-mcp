@@ -6,11 +6,14 @@ This script will:
 2. Update imports to use the compatibility module
 3. Remove direct imports of JSONType from fastmcp.types
 """
+import logging
 import os
 import re
 from pathlib import Path
 
 from ..compat import *
+
+logger = logging.getLogger(__name__)
 
 
 def update_file(file_path: Path) -> bool:
@@ -67,7 +70,7 @@ def update_file(file_path: Path) -> bool:
         return True
 
     except Exception as e:
-        print(f"Error updating {file_path}: {e}")
+        logger.error(f"Error updating {file_path}: {e}")
         return False
 
 
@@ -81,10 +84,10 @@ def main():
             if file.endswith(".py") and file != "__init__.py" and file != "compat.py":
                 file_path = Path(root) / file
                 if update_file(file_path):
-                    print(f"Updated: {file_path}")
+                    logger.info(f"Updated: {file_path}")
                     updated += 1
 
-    print(f"\n✅ Updated {updated} files")
+    logger.info(f"Updated {updated} files")
 
 
 if __name__ == "__main__":

@@ -1,10 +1,13 @@
 """Configuration settings for the Blender MCP server."""
 
+import logging
 import os
 import sys
 from pathlib import Path
 
 from blender_mcp.compat import *
+
+logger = logging.getLogger(__name__)
 
 # Default Blender executable path
 DEFAULT_BLENDER_EXECUTABLE = "C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe"
@@ -59,12 +62,9 @@ def validate_config(config: dict) -> None:
             raise ValueError(f"Blender executable not found at: {config['blender_executable']}")
 
 
-# Log the Blender executable being used - use stderr to avoid Claude Desktop JSON parsing issues
+# Log the Blender executable being used
 if not validate_blender_executable():
-    print(f"WARNING: Blender executable not found at: {BLENDER_EXECUTABLE}", file=sys.stderr)
-    print(
-        "Please set the BLENDER_EXECUTABLE environment variable to the correct path.",
-        file=sys.stderr,
-    )
+    logger.warning(f"Blender executable not found at: {BLENDER_EXECUTABLE}")
+    logger.warning("Please set the BLENDER_EXECUTABLE environment variable to the correct path.")
 else:
-    print(f"Using Blender executable: {BLENDER_EXECUTABLE}", file=sys.stderr)
+    logger.info(f"Using Blender executable: {BLENDER_EXECUTABLE}")
