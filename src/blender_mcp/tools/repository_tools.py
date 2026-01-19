@@ -151,6 +151,448 @@ def _register_repository_tools():
     app = get_app()
 
     @app.tool
+    async def manage_object_repo(
+        operation: str = "list_objects",
+        object_name: str = "",
+        object_name_display: str = "",
+        description: str = "",
+        tags: List[str] = None,
+        category: str = "general",
+        object_id: str = "",
+        target_name: Optional[str] = None,
+        position: Tuple[float, float, float] = (0, 0, 0),
+        scale: Tuple[float, float, float] = (1, 1, 1),
+        version: Optional[str] = None,
+        query: Optional[str] = None,
+        author: Optional[str] = None,
+        min_quality: Optional[int] = None,
+        complexity: Optional[str] = None,
+        limit: int = 20,
+        quality_rating: int = 5,
+        public: bool = False
+    ) -> Dict[str, Any]:
+        """
+        PORTMANTEAU PATTERN RATIONALE:
+        Consolidates object repository operations into single interface. Prevents tool explosion while providing
+        comprehensive object lifecycle management from save to search. Follows FastMCP 2.14.3 best practices.
+
+        Complete object repository management system for Blender with save, load, search, and versioning capabilities.
+
+        **Repository Operations:**
+
+        **Save Operations (1 operation):**
+        - **save**: Save Blender objects with metadata, versioning, and construction scripts
+
+        **Load Operations (1 operation):**
+        - **load**: Load objects with positioning, scaling, and scene integration
+
+        **Search & Discovery (2 operations):**
+        - **search**: Find objects with advanced filtering by quality, category, tags, complexity
+        - **list_objects**: List all saved objects with basic information
+
+        Args:
+            operation (str, required): The repository operation to perform. Must be one of: "save", "load", "search", "list_objects".
+                - "save": Save object (requires: object_name, object_name_display + optional metadata)
+                - "load": Load object (requires: object_id + optional transforms)
+                - "search": Search objects (optional filters: query, category, tags, etc.)
+                - "list_objects": List all saved objects (no additional parameters)
+            object_name (str): Blender object name for save operations
+            object_name_display (str): Display name for saved objects
+            description (str): Object description for metadata
+            tags (List[str]): Search tags for categorization
+            category (str): Object category (general, character, architecture, vehicle, prop)
+            object_id (str): Repository ID for load operations
+            target_name (str | None): New name for loaded objects
+            position (Tuple[float, float, float]): Load position coordinates
+            scale (Tuple[float, float, float]): Load scale factors
+            version (str | None): Specific version to load
+            query (str | None): Search query for text matching
+            author (str | None): Filter by author
+            min_quality (int | None): Minimum quality rating (1-10)
+            complexity (str | None): Filter by complexity (simple/standard/complex)
+            limit (int): Maximum search results
+            quality_rating (int): Quality rating for saved objects (1-10)
+            public (bool): Make object publicly available
+
+        Returns:
+            Dict[str, Any]: Operation results with appropriate data structure for each operation type
+
+        Examples:
+            Save object: manage_object_repo("save", object_name="Robot", object_name_display="Robbie Robot", quality_rating=9)
+            Load object: manage_object_repo("load", object_id="robot-abc123", position=(5, 0, 2))
+            Search: manage_object_repo("search", query="robot", category="character", min_quality=7)
+            List all: manage_object_repo("list_objects")
+
+        Note:
+            Repository location: ~/.blender-mcp/repository
+            All operations include comprehensive error handling and progress feedback
+            Objects maintain full Blender data (meshes, materials, rigging, animations)
+        """
+        try:
+            if operation == "save":
+                return await _save_object(
+                    object_name=object_name,
+                    object_name_display=object_name_display,
+                    description=description,
+                    tags=tags,
+                    category=category,
+                    quality_rating=quality_rating,
+                    public=public
+                )
+            elif operation == "load":
+                return await _load_object(
+                    object_id=object_id,
+                    target_name=target_name,
+                    position=position,
+                    scale=scale,
+                    version=version
+                )
+            elif operation == "search":
+                return await _search_objects(
+                    query=query,
+                    category=category if category != "general" else None,
+                    tags=tags,
+                    author=author,
+                    min_quality=min_quality,
+                    complexity=complexity,
+                    limit=limit
+                )
+            elif operation == "list_objects":
+                return await _list_objects()
+            else:
+                return {
+                    "success": False,
+                    "message": f"Unknown operation '{operation}'",
+                    "available_operations": ["save", "load", "search", "list_objects"]
+                }
+        except Exception as e:
+            logger.exception(f"Repository operation '{operation}' failed: {e}")
+            return {
+                "success": False,
+                "message": f"Repository operation failed: {str(e)}",
+                "operation": operation
+            }
+
+    @app.tool
+    async def manage_object_construction(
+        ctx: Context,
+        operation: str = "construct",
+        object_name: str = "",
+        description: str = "",
+        name: str = "ConstructedObject",
+        complexity: str = "standard",
+        style_preset: Optional[str] = None,
+        reference_objects: Optional[List[str]] = None,
+        allow_modifications: bool = True,
+        modification_description: str = "",
+        max_iterations: int = 3,
+        preserve_original: bool = True
+    ) -> Dict[str, Any]:
+        """
+        PORTMANTEAU PATTERN RATIONALE:
+        Consolidates object construction and modification operations into single interface. Prevents tool explosion while providing
+        comprehensive AI-powered object creation and iterative improvement. Follows FastMCP 2.14.3 best practices.
+
+        AI-powered object construction and modification system using natural language and LLM-generated Blender scripts.
+
+        **Construction Operations:**
+
+        **Create Operations (1 operation):**
+        - **construct**: Universal 3D object construction using natural language and LLM-generated scripts
+
+        **Modify Operations (1 operation):**
+        - **modify**: LLM-guided object improvements with iterative refinement
+
+        Args:
+            ctx (Context): FastMCP context for sampling and conversational responses
+            operation (str, required): The construction operation to perform. Must be one of: "construct", "modify".
+                - "construct": Create new object from natural language description
+                - "modify": Improve existing object using LLM guidance
+            object_name (str): Blender object name (for modify operations)
+            description (str): Natural language description of object to create/modify
+            name (str): Name for newly constructed objects
+            complexity (str): Complexity level (simple/standard/complex)
+            style_preset (str | None): Style preset (realistic/stylized/lowpoly/scifi)
+            reference_objects (List[str] | None): Existing objects to use as reference
+            allow_modifications (bool): Whether to allow scene modifications during construction
+            modification_description (str): Description of desired modifications (for modify operations)
+            max_iterations (int): Maximum refinement iterations
+            preserve_original (bool): Keep original object during modification
+
+        Returns:
+            Dict[str, Any]: Construction results with success status, object info, and next steps
+
+        Examples:
+            Construct: manage_object_construction("construct", description="a robot like Robbie from Forbidden Planet")
+            Modify: manage_object_construction("modify", object_name="Robot", modification_description="add glowing eyes")
+
+        Note:
+            Uses FastMCP 2.14.3 sampling for LLM-generated Blender scripts
+            Includes security validation and safe execution
+            Supports iterative refinement for complex objects
+        """
+        try:
+            if operation == "construct":
+                return await _construct_object(
+                    ctx=ctx,
+                    description=description,
+                    name=name,
+                    complexity=complexity,
+                    style_preset=style_preset,
+                    reference_objects=reference_objects,
+                    allow_modifications=allow_modifications,
+                    max_iterations=max_iterations
+                )
+            elif operation == "modify":
+                return await _modify_object(
+                    ctx=ctx,
+                    object_name=object_name,
+                    modification_description=modification_description,
+                    max_iterations=max_iterations,
+                    preserve_original=preserve_original
+                )
+            else:
+                return {
+                    "success": False,
+                    "message": f"Unknown operation '{operation}'",
+                    "available_operations": ["construct", "modify"]
+                }
+        except Exception as e:
+            logger.exception(f"Construction operation '{operation}' failed: {e}")
+            return {
+                "success": False,
+                "message": f"Construction operation failed: {str(e)}",
+                "operation": operation
+            }
+
+    # Helper functions for construction operations
+    async def _construct_object(
+        ctx: Context,
+        description: str,
+        name: str,
+        complexity: str,
+        style_preset: Optional[str],
+        reference_objects: Optional[List[str]],
+        allow_modifications: bool,
+        max_iterations: int
+    ) -> Dict[str, Any]:
+        """Helper function for constructing objects using LLM-generated scripts."""
+        try:
+            # Validate inputs
+            if not description or not description.strip():
+                raise ValueError("Description cannot be empty")
+
+            if complexity not in ["simple", "standard", "complex"]:
+                raise ValueError(f"Invalid complexity '{complexity}'. Must be: simple, standard, complex")
+
+            if style_preset and style_preset not in ["realistic", "stylized", "lowpoly", "scifi"]:
+                raise ValueError(f"Invalid style_preset '{style_preset}'. Must be: realistic, stylized, lowpoly, scifi")
+
+            logger.info(f"🎨 Starting construction for: '{description}' (complexity: {complexity})")
+
+            # Generate construction script via sampling
+            script_result = await _generate_construction_script(
+                ctx, description, name, complexity, style_preset, None, max_iterations
+            )
+
+            if not script_result["success"]:
+                return {
+                    "success": False,
+                    "message": f"Failed to generate construction script: {script_result['error']}",
+                    "next_steps": [
+                        "Try a simpler description",
+                        "Use more specific technical terms",
+                        "Break complex objects into components"
+                    ]
+                }
+
+            # Validate generated script
+            validation = await _validate_construction_script(script_result["script"])
+            if not validation.is_valid:
+                return {
+                    "success": False,
+                    "message": f"Generated script failed validation: {'; '.join(validation.errors)}",
+                    "validation_results": validation.dict()
+                }
+
+            # Execute script in Blender
+            execution_result = await _execute_construction_script(
+                script_result["script"], name, validation
+            )
+
+            # Prepare response
+            response = {
+                "success": execution_result["success"],
+                "message": _generate_construction_summary(
+                    description, execution_result, script_result.get("iterations", 1), validation
+                ),
+                "object_name": name,
+                "script_generated": True,
+                "iterations_used": script_result.get("iterations", 1),
+                "validation_results": {
+                    "security_score": validation.security_score,
+                    "complexity_score": validation.complexity_score,
+                    "warnings": validation.warnings
+                },
+                "scene_objects_created": execution_result.get("objects_created", []),
+                "estimated_complexity": complexity
+            }
+
+            if execution_result["success"]:
+                response["next_steps"] = [
+                    f"Use manage_object_repo('save', object_name='{name}') to save this object",
+                    f"Use manage_object_construction('modify', object_name='{name}') to customize",
+                    f"Apply blender_lighting setup for better presentation"
+                ]
+            else:
+                response["next_steps"] = [
+                    "Try breaking the object into simpler components",
+                    "Use more specific technical descriptions",
+                    "Check Blender Python API documentation"
+                ]
+
+            return response
+
+        except Exception as e:
+            logger.exception(f"Construction failed: {str(e)}")
+            return {
+                "success": False,
+                "message": f"Construction failed: {str(e)}",
+                "next_steps": ["Check description clarity", "Try simpler object first"]
+            }
+
+    async def _modify_object(
+        ctx: Context,
+        object_name: str,
+        modification_description: str,
+        max_iterations: int,
+        preserve_original: bool
+    ) -> Dict[str, Any]:
+        """Helper function for modifying objects using LLM-guided improvements."""
+        try:
+            if not object_name or not modification_description:
+                raise ValueError("object_name and modification_description are required")
+
+            # Check if object exists
+            object_info = await _get_object_info(object_name)
+            if not object_info:
+                return {
+                    "success": False,
+                    "message": f"Object '{object_name}' not found in scene",
+                    "next_steps": ["Check object name", "Use blender_selection to list available objects"]
+                }
+
+            # Try to find original construction script
+            original_script = await _find_construction_script(object_name)
+
+            if not original_script:
+                return {
+                    "success": False,
+                    "message": f"No construction script found for '{object_name}'",
+                    "next_steps": [
+                        "Use manage_object_construction to recreate the object",
+                        "Save object to repository first with manage_object_repo",
+                        "Manually describe the object for construction"
+                    ]
+                }
+
+            # Generate modification prompt
+            modification_prompt = f"""
+You are a master Blender Python developer specializing in object modification and improvement.
+
+ORIGINAL OBJECT: {object_name}
+ORIGINAL SCRIPT (first 300 chars): {original_script[:300]}...
+
+REQUESTED MODIFICATION: {modification_description}
+
+Please generate an improved Blender Python script that modifies the existing object according to the request.
+Focus on the specific improvements requested while preserving the object's core functionality.
+
+Return ONLY the complete, executable Python script that will modify the existing object.
+"""
+
+            try:
+                # Use FastMCP sampling to get modification script
+                sampling_result = await ctx.sample(
+                    content=f"Modify {object_name}: {modification_description}",
+                    metadata={
+                        "type": "script_modification",
+                        "original_script": original_script[:500],
+                        "modification_request": modification_description,
+                        "object_name": object_name
+                    },
+                    max_tokens=2500,
+                    temperature=0.3
+                )
+
+                modified_script = _extract_python_code(sampling_result.content)
+
+                if not modified_script:
+                    return {
+                        "success": False,
+                        "message": "Failed to generate modification script",
+                        "next_steps": ["Try a more specific modification description"]
+                    }
+
+                # Validate modification script
+                validation = await _validate_modification_script(modified_script, object_name)
+                if not validation.is_valid:
+                    return {
+                        "success": False,
+                        "message": f"Modification script validation failed: {'; '.join(validation.errors)}",
+                        "validation_details": validation.dict()
+                    }
+
+                # Create backup if requested
+                if preserve_original:
+                    backup_result = await _create_object_backup(object_name)
+                    if not backup_result["success"]:
+                        logger.warning(f"Failed to create backup: {backup_result['error']}")
+
+                # Execute modification
+                execution_result = await _execute_modification_script(modified_script, object_name)
+
+                if execution_result["success"]:
+                    return {
+                        "success": True,
+                        "object_name": object_name,
+                        "modification_applied": modification_description,
+                        "script_generated": True,
+                        "iterations_used": 1,
+                        "validation_results": validation.dict(),
+                        "changes_made": execution_result.get("changes_summary", []),
+                        "message": f"Successfully modified '{object_name}' with: {modification_description}",
+                        "next_steps": [
+                            f"Use manage_object_repo('save', object_name='{object_name}') to save the improved version",
+                            f"Use blender_render to preview the modifications",
+                            f"Apply additional modifications if needed"
+                        ]
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "message": f"Modification execution failed: {execution_result['error']}",
+                        "next_steps": ["Try a simpler modification", "Check modification description clarity"]
+                    }
+
+            except Exception as e:
+                logger.exception(f"Modification sampling failed: {e}")
+                return {
+                    "success": False,
+                    "message": f"Failed to generate modification: {str(e)}",
+                    "next_steps": ["Try rephrasing the modification request"]
+                }
+
+        except Exception as e:
+            logger.exception(f"Object modification failed: {e}")
+            return {
+                "success": False,
+                "message": f"Modification failed: {str(e)}",
+                "next_steps": ["Check object existence", "Verify modification description"]
+            }
+
+    # Legacy individual tools for backward compatibility (deprecated)
+    @app.tool
     async def save_object_to_repository(
         object_name: str = "",
         object_name_display: str = "",

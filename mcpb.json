@@ -9,7 +9,7 @@
     "version": "2.14.3",
     "capabilities": {
       "tools": true,
-      "resources": false,
+      "resources": true,
       "prompts": false
     }
   },
@@ -385,29 +385,113 @@
       "category": "System Status"
     },
     {
-      "name": "construct_object",
-      "description": "Universal 3D object construction using natural language and LLM-generated Blender scripts",
+      "name": "manage_object_construction",
+      "description": "AI-powered object construction and modification using natural language and LLM-generated scripts",
       "category": "AI Construction"
     },
     {
-      "name": "save_object_to_repository",
-      "description": "Save Blender objects to version-controlled object repository with metadata",
+      "name": "manage_object_repo",
+      "description": "Complete object repository management with save, load, search, and versioning capabilities",
       "category": "Object Repository"
+    }
+  ],
+
+  "resources": [
+    {
+      "uri": "blender://scripts/robots",
+      "name": "Robot Construction Scripts",
+      "description": "Collection of Blender Python scripts for creating various robot designs",
+      "mime_type": "application/json",
+      "metadata": {
+        "category": "robots",
+        "scripts": [
+          {"name": "classic_robot", "description": "Classic sci-fi robot like Robbie from Forbidden Planet"},
+          {"name": "industrial_robot", "description": "Industrial robotic arm with articulated joints"},
+          {"name": "humanoid_robot", "description": "Bipedal humanoid robot with basic rigging"},
+          {"name": "spider_robot", "description": "Multi-legged spider-like robot"},
+          {"name": "drone_robot", "description": "Flying drone robot with propellers"}
+        ]
+      }
     },
     {
-      "name": "load_object_from_repository",
-      "description": "Load objects from repository into current scene with transform controls",
-      "category": "Object Repository"
+      "uri": "blender://scripts/furniture",
+      "name": "Furniture Construction Scripts",
+      "description": "Blender scripts for creating various furniture pieces and room setups",
+      "mime_type": "application/json",
+      "metadata": {
+        "category": "furniture",
+        "scripts": [
+          {"name": "modern_chair", "description": "Modern ergonomic office chair"},
+          {"name": "wooden_table", "description": "Classic wooden dining table with chairs"},
+          {"name": "bookshelf", "description": "Multi-shelf wooden bookshelf"},
+          {"name": "bed_frame", "description": "Simple bed frame with mattress"},
+          {"name": "desk_setup", "description": "Complete home office desk setup"}
+        ]
+      }
     },
     {
-      "name": "search_objects_in_repository",
-      "description": "Search and discover objects in repository with advanced filtering",
-      "category": "Object Repository"
+      "uri": "blender://scripts/rooms",
+      "name": "Room Construction Scripts",
+      "description": "Complete room layouts and architectural spaces",
+      "mime_type": "application/json",
+      "metadata": {
+        "category": "rooms",
+        "scripts": [
+          {"name": "living_room", "description": "Cozy living room with sofa, TV, and coffee table"},
+          {"name": "kitchen", "description": "Modern kitchen with appliances and cabinets"},
+          {"name": "bedroom", "description": "Comfortable bedroom with bed and wardrobe"},
+          {"name": "home_office", "description": "Productive home office space"},
+          {"name": "bathroom", "description": "Complete bathroom with fixtures"}
+        ]
+      }
     },
     {
-      "name": "modify_object",
-      "description": "Modify existing objects using LLM-guided improvements and iterative refinement",
-      "category": "AI Construction"
+      "uri": "blender://scripts/houses",
+      "name": "House Construction Scripts",
+      "description": "Complete house designs and architectural structures",
+      "mime_type": "application/json",
+      "metadata": {
+        "category": "houses",
+        "scripts": [
+          {"name": "modern_house", "description": "Contemporary single-family home"},
+          {"name": "victorian_house", "description": "Classic Victorian-style house"},
+          {"name": "cabin", "description": "Rustic log cabin in forest setting"},
+          {"name": "apartment", "description": "Modern apartment interior"},
+          {"name": "castle", "description": "Medieval castle with towers and walls"}
+        ]
+      }
+    },
+    {
+      "uri": "blender://scripts/vehicles",
+      "name": "Vehicle Construction Scripts",
+      "description": "Automobiles, aircraft, and transportation vehicles",
+      "mime_type": "application/json",
+      "metadata": {
+        "category": "vehicles",
+        "scripts": [
+          {"name": "sports_car", "description": "High-performance sports car"},
+          {"name": "sedan", "description": "Comfortable family sedan"},
+          {"name": "motorcycle", "description": "Sport motorcycle with fairing"},
+          {"name": "truck", "description": "Pickup truck with bed and accessories"},
+          {"name": "airplane", "description": "Small propeller aircraft"}
+        ]
+      }
+    },
+    {
+      "uri": "blender://scripts/nature",
+      "name": "Nature and Environment Scripts",
+      "description": "Natural landscapes, plants, and environmental elements",
+      "mime_type": "application/json",
+      "metadata": {
+        "category": "nature",
+        "scripts": [
+          {"name": "forest_clearing", "description": "Peaceful forest clearing with trees"},
+          {"name": "mountain_landscape", "description": "Mountain valley with peaks and lake"},
+          {"name": "desert_scene", "description": "Arid desert with dunes and cacti"},
+          {"name": "ocean_beach", "description": "Tropical beach with palm trees and water"},
+          {"name": "urban_park", "description": "City park with paths and greenery"}
+        ]
+      }
     }
   ],
 

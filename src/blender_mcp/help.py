@@ -429,15 +429,30 @@ class HelpSystem:
         # Object Repository Tools
         self._add_function(
             FunctionInfo(
-                name="save_object_to_repository",
+                name="manage_object_repo",
                 category="Object Repository",
-                description="Save Blender objects to version-controlled repository with rich metadata and construction scripts.",
+                description="Complete object repository management with save, load, search, and versioning capabilities.",
                 parameters=[
                     ParameterInfo(
-                        "object_name", "str", required=True, description="Name of Blender object to save"
+                        "operation", "str", "list_objects", "Operation to perform (save/load/search/list_objects)"
                     ),
                     ParameterInfo(
-                        "object_name_display", "str", required=True, description="Display name for the saved object"
+                        "object_name", "str", "", "Blender object name (for save)"
+                    ),
+                    ParameterInfo(
+                        "object_name_display", "str", "", "Display name for saved objects"
+                    ),
+                    ParameterInfo(
+                        "object_id", "str", "", "Repository ID (for load)"
+                    ),
+                    ParameterInfo(
+                        "query", "str | None", "None", "Search query"
+                    ),
+                    ParameterInfo(
+                        "category", "str", "'general'", "Object category"
+                    ),
+                    ParameterInfo(
+                        "limit", "int", "20", "Maximum results"
                     ),
                     ParameterInfo(
                         "description", "str", "", "Detailed description of the model"
@@ -458,72 +473,44 @@ class HelpSystem:
                         "public", "bool", "False", "Make model publicly available"
                     ),
                 ],
-                returns="Dict: Repository save results with object ID and metadata",
-                example="save_object_to_repository('RobotCharacter', 'Robbie Robot', 'Classic sci-fi robot', ['robot', 'scifi'], 'character', quality_rating=9)",
+                returns="Dict: Repository operation results with appropriate data",
+                example="manage_object_repo('save', object_name='Robot', object_name_display='Robbie Robot', quality_rating=9)",
             )
         )
 
-        self._add_function(
-            FunctionInfo(
-                name="load_object_from_repository",
-                category="Object Repository",
-                description="Load objects from repository into current scene with positioning and scaling controls.",
-                parameters=[
-                    ParameterInfo(
-                        "object_id", "str", required=True, description="ID of object to load"
-                    ),
-                    ParameterInfo(
-                        "target_name", "str | None", "None", "New name for loaded object"
-                    ),
-                    ParameterInfo(
-                        "position", "Tuple[float, float, float]", "(0, 0, 0)", "Position to place object"
-                    ),
-                    ParameterInfo(
-                        "scale", "Tuple[float, float, float]", "(1, 1, 1)", "Scale to apply to object"
-                    ),
-                    ParameterInfo(
-                        "version", "str | None", "None", "Specific version to load"
-                    ),
-                ],
-                returns="Dict: Loading results with object info and scene integration",
-                example="load_object_from_repository('robot-abc123', position=(5, 0, 2), scale=(1.5, 1.5, 1.5))",
-            )
-        )
-
-        self._add_function(
-            FunctionInfo(
-                name="search_objects_in_repository",
-                category="Object Repository",
-                description="Search and discover objects in repository with advanced filtering and discovery.",
-                parameters=[
-                    ParameterInfo(
-                        "query", "str | None", "None", "Search text for name/description/tags"
-                    ),
-                    ParameterInfo(
-                        "category", "str | None", "None", "Filter by category"
-                    ),
-                    ParameterInfo(
-                        "tags", "List[str] | None", "None", "Required tags filter"
-                    ),
-                    ParameterInfo(
-                        "author", "str | None", "None", "Filter by author"
-                    ),
-                    ParameterInfo(
-                        "min_quality", "int | None", "None", "Minimum quality rating"
-                    ),
-                    ParameterInfo(
-                        "complexity", "str | None", "None", "Filter by complexity"
-                    ),
-                    ParameterInfo(
-                        "limit", "int", "20", "Maximum results to return"
-                    ),
-                ],
-                returns="Dict: Search results with model summaries and filtering info",
-                example="search_models_in_repository('robot', category='character', min_quality=7)",
-            )
-        )
 
         # AI Construction Tools
+        self._add_function(
+            FunctionInfo(
+                name="manage_object_construction",
+                category="AI Construction",
+                description="AI-powered object construction and modification using natural language and LLM-generated Blender scripts.",
+                parameters=[
+                    ParameterInfo(
+                        "operation", "str", "construct", "Operation to perform (construct/modify)"
+                    ),
+                    ParameterInfo(
+                        "description", "str", "", "Natural language description (for construct)"
+                    ),
+                    ParameterInfo(
+                        "object_name", "str", "", "Existing object name (for modify)"
+                    ),
+                    ParameterInfo(
+                        "modification_description", "str", "", "Modification description (for modify)"
+                    ),
+                    ParameterInfo(
+                        "complexity", "str", "'standard'", "Complexity level"
+                    ),
+                    ParameterInfo(
+                        "max_iterations", "int", "3", "Maximum refinement iterations"
+                    ),
+                ],
+                returns="Dict: Construction/modification results with object info and next steps",
+                example="manage_object_construction('construct', description='a robot like Robbie from Forbidden Planet')",
+            )
+        )
+
+        # Object Repository Tools
         self._add_function(
             FunctionInfo(
                 name="construct_object",
@@ -557,30 +544,6 @@ class HelpSystem:
                 ],
                 returns="Dict: Construction results with success status, object info, and next steps",
                 example="construct_object('a robot like Robbie from Forbidden Planet', complexity='complex')",
-            )
-        )
-
-        self._add_function(
-            FunctionInfo(
-                name="modify_object",
-                category="AI Construction",
-                description="Modify existing objects using LLM-guided improvements and iterative refinement.",
-                parameters=[
-                    ParameterInfo(
-                        "object_name", "str", required=True, description="Name of existing Blender object to modify"
-                    ),
-                    ParameterInfo(
-                        "modification_description", "str", required=True, description="Natural language description of desired changes"
-                    ),
-                    ParameterInfo(
-                        "max_iterations", "int", "2", "Maximum refinement iterations"
-                    ),
-                    ParameterInfo(
-                        "preserve_original", "bool", "True", "Whether to keep original object"
-                    ),
-                ],
-                returns="Dict: Modification results with before/after comparison and improvement details",
-                example="modify_object('Robot', 'make it look more futuristic with glowing blue accents')",
             )
         )
 
