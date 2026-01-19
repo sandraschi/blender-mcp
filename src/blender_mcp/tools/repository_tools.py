@@ -19,6 +19,16 @@ from loguru import logger
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
 
+# Import validation classes from construct_tools
+from .construct_tools import ScriptValidationResult
+
+# Import Context from FastMCP for sampling operations
+try:
+    from fastmcp.types import Context
+except ImportError:
+    # Fallback for different FastMCP versions
+    from typing import Any as Context
+
 
 class ObjectMetadata(BaseModel):
     """Metadata for a stored Blender object."""
@@ -1237,7 +1247,7 @@ async def _export_blender_object(object_name: str, output_path: str) -> Dict[str
         return {"success": False, "error": str(e)}
 
 
-async def _update_repository_index(base_path: str, metadata: ModelMetadata):
+async def _update_repository_index(base_path: str, metadata: ObjectMetadata):
     """Update the repository index with new model."""
     try:
         index_file = Path(base_path) / "repository_index.json"

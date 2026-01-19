@@ -11,14 +11,32 @@ from blender_mcp.server import create_server, main_stdio
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="Blender MCP - AI-Powered 3D Creation",
+        description="Blender MCP - AI-Powered 3D Creation Server",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  blender-mcp --stdio                    # Run in stdio mode (for MCP clients)
-  blender-mcp --http --host 0.0.0.0     # Run HTTP server
-  blender-mcp --install-config          # Install Claude Desktop config
-  blender-mcp --check-blender           # Check Blender installation
+Blender MCP Server provides AI-powered 3D content creation through natural language.
+Supports object construction, repository management, animation, rendering, and more.
+
+EXAMPLES:
+  # Run MCP server for Claude Desktop integration
+  blender-mcp --stdio
+
+  # Run HTTP server for web clients
+  blender-mcp --http --host 0.0.0.0 --port 8001
+
+  # Install Claude Desktop configuration
+  blender-mcp --install-config
+
+  # Check Blender installation and compatibility
+  blender-mcp --check-blender
+
+  # Run with debug logging
+  blender-mcp --stdio --debug
+
+ENVIRONMENT VARIABLES:
+  BLENDER_EXECUTABLE    Path to Blender executable (auto-detected if not set)
+
+For more information, visit: https://github.com/sandraschi/blender-mcp
         """
     )
 
@@ -66,6 +84,18 @@ Examples:
     )
 
     parser.add_argument(
+        "--list-tools",
+        action="store_true",
+        help="List all available MCP tools and their descriptions"
+    )
+
+    parser.add_argument(
+        "--show-config",
+        action="store_true",
+        help="Show current configuration and environment settings"
+    )
+
+    parser.add_argument(
         "--version",
         action="version",
         version="%(prog)s 1.0.0"
@@ -89,6 +119,14 @@ Examples:
 
         if args.check_blender:
             check_blender_installation()
+            return
+
+        if args.list_tools:
+            list_available_tools()
+            return
+
+        if args.show_config:
+            show_configuration()
             return
 
         if args.http:
@@ -233,6 +271,66 @@ def check_blender_installation():
 
     print()
     print("🎯 Blender MCP is ready to use with external Blender installations!")
+
+
+def list_available_tools():
+    """List all available MCP tools and their descriptions."""
+    print("Available Blender MCP Tools")
+    print("=" * 50)
+
+    try:
+        # Try to get the app and list tools directly
+        from blender_mcp.app import get_app
+        app = get_app()
+        if app and hasattr(app, 'list_tools'):
+            tools = app.list_tools()
+            print(f"\nFound {len(tools)} registered tools:")
+            for tool in tools:
+                print(f"\n- {tool.name}")
+                if hasattr(tool, 'description') and tool.description:
+                    print(f"  {tool.description}")
+        else:
+            print("MCP server not initialized. Run the server first to see available tools.")
+    except Exception as e:
+        print(f"Error retrieving tool information: {e}")
+        print("Try running 'blender-mcp --stdio' first to initialize the server.")
+
+
+def show_configuration():
+    """Show current configuration and environment settings."""
+    import os
+    from blender_mcp.config import BLENDER_EXECUTABLE, DEFAULT_BLENDER_EXECUTABLE
+
+    print("Blender MCP Configuration")
+    print("=" * 40)
+
+    print("Blender Executable:")
+    print(f"   Configured: {BLENDER_EXECUTABLE}")
+    print(f"   Default:    {DEFAULT_BLENDER_EXECUTABLE}")
+    print(f"   From env:   {'BLENDER_EXECUTABLE' if os.environ.get('BLENDER_EXECUTABLE') else 'auto-detected'}")
+
+    print("\nEnvironment Variables:")
+    relevant_env_vars = ['BLENDER_EXECUTABLE', 'BLENDER_PATH', 'PYTHONPATH']
+    for var in relevant_env_vars:
+        value = os.environ.get(var, 'Not set')
+        print(f"   {var}: {value}")
+
+    print("\nSystem Information:")
+    import platform
+    print(f"   Platform: {platform.platform()}")
+    print(f"   Python:   {platform.python_version()}")
+
+    print("\nMCP Server Status:")
+    try:
+        from blender_mcp.app import get_app
+        app = get_app()
+        if app:
+            print("   Server: Ready")
+            print(f"   Tools registered: {len(app.list_tools()) if hasattr(app, 'list_tools') else 'Unknown'}")
+        else:
+            print("   Server: Not initialized")
+    except Exception as e:
+        print(f"   Server: Error - {e}")
 
 
 if __name__ == "__main__":

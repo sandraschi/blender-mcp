@@ -17,6 +17,13 @@ from loguru import logger
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
 
+# Import Context from FastMCP for sampling operations
+try:
+    from fastmcp.types import Context
+except ImportError:
+    # Fallback for different FastMCP versions
+    from typing import Any as Context
+
 
 class ConstructObjectParams(BaseModel):
     """Parameters for universal object construction using LLM-generated Blender scripts."""
