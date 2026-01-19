@@ -46,50 +46,108 @@ def _register_rigging_tools():
         auto_rename: bool = True,
     ) -> str:
         """
-        Create and manage armatures and character rigging.
+        PORTMANTEAU PATTERN RATIONALE:
+        Consolidates 11 related rigging operations into single interface. Prevents tool explosion while maintaining
+        full character rigging workflow from armature creation to humanoid mapping. Follows FastMCP 2.14.3 best practices.
 
-        Supports multiple operations through the operation parameter:
-        - create_armature: Create a new armature object
-        - add_bone: Add a bone to an existing armature
-        - create_bone_ik: Create inverse kinematics constraint
-        - create_basic_rig: Create basic biped rig
-        - list_bones: List all bones in an armature (useful for VRM models)
-        - pose_bone: Set bone rotation/location in pose mode
-        - set_bone_keyframe: Insert keyframe for bone pose
-        - reset_pose: Reset armature to rest position
-        - transfer_weights: Transfer vertex weights between meshes
-        - manage_vertex_groups: Create/rename/mirror/remove vertex groups
-        - humanoid_mapping: Apply VRChat/Unity humanoid bone mapping
+        Complete character rigging system for Blender supporting armatures, bones, IK, skinning, and humanoid standards.
+
+        **Armature Operations (4 operations):**
+        - **create_armature**: Generate new skeleton object with customizable positioning
+        - **add_bone**: Add individual bones to existing armature with parent/child relationships
+        - **create_bone_ik**: Set up inverse kinematics constraints for realistic joint movement
+        - **create_basic_rig**: Auto-generate complete biped character rig with standard bone structure
+
+        **Bone Management (3 operations):**
+        - **list_bones**: Display all bones in armature with hierarchy and properties
+        - **pose_bone**: Set bone transformations in pose mode for animation
+        - **set_bone_keyframe**: Insert keyframes for bone animation at specific frames
+
+        **Pose & Animation (1 operation):**
+        - **reset_pose**: Return armature to rest pose, clearing all pose transformations
+
+        **Skinning & Weights (2 operations):**
+        - **transfer_weights**: Copy vertex weights between meshes using various projection methods
+        - **manage_vertex_groups**: Create, rename, mirror, or remove vertex groups for weight painting
+
+        **Standards & Compatibility (1 operation):**
+        - **humanoid_mapping**: Apply VRChat/Unity humanoid bone naming and structure standards
 
         Args:
-            operation: Rigging operation type
-            armature_name: Name of armature to work with
-            bone_name: Name of bone to create/modify/pose
-            location: Position for armature, bone, or pose offset
-            rotation: Rotation in degrees for pose_bone (Euler XYZ)
-            head: Head position for bone creation
-            tail: Tail position for bone creation
-            parent_bone: Parent bone name for hierarchy
-            connected: Connect bone to parent
-            target_bone: Target bone for IK constraints
-            pole_target: Pole target for IK
-            chain_length: Number of bones in IK chain
-            frame: Frame number for keyframing
-            rotation_mode: Euler rotation order (XYZ, ZYX, etc.)
-            source_mesh: Source mesh for weight transfer operations
-            target_mesh: Target mesh for weight transfer operations
-            transfer_method: Method for weight transfer (NEAREST_FACE, RAY_CAST, etc.)
-            max_distance: Maximum distance for weight transfer
-            group_operation: Vertex group operation type (create, rename, mirror, remove, assign)
-            group_name: Name of vertex group for operations
-            source_group: Source vertex group for operations like mirror
-            new_group_name: New name for rename operations
-            vertex_indices: Vertex indices for group assignment
-            mapping_preset: Humanoid mapping preset (VRCHAT, UNITY, BLENDER)
-            auto_rename: Whether to auto-rename bones to standard names
+            operation (str, required): The rigging operation to perform. Must be one of: "create_armature",
+                "add_bone", "create_bone_ik", "create_basic_rig", "list_bones", "pose_bone", "set_bone_keyframe",
+                "reset_pose", "transfer_weights", "manage_vertex_groups", "humanoid_mapping".
+                - Armature operations: "create_armature", "add_bone", "create_bone_ik", "create_basic_rig"
+                - Bone operations: "list_bones", "pose_bone", "set_bone_keyframe"
+                - Pose operations: "reset_pose"
+                - Skinning operations: "transfer_weights", "manage_vertex_groups"
+                - Standards operations: "humanoid_mapping"
+            armature_name (str): Target armature object name. Required for most operations.
+                Must exist in scene for bone operations.
+            bone_name (str): Name of bone to create, modify, or pose. Required for bone-specific operations.
+                Must be unique within armature.
+            location (Tuple[float, float, float]): 3D position coordinates (x, y, z) for armature placement.
+                Default: (0, 0, 0). Used for: "create_armature".
+            rotation (Tuple[float, float, float]): Euler rotation angles in degrees (x, y, z) for bone posing.
+                Default: (0, 0, 0). Used for: "pose_bone". Range: -180 to 180 degrees.
+            head (Tuple[float, float, float]): Starting point coordinates for new bone creation.
+                Required for: "add_bone". Defines bone origin in 3D space.
+            tail (Tuple[float, float, float]): Ending point coordinates for new bone creation.
+                Required for: "add_bone". Defines bone length and direction.
+            parent_bone (str): Name of parent bone for hierarchy. Optional for "add_bone".
+                Creates bone chain when specified.
+            connected (bool): Whether new bone connects directly to parent tail. Default: False.
+                True creates seamless bone chain, False allows bone gaps.
+            target_bone (str): Name of target bone for IK constraint. Required for: "create_bone_ik".
+                Defines which bone the IK chain reaches toward.
+            pole_target (str): Empty object name for IK pole target. Optional for "create_bone_ik".
+                Controls IK chain bending direction for natural joint movement.
+            chain_length (int): Number of bones in IK chain. Default: 2. Range: 1-10.
+                Longer chains provide more flexible but complex IK solutions.
+            frame (int): Timeline frame number for keyframe insertion. Default: 1. Range: 1-10000.
+                Corresponds to animation timeline frames.
+            rotation_mode (str): Euler angle rotation order. One of: "XYZ", "XZY", "YXZ", "YZX", "ZXY", "ZYX".
+                Default: "XYZ". Affects how rotation values are interpreted.
+            source_mesh (str): Source mesh object name for weight transfer. Required for: "transfer_weights".
+                Mesh containing vertex weights to copy from.
+            target_mesh (str): Target mesh object name for weight transfer. Required for: "transfer_weights".
+                Mesh to receive copied vertex weights.
+            transfer_method (str): Weight projection algorithm. One of: "NEAREST_FACE", "RAY_CAST", "NEAREST_VERTEX".
+                Default: "NEAREST_FACE". "RAY_CAST" most accurate but slower.
+            max_distance (float): Maximum transfer distance for weight projection. Default: 0.1.
+                Range: 0.001-10.0. Larger values capture more distant geometry.
+            group_operation (str): Vertex group management operation. One of: "create", "rename", "mirror", "remove", "assign".
+                Required for: "manage_vertex_groups".
+            group_name (str): Target vertex group name. Required for most group operations.
+            source_group (str): Source group name for operations like mirror. Required for: "mirror".
+            new_group_name (str): New name for rename operations. Required for: "rename".
+            vertex_indices (list): List of vertex indices for group assignment. Optional for "assign".
+                Defaults to empty list for manual weight painting.
+            mapping_preset (str): Humanoid bone mapping standard. One of: "VRCHAT", "UNITY", "BLENDER".
+                Default: "VRCHAT". Defines target bone naming convention.
+            auto_rename (bool): Whether to automatically rename bones to standard names. Default: True.
+                False preserves original bone names while adding mapping.
 
         Returns:
-            Success message with rigging details
+            str: Rigging operation result message with success/failure status and details.
+                Format: "SUCCESS: {operation} - {details}" or "ERROR: {operation} failed - {error_details}"
+
+        Raises:
+            ValueError: If operation parameters are invalid or target objects don't exist
+            RuntimeError: If Blender rigging system fails or armature state is invalid
+
+        Examples:
+            Basic armature: blender_rigging("create_armature", armature_name="CharacterRig", location=(0, 0, 1))
+            Add bone: blender_rigging("add_bone", armature_name="CharacterRig", bone_name="UpperArm", head=(0, 0, 1.5), tail=(0, 0, 0.5))
+            IK setup: blender_rigging("create_bone_ik", armature_name="CharacterRig", bone_name="LowerArm", target_bone="Hand", chain_length=2)
+            Weight transfer: blender_rigging("transfer_weights", source_mesh="HighPoly", target_mesh="LowPoly", transfer_method="RAY_CAST")
+            VRChat mapping: blender_rigging("humanoid_mapping", armature_name="CharacterRig", mapping_preset="VRCHAT")
+
+        Note:
+            Armature operations require object mode. Pose operations require pose mode.
+            IK constraints improve animation quality but add computational overhead.
+            Weight transfer quality depends on mesh topology similarity.
+            Humanoid mapping essential for VRChat and Unity character compatibility.
         """
         from loguru import logger
 
@@ -107,7 +165,7 @@ def _register_rigging_tools():
         )
 
         logger.info(
-            f"🦴 blender_rigging called with operation='{operation}', armature_name='{armature_name}'"
+            f"blender_rigging called with operation='{operation}', armature_name='{armature_name}'"
         )
 
         try:
@@ -278,7 +336,7 @@ def _register_rigging_tools():
                 return f"Unknown rigging operation: {operation}. Available: create_armature, add_bone, create_bone_ik, create_basic_rig, list_bones, pose_bone, set_bone_keyframe, reset_pose, transfer_weights, manage_vertex_groups, humanoid_mapping"
 
         except Exception as e:
-            logger.error(f"❌ Error in rigging operation '{operation}': {str(e)}")
+            logger.error(f"ERROR: Error in rigging operation '{operation}': {str(e)}")
             return f"Error in rigging operation '{operation}': {str(e)}"
 
 
@@ -287,7 +345,7 @@ def _format_weight_transfer_result(result: dict) -> str:
     status = result.get("status", "unknown")
 
     if status == "success":
-        report = "✅ **Weight Transfer Complete**\n"
+        report = "SUCCESS: **Weight Transfer Complete**\n"
         report += "=" * 30 + "\n\n"
         report += f"**Source Mesh:** {result.get('source_mesh', 'Unknown')}\n"
         report += f"**Target Mesh:** {result.get('target_mesh', 'Unknown')}\n"
@@ -298,12 +356,12 @@ def _format_weight_transfer_result(result: dict) -> str:
         report += f"{result.get('message', '')}\n"
 
         # Recommendations
-        report += "\n💡 **Next Steps:**\n"
+        report += "\nNext Steps:\n"
         report += "  • Test deformation in pose mode\n"
         report += "  • Adjust weights manually if needed\n"
         report += "  • Run validation checks\n"
     else:
-        report = f"❌ **Weight Transfer Failed**\n{result.get('error', 'Unknown error')}"
+        report = f"ERROR: **Weight Transfer Failed**\n{result.get('error', 'Unknown error')}"
 
     return report
 
@@ -314,7 +372,7 @@ def _format_vertex_group_result(result: dict) -> str:
     operation = result.get("operation", "unknown")
 
     if status == "success":
-        report = f"✅ **Vertex Group Operation: {operation.title()}**\n"
+        report = f"SUCCESS: **Vertex Group Operation: {operation.title()}**\n"
         report += "=" * 35 + "\n\n"
         report += f"**Mesh:** {result.get('mesh_name', 'Unknown')}\n"
         report += f"**Final Groups:** {result.get('final_vertex_groups', 0)}\n\n"
@@ -333,7 +391,7 @@ def _format_vertex_group_result(result: dict) -> str:
 
         report += f"{result.get('message', '')}\n"
     else:
-        report = f"❌ **Vertex Group Operation Failed**\n{result.get('error', 'Unknown error')}"
+        report = f"ERROR: **Vertex Group Operation Failed**\n{result.get('error', 'Unknown error')}"
 
     return report
 
@@ -343,7 +401,7 @@ def _format_humanoid_mapping_result(result: dict) -> str:
     status = result.get("status", "unknown")
 
     if status == "success":
-        report = "✅ **Humanoid Mapping Applied**\n"
+        report = "SUCCESS: **Humanoid Mapping Applied**\n"
         report += "=" * 30 + "\n\n"
         report += f"**Armature:** {result.get('armature_name', 'Unknown')}\n"
         report += f"**Preset:** {result.get('mapping_preset', 'Unknown')}\n"

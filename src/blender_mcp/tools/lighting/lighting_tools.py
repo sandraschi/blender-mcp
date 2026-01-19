@@ -29,32 +29,72 @@ def _register_lighting_tools():
         spot_blend: float = 0.15,
     ) -> str:
         """
-        Create and manage lighting in Blender scenes.
+        PORTMANTEAU PATTERN RATIONALE:
+        Consolidates 7 related lighting operations into single interface. Prevents tool explosion while maintaining
+        full lighting workflow from basic lights to professional HDRI setups. Follows FastMCP 2.14.3 best practices.
 
-        Supports multiple operations through the operation parameter:
-        - create_sun: Create directional sun light
-        - create_point: Create omnidirectional point light
-        - create_spot: Create focused spot light
-        - create_area: Create area light for soft shadows
-        - setup_three_point: Create basic three-point lighting setup
-        - setup_hdri: Set up HDRI environment lighting
-        - adjust_light: Modify existing light properties
+        Professional lighting system for Blender supporting all light types, HDRI environments, and lighting rigs.
+
+        **Light Creation (4 operations):**
+        - **create_sun**: Generate directional sunlight with shadow control for outdoor scenes
+        - **create_point**: Create omnidirectional point light for general illumination
+        - **create_spot**: Generate focused spotlight with beam angle and softness control
+        - **create_area**: Create rectangular area light for soft, realistic shadows
+
+        **Lighting Setups (2 operations):**
+        - **setup_three_point**: Create professional three-point lighting rig (key, fill, rim lights)
+        - **setup_hdri**: Configure HDRI environment lighting with world background
+
+        **Light Management (1 operation):**
+        - **adjust_light**: Modify properties of existing lights (energy, color, position, etc.)
 
         Args:
-            operation: Operation type
-            light_name: Name for the new light
-            light_type: Type of light (SUN, POINT, SPOT, AREA)
-            location: Light position coordinates
-            rotation: Light rotation angles (degrees)
-            energy: Light intensity/energy
-            color: Light color (RGB 0-1)
-            shadow_soft_size: Shadow softness for sun lights
-            size: Size for area lights
-            spot_size: Beam angle for spot lights (degrees)
-            spot_blend: Softness of spot light edge
+            operation (str, required): The lighting operation to perform. Must be one of: "create_sun",
+                "create_point", "create_spot", "create_area", "setup_three_point", "setup_hdri", "adjust_light".
+                - Light creation: "create_*" operations (use: light_name, location, rotation, energy, color + type-specific params)
+                - Lighting setups: "setup_*" operations (use: minimal parameters, auto-position lights)
+                - Light adjustment: "adjust_light" (use: light_name + properties to modify)
+            light_name (str): Name for the new light object. Default: "Light". Must be unique in scene.
+                Required for: all "create_*" and "adjust_light" operations.
+            light_type (str): Type of light for creation operations. One of: "SUN", "POINT", "SPOT", "AREA".
+                Default: "SUN". Auto-detected from operation when possible.
+            location (Tuple[float, float, float]): 3D position coordinates (x, y, z) in world space.
+                Default: (5, 5, 5). Used for: all "create_*" operations.
+            rotation (Tuple[float, float, float]): Rotation angles in degrees (x, y, z) around each axis.
+                Default: (0, 0, 0). Primarily affects: "create_spot" for beam direction.
+            energy (float): Light intensity/energy multiplier. Default: 1.0. Range: 0.0 to 100.0.
+                Higher values = brighter light. Used for: all light creation and adjustment.
+            color (Tuple[float, float, float]): Light color as RGB values. Default: (1, 1, 1) (white).
+                Range: 0.0 to 1.0 per channel. Used for: all light creation and adjustment.
+            shadow_soft_size (float): Shadow softness for sun lights. Default: 0.1. Range: 0.0 to 10.0.
+                Higher values = softer shadows. Only used for: "create_sun".
+            size (float): Physical size of area lights. Default: 1.0. Range: 0.01 to 100.0.
+                Larger sizes = softer, more realistic shadows. Only used for: "create_area".
+            spot_size (float): Beam angle in degrees for spot lights. Default: 45.0. Range: 1.0 to 180.0.
+                Smaller angles = more focused beam. Only used for: "create_spot".
+            spot_blend (float): Edge softness for spot lights. Default: 0.15. Range: 0.0 to 1.0.
+                Higher values = softer beam edges. Only used for: "create_spot".
 
         Returns:
-            Operation result message
+            str: Lighting operation result message with success/failure status and light details.
+                Format: "SUCCESS: {operation} - {light_name} created at {location}" or
+                "ERROR: {operation} failed - {error_details}"
+
+        Raises:
+            ValueError: If operation parameters are invalid or light names conflict
+            RuntimeError: If Blender lighting system fails or scene state is invalid
+
+        Examples:
+            Basic sunlight: blender_lighting("create_sun", light_name="SunLight", energy=2.0, shadow_soft_size=0.5)
+            Studio setup: blender_lighting("setup_three_point", energy=1.5)
+            Colored spot: blender_lighting("create_spot", light_name="Accent", color=(1, 0.5, 0), spot_size=30.0)
+            HDRI environment: blender_lighting("setup_hdri")
+            Light adjustment: blender_lighting("adjust_light", light_name="SunLight", energy=3.0, color=(1, 0.9, 0.8))
+
+        Note:
+            Three-point lighting automatically positions key (45°), fill (-45°), and rim (135°) lights.
+            HDRI setup requires an HDRI image file to be loaded separately.
+            Use blender_camera tools to adjust camera exposure for different lighting conditions.
         """
         from loguru import logger
 
@@ -69,7 +109,7 @@ def _register_lighting_tools():
         )
 
         logger.info(
-            f"💡 blender_lighting called with operation='{operation}', light_name='{light_name}', location={location}"
+            f"blender_lighting called with operation='{operation}', light_name='{light_name}', location={location}"
         )
 
         try:
@@ -159,7 +199,7 @@ def _register_lighting_tools():
                 return f"Unknown operation: {operation}"
 
         except Exception as e:
-            logger.error(f"❌ Error in lighting operation '{operation}': {str(e)}")
+            logger.error(f"ERROR: Error in lighting operation '{operation}': {str(e)}")
             return f"Error in lighting operation '{operation}': {str(e)}"
 
 
