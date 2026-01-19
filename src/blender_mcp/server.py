@@ -1,4 +1,4 @@
-"""Blender MCP Server - FastMCP 2.12 implementation with modular architecture.
+"""Blender MCP Server - FastMCP 2.14.3 implementation with modular architecture.
 
 This module provides the main entry point for the Blender MCP server, which exposes
 various Blender operations as FastMCP tools using the decorator pattern.

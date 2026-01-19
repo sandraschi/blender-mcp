@@ -1,9 +1,9 @@
 [package]
-name = "Blender3DModeling"
+name = "blender-mcp-zed-extension"
 version = "0.1.0"
 edition = "2021"
-authors = ["Sandra <sandraschipal@hotmail.com>"]
-description = "Zed extension bridge for Blender3DModeling MCP server"
+authors = ["Sandra Schipal <sandraschipal@gmail.com>"]
+description = "Zed extension bridge for Blender MCP server"
 
 [lib]
 crate-type = ["cdylib"]
