@@ -169,13 +169,13 @@ def install_claude_config():
     with open(config_file, 'w') as f:
         json.dump(config, f, indent=2)
 
-    logger.info("Claude Desktop configuration installed!")
-    logger.info(f"Config file: {config_file}")
-    logger.info("Restart Claude Desktop to load the new MCP server")
-    logger.info("")
-    logger.info("To verify installation:")
-    logger.info("1. Open Claude Desktop")
-    logger.info("2. Ask: 'What Blender operations can you perform?'")
+    print("✅ Claude Desktop configuration installed!")
+    print(f"📁 Config file: {config_file}")
+    print("🔄 Restart Claude Desktop to load the new MCP server")
+    print()
+    print("To verify installation:")
+    print("1. Open Claude Desktop")
+    print("2. Ask: 'What Blender operations can you perform?'")
 
 
 def check_blender_installation():
@@ -183,12 +183,12 @@ def check_blender_installation():
     import subprocess
     import shutil
 
-    logger.info("Checking Blender installation...")
+    print("🔍 Checking Blender installation...")
 
     # Check if blender command is available
     blender_path = shutil.which("blender")
     if blender_path:
-        logger.info(f"Blender found at: {blender_path}")
+        print(f"✅ Blender found at: {blender_path}")
 
         # Try to get version
         try:
@@ -202,37 +202,37 @@ def check_blender_installation():
             if result.returncode == 0:
                 # Extract version from first line
                 version_line = result.stdout.strip().split('\n')[0]
-                logger.info(f"{version_line}")
+                print(f"📦 {version_line}")
 
                 # Check if version is compatible
                 if "Blender 3." in version_line or "Blender 4." in version_line:
-                    logger.info("Compatible version detected")
+                    print("✅ Compatible version detected")
                 else:
-                    logger.warning("Version might not be fully compatible (recommended: 3.0+)")
+                    print("⚠️  Version might not be fully compatible (recommended: 3.0+)")
             else:
-                logger.warning("Could not determine Blender version")
+                print("⚠️  Could not determine Blender version")
 
         except subprocess.TimeoutExpired:
-            logger.warning("Blender command timed out")
+            print("⚠️  Blender command timed out")
         except Exception as e:
-            logger.warning(f"Error checking version: {e}")
+            print(f"⚠️  Error checking version: {e}")
     else:
-        logger.error("Blender not found in PATH")
-        logger.info("")
-        logger.info("To install Blender:")
-        logger.info("1. Download from: https://www.blender.org/download/")
-        logger.info("2. Add Blender to your system PATH")
-        logger.info("3. Or set BLENDER_PATH environment variable")
+        print("❌ Blender not found in PATH")
+        print()
+        print("To install Blender:")
+        print("1. Download from: https://www.blender.org/download/")
+        print("2. Add Blender to your system PATH")
+        print("3. Or set BLENDER_PATH environment variable")
 
     # Check Python integration
     try:
         import bpy
-        logger.info("Blender Python API (bpy) available")
+        print("✅ Blender Python API (bpy) available")
     except ImportError:
-        logger.info("Blender Python API not available (normal for external MCP usage)")
+        print("ℹ️  Blender Python API not available (normal for external MCP usage)")
 
-    logger.info("")
-    logger.info("Blender MCP is ready to use with external Blender installations!")
+    print()
+    print("🎯 Blender MCP is ready to use with external Blender installations!")
 
 
 if __name__ == "__main__":

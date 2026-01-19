@@ -62,9 +62,12 @@ def validate_config(config: dict) -> None:
             raise ValueError(f"Blender executable not found at: {config['blender_executable']}")
 
 
-# Log the Blender executable being used
+# Log the Blender executable being used - use stderr to avoid Claude Desktop JSON parsing issues
 if not validate_blender_executable():
-    logger.warning(f"Blender executable not found at: {BLENDER_EXECUTABLE}")
-    logger.warning("Please set the BLENDER_EXECUTABLE environment variable to the correct path.")
+    print(f"WARNING: Blender executable not found at: {BLENDER_EXECUTABLE}", file=sys.stderr)
+    print(
+        "Please set the BLENDER_EXECUTABLE environment variable to the correct path.",
+        file=sys.stderr,
+    )
 else:
-    logger.info(f"Using Blender executable: {BLENDER_EXECUTABLE}")
+    print(f"Using Blender executable: {BLENDER_EXECUTABLE}", file=sys.stderr)
