@@ -426,18 +426,18 @@ class HelpSystem:
             )
         )
 
-        # Model Repository Tools
+        # Object Repository Tools
         self._add_function(
             FunctionInfo(
-                name="save_model_to_repository",
-                category="Model Repository",
+                name="save_object_to_repository",
+                category="Object Repository",
                 description="Save Blender objects to version-controlled repository with rich metadata and construction scripts.",
                 parameters=[
                     ParameterInfo(
                         "object_name", "str", required=True, description="Name of Blender object to save"
                     ),
                     ParameterInfo(
-                        "model_name", "str", required=True, description="Display name for the saved model"
+                        "object_name_display", "str", required=True, description="Display name for the saved object"
                     ),
                     ParameterInfo(
                         "description", "str", "", "Detailed description of the model"
@@ -458,19 +458,19 @@ class HelpSystem:
                         "public", "bool", "False", "Make model publicly available"
                     ),
                 ],
-                returns="Dict: Repository save results with model ID and metadata",
-                example="save_model_to_repository('RobotCharacter', 'Robbie Robot', 'Classic sci-fi robot', ['robot', 'scifi'], 'character', quality_rating=9)",
+                returns="Dict: Repository save results with object ID and metadata",
+                example="save_object_to_repository('RobotCharacter', 'Robbie Robot', 'Classic sci-fi robot', ['robot', 'scifi'], 'character', quality_rating=9)",
             )
         )
 
         self._add_function(
             FunctionInfo(
-                name="load_model_from_repository",
-                category="Model Repository",
-                description="Load models from repository into current scene with positioning and scaling controls.",
+                name="load_object_from_repository",
+                category="Object Repository",
+                description="Load objects from repository into current scene with positioning and scaling controls.",
                 parameters=[
                     ParameterInfo(
-                        "model_id", "str", required=True, description="ID of model to load"
+                        "object_id", "str", required=True, description="ID of object to load"
                     ),
                     ParameterInfo(
                         "target_name", "str | None", "None", "New name for loaded object"
@@ -486,15 +486,15 @@ class HelpSystem:
                     ),
                 ],
                 returns="Dict: Loading results with object info and scene integration",
-                example="load_model_from_repository('robot-abc123', position=(5, 0, 2), scale=(1.5, 1.5, 1.5))",
+                example="load_object_from_repository('robot-abc123', position=(5, 0, 2), scale=(1.5, 1.5, 1.5))",
             )
         )
 
         self._add_function(
             FunctionInfo(
-                name="search_models_in_repository",
-                category="Model Repository",
-                description="Search and discover models in repository with advanced filtering and discovery.",
+                name="search_objects_in_repository",
+                category="Object Repository",
+                description="Search and discover objects in repository with advanced filtering and discovery.",
                 parameters=[
                     ParameterInfo(
                         "query", "str | None", "None", "Search text for name/description/tags"

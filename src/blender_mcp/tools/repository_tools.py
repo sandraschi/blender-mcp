@@ -1,8 +1,8 @@
 """
-Blender Model Repository tools for MCP.
+Blender Object Repository tools for MCP.
 
-Provides comprehensive model repository management including saving, loading, versioning,
-sharing, and organizing Blender models and construction scripts.
+Provides comprehensive object repository management including saving, loading, versioning,
+sharing, and organizing Blender objects and construction scripts.
 """
 
 import json
@@ -20,8 +20,8 @@ from blender_mcp.app import get_app
 from blender_mcp.compat import *
 
 
-class ModelMetadata(BaseModel):
-    """Metadata for a stored Blender model."""
+class ObjectMetadata(BaseModel):
+    """Metadata for a stored Blender object."""
 
     id: str
     name: str
@@ -39,7 +39,7 @@ class ModelMetadata(BaseModel):
     estimated_quality: int  # 1-10 scale
     category: str
     license: str = "MIT"
-    dependencies: List[str] = []  # Other model IDs this depends on
+    dependencies: List[str] = []  # Other object IDs this depends on
 
 
 class RepositoryConfig(BaseModel):
@@ -51,16 +51,16 @@ class RepositoryConfig(BaseModel):
     compression_enabled: bool = True
 
 
-class SaveModelParams(BaseModel):
-    """Parameters for saving a model to repository."""
+class SaveObjectParams(BaseModel):
+    """Parameters for saving an object to repository."""
 
     object_name: str = Field(
         ...,
         description="Name of the Blender object to save"
     )
-    model_name: str = Field(
+    object_name_display: str = Field(
         ...,
-        description="Display name for the saved model"
+        description="Display name for the saved object"
     )
     description: str = Field(
         "",
@@ -88,12 +88,12 @@ class SaveModelParams(BaseModel):
     )
 
 
-class LoadModelParams(BaseModel):
-    """Parameters for loading a model from repository."""
+class LoadObjectParams(BaseModel):
+    """Parameters for loading an object from repository."""
 
-    model_id: str = Field(
+    object_id: str = Field(
         ...,
-        description="ID of the model to load"
+        description="ID of the object to load"
     )
     target_name: Optional[str] = Field(
         None,
@@ -113,8 +113,8 @@ class LoadModelParams(BaseModel):
     )
 
 
-class SearchModelsParams(BaseModel):
-    """Parameters for searching models in repository."""
+class SearchObjectsParams(BaseModel):
+    """Parameters for searching objects in repository."""
 
     query: Optional[str] = Field(
         None,
@@ -151,9 +151,9 @@ def _register_repository_tools():
     app = get_app()
 
     @app.tool
-    async def save_model_to_repository(
+    async def save_object_to_repository(
         object_name: str = "",
-        model_name: str = "",
+        object_name_display: str = "",
         description: str = "",
         tags: List[str] = None,
         category: str = "general",
@@ -218,8 +218,8 @@ def _register_repository_tools():
             Quality ratings help users find the best models for their needs.
         """
         try:
-            if not object_name or not model_name:
-                raise ValueError("object_name and model_name are required")
+            if not object_name or not object_name_display:
+                raise ValueError("object_name and object_name_display are required")
 
             if tags is None:
                 tags = []
@@ -240,24 +240,24 @@ def _register_repository_tools():
                     "next_steps": ["Check object name spelling", "Ensure object exists in scene"]
                 }
 
-            # Generate model ID
-            model_id = _generate_model_id(model_name, object_name)
+            # Generate object ID
+            object_id = _generate_object_id(object_name_display, object_name)
 
-            # Create model directory
-            model_dir = repo_path / model_id
+            # Create object directory
+            object_dir = repo_path / object_id
             model_dir.mkdir(exist_ok=True)
 
             # Determine version
-            version = await _get_next_version(model_dir)
+            version = await _get_next_version(object_dir)
 
             # Get or create construction script
             if not construction_script:
                 construction_script = await _extract_construction_script(object_name)
 
             # Create metadata
-            metadata = ModelMetadata(
-                id=model_id,
-                name=model_name,
+            metadata = ObjectMetadata(
+                id=object_id,
+                name=object_name_display,
                 description=description,
                 author="user",  # Could be configurable
                 version=version,
@@ -277,7 +277,7 @@ def _register_repository_tools():
 
             # Export Blender object
             export_result = await _export_blender_object(
-                object_name, model_dir / f"model_{version}.blend"
+                object_name, object_dir / f"object_{version}.blend"
             )
 
             if not export_result["success"]:
@@ -288,12 +288,12 @@ def _register_repository_tools():
                 }
 
             # Save metadata
-            metadata_file = model_dir / "metadata.json"
+            metadata_file = object_dir / "metadata.json"
             with open(metadata_file, 'w') as f:
                 json.dump(metadata.dict(), f, indent=2)
 
             # Save construction script
-            script_file = model_dir / f"script_{version}.py"
+            script_file = object_dir / f"script_{version}.py"
             with open(script_file, 'w') as f:
                 f.write(construction_script)
 
@@ -302,14 +302,14 @@ def _register_repository_tools():
 
             return {
                 "success": True,
-                "model_id": model_id,
+                "object_id": object_id,
                 "version": version,
-                "path": str(model_dir),
+                "path": str(object_dir),
                 "metadata": metadata.dict(),
                 "message": f"Successfully saved '{model_name}' (v{version}) to repository",
                 "next_steps": [
-                    f"Use load_model_from_repository('{model_id}') to reuse this model",
-                    f"Share model_id '{model_id}' with others",
+                    f"Use load_object_from_repository('{object_id}') to reuse this object",
+                    f"Share object_id '{object_id}' with others",
                     "Consider updating quality rating after testing"
                 ]
             }
@@ -323,8 +323,8 @@ def _register_repository_tools():
             }
 
     @app.tool
-    async def load_model_from_repository(
-        model_id: str = "",
+    async def load_object_from_repository(
+        object_id: str = "",
         target_name: Optional[str] = None,
         position: Tuple[float, float, float] = (0, 0, 0),
         scale: Tuple[float, float, float] = (1, 1, 1),
@@ -332,20 +332,20 @@ def _register_repository_tools():
     ) -> Dict[str, Any]:
         """
         PORTMANTEAU PATTERN RATIONALE:
-        Consolidates model loading, versioning, and scene integration into single repository interface.
-        Prevents tool explosion while enabling seamless model reuse across projects. Follows FastMCP 2.14.3 best practices.
+        Consolidates object loading, versioning, and scene integration into single repository interface.
+        Prevents tool explosion while enabling seamless object reuse across projects. Follows FastMCP 2.14.3 best practices.
 
-        Load a model from the repository into the current Blender scene.
+        Load an object from the repository into the current Blender scene.
 
         **Loading Features:**
         - **Version Selection**: Load specific versions or latest
-        - **Transform Control**: Position, scale, and orient loaded models
+        - **Transform Control**: Position, scale, and orient loaded objects
         - **Name Management**: Automatic renaming to avoid conflicts
         - **Dependency Resolution**: Automatically load required dependencies
         - **Scene Integration**: Proper material and texture linking
 
         Args:
-            model_id (str, required): ID of the model to load from repository
+            object_id (str, required): ID of the object to load from repository
             target_name (str | None): New name for loaded object (auto-generated if not provided)
             position (Tuple[float, float, float]): World position to place the loaded object
             scale (Tuple[float, float, float]): Scale factors to apply to the loaded object
@@ -355,51 +355,51 @@ def _register_repository_tools():
             Dict[str, Any]: Loading operation results with object info and scene integration details
 
         Examples:
-            Basic load: load_model_from_repository("robot-abc123")
-            Positioned load: load_model_from_repository("building-def456", position=(10, 0, 5), scale=(2, 2, 2))
+            Basic load: load_object_from_repository("robot-abc123")
+            Positioned load: load_object_from_repository("building-def456", position=(10, 0, 5), scale=(2, 2, 2))
 
         Note:
-            Models maintain all materials, textures, and rigging when loaded.
+            Objects maintain all materials, textures, and rigging when loaded.
             Dependencies are automatically resolved and loaded.
         """
         try:
-            if not model_id:
-                raise ValueError("model_id is required")
+            if not object_id:
+                raise ValueError("object_id is required")
 
             config = RepositoryConfig()
-            model_dir = Path(config.base_path) / model_id
+            object_dir = Path(config.base_path) / object_id
 
-            if not model_dir.exists():
+            if not object_dir.exists():
                 return {
                     "success": False,
-                    "message": f"Model '{model_id}' not found in repository",
-                    "next_steps": ["Check model ID spelling", "Use search_models_in_repository() to find models"]
+                    "message": f"Object '{object_id}' not found in repository",
+                    "next_steps": ["Check object ID spelling", "Use search_objects_in_repository() to find objects"]
                 }
 
             # Load metadata
-            metadata_file = model_dir / "metadata.json"
+            metadata_file = object_dir / "metadata.json"
             if not metadata_file.exists():
                 return {
                     "success": False,
-                    "message": f"Model metadata not found for '{model_id}'",
-                    "next_steps": ["Model may be corrupted", "Contact repository administrator"]
+                    "message": f"Object metadata not found for '{object_id}'",
+                    "next_steps": ["Object may be corrupted", "Contact repository administrator"]
                 }
 
             with open(metadata_file) as f:
                 metadata_dict = json.load(f)
-                metadata = ModelMetadata(**metadata_dict)
+                metadata = ObjectMetadata(**metadata_dict)
 
             # Determine version to load
             if not version:
                 version = metadata.version
             elif version != metadata.version:
                 # Check if specific version exists
-                version_file = model_dir / f"model_{version}.blend"
+                version_file = object_dir / f"object_{version}.blend"
                 if not version_file.exists():
                     return {
                         "success": False,
-                        "message": f"Version '{version}' not found for model '{model_id}'",
-                        "available_versions": await _get_available_versions(model_dir),
+                        "message": f"Version '{version}' not found for object '{object_id}'",
+                        "available_versions": await _get_available_versions(object_dir),
                         "next_steps": ["Use latest version or check available versions"]
                     }
 
@@ -410,7 +410,7 @@ def _register_repository_tools():
                 target_name = await _ensure_unique_name(target_name)
 
             # Import Blender file
-            blend_file = model_dir / f"model_{version}.blend"
+            blend_file = object_dir / f"object_{version}.blend"
             import_result = await _import_blender_file(
                 str(blend_file), target_name, position, scale
             )
@@ -418,20 +418,20 @@ def _register_repository_tools():
             if not import_result["success"]:
                 return {
                     "success": False,
-                    "message": f"Failed to import model: {import_result['error']}",
+                    "message": f"Failed to import object: {import_result['error']}",
                     "next_steps": ["Check Blender file integrity", "Try different version"]
                 }
 
             return {
                 "success": True,
-                "model_id": model_id,
+                "object_id": object_id,
                 "version_loaded": version,
                 "object_name": target_name,
                 "objects_created": import_result.get("objects_created", []),
                 "metadata": metadata.dict(),
                 "message": f"Successfully loaded '{metadata.name}' (v{version}) as '{target_name}'",
                 "next_steps": [
-                    f"Use modify_object('{target_name}') to customize the loaded model",
+                    f"Use modify_object('{target_name}') to customize the loaded object",
                     f"Apply blender_lighting setup for better presentation",
                     f"Consider blender_render for preview"
                 ]
@@ -446,7 +446,7 @@ def _register_repository_tools():
             }
 
     @app.tool
-    async def search_models_in_repository(
+    async def search_objects_in_repository(
         query: Optional[str] = None,
         category: Optional[str] = None,
         tags: Optional[List[str]] = None,
@@ -456,32 +456,32 @@ def _register_repository_tools():
         limit: int = 20
     ) -> Dict[str, Any]:
         """
-        Search and discover models in the repository with advanced filtering.
+        Search and discover objects in the repository with advanced filtering.
 
         **Search Capabilities:**
         - **Text Search**: Name, description, and tags
         - **Category Filtering**: Architecture, character, vehicle, etc.
-        - **Tag-based Discovery**: Find models by specific tags
-        - **Quality Filtering**: Find high-quality models
-        - **Author Search**: Find models by creator
+        - **Tag-based Discovery**: Find objects by specific tags
+        - **Quality Filtering**: Find high-quality objects
+        - **Author Search**: Find objects by creator
         - **Complexity Matching**: Match project complexity needs
 
         Args:
             query (str | None): Search text for name/description/tags
             category (str | None): Filter by category
-            tags (List[str] | None): Required tags (model must have all)
+            tags (List[str] | None): Required tags (object must have all)
             author (str | None): Filter by author
             min_quality (int | None): Minimum quality rating (1-10)
             complexity (str | None): Filter by complexity (simple/standard/complex)
             limit (int): Maximum results to return
 
         Returns:
-            Dict with search results and model summaries
+            Dict with search results and object summaries
 
         Examples:
-            Text search: search_models_in_repository("robot")
-            Category filter: search_models_in_repository(category="character")
-            Quality filter: search_models_in_repository(min_quality=8)
+            Text search: search_objects_in_repository("robot")
+            Category filter: search_objects_in_repository(category="character")
+            Quality filter: search_objects_in_repository(min_quality=8)
         """
         try:
             config = RepositoryConfig()
@@ -490,7 +490,7 @@ def _register_repository_tools():
             if not index_file.exists():
                 return {
                     "success": False,
-                    "message": "Repository index not found. No models have been saved yet.",
+                    "message": "Repository index not found. No objects have been saved yet.",
                     "results": [],
                     "total_count": 0
                 }
@@ -627,7 +627,7 @@ def _register_repository_tools():
                     "message": f"No construction script found for '{object_name}'",
                     "next_steps": [
                         "Use construct_object to recreate the object",
-                        "Save object to repository first with save_model_to_repository",
+                        "Save object to repository first with save_object_to_repository",
                         "Manually describe the object for construct_object"
                     ]
                 }
@@ -702,11 +702,11 @@ Return ONLY the complete, executable Python script that will modify the existing
                         "validation_results": validation.dict(),
                         "changes_made": execution_result.get("changes_summary", []),
                         "message": f"Successfully modified '{object_name}' with: {modification_description}",
-                        "next_steps": [
-                            f"Use save_model_to_repository('{object_name}') to save the improved version",
-                            f"Use blender_render to preview the modifications",
-                            f"Apply additional modifications if needed"
-                        ]
+                "next_steps": [
+                    f"Use save_object_to_repository('{object_name}') to save the improved version",
+                    f"Use blender_render to preview the modifications",
+                    f"Apply additional modifications if needed"
+                ]
                     }
                 else:
                     return {
@@ -750,9 +750,9 @@ async def _get_object_info(object_name: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def _generate_model_id(model_name: str, object_name: str) -> str:
-    """Generate a unique model ID."""
-    content = f"{model_name}:{object_name}:{datetime.now().isoformat()}"
+def _generate_object_id(object_name_display: str, object_name: str) -> str:
+    """Generate a unique object ID."""
+    content = f"{object_name_display}:{object_name}:{datetime.now().isoformat()}"
     return hashlib.md5(content.encode()).hexdigest()[:16]
 
 

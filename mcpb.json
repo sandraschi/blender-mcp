@@ -390,19 +390,19 @@
       "category": "AI Construction"
     },
     {
-      "name": "save_model_to_repository",
-      "description": "Save Blender objects to version-controlled model repository with metadata",
-      "category": "Model Repository"
+      "name": "save_object_to_repository",
+      "description": "Save Blender objects to version-controlled object repository with metadata",
+      "category": "Object Repository"
     },
     {
-      "name": "load_model_from_repository",
-      "description": "Load models from repository into current scene with transform controls",
-      "category": "Model Repository"
+      "name": "load_object_from_repository",
+      "description": "Load objects from repository into current scene with transform controls",
+      "category": "Object Repository"
     },
     {
-      "name": "search_models_in_repository",
-      "description": "Search and discover models in repository with advanced filtering",
-      "category": "Model Repository"
+      "name": "search_objects_in_repository",
+      "description": "Search and discover objects in repository with advanced filtering",
+      "category": "Object Repository"
     },
     {
       "name": "modify_object",
