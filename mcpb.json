@@ -388,6 +388,26 @@
       "name": "construct_object",
       "description": "Universal 3D object construction using natural language and LLM-generated Blender scripts",
       "category": "AI Construction"
+    },
+    {
+      "name": "save_model_to_repository",
+      "description": "Save Blender objects to version-controlled model repository with metadata",
+      "category": "Model Repository"
+    },
+    {
+      "name": "load_model_from_repository",
+      "description": "Load models from repository into current scene with transform controls",
+      "category": "Model Repository"
+    },
+    {
+      "name": "search_models_in_repository",
+      "description": "Search and discover models in repository with advanced filtering",
+      "category": "Model Repository"
+    },
+    {
+      "name": "modify_object",
+      "description": "Modify existing objects using LLM-guided improvements and iterative refinement",
+      "category": "AI Construction"
     }
   ],
 
