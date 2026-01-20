@@ -13,13 +13,13 @@
   <img src="https://img.shields.io/github/watchers/sandraschi/blender-mcp?style=social" alt="GitHub watchers"/>
 </p>
 
-## 🚀 **"Create 3D Scenes with Chat" - The Future of 3D Design**
+## 🚀 **"Create 3D Scenes with Chat"**
 
-**Transform natural language into 3D masterpieces.** Tell Claude "create a steampunk robot with glowing red eyes" and watch it build your vision in Blender automatically.
+**Transform natural language into 3D objects.** Tell Claude "create a steampunk robot with glowing red eyes" and watch it build your vision in Blender automatically.
 
-## 🔥 **REVOLUTIONARY AI CONSTRUCTION SYSTEM** ⭐ *NEW*
+## 🤖 **AI Construction System**
 
-**The world's first conversational 3D creation platform** - Natural language to professional 3D objects in minutes, not hours.
+**Conversational 3D creation platform** - Natural language to professional 3D objects in minutes, not hours.
 
 ### 🎨 **AI Construction Pipeline**
 ```
@@ -29,35 +29,35 @@ Describe Object → LLM Generates Script → Security Validation → Blender Exe
 **Example:** `"Create a cyberpunk motorcycle with neon lights"`
 - **AI Analysis**: Understands design requirements and style cues
 - **Script Generation**: Produces production-ready Blender Python code
-- **Smart Validation**: Security scoring and syntax verification
+- **Validation**: Security scoring and syntax verification
 - **Safe Execution**: Sandboxed Blender environment
 - **Refinement**: Automatic improvement cycles if needed
 
-### 🤖 **Advanced AI Features**
-- **Complexity Levels**: Simple primitives → Complex rigged characters
+### 🤖 **AI Features**
+- **Complexity Levels**: Simple primitives to complex rigged characters
 - **Style Presets**: Realistic, Stylized, Lowpoly, SciFi
 - **Iterative Refinement**: Conversational improvement cycles
 - **Reference Objects**: Style consistency from existing assets
 - **Object Repository**: Versioned asset management and search
 
-**By FlowEngineer sandraschi** | ⭐ **Star this repo** if you want AI to revolutionize 3D creation!
+**By FlowEngineer sandraschi**
 
 ---
 
-## 🎯 **What Makes This Revolutionary?**
+## 🎯 **Key Features**
 
-### ✨ **AI + Blender = Instant 3D Creation**
-- **🎨 Describe, Don't Model**: "A cyberpunk cityscape at sunset" → Full 3D scene in minutes
-- **🤖 Claude Desktop Integration**: Chat your way to 3D masterpieces
-- **⚡ Batch Processing**: Generate 50 variations of your character design automatically
-- **🎭 VRM Avatar Support**: Perfect for VTuber, VRChat, and character animation
+### ✨ **AI + Blender = 3D Creation**
+- **Natural Language Input**: "A cyberpunk cityscape at sunset" → 3D scene in minutes
+- **Claude Desktop Integration**: Chat interface for 3D creation
+- **Batch Processing**: Generate multiple variations automatically
+- **VRM Avatar Support**: Compatible with VTuber and VRChat platforms
 
-### 🚀 **Advanced AI Construction System** ⭐ *GAME-CHANGER*
-- **🗣️ Natural Language Processing**: Conversational 3D creation with contextual understanding
-- **🧠 LLM Script Generation**: SOTA AI produces production-ready Blender Python code
-- **🛡️ Enterprise Security**: Multi-layer validation, sandboxing, and error containment
-- **🔄 Iterative Refinement**: Automatic improvement cycles with conversational feedback
-- **📚 Object Repository**: Intelligent asset management with search and versioning
+### 🤖 **AI Construction System**
+- **Natural Language Processing**: Contextual understanding of design requirements
+- **LLM Script Generation**: AI-generated Blender Python code
+- **Security Validation**: Multi-layer validation and sandboxing
+- **Iterative Refinement**: Conversational improvement cycles
+- **Asset Repository**: Versioned management with search capabilities
 
 ### 🔥 **Real-World Use Cases**
 - **🎮 Game Developers**: "Design modular dungeon pieces" → Instant asset library
@@ -89,9 +89,9 @@ Claude: "I'll analyze the description and generate optimized Blender Python code
 → Total: 5 minutes of conversation
 ```
 
-**Result: 95% time savings + infinite creative possibilities + professional quality**
+**Result: Significant time savings with professional quality output**
 
-### 🎨 **AI Construction Examples**
+### **AI Construction Examples**
 - **`"A robot like Robbie from Forbidden Planet"`** → Complete sci-fi character with rigging
 - **`"Modern office building with glass facade"`** → Architectural visualization ready for clients
 - **`"Fantasy creature with glowing magical effects"`** → Detailed character with particle systems
@@ -347,13 +347,12 @@ Claude: "I'll generate a detailed spaceship model with animated neon lighting...
 
 **Built with FastMCP 2.13+ standards:**
 - ✅ **40 Professional Tools** - Comprehensive Blender control
-- ✅ **150+ Operations** - Everything you need for 3D creation
-- ✅ **Advanced VR Avatar Pipeline** - Complete VRChat/Resonite workflows
-- ✅ **Gaussian Splatting Support** - Hybrid environment creation
-- ✅ **VRM Avatar Support** - Full character animation workflow
+- ✅ **150+ Operations** - Complete 3D creation workflow
+- ✅ **Advanced VR Avatar Pipeline** - VRChat/Resonite compatibility
+- ✅ **VRM Avatar Support** - Character animation workflow
 - ✅ **Batch Processing** - Generate multiple variations automatically
-- ✅ **REST API** - Integrate with web applications
-- ✅ **Production Ready** - Used in professional pipelines
+- ✅ **REST API** - Web application integration
+- ✅ **Production Ready** - Professional pipeline support
 
 ---
 
@@ -374,22 +373,22 @@ Claude: "I'll generate a detailed spaceship model with animated neon lighting...
 
 ---
 
-## 📊 **Impact & Stats**
+## 📊 **Key Benefits**
 
-- **⚡ 95% Time Savings** - From hours to minutes for 3D creation
-- **🎯 100% AI Accuracy** - No manual modeling errors
-- **🔄 Endless Creativity** - Generate unlimited variations instantly
-- **🌐 Cross-Platform** - Works on Windows, Mac, Linux
-- **💰 Cost Effective** - Free alternative to expensive 3D software subscriptions
+- **Time Savings** - Reduced time for 3D creation workflows
+- **Consistency** - Standardized output quality
+- **Flexibility** - Generate multiple variations efficiently
+- **Cross-Platform** - Compatible with Windows, Mac, Linux
+- **Accessibility** - Makes 3D creation more approachable
 
 ---
 
-## 🎉 **Try It Now**
+## 🎯 **Get Started**
 
-**Ready to revolutionize your 3D workflow?**
+**Ready to enhance your 3D workflow?**
 
-1. ⭐ **Star this repository** (shows your support!)
-2. 📥 **Clone and install** (5-minute setup)
+1. ⭐ **Star this repository**
+2. 📥 **Clone and install** (quick setup)
 3. 🎨 **Start creating** with natural language
 4. 🚀 **Share your creations** with the community
 
@@ -402,9 +401,9 @@ Claude: "I'll generate a detailed spaceship model with animated neon lighting...
 Licensed under MIT - Free for personal and commercial use
 
 **Built with:**
-- 🐍 **FastMCP 2.13+** - Modern MCP server framework
-- 🎨 **Blender API** - Professional 3D creation engine
-- 🤖 **Claude Integration** - AI-powered creativity
+- 🐍 **FastMCP 2.13+** - MCP server framework
+- 🎨 **Blender API** - 3D creation engine
+- 🤖 **Claude Integration** - AI assistance
 - 🌐 **Open Standards** - MCP protocol compliance
 
 ---
