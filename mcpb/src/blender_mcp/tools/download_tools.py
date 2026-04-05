@@ -5,17 +5,17 @@ Provides tools to download files from URLs and import them into Blender scenes.
 Supports models, textures, and other assets with automatic format detection.
 """
 
-from ..compat import *
-
 import os
-import requests
 import tempfile
 from typing import Optional
 from urllib.parse import urlparse
-from loguru import logger
-from ..app import app
-from ..utils.error_handling import MCPError
 
+import requests
+from loguru import logger
+
+from ..app import app
+from ..compat import *
+from ..utils.error_handling import MCPError
 
 # Supported file extensions and their Blender import methods
 SUPPORTED_FORMATS = {

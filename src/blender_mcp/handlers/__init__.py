@@ -107,12 +107,24 @@ from blender_mcp.handlers.uv_handler import get_uv_info, project_from_view, rese
 
 from ..compat import *
 
-# Material handlers - temporarily disabled until FastMCP compatibility is fixed
-# from blender_mcp.handlers.material_handler import (
-#     create_fabric_material,
-#     create_metal_material,
-#     create_wood_material
-# )
+# Material handlers
+from blender_mcp.handlers.material_handler import (
+    create_fabric_material,
+    create_metal_material,
+    create_wood_material,
+)
+
+
+# Scene handlers
+from blender_mcp.handlers.scene_handler import (
+    clear_scene,
+    create_scene,
+    list_scenes,
+    scene_get_hierarchy,
+)
+
+
+
 
 # Other handlers - check what exists
 # try:

@@ -6,11 +6,13 @@ and managing materials in Blender through the MCP interface.
 
 from __future__ import annotations
 
+import logging
 from enum import Enum
-from typing import Any, Dict, Literal, Optional, Tuple, TypeVar, Union
+from typing import Any, Literal, TypeVar
 
-from loguru import logger
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 from ..compat import *
 from ..decorators import blender_operation
@@ -27,9 +29,9 @@ class ShaderOperationResult(BaseModel):
     """Standard response model for shader operations."""
 
     status: Literal["SUCCESS", "ERROR"]
-    message: Optional[str] = None
-    data: Optional[Dict[str, Any]] = None
-    error: Optional[str] = None
+    message: str | None = None
+    data: dict[str, Any] | None = None
+    error: str | None = None
 
     @classmethod
     def success(cls, message: str = None, **data: Any) -> ShaderOperationResult:
@@ -48,7 +50,7 @@ class ShaderOperationResult(BaseModel):
             data={"error_type": error.__class__.__name__} if error else {},
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary, excluding None values."""
         return {k: v for k, v in self.dict().items() if v is not None}
 
@@ -72,7 +74,7 @@ class NodeLocation(BaseModel):
     x: float = 0.0
     y: float = 0.0
 
-    def to_tuple(self) -> Tuple[float, float]:
+    def to_tuple(self) -> tuple[float, float]:
         """Convert to Blender-compatible tuple."""
         return (self.x, self.y)
 
@@ -80,9 +82,9 @@ class NodeLocation(BaseModel):
 @blender_operation("create_shader_node", log_args=True, log_result=True)
 async def create_shader_node(
     material_name: str,
-    node_type: Union[ShaderType, str],
-    node_name: Optional[str] = None,
-    location: Union[NodeLocation, Tuple[float, float]] = (0.0, 0.0),
+    node_type: ShaderType | str,
+    node_name: str | None = None,
+    location: NodeLocation | tuple[float, float] = (0.0, 0.0),
 ) -> ShaderOperationResult:
     """Create a shader node in a material.
 
@@ -110,31 +112,31 @@ def create_shader_node():
     material = bpy.data.materials.get('{material_name}')
     if not material:
         return {{
-            'status': 'ERROR', 
+            'status': 'ERROR',
             'error': 'Material not found',
             'material_name': '{material_name}'
         }}
-    
+
     # Enable use nodes if not already
     material.use_nodes = True
     nodes = material.node_tree.nodes
-    
+
     try:
         # Create the node
         node = nodes.new(type='{node_type_str}')
         if '{node_name}':
             node.name = '{node_name}'
-        
+
         # Set node location
         node.location = {[location.x, location.y]}
-        
+
         # Log node creation
         print(f"🔹 Created node: {{node.name}} ({{node.type}})")
-        
+
         # Set node properties from kwargs
         properties = {json.dumps(properties) if properties else "{}"}
         properties_set = {{}}
-        
+
         for key, value in properties.items():
             if hasattr(node, key):
                 try:
@@ -142,10 +144,10 @@ def create_shader_node():
                     properties_set[key] = value
                 except Exception as e:
                     print(f"⚠️ Could not set {{key}}: {{str(e)}}")
-        
+
         # Update the material
         material.update_tag()
-        
+
         return {{
             'status': 'SUCCESS',
             'node': {{
@@ -156,7 +158,7 @@ def create_shader_node():
             }},
             'material': material.name
         }}
-        
+
     except Exception as e:
         return {{
             'status': 'ERROR',
@@ -254,21 +256,21 @@ def connect_nodes():
             'error': 'Material not found',
             'material': '{material_name}'
         }}
-    
+
     if not material.use_nodes:
         return {{
             'status': 'ERROR',
             'error': 'Material does not use nodes',
             'material': material.name
         }}
-    
+
     node_tree = material.node_tree
     nodes = node_tree.nodes
-    
+
     # Get the nodes
     node_from = nodes.get('{from_node}')
     node_to = nodes.get('{to_node}')
-    
+
     if not node_from or not node_to:
         return {{
             'status': 'ERROR',
@@ -277,21 +279,21 @@ def connect_nodes():
             'to_node': '{to_node}',
             'nodes_found': [n.name for n in nodes if n.name in ('{from_node}', '{to_node}')]
         }}
-    
+
     # Get the output socket from source node
     socket_from = None
     for output in node_from.outputs:
         if output.name == '{from_socket}':
             socket_from = output
             break
-    
+
     # Get the input socket from target node
     socket_to = None
     for input_socket in node_to.inputs:
         if input_socket.name == '{to_socket}':
             socket_to = input_socket
             break
-    
+
     if not socket_from:
         return {{
             'status': 'ERROR',
@@ -299,7 +301,7 @@ def connect_nodes():
             'available_outputs': [s.name for s in node_from.outputs],
             'node_type': node_from.type
         }}
-    
+
     if not socket_to:
         return {{
             'status': 'ERROR',
@@ -307,14 +309,14 @@ def connect_nodes():
             'available_inputs': [s.name for s in node_to.inputs],
             'node_type': node_to.type
         }}
-    
+
     try:
         # Create the connection
         link = node_tree.links.new(socket_from, socket_to)
-        
+
         # Update the material
         material.update_tag()
-        
+
         return {{
             'status': 'SUCCESS',
             'connection': {{
@@ -325,7 +327,7 @@ def connect_nodes():
             }},
             'material': material.name
         }}
-        
+
     except Exception as e:
         return {{
             'status': 'ERROR',
@@ -385,7 +387,7 @@ class MaterialProperties(BaseModel):
     """Properties for creating a new material."""
 
     name: str
-    shader_type: Union[ShaderType, str] = ShaderType.PRINCIPLED_BSDF
+    shader_type: ShaderType | str = ShaderType.PRINCIPLED_BSDF
     use_nodes: bool = True
     clear_nodes: bool = True
     make_node_tree: bool = True
@@ -398,7 +400,7 @@ class MaterialProperties(BaseModel):
 @blender_operation("create_shader_material", log_args=True, log_result=True)
 async def create_shader_material(
     name: str,
-    shader_type: Union[ShaderType, str] = ShaderType.PRINCIPLED_BSDF,
+    shader_type: ShaderType | str = ShaderType.PRINCIPLED_BSDF,
     clear_nodes: bool = True,
     is_grease_pencil: bool = False,
 ) -> ShaderOperationResult:
@@ -427,47 +429,47 @@ def create_material():
             'error': 'Material name must be a non-empty string',
             'name': '{name}'
         }}
-    
+
     # Create or get existing material
     material = bpy.data.materials.get('{name}')
     material_created = not bool(material)
-    
+
     if material_created:
         material = bpy.data.materials.new(name='{name}')
         print(f"✨ Created new material: {{material.name}}")
     else:
         print(f"ℹ️ Using existing material: {{material.name}}")
-    
+
     # Configure material settings
     material.use_nodes = True
     material.is_grease_pencil = {str(is_grease_pencil).lower()}
-    
+
     nodes = material.node_tree.nodes
     links = material.node_tree.links
-    
+
     # Clear existing nodes if requested
     if {str(clear_nodes).lower()} and nodes:
         print(f"🧹 Cleared {{len(nodes)}} existing nodes")
         nodes.clear()
-    
+
     # Create output node if it doesn't exist
     output_node = next((n for n in nodes if n.type == 'OUTPUT_MATERIAL'), None)
     if not output_node:
         output_node = nodes.new(type='ShaderNodeOutputMaterial')
         output_node.location = (400, 0)
         print(f"➕ Created output node: {{output_node.name}}")
-    
+
     # Create shader node
     shader_node = None
     try:
         shader_node = nodes.new(type='{shader_type_str}')
         shader_node.location = (0, 0)
         print(f"🎨 Created shader node: {{shader_node.name}} ({{shader_node.type}})")
-        
+
         # Set shader properties
         properties = {json.dumps(shader_properties) if shader_properties else "{}"}
         properties_set = {{}}
-        
+
         for key, value in properties.items():
             if hasattr(shader_node, key):
                 try:
@@ -476,7 +478,7 @@ def create_material():
                     print(f"   • Set {{key}} = {{value}}")
                 except Exception as e:
                     print(f"⚠️ Could not set {{key}}: {{str(e)}}")
-        
+
         # Connect shader to output if possible
         if shader_node.outputs:
             # Try to find a suitable output socket
@@ -485,7 +487,7 @@ def create_material():
                 if output.type == 'SHADER':
                     output_socket = output
                     break
-            
+
             if output_socket and output_node.inputs:
                 # Try to find a suitable input socket on the output node
                 input_socket = None
@@ -493,14 +495,14 @@ def create_material():
                     if input_sock.type == 'SHADER':
                         input_socket = input_sock
                         break
-                
+
                 if input_socket:
                     links.new(output_socket, input_socket)
                     print(f"🔌 Connected {{shader_node.name}} → {{output_node.name}}")
-        
+
         # Update the material
         material.update_tag()
-        
+
         return {{
             'status': 'SUCCESS',
             'material': {{
@@ -514,7 +516,7 @@ def create_material():
                 }}
             }}
         }}
-        
+
     except Exception as e:
         error_info = {{
             'status': 'ERROR',
@@ -522,13 +524,13 @@ def create_material():
             'material': material.name if material else None,
             'shader_type': '{shader_type_str}'
         }}
-        
+
         if shader_node:
             error_info['shader_node'] = {{
                 'name': shader_node.name,
                 'type': shader_node.type
             }}
-            
+
         return error_info
 
 # Execute and handle errors

@@ -4,11 +4,12 @@ Provides tools for managing VRM-specific metadata including first person offset,
 blink/viseme mappings, spring bone parameters, and other VRM avatar data.
 """
 
+import logging
 from typing import Any, Dict, Optional
 
-from loguru import logger
-
 from ..decorators import blender_operation
+
+logger = logging.getLogger(__name__)
 from ..exceptions import BlenderVRMError
 from ..utils.blender_executor import get_blender_executor
 
@@ -21,7 +22,7 @@ async def set_first_person_offset(
     offset_x: float = 0.0,
     offset_y: float = 0.0,
     offset_z: float = 0.0,
-    target_armature: Optional[str] = None
+    target_armature: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Set the first person camera offset for VRM avatars.
@@ -78,7 +79,7 @@ print("SUCCESS: First person offset configured")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         armature_name = "Unknown"
 
@@ -92,7 +93,7 @@ print("SUCCESS: First person offset configured")
             "status": "success",
             "armature_name": armature_name,
             "first_person_offset": [offset_x, offset_y, offset_z],
-            "message": f"First person offset set to ({offset_x}, {offset_y}, {offset_z}) on {armature_name}"
+            "message": f"First person offset set to ({offset_x}, {offset_y}, {offset_z}) on {armature_name}",
         }
 
     except Exception as e:
@@ -104,7 +105,7 @@ print("SUCCESS: First person offset configured")
 async def setup_blink_viseme_mappings(
     viseme_mappings: Optional[Dict[str, str]] = None,
     blink_shape_key: str = "blink",
-    target_mesh: Optional[str] = None
+    target_mesh: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Configure VRM blink and viseme shape key mappings.
@@ -127,11 +128,11 @@ async def setup_blink_viseme_mappings(
 
     # Default VRM viseme mappings
     default_mappings = {
-        "aa": "A",    # A sound
-        "ih": "I",    # I sound
-        "ou": "U",    # U sound
-        "ee": "E",    # E sound
-        "oh": "O"     # O sound
+        "aa": "A",  # A sound
+        "ih": "I",  # I sound
+        "ou": "U",  # U sound
+        "ee": "E",  # E sound
+        "oh": "O",  # O sound
     }
 
     if viseme_mappings:
@@ -196,7 +197,7 @@ print("SUCCESS: VRM facial mappings configured")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         mesh_name = "Unknown"
         shape_keys_count = 0
@@ -226,13 +227,15 @@ print("SUCCESS: VRM facial mappings configured")
             "blink_shape_key": blink_shape_key,
             "found_visemes": found_visemes,
             "missing_visemes": missing_visemes,
-            "blink_available": blink_found
+            "blink_available": blink_found,
         }
 
         if missing_visemes:
             result["warnings"] = [f"Missing viseme shape keys: {missing_visemes}"]
         if not blink_found:
-            result["warnings"] = result.get("warnings", []) + [f"Blink shape key '{blink_shape_key}' not found"]
+            result["warnings"] = result.get("warnings", []) + [
+                f"Blink shape key '{blink_shape_key}' not found"
+            ]
 
         return result
 
@@ -243,8 +246,7 @@ print("SUCCESS: VRM facial mappings configured")
 
 @blender_operation("configure_spring_bones")
 async def configure_spring_bones(
-    spring_bone_settings: Optional[Dict[str, Any]] = None,
-    target_armature: Optional[str] = None
+    spring_bone_settings: Optional[Dict[str, Any]] = None, target_armature: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Configure VRM spring bone parameters for dynamic hair/cloth physics.
@@ -271,7 +273,7 @@ async def configure_spring_bones(
         "gravity_dir": [0, -1, 0],
         "drag_force": 0.5,
         "hit_radius": 0.02,
-        "enable_collision": True
+        "enable_collision": True,
     }
 
     if spring_bone_settings:
@@ -308,7 +310,7 @@ print("SUCCESS: Spring bone settings configured")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         armature_name = "Unknown"
         spring_settings = default_settings
@@ -323,7 +325,7 @@ print("SUCCESS: Spring bone settings configured")
             "status": "success",
             "armature_name": armature_name,
             "spring_bone_settings": spring_settings,
-            "message": f"Spring bone settings configured on {armature_name}"
+            "message": f"Spring bone settings configured on {armature_name}",
         }
 
     except Exception as e:
@@ -333,8 +335,7 @@ print("SUCCESS: Spring bone settings configured")
 
 @blender_operation("set_vrm_look_at")
 async def set_vrm_look_at(
-    look_at_settings: Optional[Dict[str, Any]] = None,
-    target_armature: Optional[str] = None
+    look_at_settings: Optional[Dict[str, Any]] = None, target_armature: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Configure VRM look-at functionality for eye tracking.
@@ -360,7 +361,7 @@ async def set_vrm_look_at(
         "horizontal_inner": {"curve": [0, 0, 0, 1]},
         "horizontal_outer": {"curve": [0, 1, 1, 1]},
         "vertical_down": {"curve": [0, 0, 0, 1]},
-        "vertical_up": {"curve": [0, 1, 1, 1]}
+        "vertical_up": {"curve": [0, 1, 1, 1]},
     }
 
     if look_at_settings:
@@ -396,7 +397,7 @@ print("SUCCESS: VRM look-at configured")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         armature_name = "Unknown"
 
@@ -410,7 +411,7 @@ print("SUCCESS: VRM look-at configured")
             "status": "success",
             "armature_name": armature_name,
             "look_at_settings": default_settings,
-            "message": f"VRM look-at configured on {armature_name}"
+            "message": f"VRM look-at configured on {armature_name}",
         }
 
     except Exception as e:
@@ -423,7 +424,7 @@ async def export_vrm_metadata(
     output_path: str = "//vrm_metadata.json",
     target_armature: Optional[str] = None,
     include_spring_bones: bool = True,
-    include_look_at: bool = True
+    include_look_at: bool = True,
 ) -> Dict[str, Any]:
     """
     Export VRM metadata for use with VRM exporters.
@@ -503,7 +504,7 @@ print("SUCCESS: VRM metadata exported")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         armature_name = "Unknown"
         metadata_file = output_path
@@ -520,7 +521,7 @@ print("SUCCESS: VRM metadata exported")
             "status": "success",
             "armature_name": armature_name,
             "metadata_file": metadata_file,
-            "message": f"VRM metadata exported to {metadata_file}"
+            "message": f"VRM metadata exported to {metadata_file}",
         }
 
     except Exception as e:

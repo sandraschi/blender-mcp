@@ -5,13 +5,15 @@ Provides tools for managing VRM-specific metadata including first person offset,
 blink/viseme mappings, spring bone parameters, and VRM avatar configuration.
 """
 
+import logging
 from typing import Any, Dict, Literal, Optional
 
-from loguru import logger
+logger = logging.getLogger(__name__)
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -22,8 +24,11 @@ def _register_vrm_metadata_tools():
     @app.tool
     async def blender_vrm_metadata(
         operation: Literal[
-            "set_first_person_offset", "setup_blink_viseme_mappings",
-            "configure_spring_bones", "set_vrm_look_at", "export_vrm_metadata"
+            "set_first_person_offset",
+            "setup_blink_viseme_mappings",
+            "configure_spring_bones",
+            "set_vrm_look_at",
+            "export_vrm_metadata",
         ] = "set_first_person_offset",
         # First person offset params
         offset_x: float = 0.0,
@@ -42,7 +47,7 @@ def _register_vrm_metadata_tools():
         include_look_at: bool = True,
         # Common params
         target_armature: Optional[str] = None,
-        target_mesh: Optional[str] = None
+        target_mesh: Optional[str] = None,
     ) -> str:
         """
         Comprehensive VRM metadata management for avatar configuration.
@@ -74,9 +79,7 @@ def _register_vrm_metadata_tools():
             - blender_vrm_metadata("configure_spring_bones") - Setup hair/cloth physics
             - blender_vrm_metadata("export_vrm_metadata") - Export VRM settings
         """
-        logger.info(
-            f"blender_vrm_metadata called with operation='{operation}'"
-        )
+        logger.info(f"blender_vrm_metadata called with operation='{operation}'")
 
         from blender_mcp.handlers.vrm_metadata_handler import (
             configure_spring_bones,
@@ -92,26 +95,24 @@ def _register_vrm_metadata_tools():
                     offset_x=offset_x,
                     offset_y=offset_y,
                     offset_z=offset_z,
-                    target_armature=target_armature
+                    target_armature=target_armature,
                 )
 
             elif operation == "setup_blink_viseme_mappings":
                 result = await setup_blink_viseme_mappings(
                     viseme_mappings=viseme_mappings,
                     blink_shape_key=blink_shape_key,
-                    target_mesh=target_mesh
+                    target_mesh=target_mesh,
                 )
 
             elif operation == "configure_spring_bones":
                 result = await configure_spring_bones(
-                    spring_bone_settings=spring_bone_settings,
-                    target_armature=target_armature
+                    spring_bone_settings=spring_bone_settings, target_armature=target_armature
                 )
 
             elif operation == "set_vrm_look_at":
                 result = await set_vrm_look_at(
-                    look_at_settings=look_at_settings,
-                    target_armature=target_armature
+                    look_at_settings=look_at_settings, target_armature=target_armature
                 )
 
             elif operation == "export_vrm_metadata":
@@ -119,7 +120,7 @@ def _register_vrm_metadata_tools():
                     output_path=output_path,
                     target_armature=target_armature,
                     include_spring_bones=include_spring_bones,
-                    include_look_at=include_look_at
+                    include_look_at=include_look_at,
                 )
 
             else:
@@ -139,12 +140,7 @@ def _format_vrm_metadata_result(result: dict) -> str:
     operation = result.get("operation", "vrm_metadata")
 
     # Status indicator
-    status_icons = {
-        "success": "✅",
-        "warning": "⚠️",
-        "error": "❌",
-        "info": "ℹ️"
-    }
+    status_icons = {"success": "✅", "warning": "⚠️", "error": "❌", "info": "ℹ️"}
     status_icon = status_icons.get(status, "❓")
 
     report = f"{status_icon} **VRM Metadata Operation Result**\n"

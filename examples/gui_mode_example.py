@@ -7,6 +7,7 @@ debugging 3D scenes.
 """
 
 import asyncio
+
 from blender_mcp.utils.blender_executor import get_blender_executor
 
 
@@ -172,6 +173,3 @@ if __name__ == "__main__":
     else:
         print("Invalid choice. Running animation example...")
         asyncio.run(create_animated_scene())
-
-
-

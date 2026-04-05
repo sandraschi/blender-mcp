@@ -1,11 +1,12 @@
 """Selection operations handler for Blender MCP."""
 
+import logging
 from enum import Enum
 from typing import Any, Dict, List, Union
 
-from loguru import logger
-
 from ..decorators import blender_operation
+
+logger = logging.getLogger(__name__)
 from ..utils.blender_executor import get_blender_executor
 
 _executor = get_blender_executor()
@@ -70,11 +71,11 @@ def select_objects():
     # Store current selection state
     prev_selection = [obj.name for obj in bpy.context.selected_objects]
     prev_active = bpy.context.active_object.name if bpy.context.active_object else None
-    
+
     # Deselect all if needed
     if {str(deselect_others).lower()} and '{mode}' == 'REPLACE':
         bpy.ops.object.select_all(action='DESELECT')
-    
+
     # Select objects based on mode
     selected = []
     for name in {object_names}:
@@ -92,13 +93,13 @@ def select_objects():
                 obj.select_set(not obj.select_get())
                 if obj.select_get():
                     selected.append(name)
-    
+
     # Set active object if specified
     if '{active_object}':
         active_obj = bpy.data.objects.get('{active_object}')
         if active_obj:
             bpy.context.view_layer.objects.active = active_obj
-    
+
     return {{
         'selected': selected,
         'previous_selection': prev_selection,
@@ -141,14 +142,14 @@ async def select_by_type(
         Dict containing selection status and details
     """
     select_children = kwargs.get("select_children", True)
-    select_hidden = kwargs.get("select_hidden", False)
+    kwargs.get("select_hidden", False)
 
     script = f"""
 
 def select_by_type():
     # Store current selection state
     prev_selection = [obj.name for obj in bpy.context.selected_objects]
-    
+
     # Get objects of specified type
     objects = []
     for obj in bpy.data.objects:
@@ -156,7 +157,7 @@ def select_by_type():
             if not select_hidden and obj.hide_viewport:
                 continue
             objects.append(obj)
-    
+
     # Select objects based on mode
     selected = []
     if '{mode}' == 'REPLACE':
@@ -178,7 +179,7 @@ def select_by_type():
             obj.select_set(not obj.select_get())
             if obj.select_get():
                 selected.append(obj.name)
-    
+
     # Handle child objects if needed
     if {str(select_children).lower()} and '{mode}' != 'SUBTRACT':
         for obj in objects:
@@ -189,7 +190,7 @@ def select_by_type():
                     child.select_set(True)
                     if child.name not in selected:
                         selected.append(child.name)
-    
+
     return {{
         'selected': selected,
         'previous_selection': prev_selection,
@@ -234,7 +235,7 @@ async def select_by_material(
 def select_by_material():
     # Store current selection state
     prev_selection = [obj.name for obj in bpy.context.selected_objects]
-    
+
     # Find objects using the material
     objects = []
     for obj in bpy.data.objects:
@@ -250,7 +251,7 @@ def select_by_material():
                 if len(obj.material_slots) == 1 and obj.material_slots[0].material:
                     if obj.material_slots[0].material.name == '{material_name}':
                         objects.append(obj)
-    
+
     # Select objects based on mode
     selected = []
     if '{mode}' == 'REPLACE':
@@ -272,7 +273,7 @@ def select_by_material():
             obj.select_set(not obj.select_get())
             if obj.select_get():
                 selected.append(obj.name)
-    
+
     return {{
         'selected': selected,
         'previous_selection': prev_selection,

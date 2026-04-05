@@ -4,11 +4,12 @@ Provides tools for converting non-standard shaders (VRM/MToon) to PBR
 for cross-platform compatibility.
 """
 
+import logging
 from typing import Any, Dict, Optional
 
-from loguru import logger
-
 from ..decorators import blender_operation
+
+logger = logging.getLogger(__name__)
 from ..exceptions import BlenderMaterialError
 from ..utils.blender_executor import get_blender_executor
 
@@ -22,7 +23,7 @@ async def bake_toon_to_pbr(
     margin: int = 16,
     target_mesh: Optional[str] = None,
     output_dir: str = "//bakes",
-    bake_type: str = "combined"
+    bake_type: str = "combined",
 ) -> Dict[str, Any]:
     """
     Convert cel-shaded or toon materials to PBR textures.
@@ -85,7 +86,7 @@ print("STATUS: Materials analysis complete")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         object_name = "Unknown"
         toon_materials = 0
@@ -98,15 +99,17 @@ print("STATUS: Materials analysis complete")
             elif line.startswith("TOON_MATERIALS:"):
                 toon_materials = int(line.split(": ")[1])
 
-        return {{
-            "status": "success",
-            "object_name": object_name,
-            "materials_baked": toon_materials,
-            "resolution": resolution,
-            "bake_type": bake_type,
-            "materials": [],
-            "note": "Baking implementation requires further development"
-        }}
+        return {
+            {
+                "status": "success",
+                "object_name": object_name,
+                "materials_baked": toon_materials,
+                "resolution": resolution,
+                "bake_type": bake_type,
+                "materials": [],
+                "note": "Baking implementation requires further development",
+            }
+        }
 
     except Exception as e:
         logger.error(f"Toon to PBR baking failed: {e}")
@@ -115,9 +118,7 @@ print("STATUS: Materials analysis complete")
 
 @blender_operation("consolidate_materials")
 async def consolidate_materials(
-    max_atlas_size: int = 4096,
-    remove_unused_uvs: bool = True,
-    target_mesh: Optional[str] = None
+    max_atlas_size: int = 4096, remove_unused_uvs: bool = True, target_mesh: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Merge multiple material slots into atlas textures.
@@ -164,7 +165,7 @@ else:
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         object_name = "Unknown"
         materials_before = 0
@@ -180,22 +181,26 @@ else:
                 pass  # Info message captured but not used
 
         if materials_before <= 1:
-            return {{
-                "status": "info",
-                "message": f"Object '{object_name}' already has minimal materials ({materials_before})",
-                "materials_before": materials_before,
-                "materials_after": materials_before
-            }}
+            return {
+                {
+                    "status": "info",
+                    "message": f"Object '{object_name}' already has minimal materials ({materials_before})",
+                    "materials_before": materials_before,
+                    "materials_after": materials_before,
+                }
+            }
 
-        return {{
-            "status": "success",
-            "object_name": object_name,
-            "materials_before": materials_before,
-            "materials_after": max(1, materials_before // 2),
-            "atlas_size": max_atlas_size,
-            "unused_uvs_removed": remove_unused_uvs,
-            "note": "Atlas consolidation requires UV packing and texture merging"
-        }}
+        return {
+            {
+                "status": "success",
+                "object_name": object_name,
+                "materials_before": materials_before,
+                "materials_after": max(1, materials_before // 2),
+                "atlas_size": max_atlas_size,
+                "unused_uvs_removed": remove_unused_uvs,
+                "note": "Atlas consolidation requires UV packing and texture merging",
+            }
+        }
 
     except Exception as e:
         logger.error(f"Material consolidation failed: {e}")
@@ -204,9 +209,7 @@ else:
 
 @blender_operation("convert_vrm_shaders")
 async def convert_vrm_shaders(
-    target_mesh: Optional[str] = None,
-    preserve_lighting: bool = True,
-    create_backup: bool = True
+    target_mesh: Optional[str] = None, preserve_lighting: bool = True, create_backup: bool = True
 ) -> Dict[str, Any]:
     """
     Convert VRM-specific shaders to standard PBR.
@@ -265,7 +268,7 @@ print(f"VRM_MATERIALS: {{vrm_count}}")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         object_name = "Unknown"
         vrm_materials = 0
@@ -278,14 +281,16 @@ print(f"VRM_MATERIALS: {{vrm_count}}")
             elif line.startswith("VRM_MATERIALS:"):
                 vrm_materials = int(line.split(": ")[1])
 
-        return {{
-            "status": "success",
-            "object_name": object_name,
-            "materials_converted": vrm_materials,
-            "backup_created": create_backup,
-            "preserve_lighting": preserve_lighting,
-            "note": "VRM conversion requires further implementation"
-        }}
+        return {
+            {
+                "status": "success",
+                "object_name": object_name,
+                "materials_converted": vrm_materials,
+                "backup_created": create_backup,
+                "preserve_lighting": preserve_lighting,
+                "note": "VRM conversion requires further implementation",
+            }
+        }
 
     except Exception as e:
         logger.error(f"VRM shader conversion failed: {e}")

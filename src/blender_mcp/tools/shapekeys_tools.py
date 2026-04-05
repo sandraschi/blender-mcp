@@ -5,13 +5,15 @@ Provides tools for managing shape keys, visemes, and facial animation
 for VRM avatars and character models.
 """
 
+import logging
 from typing import Dict, List, Literal, Optional
 
-from loguru import logger
+logger = logging.getLogger(__name__)
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -22,8 +24,11 @@ def _register_shapekeys_tools():
     @app.tool
     async def blender_shapekeys(
         operation: Literal[
-            "create_viseme_shapekeys", "create_blink_shapekey", "set_viseme_weights",
-            "create_facial_expression", "analyze_shapekeys"
+            "create_viseme_shapekeys",
+            "create_blink_shapekey",
+            "set_viseme_weights",
+            "create_facial_expression",
+            "analyze_shapekeys",
         ] = "create_viseme_shapekeys",
         # Common params
         target_mesh: Optional[str] = None,
@@ -43,7 +48,7 @@ def _register_shapekeys_tools():
         blink_weight: float = 0.0,
         additional_modifiers: Optional[Dict[str, float]] = None,
         # Analysis params
-        include_statistics: bool = True
+        include_statistics: bool = True,
     ) -> str:
         """
         Comprehensive shape key management for facial animation and VRM avatars.
@@ -77,9 +82,7 @@ def _register_shapekeys_tools():
             - blender_shapekeys("create_facial_expression", expression_name="happy") - Create happy expression
             - blender_shapekeys("analyze_shapekeys") - Check VRM compliance
         """
-        logger.info(
-            f"blender_shapekeys called with operation='{operation}'"
-        )
+        logger.info(f"blender_shapekeys called with operation='{operation}'")
 
         from blender_mcp.handlers.shapekeys_handler import (
             analyze_shapekeys,
@@ -95,21 +98,19 @@ def _register_shapekeys_tools():
                     target_mesh=target_mesh,
                     viseme_type=viseme_type,
                     auto_generate=auto_generate,
-                    base_expression=base_expression
+                    base_expression=base_expression,
                 )
 
             elif operation == "create_blink_shapekey":
                 result = await create_blink_shapekey(
                     target_mesh=target_mesh,
                     blink_intensity=blink_intensity,
-                    eyelid_vertices=eyelid_vertices
+                    eyelid_vertices=eyelid_vertices,
                 )
 
             elif operation == "set_viseme_weights":
                 result = await set_viseme_weights(
-                    target_mesh=target_mesh,
-                    viseme_weights=viseme_weights,
-                    frame=frame
+                    target_mesh=target_mesh, viseme_weights=viseme_weights, frame=frame
                 )
 
             elif operation == "create_facial_expression":
@@ -118,13 +119,12 @@ def _register_shapekeys_tools():
                     expression_name=expression_name,
                     base_visemes=base_visemes,
                     blink_weight=blink_weight,
-                    additional_modifiers=additional_modifiers
+                    additional_modifiers=additional_modifiers,
                 )
 
             elif operation == "analyze_shapekeys":
                 result = await analyze_shapekeys(
-                    target_mesh=target_mesh,
-                    include_statistics=include_statistics
+                    target_mesh=target_mesh, include_statistics=include_statistics
                 )
 
             else:
@@ -144,12 +144,7 @@ def _format_shapekeys_result(result: dict) -> str:
     operation = result.get("operation", "shapekeys")
 
     # Status indicator
-    status_icons = {
-        "success": "✅",
-        "warning": "⚠️",
-        "error": "❌",
-        "info": "ℹ️"
-    }
+    status_icons = {"success": "✅", "warning": "⚠️", "error": "❌", "info": "ℹ️"}
     status_icon = status_icons.get(status, "❓")
 
     report = f"{status_icon} **Shape Keys Operation Result**\n"
@@ -177,7 +172,7 @@ def _format_shapekeys_result(result: dict) -> str:
         report += "**VRM Compliance:**\n"
         report += f"  • Visemes Present: {compliance['visemes_present']}/5\n"
         report += f"  • Has Blink: {'Yes' if compliance['has_blink'] else 'No'}\n"
-        score_percent = int(compliance['total_score'] * 100)
+        score_percent = int(compliance["total_score"] * 100)
         report += f"  • Compliance Score: {score_percent}%\n"
 
     # Viseme status

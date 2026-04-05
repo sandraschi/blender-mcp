@@ -5,13 +5,15 @@ Provides comprehensive pre-flight checks for avatars and models
 to ensure compatibility with VR platforms like VRChat and Resonite.
 """
 
+import logging
 from typing import Literal, Optional
 
-from loguru import logger
+logger = logging.getLogger(__name__)
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -22,8 +24,13 @@ def _register_validation_tools():
     @app.tool
     async def blender_validation(
         operation: Literal[
-            "validate_avatar", "validate_model", "check_polycount",
-            "check_materials", "check_rigging", "check_transforms", "check_textures"
+            "validate_avatar",
+            "validate_model",
+            "check_polycount",
+            "check_materials",
+            "check_rigging",
+            "check_transforms",
+            "check_textures",
         ] = "validate_avatar",
         target_platform: str = "vrchat",
         check_materials: bool = True,
@@ -83,7 +90,7 @@ def _register_validation_tools():
                     check_materials=check_materials,
                     check_rigging=check_rigging,
                     check_transforms=check_transforms,
-                    check_textures=check_textures
+                    check_textures=check_textures,
                 )
 
             elif operation == "validate_model":
@@ -93,7 +100,7 @@ def _register_validation_tools():
                     check_materials=check_materials,
                     check_rigging=check_rigging,
                     check_transforms=check_transforms,
-                    check_textures=check_textures
+                    check_textures=check_textures,
                 )
 
             elif operation == "check_polycount":
@@ -135,13 +142,7 @@ def _format_validation_report(result: dict) -> str:
     recommendations = result.get("recommendations", [])
 
     # Status indicator
-    status_icons = {
-        "PASS": "✅",
-        "WARNING": "⚠️",
-        "CRITICAL": "🚨",
-        "FAIL": "❌",
-        "ERROR": "💥"
-    }
+    status_icons = {"PASS": "✅", "WARNING": "⚠️", "CRITICAL": "🚨", "FAIL": "❌", "ERROR": "💥"}
     status_icon = status_icons.get(status, "❓")
 
     report = f"{status_icon} **{platform} Validation Report**\n"

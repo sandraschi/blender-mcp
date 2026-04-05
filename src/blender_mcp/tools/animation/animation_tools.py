@@ -5,10 +5,13 @@ Comprehensive animation support including keyframes, shape keys (VRM expressions
 action management, constraints, and animation baking for export.
 """
 
+import logging
 from typing import Literal, Optional, Tuple
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
+
+logger = logging.getLogger(__name__)
 
 
 def _register_animation_tools():
@@ -19,18 +22,32 @@ def _register_animation_tools():
     async def blender_animation(
         operation: Literal[
             # Basic keyframes
-            "set_keyframe", "animate_location", "animate_rotation", "animate_scale",
-            "play_animation", "set_frame_range", "clear_animation",
+            "set_keyframe",
+            "animate_location",
+            "animate_rotation",
+            "animate_scale",
+            "play_animation",
+            "set_frame_range",
+            "clear_animation",
             # Shape keys (VRM facial expressions)
-            "list_shape_keys", "set_shape_key", "keyframe_shape_key", "create_shape_key",
+            "list_shape_keys",
+            "set_shape_key",
+            "keyframe_shape_key",
+            "create_shape_key",
             # Action management
-            "list_actions", "create_action", "set_active_action", "push_to_nla",
+            "list_actions",
+            "create_action",
+            "set_active_action",
+            "push_to_nla",
             # Interpolation
-            "set_interpolation", "set_easing",
+            "set_interpolation",
+            "set_easing",
             # Constraints
-            "add_constraint", "add_bone_constraint",
+            "add_constraint",
+            "add_bone_constraint",
             # Baking
-            "bake_action", "bake_all_actions"
+            "bake_action",
+            "bake_all_actions",
         ] = "set_keyframe",
         # Object/target
         object_name: str = "",
@@ -188,8 +205,6 @@ def _register_animation_tools():
             Baking operations are essential for game engine export compatibility.
             Use blender_rigging tools first for character setup before animation.
         """
-        from loguru import logger
-
         from blender_mcp.handlers.animation_handler import (
             add_bone_constraint,
             # Constraints
@@ -223,6 +238,7 @@ def _register_animation_tools():
             # Interpolation
             set_interpolation as _set_interpolation,
         )
+
         logger.info(f"🎬 blender_animation: {operation}")
 
         try:
@@ -235,23 +251,35 @@ def _register_animation_tools():
             # BASIC ANIMATION
             if operation == "set_keyframe":
                 return await set_keyframe(
-                    object_name=object_name, frame=frame,
-                    location=to_tuple(location), rotation=to_tuple(rotation), scale=to_tuple(scale)
+                    object_name=object_name,
+                    frame=frame,
+                    location=to_tuple(location),
+                    rotation=to_tuple(rotation),
+                    scale=to_tuple(scale),
                 )
             elif operation == "animate_location":
                 return await animate_location(
-                    object_name=object_name, start_frame=start_frame, end_frame=end_frame,
-                    start_location=to_tuple(start_location), end_location=to_tuple(end_location)
+                    object_name=object_name,
+                    start_frame=start_frame,
+                    end_frame=end_frame,
+                    start_location=to_tuple(start_location),
+                    end_location=to_tuple(end_location),
                 )
             elif operation == "animate_rotation":
                 return await animate_rotation(
-                    object_name=object_name, start_frame=start_frame, end_frame=end_frame,
-                    start_rotation=to_tuple(start_rotation), end_rotation=to_tuple(end_rotation)
+                    object_name=object_name,
+                    start_frame=start_frame,
+                    end_frame=end_frame,
+                    start_rotation=to_tuple(start_rotation),
+                    end_rotation=to_tuple(end_rotation),
                 )
             elif operation == "animate_scale":
                 return await animate_scale(
-                    object_name=object_name, start_frame=start_frame, end_frame=end_frame,
-                    start_scale=to_tuple(start_scale), end_scale=to_tuple(end_scale)
+                    object_name=object_name,
+                    start_frame=start_frame,
+                    end_frame=end_frame,
+                    start_scale=to_tuple(start_scale),
+                    end_scale=to_tuple(end_scale),
                 )
             elif operation == "play_animation":
                 return await play_animation()
@@ -264,30 +292,41 @@ def _register_animation_tools():
             elif operation == "list_shape_keys":
                 return await list_shape_keys(object_name=object_name)
             elif operation == "set_shape_key":
-                return await set_shape_key(object_name=object_name, shape_key_name=shape_key_name, value=value)
+                return await set_shape_key(
+                    object_name=object_name, shape_key_name=shape_key_name, value=value
+                )
             elif operation == "keyframe_shape_key":
                 return await keyframe_shape_key(
-                    object_name=object_name, shape_key_name=shape_key_name,
-                    frame=frame, value=value if value != 1.0 else None
+                    object_name=object_name,
+                    shape_key_name=shape_key_name,
+                    frame=frame,
+                    value=value if value != 1.0 else None,
                 )
             elif operation == "create_shape_key":
-                return await create_shape_key(object_name=object_name, shape_key_name=shape_key_name, from_mix=from_mix)
+                return await create_shape_key(
+                    object_name=object_name, shape_key_name=shape_key_name, from_mix=from_mix
+                )
 
             # ACTION MANAGEMENT
             elif operation == "list_actions":
                 return await list_actions()
             elif operation == "create_action":
-                return await create_action(action_name=action_name, object_name=object_name if object_name else None)
+                return await create_action(
+                    action_name=action_name, object_name=object_name if object_name else None
+                )
             elif operation == "set_active_action":
                 return await set_active_action(object_name=object_name, action_name=action_name)
             elif operation == "push_to_nla":
-                return await push_action_to_nla(object_name=object_name, track_name=track_name if track_name else None)
+                return await push_action_to_nla(
+                    object_name=object_name, track_name=track_name if track_name else None
+                )
 
             # INTERPOLATION
             elif operation == "set_interpolation":
                 return await _set_interpolation(
-                    object_name=object_name, interpolation=interpolation,
-                    data_path=data_path if data_path else None
+                    object_name=object_name,
+                    interpolation=interpolation,
+                    data_path=data_path if data_path else None,
                 )
             elif operation == "set_easing":
                 return await _set_easing(object_name=object_name, easing=easing)
@@ -295,24 +334,29 @@ def _register_animation_tools():
             # CONSTRAINTS
             elif operation == "add_constraint":
                 return await add_constraint(
-                    object_name=object_name, constraint_type=constraint_type,
-                    target_name=target_name if target_name else None
+                    object_name=object_name,
+                    constraint_type=constraint_type,
+                    target_name=target_name if target_name else None,
                 )
             elif operation == "add_bone_constraint":
                 return await add_bone_constraint(
-                    armature_name=armature_name, bone_name=bone_name,
+                    armature_name=armature_name,
+                    bone_name=bone_name,
                     constraint_type=constraint_type,
                     target_armature=target_armature if target_armature else None,
                     target_bone=target_bone if target_bone else None,
-                    influence=influence
+                    influence=influence,
                 )
 
             # BAKING
             elif operation == "bake_action":
                 return await bake_action(
-                    object_name=object_name, frame_start=start_frame, frame_end=end_frame,
-                    visual_keying=visual_keying, clear_constraints=clear_constraints,
-                    bake_types=bake_types
+                    object_name=object_name,
+                    frame_start=start_frame,
+                    frame_end=end_frame,
+                    visual_keying=visual_keying,
+                    clear_constraints=clear_constraints,
+                    bake_types=bake_types,
                 )
             elif operation == "bake_all_actions":
                 return await bake_all_actions(

@@ -4,9 +4,8 @@ Addon management tools for Blender MCP.
 Provides tools for installing, enabling, and managing Blender addons.
 """
 
-from blender_mcp.compat import *
-
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_addon_tools():
@@ -37,7 +36,7 @@ def _register_addon_tools():
         Returns:
             Success message with addon details
         """
-        from blender_mcp.handlers.addon_handler import install_addon, uninstall_addon, list_addons
+        from blender_mcp.handlers.addon_handler import install_addon, list_addons, uninstall_addon
 
         try:
             if operation == "list_addons":

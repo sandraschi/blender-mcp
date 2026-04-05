@@ -4,12 +4,13 @@ This module provides comprehensive validation functions for VR platforms like
 VRChat, Resonite, and general 3D model requirements.
 """
 
+import logging
 from enum import Enum
 from typing import Any, Dict, Optional
 
-from loguru import logger
-
 from ..decorators import blender_operation
+
+logger = logging.getLogger(__name__)
 from ..exceptions import BlenderValidationError
 from ..utils.blender_executor import get_blender_executor
 
@@ -32,7 +33,7 @@ def validate_avatar(
     check_materials: bool = True,
     check_rigging: bool = True,
     check_transforms: bool = True,
-    check_textures: bool = True
+    check_textures: bool = True,
 ) -> Dict[str, Any]:
     """
     Comprehensive avatar validation for VR platforms.
@@ -58,27 +59,37 @@ def validate_avatar(
     try:
         # Get the validation function based on platform
         if target_platform.lower() == "vrchat":
-            return _validate_vrchat_avatar(check_materials, check_rigging, check_transforms, check_textures)
+            return _validate_vrchat_avatar(
+                check_materials, check_rigging, check_transforms, check_textures
+            )
         elif target_platform.lower() == "resonite":
-            return _validate_resonite_avatar(check_materials, check_rigging, check_transforms, check_textures)
+            return _validate_resonite_avatar(
+                check_materials, check_rigging, check_transforms, check_textures
+            )
         elif target_platform.lower() == "unity":
-            return _validate_unity_avatar(check_materials, check_rigging, check_transforms, check_textures)
+            return _validate_unity_avatar(
+                check_materials, check_rigging, check_transforms, check_textures
+            )
         else:
-            return _validate_generic_model(check_materials, check_rigging, check_transforms, check_textures)
+            return _validate_generic_model(
+                check_materials, check_rigging, check_transforms, check_textures
+            )
 
     except Exception as e:
         logger.error(f"Avatar validation failed: {e}")
         raise BlenderValidationError(f"Failed to validate avatar: {str(e)}") from e
 
 
-def _validate_vrchat_avatar(check_materials: bool, check_rigging: bool, check_transforms: bool, check_textures: bool) -> Dict[str, Any]:
+def _validate_vrchat_avatar(
+    check_materials: bool, check_rigging: bool, check_transforms: bool, check_textures: bool
+) -> Dict[str, Any]:
     """VRChat-specific avatar validation."""
     report = {
         "status": "PASS",
         "platform": "VRChat",
         "issues": [],
         "stats": {},
-        "recommendations": []
+        "recommendations": [],
     }
 
     # Polycount validation (VRChat limits)
@@ -128,19 +139,23 @@ def _validate_vrchat_avatar(check_materials: bool, check_rigging: bool, check_tr
         report["recommendations"].append("Avatar passes all VRChat requirements!")
     else:
         report["recommendations"].append("Consider using blender_atlasing to reduce draw calls")
-        report["recommendations"].append("Use blender_modifiers.decimate to reduce polycount if needed")
+        report["recommendations"].append(
+            "Use blender_modifiers.decimate to reduce polycount if needed"
+        )
 
     return report
 
 
-def _validate_resonite_avatar(check_materials: bool, check_rigging: bool, check_transforms: bool, check_textures: bool) -> Dict[str, Any]:
+def _validate_resonite_avatar(
+    check_materials: bool, check_rigging: bool, check_transforms: bool, check_textures: bool
+) -> Dict[str, Any]:
     """Resonite-specific avatar validation."""
     report = {
         "status": "PASS",
         "platform": "Resonite",
         "issues": [],
         "stats": {},
-        "recommendations": []
+        "recommendations": [],
     }
 
     # Resonite is more lenient but still has practical limits
@@ -188,14 +203,16 @@ def _validate_resonite_avatar(check_materials: bool, check_rigging: bool, check_
     return report
 
 
-def _validate_unity_avatar(check_materials: bool, check_rigging: bool, check_transforms: bool, check_textures: bool) -> Dict[str, Any]:
+def _validate_unity_avatar(
+    check_materials: bool, check_rigging: bool, check_transforms: bool, check_textures: bool
+) -> Dict[str, Any]:
     """Unity-specific avatar validation."""
     report = {
         "status": "PASS",
         "platform": "Unity",
         "issues": [],
         "stats": {},
-        "recommendations": []
+        "recommendations": [],
     }
 
     # Unity has higher limits but mobile considerations
@@ -234,14 +251,16 @@ def _validate_unity_avatar(check_materials: bool, check_rigging: bool, check_tra
     return report
 
 
-def _validate_generic_model(check_materials: bool, check_rigging: bool, check_transforms: bool, check_textures: bool) -> Dict[str, Any]:
+def _validate_generic_model(
+    check_materials: bool, check_rigging: bool, check_transforms: bool, check_textures: bool
+) -> Dict[str, Any]:
     """Generic 3D model validation."""
     report = {
         "status": "PASS",
         "platform": "Generic",
         "issues": [],
         "stats": {},
-        "recommendations": []
+        "recommendations": [],
     }
 
     # Basic polycount check
@@ -301,7 +320,7 @@ if {mobile_limit} is not None and tri_count > {mobile_limit}:
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         for line in lines:
             if line.startswith("ERROR:"):
@@ -349,7 +368,7 @@ if empty_slots > 0:
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         for line in lines:
             if line.startswith("ERROR:"):
@@ -406,7 +425,7 @@ else:
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         for line in lines:
             if line.startswith("ERROR:"):
@@ -467,7 +486,7 @@ if rotation_issues:
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         for line in lines:
             if line.startswith("ERROR:"):
@@ -528,7 +547,7 @@ if missing_textures > 0:
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         for line in lines:
             if line.startswith("ERROR:"):

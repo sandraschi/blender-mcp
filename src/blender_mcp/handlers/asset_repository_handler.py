@@ -89,7 +89,7 @@ class RepositoryManager:
 
         except Exception as e:
             logger.error(f"Failed to download {url}: {str(e)}")
-            raise Exception(f"Download failed: {str(e)}")
+            raise Exception(f"Download failed: {str(e)}") from e
 
     def _extract_archive(self, archive_path: str, extract_to: str) -> List[str]:
         """Extract archive and return list of extracted files."""
@@ -113,7 +113,7 @@ class RepositoryManager:
 
         except Exception as e:
             logger.error(f"Failed to extract {archive_path}: {str(e)}")
-            raise Exception(f"Extraction failed: {str(e)}")
+            raise Exception(f"Extraction failed: {str(e)}") from e
 
     def get_kenney_asset(self, asset_name: str, asset_type: str = "3d") -> Tuple[str, List[str]]:
         """Download an asset from Kenney.nl."""
@@ -145,7 +145,7 @@ class RepositoryManager:
                 raise Exception(f"No supported 3D files found in {asset_name}")
 
         except Exception as e:
-            raise Exception(f"Failed to get Kenney asset {asset_name}: {str(e)}")
+            raise Exception(f"Failed to get Kenney asset {asset_name}: {str(e)}") from e
 
     def get_quaternius_asset(self, asset_name: str) -> Tuple[str, List[str]]:
         """Download an asset from Quaternius.com."""
@@ -171,7 +171,7 @@ class RepositoryManager:
             raise Exception(f"No supported files found in {asset_name}")
 
         except Exception as e:
-            raise Exception(f"Failed to get Quaternius asset {asset_name}: {str(e)}")
+            raise Exception(f"Failed to get Quaternius asset {asset_name}: {str(e)}") from e
 
     def get_opengameart_asset(self, asset_url: str) -> Tuple[str, List[str]]:
         """Download an asset from OpenGameArt.org."""
@@ -192,7 +192,7 @@ class RepositoryManager:
                 return local_file, [local_file]
 
         except Exception as e:
-            raise Exception(f"Failed to get OpenGameArt asset from {asset_url}: {str(e)}")
+            raise Exception(f"Failed to get OpenGameArt asset from {asset_url}: {str(e)}") from e
 
     def get_polyhaven_asset(
         self, asset_name: str, asset_type: str = "hdris"
@@ -219,7 +219,7 @@ class RepositoryManager:
                 raise Exception(f"Unsupported Poly Haven asset type: {asset_type}")
 
         except Exception as e:
-            raise Exception(f"Failed to get Poly Haven asset {asset_name}: {str(e)}")
+            raise Exception(f"Failed to get Poly Haven asset {asset_name}: {str(e)}") from e
 
 
 # Global repository manager instance

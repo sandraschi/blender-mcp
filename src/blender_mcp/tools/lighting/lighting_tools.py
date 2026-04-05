@@ -4,10 +4,13 @@ Lighting creation and management tools for Blender MCP.
 Provides tools for creating various types of lights and managing lighting setups.
 """
 
+import logging
 from typing import Tuple
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
+
+logger = logging.getLogger(__name__)
 
 
 def _register_lighting_tools():
@@ -96,8 +99,6 @@ def _register_lighting_tools():
             HDRI setup requires an HDRI image file to be loaded separately.
             Use blender_camera tools to adjust camera exposure for different lighting conditions.
         """
-        from loguru import logger
-
         from blender_mcp.handlers.lighting_handler import (
             adjust_light,
             create_area_light,

@@ -4,10 +4,10 @@ Transform tools for Blender MCP.
 Provides tools for positioning, rotating, and scaling objects.
 """
 
-from blender_mcp.compat import *
-
 from typing import List, Union
+
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_transform_tools():
@@ -55,7 +55,7 @@ def _register_transform_tools():
         Returns:
             Success message with transform details
         """
-        from blender_mcp.handlers.transform_handler import set_transform, apply_transform
+        from blender_mcp.handlers.transform_handler import apply_transform, set_transform
 
         try:
             # Ensure object_names is a list

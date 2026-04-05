@@ -5,12 +5,11 @@ Execute multiple Blender operations in a single call, reducing round-trips
 and enabling complex workflows to be saved and reused.
 """
 
-from blender_mcp.compat import *
-
-from typing import List, Dict, Any, Optional, Literal
 import json
-from blender_mcp.app import get_app
+from typing import Any, Dict, List, Literal, Optional
 
+from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 # Predefined workflow templates
 WORKFLOW_TEMPLATES = {
@@ -20,23 +19,33 @@ WORKFLOW_TEMPLATES = {
             {"tool": "blender_scene", "operation": "clear_scene"},
             {"tool": "blender_scene", "operation": "setup_lighting", "light_type": "AREA"},
             {"tool": "blender_scene", "operation": "setup_camera", "location": [0, -5, 2]},
-            {"tool": "blender_mesh", "operation": "create_plane", "name": "Ground", "scale": [10, 10, 1]},
-        ]
+            {
+                "tool": "blender_mesh",
+                "operation": "create_plane",
+                "name": "Ground",
+                "scale": [10, 10, 1],
+            },
+        ],
     },
     "turntable_setup": {
         "description": "Setup for 360° turntable render",
         "steps": [
             {"tool": "blender_scene", "operation": "setup_lighting", "light_type": "AREA"},
             {"tool": "blender_scene", "operation": "setup_camera", "location": [0, -5, 1.5]},
-            {"tool": "blender_animation", "operation": "set_frame_range", "start_frame": 1, "end_frame": 120},
-        ]
+            {
+                "tool": "blender_animation",
+                "operation": "set_frame_range",
+                "start_frame": 1,
+                "end_frame": 120,
+            },
+        ],
     },
     "vrm_import": {
         "description": "Import VRM and prepare for animation",
         "steps": [
             {"tool": "blender_scene", "operation": "clear_scene"},
             # Note: filepath must be provided via params
-        ]
+        ],
     },
     "simple_scene": {
         "description": "Create a simple scene with cube, light, and camera",
@@ -45,7 +54,7 @@ WORKFLOW_TEMPLATES = {
             {"tool": "blender_mesh", "operation": "create_cube", "name": "Cube"},
             {"tool": "blender_lighting", "operation": "create_sun"},
             {"tool": "blender_scene", "operation": "setup_camera", "location": [5, -5, 3]},
-        ]
+        ],
     },
 }
 
@@ -115,7 +124,7 @@ def _register_workflow_tools():
             ])
 
             # Execute template with parameter overrides
-            blender_workflow(operation="execute", template="product_shot", 
+            blender_workflow(operation="execute", template="product_shot",
                             params={"light_type": "SUN"})
         """
         from loguru import logger
@@ -125,7 +134,7 @@ def _register_workflow_tools():
             for name, template_def in WORKFLOW_TEMPLATES.items():
                 result["templates"][name] = {
                     "description": template_def["description"],
-                    "step_count": len(template_def["steps"])
+                    "step_count": len(template_def["steps"]),
                 }
             return json.dumps(result, indent=2)
 
@@ -139,12 +148,12 @@ def _register_workflow_tools():
         elif operation == "execute":
             # Get steps from template or direct input
             workflow_steps = []
-            
+
             if template:
                 if template not in WORKFLOW_TEMPLATES:
                     return f"Error: Template '{template}' not found. Available: {list(WORKFLOW_TEMPLATES.keys())}"
                 workflow_steps = [dict(s) for s in WORKFLOW_TEMPLATES[template]["steps"]]
-                
+
                 # Apply parameter overrides
                 if params:
                     for step in workflow_steps:
@@ -159,18 +168,20 @@ def _register_workflow_tools():
             # Execute steps
             results = []
             variables = {}  # Store named results
-            
+
             for i, step in enumerate(workflow_steps):
                 step_num = i + 1
                 tool_name = step.get("tool")
                 tool_operation = step.get("operation")
                 var_name = step.pop("as", None)
                 condition = step.pop("if_result", None)
-                
+
                 if not tool_name or not tool_operation:
                     error = f"Step {step_num}: Missing 'tool' or 'operation'"
                     if stop_on_error:
-                        return json.dumps({"success": False, "error": error, "step": step_num, "results": results})
+                        return json.dumps(
+                            {"success": False, "error": error, "step": step_num, "results": results}
+                        )
                     results.append({"step": step_num, "error": error})
                     continue
 
@@ -178,7 +189,9 @@ def _register_workflow_tools():
                 if condition and results:
                     last_result = results[-1].get("result", "")
                     if condition not in str(last_result):
-                        results.append({"step": step_num, "skipped": f"Condition not met: {condition}"})
+                        results.append(
+                            {"step": step_num, "skipped": f"Condition not met: {condition}"}
+                        )
                         continue
 
                 # Substitute variables in parameters
@@ -192,7 +205,11 @@ def _register_workflow_tools():
                             var_name_ref, field = var_ref.split(".", 1)
                             if var_name_ref in variables:
                                 try:
-                                    var_data = json.loads(variables[var_name_ref]) if isinstance(variables[var_name_ref], str) else variables[var_name_ref]
+                                    var_data = (
+                                        json.loads(variables[var_name_ref])
+                                        if isinstance(variables[var_name_ref], str)
+                                        else variables[var_name_ref]
+                                    )
                                     value = var_data.get(field, value)
                                 except:
                                     pass
@@ -205,7 +222,6 @@ def _register_workflow_tools():
                     # Import tool modules dynamically
                     tool_func = None
                     if tool_name == "blender_mesh":
-                        from blender_mcp.tools.mesh.mesh_tools import _register_mesh_tools
                         tool_func = app._tool_manager._tools.get("blender_mesh")
                     elif tool_name == "blender_animation":
                         tool_func = app._tool_manager._tools.get("blender_animation")
@@ -234,24 +250,36 @@ def _register_workflow_tools():
                     if not tool_func:
                         error = f"Step {step_num}: Tool '{tool_name}' not found"
                         if stop_on_error:
-                            return json.dumps({"success": False, "error": error, "step": step_num, "results": results})
+                            return json.dumps(
+                                {
+                                    "success": False,
+                                    "error": error,
+                                    "step": step_num,
+                                    "results": results,
+                                }
+                            )
                         results.append({"step": step_num, "error": error})
                         continue
 
                     # Execute the tool
                     logger.info(f"🔧 Workflow step {step_num}: {tool_name}.{tool_operation}")
                     step_params["operation"] = tool_operation
-                    
+
                     # Call the tool's function
-                    if hasattr(tool_func, 'fn'):
+                    if hasattr(tool_func, "fn"):
                         result = await tool_func.fn(**step_params)
                     else:
                         result = await tool_func(**step_params)
-                    
+
                     # Store result
-                    step_result = {"step": step_num, "tool": tool_name, "operation": tool_operation, "result": result}
+                    step_result = {
+                        "step": step_num,
+                        "tool": tool_name,
+                        "operation": tool_operation,
+                        "result": result,
+                    }
                     results.append(step_result)
-                    
+
                     # Store named variable
                     if var_name:
                         variables[var_name] = result
@@ -260,18 +288,25 @@ def _register_workflow_tools():
                     error = f"Step {step_num}: {str(e)}"
                     logger.error(f"❌ Workflow error: {error}")
                     if stop_on_error:
-                        return json.dumps({"success": False, "error": error, "step": step_num, "results": results}, indent=2)
+                        return json.dumps(
+                            {
+                                "success": False,
+                                "error": error,
+                                "step": step_num,
+                                "results": results,
+                            },
+                            indent=2,
+                        )
                     results.append({"step": step_num, "error": error})
 
-            return json.dumps({
-                "success": True,
-                "steps_executed": len(results),
-                "results": results
-            }, indent=2)
+            return json.dumps(
+                {"success": True, "steps_executed": len(results), "results": results}, indent=2
+            )
 
         else:
-            return f"Unknown operation: {operation}. Available: execute, list_templates, get_template"
+            return (
+                f"Unknown operation: {operation}. Available: execute, list_templates, get_template"
+            )
 
 
 _register_workflow_tools()
-

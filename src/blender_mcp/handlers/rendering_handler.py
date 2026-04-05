@@ -5,6 +5,7 @@ This module provides advanced rendering functionality for Blender scenes,
 including EEVEE and Cycles render engine configuration, post-processing effects,
 render layer management, and output configuration.
 """
+
 import logging
 from typing import Any, Dict, Union
 
@@ -81,15 +82,15 @@ async def set_render_engine(
 
 def configure_render_engine():
     scene = bpy.context.scene
-    
+
     # Set the render engine
     scene.render.engine = '{engine}'
-    
+
     # Common settings
     scene.render.resolution_x = {scene.render.resolution_x}
     scene.render.resolution_y = {scene.render.resolution_y}
     scene.render.resolution_percentage = 100
-    
+
     if '{engine}' == '{RENDER_ENGINE_CYCLES}':
         # Cycles specific settings
         scene.cycles.device = '{device}'
@@ -98,7 +99,7 @@ def configure_render_engine():
         scene.cycles.use_adaptive_sampling = {str(use_adaptive_sampling).lower()}
         scene.cycles.adaptive_threshold = {adaptive_threshold}
         scene.cycles.tile_size = {tile_size}
-        
+
         # Enable GPU if available
         if bpy.app.version >= (2, 80, 0):
             if '{device}'.upper() in ['GPU', 'GPU_COMPATIBLE']:
@@ -106,7 +107,7 @@ def configure_render_engine():
                 bpy.context.preferences.addons['cycles'].preferences.get_devices()
                 for d in bpy.context.preferences.addons['cycles'].preferences.devices:
                     d['use'] = 1
-    
+
     elif '{engine}' == '{RENDER_ENGINE_EEVEE}':
         # EEVEE specific settings
         scene.eevee.taa_render_samples = {samples}
@@ -114,7 +115,7 @@ def configure_render_engine():
         scene.eevee.bloom_threshold = {bloom_threshold}
         scene.eevee.use_motion_blur = {str(use_motion_blur).lower()}
         scene.eevee.motion_blur_steps = {motion_blur_steps}
-    
+
     return {{
         'status': 'SUCCESS',
         'engine': '{engine}',
@@ -204,15 +205,15 @@ async def configure_render_layers(
 
 def configure_layers():
     scene = bpy.context.scene
-    
+
     # Get or create the render layer
     rl = scene.view_layers.get('{layer_name}')
     if not rl:
         rl = scene.view_layers.new('{layer_name}')
-    
+
     # Set as active render layer
     scene.view_layers.active = rl
-    
+
     # Basic layer settings
     rl.use_solid = {str(use_solid).lower()}
     rl.use_halo = {str(use_halo).lower()}
@@ -223,7 +224,7 @@ def configure_layers():
     rl.use_edge_enhance = {str(use_edge_enhance).lower()}
     rl.use_all_z = {str(use_all_z).lower()}
     rl.exclude_raytraced = {str(exclude_raytrace).lower()}
-    
+
     # Configure render passes
     rl.cycles.use_pass_combined = {str(use_pass_combined).lower()}
     rl.cycles.use_pass_z = {str(use_pass_z).lower()}
@@ -250,11 +251,11 @@ def configure_layers():
     rl.cycles.use_pass_cryptomatte_material = {str(use_pass_cryptomatte_material).lower()}
     rl.cycles.use_pass_cryptomatte_asset = {str(use_pass_cryptomatte_asset).lower()}
     rl.cycles.use_pass_shadow_catcher = {str(use_pass_shadow_catcher).lower()}
-    
+
     # Light override
     if '{light_override}' is not None:
         rl.light_override = bpy.data.objects.get('{light_override}')
-    
+
     return {{
         'status': 'SUCCESS',
         'render_layer': rl.name,
@@ -488,28 +489,28 @@ async def setup_post_processing(
 def setup_post_processing():
     scene = bpy.context.scene
     eevee = scene.eevee
-    
+
     # Basic settings
     {settings_str}
-    
+
     # Bloom
     eevee.use_bloom = {str(use_bloom).lower()}
     if {str(use_bloom).lower()}:
         eevee.bloom_threshold = bloom_threshold
         eevee.bloom_radius = bloom_radius
         eevee.bloom_color = bloom_color
-    
+
     # SSAO
     eevee.use_gtao = {str(use_ssao).lower()}
     if {str(use_ssao).lower()}:
         eevee.gtao_factor = ssao_factor
         eevee.gtao_distance = ssao_distance
-    
+
     # Motion Blur
     eevee.use_motion_blur = {str(use_motion_blur).lower()}
     if {str(use_motion_blur).lower()}:
         eevee.motion_blur_shutter = motion_blur_shutter
-    
+
     # Depth of Field
     eevee.use_dof = {str(use_dof).lower()}
     if {str(use_dof).lower()}:
@@ -521,41 +522,41 @@ def setup_post_processing():
             scene.camera.data.dof.focus_distance = dof_focus_distance
         scene.camera.data.dof.aperture_fstop = dof_fstop
         scene.camera.data.dof.aperture_blades = dof_blades
-    
+
     # Volumetrics
     eevee.use_volumetric_lights = {str(settings["use_volumetric_lights"]).lower()}
     eevee.use_volumetric_shadows = {str(settings["use_volumetric_shadows"]).lower()}
     eevee.volumetric_tile_size = volumetric_tile_size
     eevee.volumetric_samples = volumetric_samples
-    
+
     # SSS
     eevee.sss_samples = sss_samples
-    
+
     # Screen Space Reflections
     eevee.use_ssr = {str(settings["use_screen_space_reflections"]).lower()}
     eevee.use_ssr_refraction = {str(settings["use_screen_space_reflections"]).lower()}
     eevee.ssr_quality = ssr_quality
     eevee.ssr_thickness = ssr_thickness
     eevee.ssr_max_roughness = ssr_max_roughness
-    
+
     # Anti-aliasing
     eevee.taa_render_samples = taa_samples
     eevee.use_taa_reprojection = {str(settings["use_taa"]).lower()}
     eevee.use_taa = {str(settings["use_taa"]).lower()}
     eevee.use_gtao = {str(settings["use_ambient_occlusion"]).lower()}
-    
+
     # Shadows
     eevee.shadow_cube_size = '1024' if shadow_quality in ['HIGH', 'ULTRA'] else '512'
     eevee.shadow_cascade_size = '1024' if shadow_quality == 'ULTRA' else '512'
-    
+
     # Color Management
     scene.view_settings.exposure = exposure
     scene.view_settings.gamma = gamma
     scene.sequencer_colorspace_settings.name = 'sRGB'  # Default color space
-    
+
     # Update the viewport
     bpy.context.view_layer.update()
-    
+
     return {{
         'status': 'SUCCESS',
         'settings': {{

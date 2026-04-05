@@ -9,8 +9,24 @@ from blender_mcp.compat import *
 
 logger = logging.getLogger(__name__)
 
-# Default Blender executable path
-DEFAULT_BLENDER_EXECUTABLE = "C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe"
+# Default Blender executable — tries common install locations, overridden by BLENDER_EXECUTABLE env var
+_DEFAULT_BLENDER_CANDIDATES = [
+    r"C:\Program Files\Blender Foundation\Blender 4.4\blender.exe",
+    r"C:\Program Files\Blender Foundation\Blender 4.3\blender.exe",
+    r"C:\Program Files\Blender Foundation\Blender 4.2\blender.exe",
+    "/usr/bin/blender",
+    "/usr/local/bin/blender",
+    "/snap/bin/blender",
+]
+
+def _find_default_blender() -> str:
+    """Return first candidate blender path that exists, or the primary candidate as fallback."""
+    for p in _DEFAULT_BLENDER_CANDIDATES:
+        if Path(p).exists():
+            return p
+    return _DEFAULT_BLENDER_CANDIDATES[0]
+
+DEFAULT_BLENDER_EXECUTABLE = _find_default_blender()
 
 # Get Blender executable from environment variable or use default
 BLENDER_EXECUTABLE: str = os.environ.get("BLENDER_EXECUTABLE", DEFAULT_BLENDER_EXECUTABLE)
@@ -19,8 +35,6 @@ BLENDER_EXECUTABLE: str = os.environ.get("BLENDER_EXECUTABLE", DEFAULT_BLENDER_E
 # Validate Blender executable
 def validate_blender_executable() -> bool:
     """Check if the Blender executable exists and is accessible.
-
-from ..compat import *
 
     Returns:
         bool: True if the Blender executable is valid, False otherwise

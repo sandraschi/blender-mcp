@@ -5,13 +5,15 @@ Provides tools for converting non-standard shaders (VRM/MToon) to PBR
 for cross-platform compatibility in VR environments.
 """
 
+import logging
 from typing import Literal, Optional
 
-from loguru import logger
+logger = logging.getLogger(__name__)
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -22,8 +24,11 @@ def _register_materials_baking_tools():
     @app.tool
     async def blender_materials_baking(
         operation: Literal[
-            "bake_toon_to_pbr", "consolidate_materials", "convert_vrm_shaders",
-            "setup_pbr_bake", "optimize_for_mobile"
+            "bake_toon_to_pbr",
+            "consolidate_materials",
+            "convert_vrm_shaders",
+            "setup_pbr_bake",
+            "optimize_for_mobile",
         ] = "bake_toon_to_pbr",
         resolution: int = 2048,
         margin: int = 16,
@@ -79,21 +84,21 @@ def _register_materials_baking_tools():
                     margin=margin,
                     target_mesh=target_mesh,
                     output_dir=output_dir,
-                    bake_type=bake_type
+                    bake_type=bake_type,
                 )
 
             elif operation == "consolidate_materials":
                 result = await consolidate_materials(
                     max_atlas_size=max_atlas_size,
                     remove_unused_uvs=remove_unused_uvs,
-                    target_mesh=target_mesh
+                    target_mesh=target_mesh,
                 )
 
             elif operation == "convert_vrm_shaders":
                 result = await convert_vrm_shaders(
                     target_mesh=target_mesh,
                     preserve_lighting=preserve_lighting,
-                    create_backup=create_backup
+                    create_backup=create_backup,
                 )
 
             elif operation == "setup_pbr_bake":
@@ -102,7 +107,7 @@ def _register_materials_baking_tools():
                     "status": "info",
                     "message": "PBR baking environment configured",
                     "resolution": resolution,
-                    "output_dir": output_dir
+                    "output_dir": output_dir,
                 }
 
             elif operation == "optimize_for_mobile":
@@ -110,7 +115,7 @@ def _register_materials_baking_tools():
                 result = await consolidate_materials(
                     max_atlas_size=2048,  # Mobile limit
                     remove_unused_uvs=True,
-                    target_mesh=target_mesh
+                    target_mesh=target_mesh,
                 )
                 result["optimization"] = "mobile_vr"
 
@@ -130,12 +135,7 @@ def _format_baking_result(result: dict) -> str:
     status = result.get("status", "unknown")
 
     # Status indicator
-    status_icons = {
-        "success": "✅",
-        "warning": "⚠️",
-        "error": "❌",
-        "info": "ℹ️"
-    }
+    status_icons = {"success": "✅", "warning": "⚠️", "error": "❌", "info": "ℹ️"}
     status_icon = status_icons.get(status, "❓")
 
     report = f"{status_icon} **Materials Baking Result**\n"

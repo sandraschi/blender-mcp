@@ -6,7 +6,7 @@ This module provides common validation functions for MCP tools.
 
 from typing import Any, Dict, Type, TypeVar
 
-from pydantic import BaseModel, field_validator, model_validator, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 from ..compat import *
 

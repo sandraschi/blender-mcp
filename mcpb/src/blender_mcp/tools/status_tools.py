@@ -5,13 +5,14 @@ Provides comprehensive system information, health checks, and monitoring
 capabilities for the Blender MCP server and Blender environment.
 """
 
-from ..compat import *
-
 import os
-import sys
-import psutil
 import platform
+import sys
 from datetime import datetime
+
+import psutil
+
+from ..compat import *
 
 
 # Import app lazily to avoid circular imports
@@ -270,7 +271,7 @@ def _register_status_tools():
 
         # Check 4: Tool Registration
         try:
-            from blender_mcp.help import list_functions, get_categories
+            from blender_mcp.help import get_categories, list_functions
 
             categories = get_categories()
             total_tools = sum(len(list_functions(cat)) for cat in categories)

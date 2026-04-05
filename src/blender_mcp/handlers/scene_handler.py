@@ -15,6 +15,10 @@ from ..compat import *
 _executor = get_blender_executor()
 
 
+# Registration is now handled by blender_mcp.tools.scene_tools.register(app)
+
+
+
 # @app.tool  # Will be registered manually
 @blender_operation("create_scene")
 async def create_scene(scene_name: str = "NewScene") -> str:
@@ -183,11 +187,11 @@ elif "{collection_name}" not in bpy.data.collections:
 else:
     obj = bpy.data.objects["{object_name}"]
     collection = bpy.data.collections["{collection_name}"]
-    
+
     # Unlink from current collections
     for col in obj.users_collection:
         col.objects.unlink(obj)
-    
+
     # Link to target collection
     collection.objects.link(obj)
     print(f"Added '{object_name}' to collection '{collection_name}'")
@@ -359,3 +363,41 @@ print(f"Render settings updated: {{resolution_x}}x{{resolution_y}} using {{engin
 '''
     await _executor.execute_script(script)
     return f"Updated render settings: {resolution_x}x{resolution_y} using {engine} with {samples} samples"
+
+@blender_operation("scene_get_hierarchy")
+async def scene_get_hierarchy() -> str:
+    """Get a structural hierarchy of the scene (collections and objects).
+
+    Returns:
+        str: JSON-formatted hierarchy data
+    """
+    script = """
+import json
+
+def get_collection_data(collection):
+    data = {
+        "name": collection.name,
+        "type": "collection",
+        "objects": [],
+        "children": []
+    }
+    
+    for obj in collection.objects:
+        if obj.parent is None: # Only root objects in collection
+            data["objects"].append({
+                "name": obj.name,
+                "type": obj.type,
+                "location": list(obj.location)
+            })
+            
+    for child_col in collection.children:
+        data["children"].append(get_collection_data(child_col))
+        
+    return data
+
+hierarchy = get_collection_data(bpy.context.scene.collection)
+print(json.dumps(hierarchy))
+"""
+    result = await _executor.execute_script(script)
+    # The result will be in the output of the script
+    return result

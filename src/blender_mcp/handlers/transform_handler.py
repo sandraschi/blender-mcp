@@ -1,11 +1,12 @@
 """Transform operations handler for Blender MCP."""
 
+import logging
 from enum import Enum
 from typing import Any, Dict, List, Union
 
-from loguru import logger
-
 from ..compat import *
+
+logger = logging.getLogger(__name__)
 from ..decorators import blender_operation
 from ..utils.blender_executor import get_blender_executor
 
@@ -42,7 +43,7 @@ async def set_transform(
         object_names = [object_names]
 
     relative = kwargs.get("relative", False)
-    as_euler = kwargs.get("as_euler", False)
+    kwargs.get("as_euler", False)
 
     # Process values based on transform type
     if transform_type == TransformType.TRANSLATE:
@@ -61,7 +62,7 @@ def set_transform():
         if not obj:
             results[name] = {{"status": "ERROR", "error": "Object not found"}}
             continue
-            
+
         try:
             prev_loc = tuple(obj.location)
             {op}
@@ -112,12 +113,12 @@ def apply_transform():
         if not obj:
             results[name] = {{"status": "ERROR", "error": "Object not found"}}
             continue
-            
+
         try:
             bpy.ops.object.select_all(action='DESELECT')
             obj.select_set(True)
             bpy.context.view_layer.objects.active = obj
-            
+
             for t in {transform_types}:
                 if t.upper() in ['ALL', 'LOCATION']:
                     bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
@@ -125,7 +126,7 @@ def apply_transform():
                     bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
                 if t.upper() in ['ALL', 'SCALE']:
                     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-            
+
             results[name] = {{"status": "SUCCESS"}}
         except Exception as e:
             results[name] = {{"status": "ERROR", "error": str(e)}}

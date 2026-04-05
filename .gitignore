@@ -178,5 +178,13 @@ $RECYCLE.BIN/
 # Project specific
 .blender/
 
+# Secrets / credentials
+data/secrets/
+*.secret
+secrets/
+
+# Editor backup files
+*.bak
+
 # Private documentation (internal dev notes, not for public)
 docs-private/

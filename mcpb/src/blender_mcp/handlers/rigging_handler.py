@@ -1,11 +1,12 @@
 """Rigging and armature operations handler for Blender MCP."""
 
-from typing import Tuple, Dict, Any
 from enum import Enum
+from typing import Any, Dict, Tuple
+
 from loguru import logger
 
-from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
+from ..utils.blender_executor import get_blender_executor
 
 _executor = get_blender_executor()
 
@@ -222,9 +223,10 @@ async def pose_bone(
 ) -> Dict[str, Any]:
     """Set bone rotation/location in pose mode (for VRM posing)."""
     import math
+
     rot_rad = [math.radians(r) for r in rotation]
     loc_str = f"list({list(location)})" if location else "None"
-    
+
     script = f"""
 import math
 

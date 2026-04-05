@@ -5,15 +5,17 @@ Provides tools to download files from URLs and import them into Blender scenes.
 Supports models, textures, and other assets with automatic format detection.
 """
 
+import logging
 import os
 import tempfile
 from typing import Optional
 from urllib.parse import urlparse
 
-import requests
-from loguru import logger
+import httpx
 
 from ..app import app
+
+logger = logging.getLogger(__name__)
 from ..compat import *
 from ..utils.error_handling import MCPError
 
@@ -60,37 +62,33 @@ def _get_file_type_from_url(url: str) -> str:
     return "unknown"
 
 
-def _download_file(url: str, output_path: str, timeout: int = 30) -> bool:
-    """Download file from URL to specified path with error handling."""
+async def _download_file(url: str, output_path: str, timeout: int = 30) -> bool:
+    """Download file from URL to specified path with async httpx."""
     try:
         logger.info(f"Downloading from: {url}")
         logger.debug(f"Saving to: {output_path}")
 
-        response = requests.get(url, stream=True, timeout=timeout)
-        response.raise_for_status()
-
-        # Get file size for progress indication
-        total_size = int(response.headers.get("content-length", 0))
-
-        with open(output_path, "wb") as file:
-            downloaded = 0
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    file.write(chunk)
-                    downloaded += len(chunk)
-                    if total_size > 0:
-                        progress = (downloaded / total_size) * 100
-                        logger.debug(f"Download progress: {progress:.1f}%")
+        async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+            async with client.stream("GET", url) as response:
+                response.raise_for_status()
+                total_size = int(response.headers.get("content-length", 0))
+                downloaded = 0
+                with open(output_path, "wb") as f:
+                    async for chunk in response.aiter_bytes(chunk_size=8192):
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        if total_size > 0:
+                            logger.debug(f"Download progress: {downloaded / total_size * 100:.1f}%")
 
         file_size = os.path.getsize(output_path)
         logger.info(f"Download completed: {file_size} bytes")
         return True
 
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Download failed: {str(e)}")
+    except httpx.HTTPStatusError as e:
+        logger.error(f"Download HTTP error {e.response.status_code}: {url}")
         return False
     except Exception as e:
-        logger.error(f"Unexpected error during download: {str(e)}")
+        logger.error(f"Download failed: {str(e)}")
         return False
 
 
@@ -173,38 +171,52 @@ except Exception as e:
 
 @app.tool
 async def blender_download(
-    url: str,
+    operation: str = "download",
+    url: str = "",
     import_into_scene: bool = True,
     custom_filename: Optional[str] = None,
     timeout: int = 30,
 ) -> str:
     """
-    Download files from URLs and optionally import them into the Blender scene.
+    Download from URL and import, or get supported formats info (portmanteau).
 
-    Supports downloading and importing various file formats including 3D models,
-    textures, and other assets. Automatically detects file type and uses appropriate
-    Blender import operators.
+    Operations:
+    - download: Download from url and optionally import into scene (requires url)
+    - info: Supported file formats and usage examples
 
     Args:
-        url: URL to download from (http/https)
-        import_into_scene: Whether to import the downloaded file into the current scene
-        custom_filename: Optional custom filename (without extension, auto-detected)
-        timeout: Download timeout in seconds (default: 30)
+        operation: One of download, info
+        url: For download - URL to download from (http/https)
+        import_into_scene: For download - import into current scene
+        custom_filename: For download - custom filename without extension
+        timeout: For download - timeout in seconds (1-300)
 
     Returns:
-        Success message with download and import details
-
-    Examples:
-        - blender_download("https://example.com/model.obj") - Download and import OBJ model
-        - blender_download("https://example.com/texture.png", import_into_scene=False) - Just download texture
-        - blender_download("https://example.com/katana.fbx", custom_filename="my_katana") - Download with custom name
+        Success message or info string
     """
+    if operation == "info":
+        logger.info("Getting download tool information")
+        formats_list = [
+            f"  {ext.upper()} - {importer}" for ext, importer in SUPPORTED_FORMATS.items()
+        ]
+        return f"""Blender Download Tool Information
+{"=" * 40}
+
+Supported File Formats:
+{chr(10).join(formats_list)}
+
+Usage: blender_download(operation="download", url="https://...", import_into_scene=True)
+Use operation="info" for this message.
+"""
+    if not url or not url.strip():
+        return (
+            "url is required for operation='download'. Use operation='info' for supported formats."
+        )
     from ..utils.blender_executor import get_blender_executor
 
     logger.info(f"blender_download called - URL: {url}, import: {import_into_scene}")
 
     try:
-        # Validate inputs
         if timeout < 1 or timeout > 300:
             raise MCPError(f"timeout must be between 1 and 300 seconds, got {timeout}")
 
@@ -237,7 +249,7 @@ async def blender_download(
 
         # Download the file
         logger.info(f"Starting download: {url}")
-        if not _download_file(url, output_path, timeout):
+        if not await _download_file(url, output_path, timeout):
             return f"Error: Failed to download file from {url}"
 
         # Check if file was actually downloaded
@@ -273,39 +285,3 @@ async def blender_download(
     except Exception as e:
         logger.error(f"Error in blender_download: {str(e)}")
         return f"Error downloading file: {str(e)}"
-
-
-@app.tool
-async def blender_download_info() -> str:
-    """
-    Get information about supported download formats and usage.
-
-    Returns:
-        Information about supported file formats and usage examples
-    """
-    logger.info("Getting download tool information")
-
-    formats_list = []
-    for ext, importer in SUPPORTED_FORMATS.items():
-        formats_list.append(f"  {ext.upper()} - {importer}")
-
-    result = f"""Blender Download Tool Information
-{"=" * 40}
-
-Supported File Formats:
-{chr(10).join(formats_list)}
-
-Usage Examples:
-• blender_download("https://example.com/model.fbx") - Download and import FBX model
-• blender_download("https://example.com/texture.png", import_into_scene=False) - Download only
-• blender_download("https://example.com/katana.obj", custom_filename="samurai_sword") - Custom name
-
-Notes:
-• Downloads are temporary and cleaned up after import
-• Large files may take time to download
-• Some formats require specific Blender add-ons to be enabled
-• Textures are loaded as image data but not automatically assigned to materials
-
-For Katana downloads, ensure the URL points to a supported 3D model format (.obj, .fbx, .dae, etc.)
-"""
-    return result

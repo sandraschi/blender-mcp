@@ -1,392 +1,266 @@
 """
-System status and monitoring tools for Blender MCP.
+System status and monitoring portmanteau for Blender MCP.
 
-Provides comprehensive system information, health checks, and monitoring
-capabilities for the Blender MCP server and Blender environment.
+Exposes blender_status: status, system_info, health_check, performance_monitor.
 """
 
+import json
 import os
 import platform
 import sys
+import time
 from datetime import datetime
+from typing import Literal
 
 import psutil
 
 from ..compat import *
 
 
-# Import app lazily to avoid circular imports
-def get_app():
-    from blender_mcp.app import app
-
-    return app
-
-
 def _register_status_tools():
-    """Register status tools with the app."""
+    """Register the blender_status portmanteau tool."""
+    from blender_mcp.app import get_app
     app = get_app()
 
     @app.tool
     async def blender_status(
+        operation: Literal[
+            "status", "system_info", "health_check", "performance_monitor"
+        ] = "status",
         include_blender_info: bool = True,
         include_system_info: bool = True,
         include_performance: bool = True,
+        duration_seconds: int = 10,
+        limit: Optional[int] = 50,
+        format: Literal["text", "json"] = "text",
     ) -> str:
         """
-        Get comprehensive system status and health information.
+        System status and monitoring (portmanteau).
 
-        Returns detailed information about the Blender MCP server, system resources,
-        Blender availability, and performance metrics.
+        Operations:
+        - status: MCP server, Blender, system, and performance summary
+        - system_info: Detailed OS, Python, env, and resources
+        - health_check: Blender availability, resources, tool registration
+        - performance_monitor: Sample CPU/memory/disk over duration_seconds (max 60)
 
         Args:
-            include_blender_info: Include Blender-specific information
-            include_system_info: Include general system information
-            include_performance: Include performance metrics
-
-        Returns:
-            Formatted status report with all requested information
-
-        Examples:
-            - blender_status() - Complete status
-            - blender_status(include_performance=False) - Status without performance
+            operation: status | system_info | health_check | performance_monitor
+            include_blender_info: For status — include Blender section
+            include_system_info: For status — include system section
+            include_performance: For status — include performance section
+            duration_seconds: For performance_monitor — sampling duration (1–60)
+            format: "json" for webapp dict (status only); "text" for report string
         """
-        status_parts = []
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        status_parts.append(f"Blender MCP Status Report - {timestamp}")
-        status_parts.append("=" * 50)
-
-        # MCP Server status
-        try:
-            from blender_mcp.app import get_app
-
-            get_app()
-            status_parts.append("✅ MCP Server: Running")
-        except Exception as e:
-            status_parts.append(f"❌ MCP Server: Error - {str(e)}")
-
-        if include_blender_info:
-            status_parts.append("")
-            status_parts.append("Blender Information:")
-            status_parts.append("-" * 20)
-
-            from blender_mcp.config import BLENDER_EXECUTABLE, validate_blender_executable
-
-            if validate_blender_executable():
-                status_parts.append(f"✅ Blender Available: {BLENDER_EXECUTABLE}")
-                # Try to get version
+        # ------------------------------------------------------------------
+        if operation == "status":
+            if format == "json":
                 try:
-                    from blender_mcp.config import get_blender_version
-
-                    version = get_blender_version()
-                    if version:
-                        status_parts.append(f"📦 Version: {version}")
-                    else:
-                        status_parts.append("📦 Version: Unknown")
+                    from blender_mcp.config import validate_blender_executable
+                    blender_ok = validate_blender_executable()
+                    from blender_mcp import __version__
+                    version = __version__
                 except Exception:
-                    status_parts.append("📦 Version: Unable to detect")
-            else:
-                status_parts.append(f"❌ Blender Not Found: {BLENDER_EXECUTABLE}")
+                    blender_ok = False
+                    version = "unknown"
+                return json.dumps({"status": "ok", "blender": blender_ok, "version": version})
 
-        if include_system_info:
-            status_parts.append("")
-            status_parts.append("System Information:")
-            status_parts.append("-" * 20)
-
-            status_parts.append(f"🖥️  Platform: {platform.system()} {platform.release()}")
-            status_parts.append(f"🧠 Processor: {platform.processor()}")
-            status_parts.append(f"🐍 Python: {sys.version.split()[0]}")
-
-            # Memory info
-            try:
-                memory = psutil.virtual_memory()
-                memory_gb = memory.total / (1024**3)
-                status_parts.append(f"💾 Memory: {memory_gb:.1f} GB total")
-            except Exception:
-                status_parts.append("💾 Memory: Unable to detect")
-
-        if include_performance:
-            status_parts.append("")
-            status_parts.append("Performance Metrics:")
-            status_parts.append("-" * 20)
+            parts = []
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            parts.append(f"Blender MCP Status Report — {ts}")
+            parts.append("=" * 50)
 
             try:
-                # CPU usage
-                cpu_percent = psutil.cpu_percent(interval=1)
-                status_parts.append(f"⚡ CPU Usage: {cpu_percent:.1f}%")
-
-                # Memory usage
-                memory = psutil.virtual_memory()
-                status_parts.append(
-                    f"💾 Memory Usage: {memory.percent:.1f}% ({memory.available // (1024**2):,} MB free)"
-                )
-
-                # Disk usage
-                disk = psutil.disk_usage("/")
-                status_parts.append(
-                    f"💿 Disk Usage: {disk.percent:.1f}% ({disk.free // (1024**3):.1f} GB free)"
-                )
-
+                from blender_mcp.app import get_app as _ga
+                _ga()
+                parts.append("MCP Server: Running")
             except Exception as e:
-                status_parts.append(f"⚠️  Performance monitoring unavailable: {str(e)}")
+                parts.append(f"MCP Server: Error — {e}")
 
-        return "\n".join(status_parts)
+            if include_blender_info:
+                parts.append("\nBlender:")
+                try:
+                    from blender_mcp.config import BLENDER_EXECUTABLE, validate_blender_executable
+                    if validate_blender_executable():
+                        parts.append(f"  Available: {BLENDER_EXECUTABLE}")
+                    else:
+                        parts.append(f"  Not found: {BLENDER_EXECUTABLE}")
+                except Exception as e:
+                    parts.append(f"  Check failed: {e}")
 
-    @app.tool
-    async def blender_system_info() -> str:
-        """
-        Get detailed system and environment information.
+            if include_system_info:
+                parts.append("\nSystem:")
+                parts.append(f"  Platform: {platform.system()} {platform.release()}")
+                parts.append(f"  Python: {sys.version.split()[0]}")
+                try:
+                    mem = psutil.virtual_memory()
+                    parts.append(f"  Memory: {mem.total / 1024**3:.1f} GB total")
+                except Exception:
+                    pass
 
-        Returns comprehensive information about the operating system, Python environment,
-        available resources, and configuration.
+            if include_performance:
+                parts.append("\nPerformance:")
+                try:
+                    cpu = psutil.cpu_percent(interval=1)
+                    mem = psutil.virtual_memory()
+                    disk = psutil.disk_usage("/")
+                    parts.append(f"  CPU: {cpu:.1f}%")
+                    parts.append(f"  Memory: {mem.percent:.1f}% ({mem.available // 1024**2:,} MB free)")
+                    parts.append(f"  Disk: {disk.percent:.1f}% ({disk.free // 1024**3:.1f} GB free)")
+                except Exception as e:
+                    parts.append(f"  Unavailable: {e}")
 
-        Returns:
-            Detailed system information report
+            return "\n".join(parts)
 
-        Examples:
-            - blender_system_info() - Get all system details
-        """
-        info_parts = []
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # ------------------------------------------------------------------
+        elif operation == "system_info":
+            parts = []
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            parts.append(f"Blender MCP System Information — {ts}")
+            parts.append("=" * 50)
+            parts.append(f"Platform: {platform.system()} {platform.version()}")
+            parts.append(f"Architecture: {platform.machine()}")
+            parts.append(f"Processor: {platform.processor()}")
+            parts.append(f"\nPython: {sys.version}")
+            parts.append(f"Executable: {sys.executable}")
+            parts.append(f"CWD: {os.getcwd()}")
 
-        info_parts.append(f"Blender MCP System Information - {timestamp}")
-        info_parts.append("=" * 50)
+            parts.append("\nEnvironment:")
+            for var in ("BLENDER_EXECUTABLE", "PYTHONPATH"):
+                val = os.environ.get(var)
+                parts.append(f"  {var}: {val or 'Not set'}")
 
-        # Basic system info
-        info_parts.append("Operating System:")
-        info_parts.append(f"  • Platform: {platform.system()} {platform.version()}")
-        info_parts.append(f"  • Architecture: {platform.machine()}")
-        info_parts.append(f"  • Processor: {platform.processor()}")
-
-        # Python info
-        info_parts.append("")
-        info_parts.append("Python Environment:")
-        info_parts.append(f"  • Version: {sys.version}")
-        info_parts.append(f"  • Executable: {sys.executable}")
-        info_parts.append(f"  • Current Directory: {os.getcwd()}")
-
-        # Environment variables
-        info_parts.append("")
-        info_parts.append("Key Environment Variables:")
-        env_vars = ["BLENDER_EXECUTABLE", "PYTHONPATH", "PATH"]
-        for var in env_vars:
-            value = os.environ.get(var)
-            if value:
-                if var == "PATH":
-                    # Show just the first path element for brevity
-                    display_value = value.split(os.pathsep)[0] + "..."
-                else:
-                    display_value = value
-                info_parts.append(f"  • {var}: {display_value}")
-            else:
-                info_parts.append(f"  • {var}: Not set")
-
-        # Resource information
-        info_parts.append("")
-        info_parts.append("System Resources:")
-        try:
-            # Memory
-            memory = psutil.virtual_memory()
-            info_parts.append(f"  • Total Memory: {memory.total // (1024**3):.1f} GB")
-            info_parts.append(f"  • Available Memory: {memory.available // (1024**3):.1f} GB")
-
-            # CPU
-            info_parts.append(
-                f"  • CPU Cores: {psutil.cpu_count()} physical, {psutil.cpu_count(logical=True)} logical"
-            )
-
-            # Disk
-            disk = psutil.disk_usage("/")
-            info_parts.append(
-                f"  • Disk Space: {disk.total // (1024**3):.1f} GB total, {disk.free // (1024**3):.1f} GB free"
-            )
-
-        except Exception as e:
-            info_parts.append(f"  • Resource info unavailable: {str(e)}")
-
-        return "\n".join(info_parts)
-
-    @app.tool
-    async def blender_health_check() -> str:
-        """
-        Perform a comprehensive health check of the Blender MCP system.
-
-        Checks Blender availability, system resources, tool registration,
-        and overall system health.
-
-        Returns:
-            Health check results with status indicators
-
-        Examples:
-            - blender_health_check() - Run complete health check
-        """
-        checks = []
-        overall_status = "✅ HEALTHY"
-
-        # Check 1: MCP Server
-        try:
-            from blender_mcp.app import get_app
-
-            get_app()
-            checks.append("✅ MCP Server: Running and accessible")
-        except Exception as e:
-            checks.append(f"❌ MCP Server: Failed - {str(e)}")
-            overall_status = "❌ UNHEALTHY"
-
-        # Check 2: Blender Availability
-        try:
-            from blender_mcp.config import validate_blender_executable
-
-            if validate_blender_executable():
-                checks.append("✅ Blender: Available and validated")
-            else:
-                checks.append("❌ Blender: Not found or inaccessible")
-                overall_status = "❌ UNHEALTHY"
-        except Exception as e:
-            checks.append(f"❌ Blender: Check failed - {str(e)}")
-            overall_status = "❌ UNHEALTHY"
-
-        # Check 3: System Resources
-        try:
-            memory = psutil.virtual_memory()
-            disk = psutil.disk_usage("/")
-
-            resource_issues = []
-            if memory.percent > 90:
-                resource_issues.append(f"high memory usage ({memory.percent:.1f}%)")
-            if disk.percent > 95:
-                resource_issues.append(f"low disk space ({disk.percent:.1f}% used)")
-
-            if resource_issues:
-                checks.append(
-                    f"⚠️  System Resources: Issues detected - {', '.join(resource_issues)}"
-                )
-                if overall_status == "✅ HEALTHY":
-                    overall_status = "⚠️  WARNING"
-            else:
-                checks.append("✅ System Resources: Adequate levels")
-
-        except Exception as e:
-            checks.append(f"⚠️  System Resources: Monitoring unavailable - {str(e)}")
-
-        # Check 4: Tool Registration
-        try:
-            from blender_mcp.help import get_categories, list_functions
-
-            categories = get_categories()
-            total_tools = sum(len(list_functions(cat)) for cat in categories)
-
-            if total_tools > 0:
-                checks.append(
-                    f"✅ Tool Registration: {total_tools} tools across {len(categories)} categories"
-                )
-            else:
-                checks.append("❌ Tool Registration: No tools registered")
-                overall_status = "❌ UNHEALTHY"
-
-        except Exception as e:
-            checks.append(f"❌ Tool Registration: Check failed - {str(e)}")
-            overall_status = "❌ UNHEALTHY"
-
-        # Format the response
-        result = f"Blender MCP Health Check - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
-        result += "=" * 60 + "\n"
-        result += f"Overall Status: {overall_status}\n\n"
-        result += "Detailed Checks:\n"
-        result += "\n".join(checks)
-
-        return result
-
-    @app.tool
-    async def blender_performance_monitor(duration_seconds: int = 10) -> str:
-        """
-        Monitor system performance over a specified duration.
-
-        Collects performance metrics at regular intervals to identify
-        performance patterns and potential issues.
-
-        Args:
-            duration_seconds: How long to monitor (max 60 seconds)
-
-        Returns:
-            Performance monitoring report with samples and summary
-
-        Examples:
-            - blender_performance_monitor() - Monitor for 10 seconds
-            - blender_performance_monitor(30) - Monitor for 30 seconds
-        """
-        import time
-
-        if duration_seconds > 60:
-            duration_seconds = 60  # Cap at 60 seconds
-
-        samples = []
-        start_time = datetime.now()
-
-        result = f"Blender MCP Performance Monitor - {start_time.strftime('%Y-%m-%d %H:%M:%S')}\n"
-        result += "=" * 70 + "\n"
-        result += f"Monitoring Duration: {duration_seconds} seconds\n"
-        result += "Sample Interval: 2 seconds\n"
-        result += f"Number of Samples: {max(1, duration_seconds // 2)}\n\n"
-
-        try:
-            for i in range(0, duration_seconds, 2):
-                sample_time = datetime.now()
-                perf_data = {}
-
-                # CPU usage
-                cpu_percent = psutil.cpu_percent(interval=1)
-                perf_data["cpu"] = cpu_percent
-
-                # Memory usage
-                memory = psutil.virtual_memory()
-                perf_data["memory"] = memory.percent
-
-                # Disk usage
+            parts.append("\nResources:")
+            try:
+                mem = psutil.virtual_memory()
+                parts.append(f"  Memory total: {mem.total // 1024**3:.1f} GB")
+                parts.append(f"  Memory available: {mem.available // 1024**3:.1f} GB")
+                parts.append(f"  CPU cores: {psutil.cpu_count()} physical, {psutil.cpu_count(logical=True)} logical")
                 disk = psutil.disk_usage("/")
-                perf_data["disk"] = disk.percent
+                parts.append(f"  Disk: {disk.total // 1024**3:.1f} GB total, {disk.free // 1024**3:.1f} GB free")
+            except Exception as e:
+                parts.append(f"  Unavailable: {e}")
 
-                samples.append(
-                    {
-                        "sample": len(samples) + 1,
-                        "timestamp": sample_time.strftime("%H:%M:%S"),
-                        "cpu_percent": cpu_percent,
-                        "memory_percent": memory.percent,
-                        "disk_percent": disk.percent,
-                    }
-                )
+            return "\n".join(parts)
 
-                if i + 2 < duration_seconds:  # Don't sleep after last sample
-                    time.sleep(2)
+        # ------------------------------------------------------------------
+        elif operation == "health_check":
+            checks = []
+            status = "HEALTHY"
 
-            # Calculate summary statistics
-            cpu_values = [s["cpu_percent"] for s in samples]
-            memory_values = [s["memory_percent"] for s in samples]
-            disk_values = [s["disk_percent"] for s in samples]
+            try:
+                from blender_mcp.app import get_app as _ga
+                _ga()
+                checks.append("MCP Server: OK")
+            except Exception as e:
+                checks.append(f"MCP Server: FAIL — {e}")
+                status = "UNHEALTHY"
 
-            result += "Performance Samples:\n"
-            result += f"{'Sample':<8} {'Time':<12} {'CPU%':<8} {'Mem%':<8} {'Disk%':<8}\n"
-            result += "-" * 60 + "\n"
+            try:
+                from blender_mcp.config import validate_blender_executable
+                if validate_blender_executable():
+                    checks.append("Blender: Available")
+                else:
+                    checks.append("Blender: NOT FOUND")
+                    status = "UNHEALTHY"
+            except Exception as e:
+                checks.append(f"Blender: FAIL — {e}")
+                status = "UNHEALTHY"
 
-            for sample in samples:
-                result += f"{sample['sample']:<8} {sample['timestamp']:<12} {sample['cpu_percent']:<8.1f} {sample['memory_percent']:<8.1f} {sample['disk_percent']:<8.1f}\n"
+            try:
+                mem = psutil.virtual_memory()
+                disk = psutil.disk_usage("/")
+                issues = []
+                if mem.percent > 90:
+                    issues.append(f"high memory ({mem.percent:.0f}%)")
+                if disk.percent > 95:
+                    issues.append(f"low disk ({disk.percent:.0f}%)")
+                if issues:
+                    checks.append(f"Resources: WARNING — {', '.join(issues)}")
+                    if status == "HEALTHY":
+                        status = "WARNING"
+                else:
+                    checks.append("Resources: OK")
+            except Exception as e:
+                checks.append(f"Resources: FAIL — {e}")
 
-            result += "\nSummary Statistics:\n"
-            result += "-" * 20 + "\n"
-            result += f"CPU Usage:    Avg {sum(cpu_values) / len(cpu_values):5.1f}% | Max {max(cpu_values):5.1f}% | Min {min(cpu_values):5.1f}%\n"
-            result += f"Memory Usage: Avg {sum(memory_values) / len(memory_values):5.1f}% | Max {max(memory_values):5.1f}% | Min {min(memory_values):5.1f}%\n"
-            result += f"Disk Usage:   Avg {sum(disk_values) / len(disk_values):5.1f}% | Max {max(disk_values) / len(disk_values):5.1f}% | Min {min(disk_values):5.1f}%\n"
+            ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            lines = [
+                f"Blender MCP Health Check — {ts}",
+                "=" * 50,
+                f"Overall: {status}",
+                "",
+            ] + checks
+            return "\n".join(lines)
 
-            end_time = datetime.now()
-            duration = (end_time - start_time).total_seconds()
-            result += f"\nMonitoring completed in {duration:.1f} seconds"
+        # ------------------------------------------------------------------
+        elif operation == "performance_monitor":
+            duration_seconds = min(max(1, duration_seconds), 60)
+            samples = []
+            start = datetime.now()
+            try:
+                for _ in range(0, duration_seconds, 2):
+                    t = datetime.now()
+                    samples.append({
+                        "n": len(samples) + 1,
+                        "time": t.strftime("%H:%M:%S"),
+                        "cpu": psutil.cpu_percent(interval=1),
+                        "mem": psutil.virtual_memory().percent,
+                        "disk": psutil.disk_usage("/").percent,
+                    })
+                    if len(samples) * 2 < duration_seconds:
+                        time.sleep(1)
+            except Exception as e:
+                return f"Performance monitoring failed: {e}"
 
+            lines = [
+                f"Blender MCP Performance Monitor — {start.strftime('%Y-%m-%d %H:%M:%S')}",
+                "=" * 60,
+                f"Duration: {duration_seconds}s  Samples: {len(samples)}",
+                "",
+                f"{'#':<5} {'Time':<12} {'CPU%':<8} {'Mem%':<8} {'Disk%'}",
+                "-" * 50,
+            ]
+            for s in samples:
+                lines.append(f"{s['n']:<5} {s['time']:<12} {s['cpu']:<8.1f} {s['mem']:<8.1f} {s['disk']:.1f}")
+
+            if samples:
+                cpu_v = [s["cpu"] for s in samples]
+                mem_v = [s["mem"] for s in samples]
+                lines += [
+                    "",
+                    "Summary:",
+                    f"  CPU:    avg {sum(cpu_v)/len(cpu_v):.1f}%  max {max(cpu_v):.1f}%  min {min(cpu_v):.1f}%",
+                    f"  Memory: avg {sum(mem_v)/len(mem_v):.1f}%  max {max(mem_v):.1f}%  min {min(mem_v):.1f}%",
+                ]
+            return "\n".join(lines)
+
+        # ------------------------------------------------------------------
+        else:
+            return (
+                f"Unknown operation '{operation}'. "
+                "Use: status, system_info, health_check, performance_monitor"
+            )
+
+    @app.tool
+    async def server_info() -> str:
+        """Return Blender MCP server information, version, and status."""
+        try:
+            from blender_mcp import __version__
+            from blender_mcp.config import BLENDER_EXECUTABLE, validate_blender_executable
+            
+            blender_ok = validate_blender_executable()
+            return json.dumps({
+                "name": "blender-mcp",
+                "version": __version__,
+                "status": "connected",
+                "blender_executable": str(BLENDER_EXECUTABLE),
+                "blender_status": "ok" if blender_ok else "error",
+                "platform": platform.system(),
+                "python_version": sys.version.split()[0]
+            })
         except Exception as e:
-            result += f"❌ Performance monitoring failed: {str(e)}\n"
-            result += "This may be due to system permissions or psutil not being available."
-
-        return result
+            return json.dumps({"status": "error", "message": str(e)})
 
 
-# Register the tools when this module is imported
 _register_status_tools()

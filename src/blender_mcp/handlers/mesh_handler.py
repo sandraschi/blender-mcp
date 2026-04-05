@@ -4,11 +4,12 @@ Mesh creation and manipulation handler for Blender MCP.
 Provides functions for creating basic mesh primitives and manipulating mesh objects.
 """
 
+import logging
 from typing import Tuple
 
-from loguru import logger
-
 from ..compat import *
+
+logger = logging.getLogger(__name__)
 from ..decorators import blender_operation
 from ..utils.blender_executor import get_blender_executor
 

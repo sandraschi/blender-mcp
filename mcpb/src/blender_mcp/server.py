@@ -4,15 +4,16 @@ This module provides the main entry point for the Blender MCP server, which expo
 various Blender operations as FastMCP tools using the decorator pattern.
 """
 
-import sys
 import argparse
-from loguru import logger
+import sys
 
-# Import from our compatibility module
-from blender_mcp.compat import *
+from loguru import logger
 
 # Import the app instance
 from blender_mcp.app import app
+
+# Import from our compatibility module
+from blender_mcp.compat import *
 
 # Import all handlers to ensure tool registration
 # These imports are necessary for the @app.tool decorators to register the tools
@@ -141,6 +142,7 @@ def main():
 # MCP Entry Points - Industry Standard Installation
 # =============================================================================
 
+
 def create_server():
     """Create and return the MCP server instance.
 
@@ -160,6 +162,7 @@ def main_stdio():
     through stdin/stdout streams.
     """
     import logging
+
     logging.basicConfig(level=logging.INFO)
 
     logger.info("[MCP] Starting Blender MCP server in stdio mode")
@@ -182,6 +185,7 @@ def main_http(host="127.0.0.1", port=8000):
         port: Port to bind to
     """
     import logging
+
     logging.basicConfig(level=logging.INFO)
 
     logger = logging.getLogger(__name__)

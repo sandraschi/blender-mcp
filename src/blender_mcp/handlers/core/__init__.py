@@ -3,6 +3,7 @@
 This package contains the core handler implementations for Blender MCP,
 including mesh, material, scene, and camera operations.
 """
+
 from ..compat import *
 from .animation_handler import *
 from .camera_handler import *

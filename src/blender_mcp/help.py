@@ -281,6 +281,63 @@ class HelpSystem:
             )
         )
 
+        # Addons, Mesh, Splat
+        self._add_function(
+            FunctionInfo(
+                name="blender_addons",
+                category="Addons & Assets",
+                description="List, install (local or from URL), uninstall, or search known add-ons (e.g. Gaussian splat, packs).",
+                parameters=[
+                    ParameterInfo(
+                        "operation",
+                        "str",
+                        "list_addons",
+                        "list_addons | install_addon | install_from_url | uninstall_addon | search",
+                    ),
+                    ParameterInfo("addon_url", "str", "", "For install_from_url: ZIP or .py URL"),
+                    ParameterInfo("search_query", "str", "", "For search: e.g. gaussian splat"),
+                    ParameterInfo("addon_name", "str", "", "For uninstall_addon"),
+                    ParameterInfo("addon_path", "str", "", "For install_addon: local path"),
+                ],
+                returns="JSON string with status/result",
+                example="blender_addons(operation='install_from_url', addon_url='https://github.com/.../main.zip')",
+            )
+        )
+        self._add_function(
+            FunctionInfo(
+                name="blender_download",
+                category="Addons & Assets",
+                description="Download file from URL and optionally import into Blender (OBJ, FBX, GLB, STL, PLY, etc.).",
+                parameters=[
+                    ParameterInfo("operation", "str", "download", "download | info"),
+                    ParameterInfo("url", "str", "", "URL to download (for download)"),
+                    ParameterInfo("import_into_scene", "bool", "True", "Import after download"),
+                ],
+                returns="Success message or format info",
+                example="blender_download(operation='download', url='https://.../model.obj')",
+            )
+        )
+        self._add_function(
+            FunctionInfo(
+                name="blender_splatting",
+                category="Addons & Assets",
+                description="Import or process Gaussian splats (import_gs, crop_and_clean, generate_collision_mesh, export_for_resonite). Requires 3DGS add-on.",
+                parameters=[
+                    ParameterInfo(
+                        "operation",
+                        "str",
+                        "import_gs",
+                        "import_gs | crop_and_clean | generate_collision_mesh | export_for_resonite | ...",
+                    ),
+                    ParameterInfo(
+                        "file_path", "str", "", "Path to .ply/splat file (for import_gs)"
+                    ),
+                ],
+                returns="Operation result string",
+                example="blender_splatting(operation='import_gs', file_path='/path/to/splat.ply')",
+            )
+        )
+
         # Help and Status Tools
         self._add_function(
             FunctionInfo(
@@ -434,50 +491,32 @@ class HelpSystem:
                 description="Complete object repository management with save, load, search, and versioning capabilities.",
                 parameters=[
                     ParameterInfo(
-                        "operation", "str", "list_objects", "Operation to perform (save/load/search/list_objects)"
+                        "operation",
+                        "str",
+                        "list_objects",
+                        "Operation to perform (save/load/search/list_objects)",
                     ),
-                    ParameterInfo(
-                        "object_name", "str", "", "Blender object name (for save)"
-                    ),
+                    ParameterInfo("object_name", "str", "", "Blender object name (for save)"),
                     ParameterInfo(
                         "object_name_display", "str", "", "Display name for saved objects"
                     ),
-                    ParameterInfo(
-                        "object_id", "str", "", "Repository ID (for load)"
-                    ),
-                    ParameterInfo(
-                        "query", "str | None", "None", "Search query"
-                    ),
-                    ParameterInfo(
-                        "category", "str", "'general'", "Object category"
-                    ),
-                    ParameterInfo(
-                        "limit", "int", "20", "Maximum results"
-                    ),
-                    ParameterInfo(
-                        "description", "str", "", "Detailed description of the model"
-                    ),
-                    ParameterInfo(
-                        "tags", "List[str]", "[]", "Tags for categorization and search"
-                    ),
-                    ParameterInfo(
-                        "category", "str", "'general'", "Organizational category"
-                    ),
+                    ParameterInfo("object_id", "str", "", "Repository ID (for load)"),
+                    ParameterInfo("query", "str | None", "None", "Search query"),
+                    ParameterInfo("category", "str", "'general'", "Object category"),
+                    ParameterInfo("limit", "int", "20", "Maximum results"),
+                    ParameterInfo("description", "str", "", "Detailed description of the model"),
+                    ParameterInfo("tags", "List[str]", "[]", "Tags for categorization and search"),
+                    ParameterInfo("category", "str", "'general'", "Organizational category"),
                     ParameterInfo(
                         "construction_script", "str | None", "None", "Original construction script"
                     ),
-                    ParameterInfo(
-                        "quality_rating", "int", "5", "Quality rating 1-10"
-                    ),
-                    ParameterInfo(
-                        "public", "bool", "False", "Make model publicly available"
-                    ),
+                    ParameterInfo("quality_rating", "int", "5", "Quality rating 1-10"),
+                    ParameterInfo("public", "bool", "False", "Make model publicly available"),
                 ],
                 returns="Dict: Repository operation results with appropriate data",
                 example="manage_object_repo('save', object_name='Robot', object_name_display='Robbie Robot', quality_rating=9)",
             )
         )
-
 
         # AI Construction Tools
         self._add_function(
@@ -492,18 +531,15 @@ class HelpSystem:
                     ParameterInfo(
                         "description", "str", "", "Natural language description (for construct)"
                     ),
+                    ParameterInfo("object_name", "str", "", "Existing object name (for modify)"),
                     ParameterInfo(
-                        "object_name", "str", "", "Existing object name (for modify)"
+                        "modification_description",
+                        "str",
+                        "",
+                        "Modification description (for modify)",
                     ),
-                    ParameterInfo(
-                        "modification_description", "str", "", "Modification description (for modify)"
-                    ),
-                    ParameterInfo(
-                        "complexity", "str", "'standard'", "Complexity level"
-                    ),
-                    ParameterInfo(
-                        "max_iterations", "int", "3", "Maximum refinement iterations"
-                    ),
+                    ParameterInfo("complexity", "str", "'standard'", "Complexity level"),
+                    ParameterInfo("max_iterations", "int", "3", "Maximum refinement iterations"),
                 ],
                 returns="Dict: Construction/modification results with object info and next steps",
                 example="manage_object_construction('construct', description='a robot like Robbie from Forbidden Planet')",
@@ -521,26 +557,39 @@ class HelpSystem:
                         "description",
                         "str",
                         required=True,
-                        description="Natural language description of the object to create"
+                        description="Natural language description of the object to create",
                     ),
                     ParameterInfo(
-                        "name", "str", "'ConstructedObject'", "Name for the created object in Blender scene"
+                        "name",
+                        "str",
+                        "'ConstructedObject'",
+                        "Name for the created object in Blender scene",
                     ),
                     ParameterInfo(
-                        "complexity", "str", "'standard'", "Complexity level (simple/standard/complex)"
+                        "complexity",
+                        "str",
+                        "'standard'",
+                        "Complexity level (simple/standard/complex)",
                     ),
                     ParameterInfo(
-                        "style_preset", "Optional[str]", "None", "Style preset (realistic/stylized/lowpoly/scifi)"
+                        "style_preset",
+                        "Optional[str]",
+                        "None",
+                        "Style preset (realistic/stylized/lowpoly/scifi)",
                     ),
                     ParameterInfo(
-                        "reference_objects", "Optional[List[str]]", "None", "Existing objects to use as reference"
+                        "reference_objects",
+                        "Optional[List[str]]",
+                        "None",
+                        "Existing objects to use as reference",
                     ),
                     ParameterInfo(
-                        "allow_modifications", "bool", "True", "Whether LLM can modify existing objects"
+                        "allow_modifications",
+                        "bool",
+                        "True",
+                        "Whether LLM can modify existing objects",
                     ),
-                    ParameterInfo(
-                        "max_iterations", "int", "3", "Maximum refinement iterations"
-                    ),
+                    ParameterInfo("max_iterations", "int", "3", "Maximum refinement iterations"),
                 ],
                 returns="Dict: Construction results with success status, object info, and next steps",
                 example="construct_object('a robot like Robbie from Forbidden Planet', complexity='complex')",
@@ -555,19 +604,34 @@ class HelpSystem:
                 category="Repository & Export",
                 parameters=[
                     ParameterInfo(
-                        "asset_id", "str", required=True, description="ID of asset to export from repository"
+                        "asset_id",
+                        "str",
+                        required=True,
+                        description="ID of asset to export from repository",
                     ),
                     ParameterInfo(
-                        "target_mcp", "str", required=True, description="Target MCP server (vrchat, resonite, unity, unreal)"
+                        "target_mcp",
+                        "str",
+                        required=True,
+                        description="Target MCP server (vrchat, resonite, unity, unreal)",
                     ),
                     ParameterInfo(
-                        "optimization_preset", "str", "'automatic'", "Optimization approach (automatic/conservative/aggressive)"
+                        "optimization_preset",
+                        "str",
+                        "'automatic'",
+                        "Optimization approach (automatic/conservative/aggressive)",
                     ),
                     ParameterInfo(
-                        "quality_level", "str", "'high'", "Quality vs speed (draft/standard/high/ultra)"
+                        "quality_level",
+                        "str",
+                        "'high'",
+                        "Quality vs speed (draft/standard/high/ultra)",
                     ),
                     ParameterInfo(
-                        "include_metadata", "bool", "True", "Include integration metadata for target MCP"
+                        "include_metadata",
+                        "bool",
+                        "True",
+                        "Include integration metadata for target MCP",
                     ),
                 ],
                 returns="Dict: Export results with file paths, integration commands, and platform metadata",

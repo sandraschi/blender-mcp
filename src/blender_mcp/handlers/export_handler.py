@@ -2,12 +2,14 @@
 
 This module provides export functions that can be registered as FastMCP tools.
 """
+
+import logging
 import os
 from pathlib import Path
 
-from loguru import logger
-
 from ..compat import *
+
+logger = logging.getLogger(__name__)
 from ..decorators import blender_operation
 from ..exceptions import BlenderExportError
 from ..utils.blender_executor import get_blender_executor
@@ -18,7 +20,7 @@ _executor = get_blender_executor()
 
 def _get_export_script_setup(output_path: str, blend_path: str = None) -> str:
     """Generate the common setup script for export operations.
-    
+
     Args:
         output_path: Path where FBX will be exported
         blend_path: Optional path to .blend file to load before export
@@ -95,7 +97,7 @@ async def export_for_unity(
             raise BlenderExportError("FBX", output_path, "Invalid output directory")
 
         # Generate the export script - load .blend file if it exists
-        blend_path = str(Path(output_path).with_suffix('.blend'))
+        blend_path = str(Path(output_path).with_suffix(".blend"))
         script = _get_export_script_setup(output_path, blend_path=blend_path)
         script += f"""
 try:
@@ -103,12 +105,12 @@ try:
     export_path = r"{output_path}"
     print(f"Starting FBX export to: {{export_path}}")
     print(f"Selected {{len(mesh_objects)}} mesh objects for export")
-    
+
     # Select all mesh objects for export
     bpy.ops.object.select_all(action='DESELECT')
     for obj in mesh_objects:
         obj.select_set(True)
-    
+
     bpy.ops.export_scene.fbx(
         filepath=export_path,
         use_selection=True,
@@ -126,7 +128,7 @@ try:
         path_mode='AUTO',
         embed_textures={bake_textures}
     )
-    
+
     # Verify file was created
     import os
     if os.path.exists(export_path):
@@ -135,7 +137,7 @@ try:
     else:
         print(f"ERROR: FBX file was not created at {{export_path}}")
         raise Exception("FBX export completed but file not found")
-    
+
     # Collect statistics
     stats = {{
         'export_path': export_path,
@@ -146,10 +148,10 @@ try:
         'baked_textures': {str(bake_textures)},
         'lod_levels': {lod_levels}
     }}
-    
+
     print(f"SUCCESS: Unity export complete!")
     print(f"Export details: {{json.dumps(stats, indent=2)}}")
-    
+
 except Exception as e:
     import traceback
     error_msg = f"ERROR: Export failed: {{str(e)}}\\n{{traceback.format_exc()}}"
@@ -176,7 +178,9 @@ except Exception as e:
                 # If file was created or updated, treat as success
                 if not file_existed_before or file_mtime_after > file_mtime_before:
                     file_size = os.path.getsize(output_path)
-                    logger.warning(f"Blender exited with error but FBX file was created: {error_str}")
+                    logger.warning(
+                        f"Blender exited with error but FBX file was created: {error_str}"
+                    )
                     return f"Successfully exported to {output_path} ({file_size} bytes) - warning ignored"
             # If no file was created, raise error
             raise BlenderExportError("FBX", output_path, error_str) from e
@@ -242,7 +246,7 @@ if not warnings:
         export_tangent_space=False,
         export_texture_dir=os.path.join(os.path.dirname(r"{output_path}"), "textures")
     )
-    
+
     print(f"SUCCESS: VRChat export complete!")
     print(f"Performance rank: {{'{performance_rank}'}}")
     print(f"Total polygons: {{total_polys}}")

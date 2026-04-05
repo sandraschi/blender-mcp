@@ -5,13 +5,15 @@ Provides platform-specific export configurations for VR platforms including
 VRChat, Resonite, and Unity with appropriate scale, format, and settings.
 """
 
+import logging
 from typing import Any, Dict, List, Literal, Optional
 
-from loguru import logger
+logger = logging.getLogger(__name__)
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -22,8 +24,10 @@ def _register_export_presets_tools():
     @app.tool
     async def blender_export_presets(
         operation: Literal[
-            "export_with_preset", "validate_export_preset", "get_platform_presets",
-            "create_custom_preset"
+            "export_with_preset",
+            "validate_export_preset",
+            "get_platform_presets",
+            "create_custom_preset",
         ] = "export_with_preset",
         # Common params
         target_objects: Optional[List[str]] = None,
@@ -40,7 +44,7 @@ def _register_export_presets_tools():
         # Custom preset params
         preset_name: str = "",
         base_platform: str = "VRCHAT",
-        custom_settings: Optional[Dict[str, Any]] = None
+        custom_settings: Optional[Dict[str, Any]] = None,
     ) -> str:
         """
         Platform-specific export presets for VR avatar deployment.
@@ -93,7 +97,7 @@ def _register_export_presets_tools():
                     output_path=output_path,
                     include_materials=include_materials,
                     include_textures=include_textures,
-                    apply_modifiers=apply_modifiers
+                    apply_modifiers=apply_modifiers,
                 )
 
             elif operation == "validate_export_preset":
@@ -104,7 +108,7 @@ def _register_export_presets_tools():
                     platform=platform,
                     check_bones=check_bones,
                     check_materials=check_materials,
-                    check_scale=check_scale
+                    check_scale=check_scale,
                 )
 
             elif operation == "get_platform_presets":
@@ -116,7 +120,7 @@ def _register_export_presets_tools():
                 result = await create_custom_preset(
                     preset_name=preset_name,
                     base_platform=base_platform,
-                    custom_settings=custom_settings
+                    custom_settings=custom_settings,
                 )
 
             else:
@@ -142,7 +146,7 @@ def _format_export_presets_result(result: dict) -> str:
         "error": "❌",
         "fail": "❌",
         "pass": "✅",
-        "unknown": "❓"
+        "unknown": "❓",
     }
     status_icon = status_icons.get(status.lower(), "❓")
 
@@ -179,12 +183,7 @@ def _format_export_presets_result(result: dict) -> str:
         validation = result["validation_results"]
         val_status = validation.get("status", "unknown")
 
-        status_emojis = {
-            "PASS": "✅",
-            "WARNING": "⚠️",
-            "FAIL": "❌",
-            "ERROR": "💥"
-        }
+        status_emojis = {"PASS": "✅", "WARNING": "⚠️", "FAIL": "❌", "ERROR": "💥"}
         val_icon = status_emojis.get(val_status, "❓")
 
         report += f"**Validation Status:** {val_icon} {val_status}\n"

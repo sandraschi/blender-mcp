@@ -4,14 +4,14 @@ Material creation portmanteau tool for Blender MCP.
 Provides a single comprehensive tool for creating and managing PBR materials.
 """
 
-from blender_mcp.compat import *
+from typing import List, Literal
 
-from typing import List, Optional, Literal
-from pydantic import BaseModel, Field
+from blender_mcp.compat import *
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -22,8 +22,13 @@ def _register_material_tools():
     @app.tool
     async def blender_materials(
         operation: Literal[
-            "create_fabric", "create_metal", "create_wood", "create_glass",
-            "create_ceramic", "assign_to_object", "create_from_preset"
+            "create_fabric",
+            "create_metal",
+            "create_wood",
+            "create_glass",
+            "create_ceramic",
+            "assign_to_object",
+            "create_from_preset",
         ] = "create_fabric",
         name: str = "Material",
         # Fabric params
@@ -97,13 +102,13 @@ def _register_material_tools():
             Confirmation message about material operation
         """
         from blender_mcp.handlers.material_handler import (
+            assign_material_async,
+            create_ceramic_material,
             create_fabric_material,
+            create_glass_material,
+            create_material_from_preset,
             create_metal_material,
             create_wood_material,
-            create_glass_material,
-            create_ceramic_material,
-            assign_material_async,
-            create_material_from_preset,
         )
 
         try:
@@ -162,7 +167,9 @@ def _register_material_tools():
             elif operation == "create_from_preset":
                 if not preset_name:
                     return "Error: preset_name required for create_from_preset"
-                return await create_material_from_preset(preset_name, name if name != "Material" else None)
+                return await create_material_from_preset(
+                    preset_name, name if name != "Material" else None
+                )
             else:
                 return f"Unknown operation: {operation}"
         except Exception as e:

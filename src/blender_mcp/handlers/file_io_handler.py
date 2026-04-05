@@ -1,13 +1,14 @@
 """File I/O operations handler for Blender MCP."""
 
+import logging
 import os
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Union
 
-from loguru import logger
-
 from ..compat import *
+
+logger = logging.getLogger(__name__)
 from ..decorators import blender_operation
 from ..utils.blender_executor import get_blender_executor
 

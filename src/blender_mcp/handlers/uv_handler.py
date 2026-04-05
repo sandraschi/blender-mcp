@@ -1,11 +1,12 @@
 """UV mapping operations handler for Blender MCP."""
 
+import logging
 from enum import Enum
 from typing import Any, Dict, Optional, Union
 
-from loguru import logger
-
 from ..compat import *
+
+logger = logging.getLogger(__name__)
 from ..decorators import blender_operation
 from ..utils.blender_executor import get_blender_executor
 
@@ -60,14 +61,14 @@ def unwrap_mesh():
     obj = bpy.data.objects.get('{object_name}')
     if not obj or obj.type != 'MESH':
         return {{"status": "ERROR", "error": "Mesh object not found"}}
-    
+
     # Make the object active and in edit mode
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.mode_set(mode='EDIT')
-    
+
     # Select all faces for unwrapping
     bpy.ops.mesh.select_all(action='SELECT')
-    
+
     # Perform the unwrap
     try:
         if '{method}' == 'SMART':
@@ -93,15 +94,15 @@ def unwrap_mesh():
             )
         else:
             return {{"status": "ERROR", "error": f"Unsupported unwrap method: {method}"}}
-        
+
         # Fill holes if requested
         if {str(fill_holes).lower()} and '{method}' != 'SMART':
             bpy.ops.uv.select_all(action='SELECT')
             bpy.ops.uv.pack_islands(margin={margin})
-        
+
         # Return to object mode
         bpy.ops.object.mode_set(mode='OBJECT')
-        
+
         return {{
             "status": "SUCCESS",
             "method": '{method}',
@@ -155,29 +156,29 @@ def project_uvs():
     obj = bpy.data.objects.get('{object_name}')
     if not obj or obj.type != 'MESH':
         return {{"status": "ERROR", "error": "Mesh object not found"}}
-    
+
     # Store current active object and mode
     prev_active = bpy.context.view_layer.objects.active
     prev_mode = obj.mode if obj.mode else 'OBJECT'
-    
+
     # Make the object active and in edit mode
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.mode_set(mode='EDIT')
-    
+
     # Select all faces for projection
     bpy.ops.mesh.select_all(action='SELECT')
-    
+
     # Set the camera if specified
     camera = None
     if '{camera_name}':
         camera = bpy.data.objects.get('{camera_name}')
         if not camera or camera.type != 'CAMERA':
             return {{"status": "ERROR", "error": "Camera not found"}}
-        
+
         # Store current camera
         prev_camera = bpy.context.scene.camera
         bpy.context.scene.camera = camera
-    
+
     try:
         # Project from view or camera
         bpy.ops.uv.project_from_view(
@@ -187,18 +188,18 @@ def project_uvs():
             scale_to_bounds=True,
             margin={margin}
         )
-        
+
         # Return to object mode
         bpy.ops.object.mode_set(mode=prev_mode)
-        
+
         # Restore previous camera if changed
         if '{camera_name}' and camera:
             bpy.context.scene.camera = prev_camera
-        
+
         # Restore previous active object
         if prev_active:
             bpy.context.view_layer.objects.active = prev_active
-        
+
         return {{
             "status": "SUCCESS",
             "object": obj.name,
@@ -246,27 +247,27 @@ def reset_uvs():
     obj = bpy.data.objects.get('{object_name}')
     if not obj or obj.type != 'MESH':
         return {{"status": "ERROR", "error": "Mesh object not found"}}
-    
+
     # Store current mode
     current_mode = obj.mode
-    
+
     try:
         # Make sure we're in object mode
         bpy.ops.object.mode_set(mode='OBJECT')
-        
+
         # Get the mesh data
         mesh = obj.data
-        
+
         # Ensure UV layer exists
         if not mesh.uv_layers:
             mesh.uv_layers.new()
-        
+
         # Reset UVs to default (0-1 range)
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.uv.reset()
         bpy.ops.object.mode_set(mode=current_mode)
-        
+
         return {{
             "status": "SUCCESS",
             "object": obj.name,
@@ -309,18 +310,18 @@ def get_uv_data():
     obj = bpy.data.objects.get('{object_name}')
     if not obj or obj.type != 'MESH':
         return {{"status": "ERROR", "error": "Mesh object not found"}}
-    
+
     # Store current active object and mode
     prev_active = bpy.context.view_layer.objects.active
     prev_mode = obj.mode if obj.mode else 'OBJECT'
-    
+
     result = {{
         "status": "SUCCESS",
         "object": obj.name,
         "uv_layers": [],
         "active_uv_layer": obj.data.uv_layers.active.name if obj.data.uv_layers.active else None
     }}
-    
+
     # Get UV layer information
     for uv_layer in obj.data.uv_layers:
         result["uv_layers"].append({{
@@ -329,11 +330,11 @@ def get_uv_data():
             "active_clone": uv_layer.active_clone,
             "active": uv_layer == obj.data.uv_layers.active
         }})
-    
+
     # Restore previous state
     if prev_active:
         bpy.context.view_layer.objects.active = prev_active
-    
+
     return result
 
 try:

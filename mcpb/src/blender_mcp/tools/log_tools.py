@@ -4,11 +4,12 @@ Log viewing tools for Blender MCP.
 Provides tools to view and filter recent logs for debugging purposes.
 """
 
-from ..compat import *
-
 from typing import Optional
+
 from loguru import logger
+
 from ..app import app
+from ..compat import *
 from ..utils.error_handling import MCPError
 
 

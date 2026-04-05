@@ -4,9 +4,8 @@ Render tools for Blender MCP.
 Provides tools for rendering scenes, animations, and previews.
 """
 
-from blender_mcp.compat import *
-
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_render_tools():
@@ -52,7 +51,7 @@ def _register_render_tools():
         Returns:
             Success message with render details
         """
-        from blender_mcp.handlers.render_handler import render_turntable, render_preview
+        from blender_mcp.handlers.render_handler import render_preview, render_turntable
 
         try:
             if operation == "render_turntable":

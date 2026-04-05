@@ -2,15 +2,16 @@
 
 This module provides export functions that can be registered as FastMCP tools.
 """
-from ..compat import *
 
 import os
 from pathlib import Path
+
 from loguru import logger
 
-from ..utils.blender_executor import get_blender_executor
+from ..compat import *
 from ..decorators import blender_operation
 from ..exceptions import BlenderExportError
+from ..utils.blender_executor import get_blender_executor
 
 # Initialize the executor with default Blender executable
 _executor = get_blender_executor()
@@ -18,7 +19,7 @@ _executor = get_blender_executor()
 
 def _get_export_script_setup(output_path: str, blend_path: str = None) -> str:
     """Generate the common setup script for export operations.
-    
+
     Args:
         output_path: Path where FBX will be exported
         blend_path: Optional path to .blend file to load before export
@@ -37,7 +38,7 @@ if os.path.exists(blend_file_path):
 else:
     print(f"WARNING: .blend file not found: {{blend_file_path}}")
 """
-    
+
     return f"""
 import os
 import json
@@ -95,7 +96,7 @@ async def export_for_unity(
             raise BlenderExportError("FBX", output_path, "Invalid output directory")
 
         # Generate the export script - load .blend file if it exists
-        blend_path = str(Path(output_path).with_suffix('.blend'))
+        blend_path = str(Path(output_path).with_suffix(".blend"))
         script = _get_export_script_setup(output_path, blend_path=blend_path)
         script += f"""
 try:
@@ -160,7 +161,7 @@ except Exception as e:
         # Check if file exists before export
         file_existed_before = os.path.exists(output_path)
         file_mtime_before = os.path.getmtime(output_path) if file_existed_before else 0
-        
+
         try:
             await _executor.execute_script(script, script_name="unity_export")
             # Verify file was created
@@ -176,7 +177,9 @@ except Exception as e:
                 # If file was created or updated, treat as success
                 if not file_existed_before or file_mtime_after > file_mtime_before:
                     file_size = os.path.getsize(output_path)
-                    logger.warning(f"Blender exited with error but FBX file was created: {error_str}")
+                    logger.warning(
+                        f"Blender exited with error but FBX file was created: {error_str}"
+                    )
                     return f"Successfully exported to {output_path} ({file_size} bytes) - warning ignored"
             # If no file was created, raise error
             raise BlenderExportError("FBX", output_path, error_str) from e

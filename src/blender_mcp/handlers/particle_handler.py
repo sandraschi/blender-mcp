@@ -1,11 +1,12 @@
 """Particle system operations handler for Blender MCP."""
 
+import logging
 from enum import Enum
 from typing import Any, Dict, Union
 
-from loguru import logger
-
 from ..decorators import blender_operation
+
+logger = logging.getLogger(__name__)
 from ..utils.blender_executor import get_blender_executor
 
 _executor = get_blender_executor()
@@ -43,18 +44,18 @@ def create_particle_system():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{'status': 'ERROR', 'error': 'Object not found'}}
-    
+
     bpy.ops.object.select_all(action='DESELECT')
     obj.select_set(True)
     bpy.context.view_layer.objects.active = obj
-    
+
     if obj.particle_systems:
         bpy.ops.object.particle_system_add()
-    
+
     ps = obj.particle_systems[-1]
     ps.name = '{system_name}'
     settings = ps.settings
-    
+
     settings.type = '{particle_type}'
     settings.count = {count}
     settings.frame_start = {frame_start}
@@ -62,7 +63,7 @@ def create_particle_system():
     settings.lifetime = {lifetime}
     settings.particle_size = {kwargs.get("size", 0.1)}
     settings.emit_from = '{emit_from}'
-    
+
     return {{'status': 'SUCCESS', 'system': ps.name}}
 
 try:
@@ -95,11 +96,11 @@ def bake_particles():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{'status': 'ERROR', 'error': 'Object not found'}}
-    
+
     bpy.ops.object.select_all(action='DESELECT')
     obj.select_set(True)
     bpy.context.view_layer.objects.active = obj
-    
+
     systems_to_bake = []
     if '{system_name}':
         ps = obj.particle_systems.get('{system_name}')
@@ -107,10 +108,10 @@ def bake_particles():
             systems_to_bake.append(ps)
     else:
         systems_to_bake = list(obj.particle_systems)
-    
+
     if not systems_to_bake:
         return {{'status': 'ERROR', 'error': 'No particle systems found'}}
-    
+
     results = []
     for ps in systems_to_bake:
         obj.particle_systems.active = ps
@@ -122,7 +123,7 @@ def bake_particles():
             use_memory_cache={str(kwargs.get("use_memory_cache", True)).lower()}
         )
         results.append(ps.name)
-    
+
     return {{
         'status': 'SUCCESS',
         'baked_systems': results,

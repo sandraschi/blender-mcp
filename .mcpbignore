@@ -1,59 +1,19 @@
-# MCPB Packaging Ignore File
-# Only include essential files for MCP server functionality
-
-# Exclude development environment
-venv/
-.venv/
-env/
-node_modules/
-
-# Exclude documentation (except essential README)
-docs/
-
-# Exclude tests
+# MCPB Pack Exclusion List
 tests/
+.git/
 __pycache__/
 *.pyc
-.pytest_cache/
-
-# Exclude IDE and development files
-.cursor/
-.vscode/
-.idea/
-*.log
-
-# Exclude Git
-.git/
-.gitignore
-
-# Exclude build artifacts
+.venv/
 dist/
 build/
-*.egg-info/
-
-# Exclude examples (not needed for MCP server)
-examples/
-
-# Exclude MCPB packaging files (only needed during build)
+target/
+target_wasm/
+docs/
+scripts/
 mcpb-packaging/
-mcpb.json
-
-# Exclude development scripts and configs
-run_server.py
-setup.py
-pyproject.toml
-.github/
-
-# Exclude snapshots and cache
-.snapshots/
+mcpb/
+.cursor/
+.windsurf/
+.pytest_cache/
 .coverage
-
-# Exclude license (optional, but keep if wanted)
-# LICENSE
-
-# Only include these essential files:
-# - src/blender_mcp/ (main package)
-# - requirements.txt
-# - README.md
-# - LICENSE
-# - manifest.json
+Cargo.lock

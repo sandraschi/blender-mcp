@@ -6,15 +6,15 @@ and managing materials in Blender through the MCP interface.
 
 from __future__ import annotations
 
-from ..compat import *
 from enum import Enum
-from typing import Any, Dict, Literal, Optional, Tuple, Union, TypeVar
+from typing import Any, Dict, Literal, Optional, Tuple, TypeVar, Union
 
 from loguru import logger
 from pydantic import BaseModel
 
-from ..utils.blender_executor import get_blender_executor
+from ..compat import *
 from ..decorators import blender_operation
+from ..utils.blender_executor import get_blender_executor
 
 # Type variable for generic type hints
 T = TypeVar("T")
@@ -32,14 +32,14 @@ class ShaderOperationResult(BaseModel):
     error: Optional[str] = None
 
     @classmethod
-    def success(cls, message: str = None, **data: Any) -> "ShaderOperationResult":
+    def success(cls, message: str = None, **data: Any) -> ShaderOperationResult:
         """Create a success response."""
         return cls(
             status="SUCCESS", message=message or "Operation completed successfully", data=data or {}
         )
 
     @classmethod
-    def error_result(cls, message: str, error: Exception = None) -> "ShaderOperationResult":
+    def error_result(cls, message: str, error: Exception = None) -> ShaderOperationResult:
         """Create an error response."""
         return cls(
             status="ERROR",

@@ -4,11 +4,12 @@ Mesh creation and manipulation tools for Blender MCP.
 Provides portmanteau tools for creating basic mesh primitives and manipulating objects.
 """
 
-from blender_mcp.compat import *
+from typing import Tuple
 
 from pydantic import BaseModel, Field
-from typing import Tuple
+
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 class CreatePrimitiveParams(BaseModel):
@@ -68,19 +69,19 @@ def _register_mesh_tools():
         Returns:
             Operation result message
         """
-        from blender_mcp.handlers.mesh_handler import (
-            create_cube,
-            create_sphere,
-            create_cylinder,
-            create_cone,
-            create_plane,
-            create_torus,
-            create_monkey,
-            duplicate_object,
-            delete_object,
-        )
-
         from loguru import logger
+
+        from blender_mcp.handlers.mesh_handler import (
+            create_cone,
+            create_cube,
+            create_cylinder,
+            create_monkey,
+            create_plane,
+            create_sphere,
+            create_torus,
+            delete_object,
+            duplicate_object,
+        )
 
         logger.info(
             f"blender_mesh called with operation='{operation}', name='{name}', location={location}, radius={radius}, vertices={vertices}"

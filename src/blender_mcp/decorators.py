@@ -1,13 +1,14 @@
 """Decorators for Blender MCP operations with validation, logging, and error handling."""
 
 import functools
+import logging
 import time
 from typing import Any, Callable, TypeVar
 
-from loguru import logger
-
 from blender_mcp.compat import *
 from blender_mcp.exceptions import BlenderMCPError
+
+logger = logging.getLogger(__name__)
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -18,11 +19,7 @@ def blender_operation(
     log_result: bool = False,
     validate_blender: bool = True,
 ) -> Callable[[F], F]:
-    """
-from ..compat import *
-
-
-    Decorator for Blender operations with comprehensive logging and error handling.
+    """Decorator for Blender operations with comprehensive logging and error handling.
 
     Args:
         operation_name: Human-readable operation name for logging
@@ -73,7 +70,7 @@ from ..compat import *
                 )
                 raise BlenderMCPError(
                     f"Unexpected error in {operation_name}: {str(e)}", "UNEXPECTED_ERROR"
-                )
+                ) from e
 
         return wrapper
 

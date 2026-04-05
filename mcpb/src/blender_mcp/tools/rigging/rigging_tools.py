@@ -4,10 +4,10 @@ Rigging tools for Blender MCP.
 Provides tools for creating armatures and character rigging systems.
 """
 
-from blender_mcp.compat import *
-
 from typing import Tuple
+
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_rigging_tools():
@@ -63,12 +63,17 @@ def _register_rigging_tools():
         Returns:
             Success message with rigging details
         """
-        from blender_mcp.handlers.rigging_handler import (
-            create_armature, add_bone, create_bone_ik,
-            list_bones, pose_bone, set_bone_keyframe, reset_pose
-        )
-
         from loguru import logger
+
+        from blender_mcp.handlers.rigging_handler import (
+            add_bone,
+            create_armature,
+            create_bone_ik,
+            list_bones,
+            pose_bone,
+            reset_pose,
+            set_bone_keyframe,
+        )
 
         logger.info(
             f"🦴 blender_rigging called with operation='{operation}', armature_name='{armature_name}'"
@@ -132,9 +137,7 @@ def _register_rigging_tools():
 
             elif operation == "create_basic_rig":
                 # Create a simple biped rig
-                await create_armature(
-                    name=f"{armature_name}_basic", location=location
-                )
+                await create_armature(name=f"{armature_name}_basic", location=location)
 
                 # Add basic bones (spine, arms, legs)
                 bones = [

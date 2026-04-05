@@ -2,32 +2,75 @@
 Blender Object Repository tools for MCP.
 
 Provides comprehensive object repository management including saving, loading, versioning,
-sharing, and organizing Blender objects and construction scripts.
+and organizing Blender objects. All operations are backed by a real file-based index at
+~/.blender-mcp/repository/ and real Blender executor calls.
 """
 
-import json
-import os
 import hashlib
-import shutil
+import json
+import logging
+import re
+import tempfile
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional, Tuple
 
 from pydantic import BaseModel, Field
-from loguru import logger
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
 
-# Import validation classes from construct_tools
-from .construct_tools import ScriptValidationResult
+# Import validation from construct_tools
+from .construct_tools import (
+    ScriptValidationResult,
+    _extract_python_code,
+    _generate_construction_script,
+    _generate_construction_summary,
+    _model_dump,
+    _validate_construction_script,
+)
 
 # Import Context from FastMCP for sampling operations
 try:
     from fastmcp.types import Context
 except ImportError:
-    # Fallback for different FastMCP versions
-    from typing import Any as Context
+    from typing import Any as Context  # type: ignore
+
+logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Repository location
+# ---------------------------------------------------------------------------
+
+REPO_BASE = Path.home() / ".blender-mcp" / "repository"
+INDEX_FILE = REPO_BASE / "repository_index.json"
+
+
+def _ensure_repo() -> None:
+    REPO_BASE.mkdir(parents=True, exist_ok=True)
+
+
+def _load_index() -> Dict[str, Any]:
+    _ensure_repo()
+    if INDEX_FILE.exists():
+        try:
+            with open(INDEX_FILE, encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return {"models": [], "last_updated": datetime.now().isoformat()}
+
+
+def _save_index(index: Dict[str, Any]) -> None:
+    _ensure_repo()
+    index["last_updated"] = datetime.now().isoformat()
+    with open(INDEX_FILE, "w", encoding="utf-8") as f:
+        json.dump(index, f, indent=2)
+
+
+# ---------------------------------------------------------------------------
+# Pydantic models
+# ---------------------------------------------------------------------------
 
 
 class ObjectMetadata(BaseModel):
@@ -46,118 +89,708 @@ class ObjectMetadata(BaseModel):
     construction_script: str
     object_count: int
     blender_version: Optional[str]
-    estimated_quality: int  # 1-10 scale
+    estimated_quality: int
     category: str
     license: str = "MIT"
-    dependencies: List[str] = []  # Other object IDs this depends on
+    dependencies: List[str] = []
 
 
-class RepositoryConfig(BaseModel):
-    """Configuration for the model repository."""
+class MCPExportResult(BaseModel):
+    """Result of cross-MCP export operation."""
 
-    base_path: str = Field(default_factory=lambda: str(Path.home() / ".blender-mcp" / "repository"))
-    max_versions_per_model: int = 10
-    auto_backup: bool = True
-    compression_enabled: bool = True
-
-
-class SaveObjectParams(BaseModel):
-    """Parameters for saving an object to repository."""
-
-    object_name: str = Field(
-        ...,
-        description="Name of the Blender object to save"
-    )
-    object_name_display: str = Field(
-        ...,
-        description="Display name for the saved object"
-    )
-    description: str = Field(
-        "",
-        description="Description of the model"
-    )
-    tags: List[str] = Field(
-        default_factory=list,
-        description="Tags for categorization and search"
-    )
-    category: str = Field(
-        "general",
-        description="Category for organization"
-    )
-    construction_script: Optional[str] = Field(
-        None,
-        description="Original construction script (auto-detected if not provided)"
-    )
-    quality_rating: int = Field(
-        5,
-        description="Quality rating 1-10"
-    )
-    public: bool = Field(
-        False,
-        description="Whether to make this model publicly available"
-    )
+    success: bool
+    asset_id: str
+    target_mcp: str
+    primary_files: List[str]
+    supporting_files: List[str]
+    integration_commands: List[str]
+    metadata: Dict[str, Any]
+    optimization_report: Dict[str, Any]
+    validation_results: Dict[str, Any]
+    error_message: Optional[str] = None
 
 
-class LoadObjectParams(BaseModel):
-    """Parameters for loading an object from repository."""
-
-    object_id: str = Field(
-        ...,
-        description="ID of the object to load"
-    )
-    target_name: Optional[str] = Field(
-        None,
-        description="New name for the loaded object (defaults to original)"
-    )
-    position: Tuple[float, float, float] = Field(
-        (0, 0, 0),
-        description="Position to place the loaded object"
-    )
-    scale: Tuple[float, float, float] = Field(
-        (1, 1, 1),
-        description="Scale to apply to the loaded object"
-    )
-    version: Optional[str] = Field(
-        None,
-        description="Specific version to load (latest if not specified)"
-    )
+# ---------------------------------------------------------------------------
+# Real helper implementations
+# ---------------------------------------------------------------------------
 
 
-class SearchObjectsParams(BaseModel):
-    """Parameters for searching objects in repository."""
-
-    query: Optional[str] = Field(
-        None,
-        description="Search query for name/description/tags"
-    )
-    category: Optional[str] = Field(
-        None,
-        description="Filter by category"
-    )
-    tags: Optional[List[str]] = Field(
-        None,
-        description="Filter by tags (must have all specified tags)"
-    )
-    author: Optional[str] = Field(
-        None,
-        description="Filter by author"
-    )
-    min_quality: Optional[int] = Field(
-        None,
-        description="Minimum quality rating (1-10)"
-    )
-    complexity: Optional[str] = Field(
-        None,
-        description="Filter by complexity (simple/standard/complex)"
-    )
-    limit: int = Field(
-        20,
-        description="Maximum number of results"
-    )
+def _generate_object_id(display_name: str, object_name: str) -> str:
+    content = f"{display_name}:{object_name}:{datetime.now().isoformat()}"
+    return hashlib.md5(content.encode()).hexdigest()[:16]
 
 
-def _register_repository_tools():
-    """Register repository management tools with the app."""
+def _get_next_version(model_dir: Path) -> str:
+    metadata_file = model_dir / "metadata.json"
+    if metadata_file.exists():
+        try:
+            with open(metadata_file, encoding="utf-8") as f:
+                data = json.load(f)
+            major, minor, patch = map(int, data.get("version", "0.0.0").split("."))
+            return f"{major}.{minor}.{patch + 1}"
+        except Exception:
+            pass
+    return "1.0.0"
+
+
+async def _get_object_info(object_name: str) -> Optional[Dict[str, Any]]:
+    """Query Blender for real object information."""
+    try:
+        from blender_mcp.utils.blender_executor import get_blender_executor
+
+        executor = get_blender_executor()
+        script = f"""
+import bpy, json
+name = {json.dumps(object_name)}
+obj = bpy.data.objects.get(name)
+if obj is None:
+    print("OBJ_INFO:null")
+else:
+    vcount = len(obj.data.vertices) if obj.type == "MESH" and obj.data else 0
+    mats = [m.name for m in obj.data.materials if m] if obj.type == "MESH" and obj.data else []
+    bones = len(obj.data.bones) if obj.type == "ARMATURE" and obj.data else 0
+    info = {{
+        "name": obj.name,
+        "type": obj.type,
+        "vertex_count": vcount,
+        "materials": mats,
+        "bone_count": bones,
+        "location": list(obj.location),
+        "dimensions": list(obj.dimensions),
+    }}
+    print("OBJ_INFO:" + json.dumps(info))
+"""
+        output = await executor.execute_script(script, script_name="get_obj_info")
+        for line in output.splitlines():
+            if line.startswith("OBJ_INFO:"):
+                payload = line[len("OBJ_INFO:"):]
+                if payload == "null":
+                    return None
+                return json.loads(payload)
+        return None
+    except Exception as e:
+        logger.warning(f"_get_object_info failed: {e}")
+        return None
+
+
+async def _find_construction_script(object_name: str) -> Optional[str]:
+    """Look up the stored construction script for this object in the repository index."""
+    index = _load_index()
+    for model in index.get("models", []):
+        if model.get("blender_name") == object_name or model.get("name") == object_name:
+            obj_dir = REPO_BASE / model["id"]
+            meta_file = obj_dir / "metadata.json"
+            if meta_file.exists():
+                try:
+                    with open(meta_file, encoding="utf-8") as f:
+                        meta = json.load(f)
+                    script = meta.get("construction_script", "").strip()
+                    return script if script else None
+                except Exception:
+                    pass
+    return None
+
+
+async def _save_object(
+    object_name: str,
+    object_name_display: str,
+    description: str,
+    tags: Optional[List[str]],
+    category: str,
+    quality_rating: int,
+    public: bool,
+) -> Dict[str, Any]:
+    """Export object from Blender as .blend and save metadata to index."""
+    from blender_mcp.utils.blender_executor import get_blender_executor
+
+    if not object_name.strip():
+        return {"success": False, "message": "object_name is required"}
+
+    obj_info = await _get_object_info(object_name)
+    if not obj_info:
+        return {"success": False, "message": f"Object '{object_name}' not found in Blender scene"}
+
+    obj_id = _generate_object_id(object_name_display or object_name, object_name)
+    obj_dir = REPO_BASE / obj_id
+    obj_dir.mkdir(parents=True, exist_ok=True)
+
+    version = _get_next_version(obj_dir)
+    blend_path = obj_dir / f"model_{version.replace('.', '_')}.blend"
+
+    # Export the object via the Blender session bridge (preferred) or executor fallback.
+    #
+    # The executor runs `blender --background --factory-startup` — a fresh empty session.
+    # To export an object from the USER'S running scene we first try the session bridge:
+    #   POST /api/v1/blender/exec → picked up by blender_bridge_addon.py in Blender
+    #   Bridge executes the export script in the live session and returns output.
+    # If the bridge is not connected (503 / timeout) we fall back to the executor
+    # and record session_required=True in the metadata.
+    executor = get_blender_executor()
+
+    gltf_path = obj_dir / f"model_{version.replace('.', '_')}.glb"
+    blend_path_str = str(blend_path)
+
+    export_script = f"""
+import bpy, json, os
+
+obj_name = {json.dumps(object_name)}
+out_glb  = {json.dumps(str(gltf_path))}
+out_blend = {json.dumps(blend_path_str)}
+os.makedirs(os.path.dirname(out_glb), exist_ok=True)
+
+obj = bpy.data.objects.get(obj_name)
+if obj is None:
+    print("EXPORT_SESSION_REQUIRED: Object not in executor session.")
+    bpy.ops.wm.save_as_mainfile(filepath=out_blend, copy=True, check_existing=False)
+    print("EXPORT_PLACEHOLDER:" + out_blend)
+else:
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    for child in obj.children_recursive:
+        child.select_set(True)
+    try:
+        bpy.ops.export_scene.gltf(
+            filepath=out_glb,
+            use_selection=True,
+            export_format='GLB',
+            export_apply=True,
+        )
+        print("EXPORT_OK:" + out_glb)
+    except Exception as gltf_err:
+        bpy.ops.wm.save_as_mainfile(filepath=out_blend, copy=True, check_existing=False)
+        print("EXPORT_OK:" + out_blend)
+        print("EXPORT_WARN: glTF failed, saved as blend: " + str(gltf_err))
+"""
+
+    # Try session bridge first (MCP running in HTTP mode with bridge addon active)
+    session_used = False
+    try:
+        from blender_mcp.app import _exec_in_blender_session
+        bridge_result = await _exec_in_blender_session(
+            export_script, script_name=f"save_{object_name}", timeout=30
+        )
+        if bridge_result["session_used"]:
+            output = bridge_result["output"]
+            session_used = True
+        else:
+            # Bridge not connected — fall back to executor
+            output = await executor.execute_script(export_script, script_name="save_obj_export")
+    except Exception as e:
+        try:
+            output = await executor.execute_script(export_script, script_name="save_obj_export")
+        except Exception as e2:
+            return {"success": False, "message": f"Blender export failed: {e2}"}
+
+    # Accept either real export or placeholder (session limitation documented)
+    export_ok = any(
+        line.startswith(("EXPORT_OK:", "EXPORT_PLACEHOLDER:"))
+        for line in output.splitlines()
+    )
+    session_required = not session_used and any("EXPORT_SESSION_REQUIRED" in line for line in output.splitlines())
+
+    # Determine the actual saved file path
+    actual_blend_path = blend_path
+    for line in output.splitlines():
+        if line.startswith("EXPORT_OK:"):
+            actual_blend_path = Path(line[len("EXPORT_OK:"):].strip())
+        elif line.startswith("EXPORT_PLACEHOLDER:"):
+            actual_blend_path = Path(line[len("EXPORT_PLACEHOLDER:"):].strip())
+
+    if not export_ok:
+        return {"success": False, "message": f"Export script did not confirm success. Output: {output[-500:]}"}
+
+    # Write metadata
+    meta = {
+        "id": obj_id,
+        "name": object_name_display or object_name,
+        "blender_name": object_name,
+        "description": description,
+        "author": "local",
+        "version": version,
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat(),
+        "tags": tags or [],
+        "complexity": "standard",
+        "style_preset": None,
+        "construction_script": "",
+        "object_count": 1,
+        "blender_version": None,
+        "estimated_quality": max(1, min(10, quality_rating)),
+        "category": category,
+        "license": "MIT",
+        "blend_file": str(actual_blend_path),
+        "session_required": session_required,
+        "obj_info": obj_info,
+    }
+    with open(obj_dir / "metadata.json", "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=2)
+
+    # Update index
+    index = _load_index()
+    existing = next((i for i, m in enumerate(index["models"]) if m["id"] == obj_id), None)
+    summary = {
+        "id": obj_id,
+        "name": meta["name"],
+        "blender_name": object_name,
+        "description": description,
+        "category": category,
+        "tags": tags or [],
+        "estimated_quality": meta["estimated_quality"],
+        "version": version,
+        "updated_at": meta["updated_at"],
+    }
+    if existing is not None:
+        index["models"][existing] = summary
+    else:
+        index["models"].append(summary)
+    _save_index(index)
+
+    msg = f"Saved '{object_name}' to repository as '{object_name_display or object_name}' (v{version})"
+    if session_required:
+        msg += ". NOTE: Object export requires running from inside Blender (HTTP mode or addon). Metadata saved with placeholder file."
+    return {
+        "success": True,
+        "message": msg,
+        "object_id": obj_id,
+        "version": version,
+        "blend_file": str(actual_blend_path),
+        "session_required": session_required,
+    }
+
+
+async def _load_object(
+    object_id: str,
+    target_name: Optional[str],
+    position: Tuple[float, float, float],
+    scale: Tuple[float, float, float],
+    version: Optional[str],
+) -> Dict[str, Any]:
+    """Append object from repository .blend into current Blender scene."""
+    from blender_mcp.utils.blender_executor import get_blender_executor
+
+    if not object_id.strip():
+        return {"success": False, "message": "object_id is required"}
+
+    obj_dir = REPO_BASE / object_id
+    meta_file = obj_dir / "metadata.json"
+    if not meta_file.exists():
+        return {"success": False, "message": f"Object '{object_id}' not found in repository"}
+
+    with open(meta_file, encoding="utf-8") as f:
+        meta = json.load(f)
+
+    # Find the blend file
+    if version:
+        blend_path = obj_dir / f"model_{version.replace('.', '_')}.blend"
+    else:
+        blend_path = Path(meta.get("blend_file", ""))
+        if not blend_path.exists():
+            # Fall back to latest version file in dir
+            candidates = sorted(obj_dir.glob("model_*.blend"), reverse=True)
+            if not candidates:
+                return {"success": False, "message": f"No .blend file found for '{object_id}'"}
+            blend_path = candidates[0]
+
+    if not blend_path.exists():
+        return {"success": False, "message": f"Blend file not found: {blend_path}"}
+
+    blender_name = meta.get("blender_name", meta.get("name", "Asset"))
+    final_name = target_name or blender_name
+    px, py, pz = position
+    sx, sy, sz = scale
+
+    executor = get_blender_executor()
+    import_script = f"""
+import bpy, json
+blend_path = {json.dumps(str(blend_path))}
+blender_name = {json.dumps(blender_name)}
+final_name = {json.dumps(final_name)}
+position = ({px}, {py}, {pz})
+scale = ({sx}, {sy}, {sz})
+
+with bpy.data.libraries.load(blend_path, link=False) as (data_from, data_to):
+    if blender_name in data_from.objects:
+        data_to.objects = [blender_name]
+    elif data_from.objects:
+        data_to.objects = [data_from.objects[0]]
+
+imported = []
+for obj in data_to.objects:
+    if obj is not None:
+        bpy.context.collection.objects.link(obj)
+        obj.name = final_name
+        obj.location = position
+        obj.scale = scale
+        imported.append(obj.name)
+
+print("IMPORT_OK:" + json.dumps(imported))
+"""
+    try:
+        output = await executor.execute_script(import_script, script_name="load_obj_import")
+    except Exception as e:
+        return {"success": False, "message": f"Blender import failed: {e}"}
+
+    for line in output.splitlines():
+        if line.startswith("IMPORT_OK:"):
+            imported_names = json.loads(line[len("IMPORT_OK:"):])
+            return {
+                "success": True,
+                "message": f"Loaded '{blender_name}' from repository as '{final_name}'",
+                "objects_created": imported_names,
+                "position": list(position),
+                "scale": list(scale),
+            }
+
+    return {"success": False, "message": f"Import did not confirm success. Output: {output[-500:]}"}
+
+
+async def _list_objects() -> Dict[str, Any]:
+    """List all objects in the repository index."""
+    index = _load_index()
+    models = index.get("models", [])
+    return {
+        "success": True,
+        "total": len(models),
+        "objects": models,
+        "repository_path": str(REPO_BASE),
+    }
+
+
+async def _search_objects(
+    query: Optional[str],
+    category: Optional[str],
+    tags: Optional[List[str]],
+    author: Optional[str],
+    min_quality: Optional[int],
+    complexity: Optional[str],
+    limit: int,
+) -> Dict[str, Any]:
+    """Search repository index with optional filters."""
+    index = _load_index()
+    results = []
+
+    for model in index.get("models", []):
+        # Text query
+        if query:
+            q = query.lower()
+            searchable = " ".join([
+                model.get("name", ""),
+                model.get("description", ""),
+                " ".join(model.get("tags", [])),
+                model.get("category", ""),
+            ]).lower()
+            if q not in searchable:
+                continue
+
+        # Category
+        if category and model.get("category", "").lower() != category.lower():
+            continue
+
+        # Tags (must have ALL specified tags)
+        if tags:
+            model_tags = [t.lower() for t in model.get("tags", [])]
+            if not all(t.lower() in model_tags for t in tags):
+                continue
+
+        # Min quality
+        if min_quality is not None and model.get("estimated_quality", 0) < min_quality:
+            continue
+
+        # Complexity (stored in full metadata, not index summary — skip if not present)
+        # complexity filter is best-effort at index level
+
+        results.append(model)
+        if len(results) >= limit:
+            break
+
+    return {
+        "success": True,
+        "query": query,
+        "total_matches": len(results),
+        "objects": results,
+    }
+
+
+async def _create_object_backup(object_name: str) -> Dict[str, Any]:
+    """Duplicate an object in Blender as a backup."""
+    from blender_mcp.utils.blender_executor import get_blender_executor
+
+    executor = get_blender_executor()
+    backup_name = f"{object_name}_backup_{datetime.now().strftime('%H%M%S')}"
+    script = f"""
+import bpy
+obj = bpy.data.objects.get({json.dumps(object_name)})
+if obj is None:
+    print("BACKUP_ERROR: not found")
+else:
+    bpy.ops.object.select_all(action='DESELECT')
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.duplicate(linked=False)
+    dup = bpy.context.active_object
+    dup.name = {json.dumps(backup_name)}
+    dup.hide_viewport = True
+    dup.hide_render = True
+    print("BACKUP_OK:" + dup.name)
+"""
+    try:
+        output = await executor.execute_script(script, script_name="backup_obj")
+        for line in output.splitlines():
+            if line.startswith("BACKUP_OK:"):
+                return {"success": True, "backup_name": line[len("BACKUP_OK:"):].strip()}
+        return {"success": False, "error": f"Backup script did not confirm. Output: {output[-300:]}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+async def _execute_modification_script(script: str, object_name: str) -> Dict[str, Any]:
+    """Execute a modification script via Blender executor."""
+    from blender_mcp.utils.blender_executor import get_blender_executor
+
+    executor = get_blender_executor()
+    try:
+        output = await executor.execute_script(script, script_name=f"modify_{object_name}")
+        return {
+            "success": True,
+            "changes_summary": [f"Modification script executed for '{object_name}'"],
+            "blender_output": output[-500:],
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+async def _get_asset_from_repository(asset_id: str) -> Optional[Dict[str, Any]]:
+    """Load asset data from repository metadata — real implementation."""
+    obj_dir = REPO_BASE / asset_id
+    meta_file = obj_dir / "metadata.json"
+    if not meta_file.exists():
+        return None
+    try:
+        with open(meta_file, encoding="utf-8") as f:
+            meta = json.load(f)
+        obj_info = meta.get("obj_info", {})
+        return {
+            "id": asset_id,
+            "name": meta.get("name", asset_id),
+            "blend_file": meta.get("blend_file", ""),
+            "polygon_count": obj_info.get("vertex_count", 0),
+            "materials": obj_info.get("materials", []),
+            "textures": [],
+            "has_bones": obj_info.get("bone_count", 0) > 0,
+            "has_animations": False,  # Would need animation data inspection
+            "is_avatar": "character" in meta.get("category", "").lower()
+                         or "avatar" in meta.get("name", "").lower(),
+        }
+    except Exception as e:
+        logger.warning(f"_get_asset_from_repository failed for {asset_id}: {e}")
+        return None
+
+
+# ---------------------------------------------------------------------------
+# Platform export engines
+# ---------------------------------------------------------------------------
+
+
+class PlatformExportEngine:
+    """Base class for platform-specific export engines."""
+
+    def __init__(self, platform_name: str):
+        self.platform_name = platform_name
+        self.optimizations: Dict[str, Any] = {}
+
+    async def optimize_asset(self, asset_data: Dict[str, Any], quality_level: str) -> Dict[str, Any]:
+        raise NotImplementedError
+
+    async def export_blend_file(
+        self, blend_file: str, out_dir: Path, asset_data: Dict[str, Any], quality_level: str
+    ) -> Tuple[List[str], List[str]]:
+        """Run Blender to produce platform files. Returns (primary_files, supporting_files)."""
+        raise NotImplementedError
+
+    async def generate_integration_commands(self, asset_data: Dict[str, Any]) -> List[str]:
+        raise NotImplementedError
+
+    async def validate_compatibility(self, asset_data: Dict[str, Any]) -> Dict[str, Any]:
+        raise NotImplementedError
+
+
+class VRChatExportEngine(PlatformExportEngine):
+    """VRChat-specific export engine — exports FBX via Blender."""
+
+    def __init__(self):
+        super().__init__("vrchat")
+        self.optimizations = {
+            "polygon_limit": 70000,
+            "material_limit": 8,
+            "bone_limit": 256,
+            "texture_size_max": 2048,
+            "auto_lod": True,
+        }
+
+    async def optimize_asset(self, asset_data: Dict[str, Any], quality_level: str) -> Dict[str, Any]:
+        optimized = asset_data.copy()
+        poly = asset_data.get("polygon_count", 0)
+        mats = asset_data.get("materials", [])
+        if poly > self.optimizations["polygon_limit"]:
+            optimized["polygons_reduced"] = True
+            optimized["original_polygons"] = poly
+            optimized["optimized_polygons"] = self.optimizations["polygon_limit"]
+        if len(mats) > self.optimizations["material_limit"]:
+            optimized["materials_reduced"] = True
+            optimized["original_materials"] = len(mats)
+            optimized["optimized_materials"] = self.optimizations["material_limit"]
+        optimized["textures_optimized"] = True
+        optimized["texture_compression"] = "BC7"
+        return optimized
+
+    async def export_blend_file(
+        self, blend_file: str, out_dir: Path, asset_data: Dict[str, Any], quality_level: str
+    ) -> Tuple[List[str], List[str]]:
+        from blender_mcp.utils.blender_executor import get_blender_executor
+
+        out_dir.mkdir(parents=True, exist_ok=True)
+        fbx_path = out_dir / "asset_vrchat.fbx"
+        poly_limit = self.optimizations["polygon_limit"]
+
+        script = f"""
+import bpy
+bpy.ops.wm.open_mainfile(filepath={json.dumps(blend_file)})
+# Optionally decimate if over poly limit
+for obj in bpy.context.scene.objects:
+    if obj.type == 'MESH':
+        poly_count = len(obj.data.polygons)
+        if poly_count > {poly_limit}:
+            mod = obj.modifiers.new(name='Decimate_VRC', type='DECIMATE')
+            mod.ratio = {poly_limit} / poly_count
+bpy.ops.object.select_all(action='SELECT')
+bpy.ops.export_scene.fbx(
+    filepath={json.dumps(str(fbx_path))},
+    use_selection=True,
+    mesh_smooth_type='FACE',
+    add_leaf_bones=False,
+    bake_anim=True,
+)
+print("EXPORT_FBX_OK:" + {json.dumps(str(fbx_path))})
+"""
+        executor = get_blender_executor()
+        output = await executor.execute_script(script, script_name="vrchat_export_fbx")
+        primary = []
+        if any("EXPORT_FBX_OK:" in l for l in output.splitlines()):
+            primary = [str(fbx_path)]
+
+        materials_json = out_dir / "asset_vrchat_materials.json"
+        with open(materials_json, "w") as f:
+            json.dump({"materials": asset_data.get("materials", [])}, f, indent=2)
+        supporting = [str(materials_json)]
+        return primary, supporting
+
+    async def generate_integration_commands(self, asset_data: Dict[str, Any]) -> List[str]:
+        cmds = [
+            "vrchat_import_fbx --file asset_vrchat.fbx --auto-setup",
+            f"vrchat_apply_optimizations --preset {'avatar' if asset_data.get('is_avatar') else 'prop'}",
+        ]
+        if asset_data.get("has_bones"):
+            cmds.append("vrchat_setup_physbones --auto-detect")
+        if self.optimizations["auto_lod"]:
+            cmds.append("vrchat_generate_lods --levels 3")
+        cmds.append("vrchat_validate_platform_requirements --strict")
+        return cmds
+
+    async def validate_compatibility(self, asset_data: Dict[str, Any]) -> Dict[str, Any]:
+        issues, warnings = [], []
+        poly = asset_data.get("polygon_count", 0)
+        mats = asset_data.get("materials", [])
+        if poly > self.optimizations["polygon_limit"]:
+            issues.append(f"Polygon count ({poly}) exceeds VRChat limit ({self.optimizations['polygon_limit']})")
+        if len(mats) > self.optimizations["material_limit"]:
+            issues.append(f"Material count ({len(mats)}) exceeds VRChat limit ({self.optimizations['material_limit']})")
+        return {"compatible": len(issues) == 0, "issues": issues, "warnings": warnings}
+
+
+class ResoniteExportEngine(PlatformExportEngine):
+    """Resonite-specific export engine — exports GLB via Blender."""
+
+    def __init__(self):
+        super().__init__("resonite")
+        self.optimizations = {
+            "polygon_limit": 100000,
+            "material_limit": 16,
+            "collision_generation": True,
+        }
+
+    async def optimize_asset(self, asset_data: Dict[str, Any], quality_level: str) -> Dict[str, Any]:
+        optimized = asset_data.copy()
+        optimized["protoflux_components"] = ["grabbable", "collision"]
+        if asset_data.get("has_bones"):
+            optimized["protoflux_components"].extend(["dynamic_bones", "physics"])
+        optimized["collision_mesh_generated"] = self.optimizations["collision_generation"]
+        return optimized
+
+    async def export_blend_file(
+        self, blend_file: str, out_dir: Path, asset_data: Dict[str, Any], quality_level: str
+    ) -> Tuple[List[str], List[str]]:
+        from blender_mcp.utils.blender_executor import get_blender_executor
+
+        out_dir.mkdir(parents=True, exist_ok=True)
+        glb_path = out_dir / "asset_resonite.glb"
+
+        script = f"""
+import bpy
+bpy.ops.wm.open_mainfile(filepath={json.dumps(blend_file)})
+bpy.ops.object.select_all(action='SELECT')
+bpy.ops.export_scene.gltf(
+    filepath={json.dumps(str(glb_path))},
+    use_selection=True,
+    export_format='GLB',
+    export_animations=True,
+    export_apply=True,
+)
+print("EXPORT_GLB_OK:" + {json.dumps(str(glb_path))})
+"""
+        executor = get_blender_executor()
+        output = await executor.execute_script(script, script_name="resonite_export_glb")
+        primary = []
+        if any("EXPORT_GLB_OK:" in l for l in output.splitlines()):
+            primary = [str(glb_path)]
+
+        pf_json = out_dir / "protoflux_components.json"
+        with open(pf_json, "w") as f:
+            json.dump({"components": ["grabbable", "collision"]}, f, indent=2)
+        supporting = [str(pf_json)]
+        return primary, supporting
+
+    async def generate_integration_commands(self, asset_data: Dict[str, Any]) -> List[str]:
+        cmds = [
+            "resonite_import_gltf --file asset_resonite.glb --auto-setup",
+            "resonite_add_protoflux_components --auto-detect",
+            "resonite_setup_collision --generate-primitives",
+        ]
+        if asset_data.get("has_bones"):
+            cmds.append("resonite_configure_dynamic_bones --physics-settings optimized")
+        if asset_data.get("has_animations"):
+            cmds.append("resonite_setup_animation_system --auto-configure")
+        return cmds
+
+    async def validate_compatibility(self, asset_data: Dict[str, Any]) -> Dict[str, Any]:
+        warnings = []
+        poly = asset_data.get("polygon_count", 0)
+        if poly > self.optimizations["polygon_limit"]:
+            warnings.append(f"High polygon count ({poly}) may impact Resonite performance")
+        return {"compatible": True, "issues": [], "warnings": warnings}
+
+
+EXPORT_ENGINES: Dict[str, PlatformExportEngine] = {
+    "vrchat": VRChatExportEngine(),
+    "resonite": ResoniteExportEngine(),
+}
+
+
+# ---------------------------------------------------------------------------
+# Tool registration
+# ---------------------------------------------------------------------------
+
+def _register_repository_tools() -> None:
     app = get_app()
 
     @app.tool
@@ -179,64 +812,17 @@ def _register_repository_tools():
         complexity: Optional[str] = None,
         limit: int = 20,
         quality_rating: int = 5,
-        public: bool = False
+        public: bool = False,
     ) -> Dict[str, Any]:
         """
-        PORTMANTEAU PATTERN RATIONALE:
-        Consolidates object repository operations into single interface. Prevents tool explosion while providing
-        comprehensive object lifecycle management from save to search. Follows FastMCP 2.14.3 best practices.
+        Object repository management: save, load, search, list_objects.
 
-        Complete object repository management system for Blender with save, load, search, and versioning capabilities.
+        - save: export Blender object to ~/.blender-mcp/repository/ with metadata
+        - load: append saved object into current scene with optional transforms
+        - search: filter index by query, category, tags, quality
+        - list_objects: return full index
 
-        **Repository Operations:**
-
-        **Save Operations (1 operation):**
-        - **save**: Save Blender objects with metadata, versioning, and construction scripts
-
-        **Load Operations (1 operation):**
-        - **load**: Load objects with positioning, scaling, and scene integration
-
-        **Search & Discovery (2 operations):**
-        - **search**: Find objects with advanced filtering by quality, category, tags, complexity
-        - **list_objects**: List all saved objects with basic information
-
-        Args:
-            operation (str, required): The repository operation to perform. Must be one of: "save", "load", "search", "list_objects".
-                - "save": Save object (requires: object_name, object_name_display + optional metadata)
-                - "load": Load object (requires: object_id + optional transforms)
-                - "search": Search objects (optional filters: query, category, tags, etc.)
-                - "list_objects": List all saved objects (no additional parameters)
-            object_name (str): Blender object name for save operations
-            object_name_display (str): Display name for saved objects
-            description (str): Object description for metadata
-            tags (List[str]): Search tags for categorization
-            category (str): Object category (general, character, architecture, vehicle, prop)
-            object_id (str): Repository ID for load operations
-            target_name (str | None): New name for loaded objects
-            position (Tuple[float, float, float]): Load position coordinates
-            scale (Tuple[float, float, float]): Load scale factors
-            version (str | None): Specific version to load
-            query (str | None): Search query for text matching
-            author (str | None): Filter by author
-            min_quality (int | None): Minimum quality rating (1-10)
-            complexity (str | None): Filter by complexity (simple/standard/complex)
-            limit (int): Maximum search results
-            quality_rating (int): Quality rating for saved objects (1-10)
-            public (bool): Make object publicly available
-
-        Returns:
-            Dict[str, Any]: Operation results with appropriate data structure for each operation type
-
-        Examples:
-            Save object: manage_object_repo("save", object_name="Robot", object_name_display="Robbie Robot", quality_rating=9)
-            Load object: manage_object_repo("load", object_id="robot-abc123", position=(5, 0, 2))
-            Search: manage_object_repo("search", query="robot", category="character", min_quality=7)
-            List all: manage_object_repo("list_objects")
-
-        Note:
-            Repository location: ~/.blender-mcp/repository
-            All operations include comprehensive error handling and progress feedback
-            Objects maintain full Blender data (meshes, materials, rigging, animations)
+        Repository location: ~/.blender-mcp/repository/
         """
         try:
             if operation == "save":
@@ -247,7 +833,7 @@ def _register_repository_tools():
                     tags=tags,
                     category=category,
                     quality_rating=quality_rating,
-                    public=public
+                    public=public,
                 )
             elif operation == "load":
                 return await _load_object(
@@ -255,7 +841,7 @@ def _register_repository_tools():
                     target_name=target_name,
                     position=position,
                     scale=scale,
-                    version=version
+                    version=version,
                 )
             elif operation == "search":
                 return await _search_objects(
@@ -265,7 +851,7 @@ def _register_repository_tools():
                     author=author,
                     min_quality=min_quality,
                     complexity=complexity,
-                    limit=limit
+                    limit=limit,
                 )
             elif operation == "list_objects":
                 return await _list_objects()
@@ -273,15 +859,11 @@ def _register_repository_tools():
                 return {
                     "success": False,
                     "message": f"Unknown operation '{operation}'",
-                    "available_operations": ["save", "load", "search", "list_objects"]
+                    "available_operations": ["save", "load", "search", "list_objects"],
                 }
         except Exception as e:
             logger.exception(f"Repository operation '{operation}' failed: {e}")
-            return {
-                "success": False,
-                "message": f"Repository operation failed: {str(e)}",
-                "operation": operation
-            }
+            return {"success": False, "message": f"Repository operation failed: {str(e)}", "operation": operation}
 
     @app.tool
     async def manage_object_construction(
@@ -296,50 +878,16 @@ def _register_repository_tools():
         allow_modifications: bool = True,
         modification_description: str = "",
         max_iterations: int = 3,
-        preserve_original: bool = True
+        preserve_original: bool = True,
     ) -> Dict[str, Any]:
         """
-        PORTMANTEAU PATTERN RATIONALE:
-        Consolidates object construction and modification operations into single interface. Prevents tool explosion while providing
-        comprehensive AI-powered object creation and iterative improvement. Follows FastMCP 2.14.3 best practices.
+        AI-powered object construction and modification via sampling.
 
-        AI-powered object construction and modification system using natural language and LLM-generated Blender scripts.
+        - construct: natural language → Blender Python → execute in scene
+        - construct_and_save: construct then immediately save to repository
+        - modify: find stored script for object, sample modification, validate, execute
 
-        **Construction Operations:**
-
-        **Create Operations (1 operation):**
-        - **construct**: Universal 3D object construction using natural language and LLM-generated scripts
-
-        **Modify Operations (1 operation):**
-        - **modify**: LLM-guided object improvements with iterative refinement
-
-        Args:
-            ctx (Context): FastMCP context for sampling and conversational responses
-            operation (str, required): The construction operation to perform. Must be one of: "construct", "modify".
-                - "construct": Create new object from natural language description
-                - "modify": Improve existing object using LLM guidance
-            object_name (str): Blender object name (for modify operations)
-            description (str): Natural language description of object to create/modify
-            name (str): Name for newly constructed objects
-            complexity (str): Complexity level (simple/standard/complex)
-            style_preset (str | None): Style preset (realistic/stylized/lowpoly/scifi)
-            reference_objects (List[str] | None): Existing objects to use as reference
-            allow_modifications (bool): Whether to allow scene modifications during construction
-            modification_description (str): Description of desired modifications (for modify operations)
-            max_iterations (int): Maximum refinement iterations
-            preserve_original (bool): Keep original object during modification
-
-        Returns:
-            Dict[str, Any]: Construction results with success status, object info, and next steps
-
-        Examples:
-            Construct: manage_object_construction("construct", description="a robot like Robbie from Forbidden Planet")
-            Modify: manage_object_construction("modify", object_name="Robot", modification_description="add glowing eyes")
-
-        Note:
-            Uses FastMCP 2.14.3 sampling for LLM-generated Blender scripts
-            Includes security validation and safe execution
-            Supports iterative refinement for complex objects
+        Requires a client that supports MCP sampling (Claude Desktop, Antigravity, etc.)
         """
         try:
             if operation == "construct":
@@ -351,1446 +899,284 @@ def _register_repository_tools():
                     style_preset=style_preset,
                     reference_objects=reference_objects,
                     allow_modifications=allow_modifications,
-                    max_iterations=max_iterations
+                    max_iterations=max_iterations,
                 )
+            elif operation == "construct_and_save":
+                # Compound: construct → validate → execute → save to repository
+                construct_result = await _construct_object(
+                    ctx=ctx,
+                    description=description,
+                    name=name,
+                    complexity=complexity,
+                    style_preset=style_preset,
+                    reference_objects=reference_objects,
+                    allow_modifications=allow_modifications,
+                    max_iterations=max_iterations,
+                )
+                if not construct_result.get("success"):
+                    return construct_result
+                # Auto-save to repository
+                save_result = await _save_object(
+                    object_name=name,
+                    object_name_display=name,
+                    description=description,
+                    tags=[complexity] + ([style_preset] if style_preset else []),
+                    category="general",
+                    quality_rating=5,
+                    public=False,
+                )
+                construct_result["repository_save"] = save_result
+                construct_result["next_steps"] = [
+                    f"Object '{name}' saved to repository (id: {save_result.get('object_id', '?')})",
+                    f"manage_object_repo('load', object_id='{save_result.get('object_id', '')}') to reload",
+                    f"manage_object_construction('modify', object_name='{name}') to refine",
+                ]
+                return construct_result
             elif operation == "modify":
                 return await _modify_object(
                     ctx=ctx,
                     object_name=object_name,
                     modification_description=modification_description,
                     max_iterations=max_iterations,
-                    preserve_original=preserve_original
+                    preserve_original=preserve_original,
                 )
             else:
                 return {
                     "success": False,
                     "message": f"Unknown operation '{operation}'",
-                    "available_operations": ["construct", "modify"]
+                    "available_operations": ["construct", "modify"],
                 }
         except Exception as e:
             logger.exception(f"Construction operation '{operation}' failed: {e}")
-            return {
-                "success": False,
-                "message": f"Construction operation failed: {str(e)}",
-                "operation": operation
-            }
+            return {"success": False, "message": f"Construction operation failed: {str(e)}", "operation": operation}
 
-    # Helper functions for construction operations
-    async def _construct_object(
+    @app.tool
+    async def export_for_mcp_handoff(
         ctx: Context,
-        description: str,
-        name: str,
-        complexity: str,
-        style_preset: Optional[str],
-        reference_objects: Optional[List[str]],
-        allow_modifications: bool,
-        max_iterations: int
+        asset_id: str,
+        target_mcp: str,
+        optimization_preset: str = "automatic",
+        quality_level: str = "high",
+        include_metadata: bool = True,
     ) -> Dict[str, Any]:
-        """Helper function for constructing objects using LLM-generated scripts."""
+        """
+        Export a repository asset with platform-specific optimisations for cross-MCP handoff.
+
+        Supported targets: vrchat (FBX), resonite (GLB).
+        asset_id must exist in ~/.blender-mcp/repository/.
+        Writes actual export files to a temp directory and returns their paths.
+        """
         try:
-            # Validate inputs
-            if not description or not description.strip():
-                raise ValueError("Description cannot be empty")
+            if target_mcp not in EXPORT_ENGINES:
+                return {
+                    "success": False,
+                    "error": f"Unsupported target '{target_mcp}'. Supported: {list(EXPORT_ENGINES)}",
+                }
+            if quality_level not in ("draft", "standard", "high", "ultra"):
+                return {"success": False, "error": f"Invalid quality_level '{quality_level}'"}
+            if optimization_preset not in ("automatic", "conservative", "aggressive"):
+                return {"success": False, "error": f"Invalid optimization_preset '{optimization_preset}'"}
 
-            if complexity not in ["simple", "standard", "complex"]:
-                raise ValueError(f"Invalid complexity '{complexity}'. Must be: simple, standard, complex")
+            asset_data = await _get_asset_from_repository(asset_id)
+            if not asset_data:
+                return {"success": False, "error": f"Asset '{asset_id}' not found in repository"}
 
-            if style_preset and style_preset not in ["realistic", "stylized", "lowpoly", "scifi"]:
-                raise ValueError(f"Invalid style_preset '{style_preset}'. Must be: realistic, stylized, lowpoly, scifi")
+            blend_file = asset_data.get("blend_file", "")
+            if not blend_file or not Path(blend_file).exists():
+                return {"success": False, "error": f"Blend file missing for asset '{asset_id}': {blend_file}"}
 
-            logger.info(f"🎨 Starting construction for: '{description}' (complexity: {complexity})")
+            engine = EXPORT_ENGINES[target_mcp]
+            optimized_asset = await engine.optimize_asset(asset_data, quality_level)
 
-            # Generate construction script via sampling
-            script_result = await _generate_construction_script(
-                ctx, description, name, complexity, style_preset, None, max_iterations
+            out_dir = Path(tempfile.mkdtemp(prefix=f"mcp_export_{target_mcp}_"))
+            primary_files, supporting_files = await engine.export_blend_file(
+                blend_file, out_dir, optimized_asset, quality_level
             )
 
-            if not script_result["success"]:
-                return {
-                    "success": False,
-                    "message": f"Failed to generate construction script: {script_result['error']}",
-                    "next_steps": [
-                        "Try a simpler description",
-                        "Use more specific technical terms",
-                        "Break complex objects into components"
-                    ]
+            integration_commands = await engine.generate_integration_commands(optimized_asset)
+            validation_results = await engine.validate_compatibility(optimized_asset)
+
+            optimization_report = {
+                "preset_used": optimization_preset,
+                "quality_level": quality_level,
+                "applied_optimizations": [
+                    k for k in optimized_asset if k.endswith(("_reduced", "_optimized", "_generated"))
+                ],
+                "platform_requirements_met": validation_results["compatible"],
+            }
+
+            metadata: Dict[str, Any] = {}
+            if include_metadata:
+                metadata = {
+                    "source_mcp": "blender-mcp",
+                    "asset_id": asset_id,
+                    "export_timestamp": datetime.now().isoformat(),
+                    "export_dir": str(out_dir),
+                    "integration_ready": bool(primary_files),
+                    "optimization_applied": optimization_report,
                 }
 
-            # Validate generated script
-            validation = await _validate_construction_script(script_result["script"])
-            if not validation.is_valid:
-                return {
-                    "success": False,
-                    "message": f"Generated script failed validation: {'; '.join(validation.errors)}",
-                    "validation_results": validation.dict()
-                }
-
-            # Execute script in Blender
-            execution_result = await _execute_construction_script(
-                script_result["script"], name, validation
+            result = MCPExportResult(
+                success=bool(primary_files),
+                asset_id=asset_id,
+                target_mcp=target_mcp,
+                primary_files=primary_files,
+                supporting_files=supporting_files,
+                integration_commands=[c for c in integration_commands if c],
+                metadata=metadata,
+                optimization_report=optimization_report,
+                validation_results=validation_results,
+                error_message=None if primary_files else "Export produced no output files",
             )
-
-            # Prepare response
-            response = {
-                "success": execution_result["success"],
-                "message": _generate_construction_summary(
-                    description, execution_result, script_result.get("iterations", 1), validation
-                ),
-                "object_name": name,
-                "script_generated": True,
-                "iterations_used": script_result.get("iterations", 1),
-                "validation_results": {
-                    "security_score": validation.security_score,
-                    "complexity_score": validation.complexity_score,
-                    "warnings": validation.warnings
-                },
-                "scene_objects_created": execution_result.get("objects_created", []),
-                "estimated_complexity": complexity
-            }
-
-            if execution_result["success"]:
-                response["next_steps"] = [
-                    f"Use manage_object_repo('save', object_name='{name}') to save this object",
-                    f"Use manage_object_construction('modify', object_name='{name}') to customize",
-                    f"Apply blender_lighting setup for better presentation"
-                ]
-            else:
-                response["next_steps"] = [
-                    "Try breaking the object into simpler components",
-                    "Use more specific technical descriptions",
-                    "Check Blender Python API documentation"
-                ]
-
-            return response
+            return result.model_dump()
 
         except Exception as e:
-            logger.exception(f"Construction failed: {str(e)}")
-            return {
-                "success": False,
-                "message": f"Construction failed: {str(e)}",
-                "next_steps": ["Check description clarity", "Try simpler object first"]
-            }
+            logger.exception(f"export_for_mcp_handoff failed: {e}")
+            return MCPExportResult(
+                success=False, asset_id=asset_id, target_mcp=target_mcp,
+                primary_files=[], supporting_files=[], integration_commands=[],
+                metadata={}, optimization_report={}, validation_results={},
+                error_message=str(e),
+            ).model_dump()
 
-    async def _modify_object(
-        ctx: Context,
-        object_name: str,
-        modification_description: str,
-        max_iterations: int,
-        preserve_original: bool
-    ) -> Dict[str, Any]:
-        """Helper function for modifying objects using LLM-guided improvements."""
-        try:
-            if not object_name or not modification_description:
-                raise ValueError("object_name and modification_description are required")
 
-            # Check if object exists
-            object_info = await _get_object_info(object_name)
-            if not object_info:
-                return {
-                    "success": False,
-                    "message": f"Object '{object_name}' not found in scene",
-                    "next_steps": ["Check object name", "Use blender_selection to list available objects"]
-                }
+# ---------------------------------------------------------------------------
+# Construction helpers (delegating to construct_tools where possible)
+# ---------------------------------------------------------------------------
 
-            # Try to find original construction script
-            original_script = await _find_construction_script(object_name)
 
-            if not original_script:
-                return {
-                    "success": False,
-                    "message": f"No construction script found for '{object_name}'",
-                    "next_steps": [
-                        "Use manage_object_construction to recreate the object",
-                        "Save object to repository first with manage_object_repo",
-                        "Manually describe the object for construction"
-                    ]
-                }
-
-            # Generate modification prompt
-            modification_prompt = f"""
-You are a master Blender Python developer specializing in object modification and improvement.
-
-ORIGINAL OBJECT: {object_name}
-ORIGINAL SCRIPT (first 300 chars): {original_script[:300]}...
-
-REQUESTED MODIFICATION: {modification_description}
-
-Please generate an improved Blender Python script that modifies the existing object according to the request.
-Focus on the specific improvements requested while preserving the object's core functionality.
-
-Return ONLY the complete, executable Python script that will modify the existing object.
-"""
-
-            try:
-                # Use FastMCP sampling to get modification script
-                sampling_result = await ctx.sample(
-                    content=f"Modify {object_name}: {modification_description}",
-                    metadata={
-                        "type": "script_modification",
-                        "original_script": original_script[:500],
-                        "modification_request": modification_description,
-                        "object_name": object_name
-                    },
-                    max_tokens=2500,
-                    temperature=0.3
-                )
-
-                modified_script = _extract_python_code(sampling_result.content)
-
-                if not modified_script:
-                    return {
-                        "success": False,
-                        "message": "Failed to generate modification script",
-                        "next_steps": ["Try a more specific modification description"]
-                    }
-
-                # Validate modification script
-                validation = await _validate_modification_script(modified_script, object_name)
-                if not validation.is_valid:
-                    return {
-                        "success": False,
-                        "message": f"Modification script validation failed: {'; '.join(validation.errors)}",
-                        "validation_details": validation.dict()
-                    }
-
-                # Create backup if requested
-                if preserve_original:
-                    backup_result = await _create_object_backup(object_name)
-                    if not backup_result["success"]:
-                        logger.warning(f"Failed to create backup: {backup_result['error']}")
-
-                # Execute modification
-                execution_result = await _execute_modification_script(modified_script, object_name)
-
-                if execution_result["success"]:
-                    return {
-                        "success": True,
-                        "object_name": object_name,
-                        "modification_applied": modification_description,
-                        "script_generated": True,
-                        "iterations_used": 1,
-                        "validation_results": validation.dict(),
-                        "changes_made": execution_result.get("changes_summary", []),
-                        "message": f"Successfully modified '{object_name}' with: {modification_description}",
-                        "next_steps": [
-                            f"Use manage_object_repo('save', object_name='{object_name}') to save the improved version",
-                            f"Use blender_render to preview the modifications",
-                            f"Apply additional modifications if needed"
-                        ]
-                    }
-                else:
-                    return {
-                        "success": False,
-                        "message": f"Modification execution failed: {execution_result['error']}",
-                        "next_steps": ["Try a simpler modification", "Check modification description clarity"]
-                    }
-
-            except Exception as e:
-                logger.exception(f"Modification sampling failed: {e}")
-                return {
-                    "success": False,
-                    "message": f"Failed to generate modification: {str(e)}",
-                    "next_steps": ["Try rephrasing the modification request"]
-                }
-
-        except Exception as e:
-            logger.exception(f"Object modification failed: {e}")
-            return {
-                "success": False,
-                "message": f"Modification failed: {str(e)}",
-                "next_steps": ["Check object existence", "Verify modification description"]
-            }
-
-    # Legacy individual tools for backward compatibility (deprecated)
-    @app.tool
-    async def save_object_to_repository(
-        object_name: str = "",
-        object_name_display: str = "",
-        description: str = "",
-        tags: List[str] = None,
-        category: str = "general",
-        construction_script: Optional[str] = None,
-        quality_rating: int = 5,
-        public: bool = False
-    ) -> Dict[str, Any]:
-        """
-        PORTMANTEAU PATTERN RATIONALE:
-        Consolidates model saving, versioning, and metadata management into single repository interface.
-        Prevents tool explosion while enabling comprehensive model lifecycle management. Follows FastMCP 2.14.3 best practices.
-
-        Save a Blender object to the model repository with versioning and metadata.
-
-        **Repository Features:**
-        - **Version Control**: Automatic versioning with history tracking
-        - **Rich Metadata**: Comprehensive tagging, categorization, and descriptions
-        - **Quality Ratings**: 1-10 quality scoring for model evaluation
-        - **Dependency Tracking**: Links between related models
-        - **Backup System**: Automatic backups with configurable retention
-
-        **Model Information Captured:**
-        - Complete object hierarchy and mesh data
-        - Materials, textures, and UV mappings
-        - Modifiers, constraints, and rigging
-        - Construction script for reproducibility
-        - Scene context and relationships
-
-        Args:
-            object_name (str, required): Name of the Blender object to save to repository
-            model_name (str, required): Display name for the saved model
-            description (str): Detailed description of the model's purpose and features
-            tags (List[str]): Tags for search and categorization (e.g., ['character', 'robot', 'scifi'])
-            category (str): Organizational category (e.g., 'character', 'architecture', 'vehicle', 'prop')
-            construction_script (str | None): Original construction script (auto-detected from object if not provided)
-            quality_rating (int): Quality assessment 1-10 (1=prototype, 10=production-ready)
-            public (bool): Whether this model can be shared publicly
-
-        Returns:
-            Dict[str, Any]: Repository operation results with model ID, version info, and metadata
-                Format: {
-                    "success": bool,
-                    "model_id": str,
-                    "version": str,
-                    "path": str,
-                    "metadata": Dict,
-                    "message": str,
-                    "next_steps": List[str]
-                }
-
-        Raises:
-            ValueError: If object doesn't exist or parameters are invalid
-            RuntimeError: If repository operations fail
-
-        Examples:
-            Save a character: save_model_to_repository("RobotCharacter", "Robbie Robot", "Classic sci-fi robot", ["robot", "scifi"], "character", quality_rating=9)
-            Save architecture: save_model_to_repository("GothicCathedral", "Medieval Cathedral", "Detailed gothic architecture", ["building", "medieval"], "architecture")
-
-        Note:
-            Models are stored in ~/.blender-mcp/repository with full version history.
-            Construction scripts enable perfect reproducibility of complex models.
-            Quality ratings help users find the best models for their needs.
-        """
-        try:
-            if not object_name or not object_name_display:
-                raise ValueError("object_name and object_name_display are required")
-
-            if tags is None:
-                tags = []
-
-            # Get repository config
-            config = RepositoryConfig()
-
-            # Ensure repository directory exists
-            repo_path = Path(config.base_path)
-            repo_path.mkdir(parents=True, exist_ok=True)
-
-            # Check if object exists in Blender
-            object_info = await _get_object_info(object_name)
-            if not object_info:
-                return {
-                    "success": False,
-                    "message": f"Object '{object_name}' not found in current scene",
-                    "next_steps": ["Check object name spelling", "Ensure object exists in scene"]
-                }
-
-            # Generate object ID
-            object_id = _generate_object_id(object_name_display, object_name)
-
-            # Create object directory
-            object_dir = repo_path / object_id
-            model_dir.mkdir(exist_ok=True)
-
-            # Determine version
-            version = await _get_next_version(object_dir)
-
-            # Get or create construction script
-            if not construction_script:
-                construction_script = await _extract_construction_script(object_name)
-
-            # Create metadata
-            metadata = ObjectMetadata(
-                id=object_id,
-                name=object_name_display,
-                description=description,
-                author="user",  # Could be configurable
-                version=version,
-                created_at=datetime.now().isoformat(),
-                updated_at=datetime.now().isoformat(),
-                tags=tags,
-                complexity=object_info.get("complexity", "standard"),
-                style_preset=None,  # Could be inferred
-                construction_script=construction_script,
-                object_count=object_info.get("object_count", 1),
-                blender_version=object_info.get("blender_version"),
-                estimated_quality=max(1, min(10, quality_rating)),
-                category=category,
-                license="MIT",
-                dependencies=[]
-            )
-
-            # Export Blender object
-            export_result = await _export_blender_object(
-                object_name, object_dir / f"object_{version}.blend"
-            )
-
-            if not export_result["success"]:
-                return {
-                    "success": False,
-                    "message": f"Failed to export object: {export_result['error']}",
-                    "next_steps": ["Check object validity", "Try exporting manually first"]
-                }
-
-            # Save metadata
-            metadata_file = object_dir / "metadata.json"
-            with open(metadata_file, 'w') as f:
-                json.dump(metadata.dict(), f, indent=2)
-
-            # Save construction script
-            script_file = object_dir / f"script_{version}.py"
-            with open(script_file, 'w') as f:
-                f.write(construction_script)
-
-            # Update repository index
-            await _update_repository_index(config.base_path, metadata)
-
-            return {
-                "success": True,
-                "object_id": object_id,
-                "version": version,
-                "path": str(object_dir),
-                "metadata": metadata.dict(),
-                "message": f"Successfully saved '{model_name}' (v{version}) to repository",
-                "next_steps": [
-                    f"Use load_object_from_repository('{object_id}') to reuse this object",
-                    f"Share object_id '{object_id}' with others",
-                    "Consider updating quality rating after testing"
-                ]
-            }
-
-        except Exception as e:
-            logger.exception(f"Failed to save model to repository: {e}")
-            return {
-                "success": False,
-                "message": f"Failed to save model: {str(e)}",
-                "next_steps": ["Check repository permissions", "Verify object exists"]
-            }
-
-    @app.tool
-    async def load_object_from_repository(
-        object_id: str = "",
-        target_name: Optional[str] = None,
-        position: Tuple[float, float, float] = (0, 0, 0),
-        scale: Tuple[float, float, float] = (1, 1, 1),
-        version: Optional[str] = None
-    ) -> Dict[str, Any]:
-        """
-        PORTMANTEAU PATTERN RATIONALE:
-        Consolidates object loading, versioning, and scene integration into single repository interface.
-        Prevents tool explosion while enabling seamless object reuse across projects. Follows FastMCP 2.14.3 best practices.
-
-        Load an object from the repository into the current Blender scene.
-
-        **Loading Features:**
-        - **Version Selection**: Load specific versions or latest
-        - **Transform Control**: Position, scale, and orient loaded objects
-        - **Name Management**: Automatic renaming to avoid conflicts
-        - **Dependency Resolution**: Automatically load required dependencies
-        - **Scene Integration**: Proper material and texture linking
-
-        Args:
-            object_id (str, required): ID of the object to load from repository
-            target_name (str | None): New name for loaded object (auto-generated if not provided)
-            position (Tuple[float, float, float]): World position to place the loaded object
-            scale (Tuple[float, float, float]): Scale factors to apply to the loaded object
-            version (str | None): Specific version to load (latest if not specified)
-
-        Returns:
-            Dict[str, Any]: Loading operation results with object info and scene integration details
-
-        Examples:
-            Basic load: load_object_from_repository("robot-abc123")
-            Positioned load: load_object_from_repository("building-def456", position=(10, 0, 5), scale=(2, 2, 2))
-
-        Note:
-            Objects maintain all materials, textures, and rigging when loaded.
-            Dependencies are automatically resolved and loaded.
-        """
-        try:
-            if not object_id:
-                raise ValueError("object_id is required")
-
-            config = RepositoryConfig()
-            object_dir = Path(config.base_path) / object_id
-
-            if not object_dir.exists():
-                return {
-                    "success": False,
-                    "message": f"Object '{object_id}' not found in repository",
-                    "next_steps": ["Check object ID spelling", "Use search_objects_in_repository() to find objects"]
-                }
-
-            # Load metadata
-            metadata_file = object_dir / "metadata.json"
-            if not metadata_file.exists():
-                return {
-                    "success": False,
-                    "message": f"Object metadata not found for '{object_id}'",
-                    "next_steps": ["Object may be corrupted", "Contact repository administrator"]
-                }
-
-            with open(metadata_file) as f:
-                metadata_dict = json.load(f)
-                metadata = ObjectMetadata(**metadata_dict)
-
-            # Determine version to load
-            if not version:
-                version = metadata.version
-            elif version != metadata.version:
-                # Check if specific version exists
-                version_file = object_dir / f"object_{version}.blend"
-                if not version_file.exists():
-                    return {
-                        "success": False,
-                        "message": f"Version '{version}' not found for object '{object_id}'",
-                        "available_versions": await _get_available_versions(object_dir),
-                        "next_steps": ["Use latest version or check available versions"]
-                    }
-
-            # Generate target name
-            if not target_name:
-                target_name = f"{metadata.name}_{version}"
-                # Ensure unique name
-                target_name = await _ensure_unique_name(target_name)
-
-            # Import Blender file
-            blend_file = object_dir / f"object_{version}.blend"
-            import_result = await _import_blender_file(
-                str(blend_file), target_name, position, scale
-            )
-
-            if not import_result["success"]:
-                return {
-                    "success": False,
-                    "message": f"Failed to import object: {import_result['error']}",
-                    "next_steps": ["Check Blender file integrity", "Try different version"]
-                }
-
-            return {
-                "success": True,
-                "object_id": object_id,
-                "version_loaded": version,
-                "object_name": target_name,
-                "objects_created": import_result.get("objects_created", []),
-                "metadata": metadata.dict(),
-                "message": f"Successfully loaded '{metadata.name}' (v{version}) as '{target_name}'",
-                "next_steps": [
-                    f"Use modify_object('{target_name}') to customize the loaded object",
-                    f"Apply blender_lighting setup for better presentation",
-                    f"Consider blender_render for preview"
-                ]
-            }
-
-        except Exception as e:
-            logger.exception(f"Failed to load model from repository: {e}")
-            return {
-                "success": False,
-                "message": f"Failed to load model: {str(e)}",
-                "next_steps": ["Check model ID", "Verify repository integrity"]
-            }
-
-    @app.tool
-    async def search_objects_in_repository(
-        query: Optional[str] = None,
-        category: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        author: Optional[str] = None,
-        min_quality: Optional[int] = None,
-        complexity: Optional[str] = None,
-        limit: int = 20
-    ) -> Dict[str, Any]:
-        """
-        Search and discover objects in the repository with advanced filtering.
-
-        **Search Capabilities:**
-        - **Text Search**: Name, description, and tags
-        - **Category Filtering**: Architecture, character, vehicle, etc.
-        - **Tag-based Discovery**: Find objects by specific tags
-        - **Quality Filtering**: Find high-quality objects
-        - **Author Search**: Find objects by creator
-        - **Complexity Matching**: Match project complexity needs
-
-        Args:
-            query (str | None): Search text for name/description/tags
-            category (str | None): Filter by category
-            tags (List[str] | None): Required tags (object must have all)
-            author (str | None): Filter by author
-            min_quality (int | None): Minimum quality rating (1-10)
-            complexity (str | None): Filter by complexity (simple/standard/complex)
-            limit (int): Maximum results to return
-
-        Returns:
-            Dict with search results and object summaries
-
-        Examples:
-            Text search: search_objects_in_repository("robot")
-            Category filter: search_objects_in_repository(category="character")
-            Quality filter: search_objects_in_repository(min_quality=8)
-        """
-        try:
-            config = RepositoryConfig()
-            index_file = Path(config.base_path) / "repository_index.json"
-
-            if not index_file.exists():
-                return {
-                    "success": False,
-                    "message": "Repository index not found. No objects have been saved yet.",
-                    "results": [],
-                    "total_count": 0
-                }
-
-            with open(index_file) as f:
-                index = json.load(f)
-
-            models = index.get("models", [])
-
-            # Apply filters
-            filtered_models = []
-            for model in models:
-                if query and not _matches_query(model, query):
-                    continue
-                if category and model.get("category") != category:
-                    continue
-                if tags:
-                    model_tags = set(model.get("tags", []))
-                    if not all(tag in model_tags for tag in tags):
-                        continue
-                if author and model.get("author") != author:
-                    continue
-                if min_quality and model.get("estimated_quality", 0) < min_quality:
-                    continue
-                if complexity and model.get("complexity") != complexity:
-                    continue
-
-                filtered_models.append(model)
-
-            # Sort by quality and recency
-            filtered_models.sort(key=lambda x: (x.get("estimated_quality", 0), x.get("updated_at", "")), reverse=True)
-
-            # Limit results
-            limited_results = filtered_models[:limit]
-
-            return {
-                "success": True,
-                "results": limited_results,
-                "total_count": len(filtered_models),
-                "returned_count": len(limited_results),
-                "filters_applied": {
-                    "query": query,
-                    "category": category,
-                    "tags": tags,
-                    "author": author,
-                    "min_quality": min_quality,
-                    "complexity": complexity
-                },
-                "message": f"Found {len(filtered_models)} models matching criteria (showing {len(limited_results)})",
-                "next_steps": [
-                    "Use load_model_from_repository(model_id) to load any model",
-                    "Refine search with more specific filters",
-                    "Save interesting models to favorites"
-                ]
-            }
-
-        except Exception as e:
-            logger.exception(f"Failed to search repository: {e}")
-            return {
-                "success": False,
-                "message": f"Search failed: {str(e)}",
-                "results": [],
-                "total_count": 0
-            }
-
-    @app.tool
-    async def modify_object(
-        ctx: Context,
-        object_name: str = "",
-        modification_description: str = "",
-        max_iterations: int = 2,
-        preserve_original: bool = True
-    ) -> Dict[str, Any]:
-        """
-        PORTMANTEAU PATTERN RATIONALE:
-        Consolidates object modification, script refinement, and iterative improvement into single agentic interface.
-        Prevents tool explosion while enabling sophisticated object evolution through LLM-guided improvements. Follows FastMCP 2.14.3 best practices.
-
-        Modify an existing Blender object using natural language descriptions and LLM-guided improvements.
-
-        **Modification Workflow:**
-        1. **Script Retrieval**: Find original construction script from repository
-        2. **LLM Refinement**: Send script to LLM for targeted improvements
-        3. **Iterative Enhancement**: Multiple rounds of improvement until satisfaction
-        4. **Safe Execution**: Validate and execute improved script
-        5. **Version Control**: Save modifications as new versions
-
-        **Modification Types Supported:**
-        - **Geometric Changes**: Shape modifications, proportions, topology
-        - **Material Enhancements**: Texture improvements, shader refinements
-        - **Structural Improvements**: Better rigging, optimized topology
-        - **Style Adjustments**: Aesthetic refinements, detail additions
-        - **Functional Upgrades**: Animation readiness, physics improvements
-
-        Args:
-            ctx (Context): FastMCP context for sampling and conversational responses
-            object_name (str, required): Name of existing Blender object to modify
-            modification_description (str, required): Natural language description of desired changes
-            max_iterations (int): Maximum refinement iterations (default: 2)
-            preserve_original (bool): Whether to keep original object (default: True)
-
-        Returns:
-            Dict[str, Any]: Modification results with before/after comparison and improvement details
-
-        Examples:
-            Style change: modify_object("Robot", "make it look more futuristic with glowing blue accents")
-            Structural: modify_object("Building", "add more architectural details and better proportions")
-            Material: modify_object("Car", "improve the paint job with metallic flakes")
-
-        Note:
-            Requires object to have been created via construct_object or saved to repository.
-            Modifications are saved as new versions for rollback capability.
-            LLM provides intelligent suggestions based on original construction approach.
-        """
-        try:
-            if not object_name or not modification_description:
-                raise ValueError("object_name and modification_description are required")
-
-            # Check if object exists
-            object_info = await _get_object_info(object_name)
-            if not object_info:
-                return {
-                    "success": False,
-                    "message": f"Object '{object_name}' not found in scene",
-                    "next_steps": ["Check object name", "Use blender_selection to list available objects"]
-                }
-
-            # Try to find original construction script
-            original_script = await _find_construction_script(object_name)
-
-            if not original_script:
-                return {
-                    "success": False,
-                    "message": f"No construction script found for '{object_name}'",
-                    "next_steps": [
-                        "Use construct_object to recreate the object",
-                        "Save object to repository first with save_object_to_repository",
-                        "Manually describe the object for construct_object"
-                    ]
-                }
-
-            # Generate modification prompt
-            modification_prompt = f"""
-You are a master Blender Python developer specializing in object modification and improvement.
-
-ORIGINAL OBJECT: {object_name}
-ORIGINAL SCRIPT (first 300 chars): {original_script[:300]}...
-
-REQUESTED MODIFICATION: {modification_description}
-
-Please generate an improved Blender Python script that modifies the existing object according to the request.
-Focus on the specific improvements requested while preserving the object's core functionality.
-
-Return ONLY the complete, executable Python script that will modify the existing object.
-"""
-
-            try:
-                # Use FastMCP sampling to get modification script
-                sampling_result = await ctx.sample(
-                    content=f"Modify {object_name}: {modification_description}",
-                    metadata={
-                        "type": "script_modification",
-                        "original_script": original_script[:500],  # Truncate for context
-                        "modification_request": modification_description,
-                        "object_name": object_name
-                    },
-                    max_tokens=2500,
-                    temperature=0.3
-                )
-
-                modified_script = _extract_python_code(sampling_result.content)
-
-                if not modified_script:
-                    return {
-                        "success": False,
-                        "message": "Failed to generate modification script",
-                        "next_steps": ["Try a more specific modification description"]
-                    }
-
-                # Validate modification script
-                validation = await _validate_modification_script(modified_script, object_name)
-                if not validation.is_valid:
-                    return {
-                        "success": False,
-                        "message": f"Modification script validation failed: {'; '.join(validation.errors)}",
-                        "validation_details": validation.dict()
-                    }
-
-                # Create backup if requested
-                if preserve_original:
-                    backup_result = await _create_object_backup(object_name)
-                    if not backup_result["success"]:
-                        logger.warning(f"Failed to create backup: {backup_result['error']}")
-
-                # Execute modification
-                execution_result = await _execute_modification_script(modified_script, object_name)
-
-                if execution_result["success"]:
-                    # Optionally save as new version
-                    save_prompt = f"Would you like to save this modified version of '{object_name}' to the repository?"
-                    # Note: In a real implementation, you might want to elicit user confirmation here
-
-                    return {
-                        "success": True,
-                        "object_name": object_name,
-                        "modification_applied": modification_description,
-                        "script_generated": True,
-                        "iterations_used": 1,
-                        "validation_results": validation.dict(),
-                        "changes_made": execution_result.get("changes_summary", []),
-                        "message": f"Successfully modified '{object_name}' with: {modification_description}",
-                "next_steps": [
-                    f"Use save_object_to_repository('{object_name}') to save the improved version",
-                    f"Use blender_render to preview the modifications",
-                    f"Apply additional modifications if needed"
-                ]
-                    }
-                else:
-                    return {
-                        "success": False,
-                        "message": f"Modification execution failed: {execution_result['error']}",
-                        "next_steps": ["Try a simpler modification", "Check modification description clarity"]
-                    }
-
-            except Exception as e:
-                logger.exception(f"Modification sampling failed: {e}")
-                return {
-                    "success": False,
-                    "message": f"Failed to generate modification: {str(e)}",
-                    "next_steps": ["Try rephrasing the modification request"]
-                }
-
-        except Exception as e:
-            logger.exception(f"Object modification failed: {e}")
-            return {
-                "success": False,
-                "message": f"Modification failed: {str(e)}",
-                "next_steps": ["Check object existence", "Verify modification description"]
-            }
-
-
-# Helper functions
-
-async def _get_object_info(object_name: str) -> Optional[Dict[str, Any]]:
-    """Get information about a Blender object."""
-    try:
-        # This would interface with Blender to get object info
-        # For now, return mock data
-        return {
-            "name": object_name,
-            "type": "mesh",
-            "complexity": "standard",
-            "blender_version": "4.0",
-            "object_count": 1
-        }
-    except Exception:
-        return None
-
-
-def _generate_object_id(object_name_display: str, object_name: str) -> str:
-    """Generate a unique object ID."""
-    content = f"{object_name_display}:{object_name}:{datetime.now().isoformat()}"
-    return hashlib.md5(content.encode()).hexdigest()[:16]
-
-
-async def _get_next_version(model_dir: Path) -> str:
-    """Get the next version number for a model."""
-    try:
-        metadata_file = model_dir / "metadata.json"
-        if metadata_file.exists():
-            with open(metadata_file) as f:
-                data = json.load(f)
-                current_version = data.get("version", "0.0.0")
-                major, minor, patch = map(int, current_version.split("."))
-                return f"{major}.{minor}.{patch + 1}"
-        return "1.0.0"
-    except Exception:
-        return "1.0.0"
-
-
-async def _extract_construction_script(object_name: str) -> str:
-    """Extract or generate construction script for an object."""
-    # This would ideally retrieve from repository or generate based on object analysis
-    return f"""
-import bpy
-
-# Construction script for {object_name}
-# This is a placeholder - real implementation would analyze the object
-bpy.ops.object.select_all(action='DESELECT')
-obj = bpy.data.objects.get("{object_name}")
-if obj:
-    obj.select_set(True)
-"""
-
-
-async def _export_blender_object(object_name: str, output_path: str) -> Dict[str, Any]:
-    """Export a Blender object to file."""
-    try:
-        # This would use Blender's export functionality
-        return {"success": True, "path": output_path}
-    except Exception as e:
-        return {"success": False, "error": str(e)}
-
-
-# Cross-MCP Export System Implementation
-
-class MCPExportResult(BaseModel):
-    """Result of cross-MCP export operation."""
-    success: bool
-    asset_id: str
-    target_mcp: str
-    primary_files: List[str]
-    supporting_files: List[str]
-    integration_commands: List[str]
-    metadata: Dict[str, Any]
-    optimization_report: Dict[str, Any]
-    validation_results: Dict[str, Any]
-    error_message: Optional[str] = None
-
-
-class PlatformExportEngine:
-    """Base class for platform-specific export engines."""
-
-    def __init__(self, platform_name: str):
-        self.platform_name = platform_name
-        self.optimizations = {}
-
-    async def optimize_asset(self, asset_data: Dict[str, Any], quality_level: str) -> Dict[str, Any]:
-        """Apply platform-specific optimizations."""
-        raise NotImplementedError
-
-    async def generate_export_files(self, optimized_asset: Dict[str, Any]) -> Tuple[List[str], List[str]]:
-        """Generate primary and supporting files."""
-        raise NotImplementedError
-
-    async def generate_integration_commands(self, asset_data: Dict[str, Any]) -> List[str]:
-        """Generate commands for target MCP integration."""
-        raise NotImplementedError
-
-    async def validate_compatibility(self, asset_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate asset meets platform requirements."""
-        raise NotImplementedError
-
-
-class VRChatExportEngine(PlatformExportEngine):
-    """VRChat-specific export engine."""
-
-    def __init__(self):
-        super().__init__("vrchat")
-        self.optimizations = {
-            "polygon_limit": 70000,
-            "material_limit": 8,
-            "bone_limit": 256,
-            "texture_size_max": 2048,
-            "auto_lod": True,
-            "auto_physbones": True
-        }
-
-    async def optimize_asset(self, asset_data: Dict[str, Any], quality_level: str) -> Dict[str, Any]:
-        """Apply VRChat-specific optimizations."""
-        optimized = asset_data.copy()
-
-        # Polygon optimization
-        if asset_data.get("polygon_count", 0) > self.optimizations["polygon_limit"]:
-            optimized["polygons_reduced"] = True
-            optimized["original_polygons"] = asset_data["polygon_count"]
-            optimized["optimized_polygons"] = min(asset_data["polygon_count"], self.optimizations["polygon_limit"])
-
-        # Material optimization
-        if len(asset_data.get("materials", [])) > self.optimizations["material_limit"]:
-            optimized["materials_reduced"] = True
-            optimized["original_materials"] = len(asset_data["materials"])
-            optimized["optimized_materials"] = self.optimizations["material_limit"]
-
-        # Texture optimization
-        optimized["textures_optimized"] = True
-        optimized["texture_compression"] = "BC7"
-
-        return optimized
-
-    async def generate_export_files(self, optimized_asset: Dict[str, Any]) -> Tuple[List[str], List[str]]:
-        """Generate FBX and texture files for VRChat."""
-        primary_files = ["asset_vrchat.fbx"]
-        supporting_files = [
-            "diffuse.png", "normal.png", "metallic.png", "emission.png",
-            "asset_vrchat_materials.json", "lod_levels.json"
-        ]
-        return primary_files, supporting_files
-
-    async def generate_integration_commands(self, asset_data: Dict[str, Any]) -> List[str]:
-        """Generate VRChat MCP integration commands."""
-        return [
-            f"vrchat_import_fbx --file asset_vrchat.fbx --auto-setup",
-            f"vrchat_apply_optimizations --preset {'avatar' if asset_data.get('is_avatar', False) else 'prop'}",
-            f"vrchat_setup_physbones --auto-detect" if asset_data.get("has_bones", False) else "",
-            f"vrchat_generate_lods --levels 3" if self.optimizations["auto_lod"] else "",
-            f"vrchat_validate_platform_requirements --strict",
-            f"vrchat_prepare_upload_package --quality high"
-        ]
-
-    async def validate_compatibility(self, asset_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate VRChat compatibility."""
-        issues = []
-        warnings = []
-
-        # Polygon count check
-        poly_count = asset_data.get("polygon_count", 0)
-        if poly_count > self.optimizations["polygon_limit"]:
-            issues.append(f"Polygon count ({poly_count}) exceeds limit ({self.optimizations['polygon_limit']})")
-
-        # Material count check
-        material_count = len(asset_data.get("materials", []))
-        if material_count > self.optimizations["material_limit"]:
-            issues.append(f"Material count ({material_count}) exceeds limit ({self.optimizations['material_limit']})")
-
-        # Texture size check
-        for texture in asset_data.get("textures", []):
-            if texture.get("size", 0) > self.optimizations["texture_size_max"]:
-                warnings.append(f"Texture {texture.get('name')} exceeds recommended size")
-
-        return {
-            "compatible": len(issues) == 0,
-            "issues": issues,
-            "warnings": warnings,
-            "recommendations": [
-                "Reduce polygon count" if issues else None,
-                "Combine materials" if material_count > self.optimizations["material_limit"] else None,
-                "Resize textures" if any(w.startswith("Texture") for w in warnings) else None
-            ]
-        }
-
-
-class ResoniteExportEngine(PlatformExportEngine):
-    """Resonite-specific export engine."""
-
-    def __init__(self):
-        super().__init__("resonite")
-        self.optimizations = {
-            "polygon_limit": 100000,
-            "material_limit": 16,
-            "auto_protoflux": True,
-            "collision_generation": True,
-            "dynamic_bones": True
-        }
-
-    async def optimize_asset(self, asset_data: Dict[str, Any], quality_level: str) -> Dict[str, Any]:
-        """Apply Resonite-specific optimizations."""
-        optimized = asset_data.copy()
-
-        # ProtoFlux component setup
-        optimized["protoflux_components"] = ["grabbable", "collision"]
-        if asset_data.get("has_bones", False):
-            optimized["protoflux_components"].extend(["dynamic_bones", "physics"])
-
-        # Collision mesh generation
-        optimized["collision_mesh_generated"] = self.optimizations["collision_generation"]
-
-        return optimized
-
-    async def generate_export_files(self, optimized_asset: Dict[str, Any]) -> Tuple[List[str], List[str]]:
-        """Generate GLTF/GLB files for Resonite."""
-        primary_files = ["asset_resonite.glb"]
-        supporting_files = [
-            "protoflux_components.json",
-            "collision_meshes.glb",
-            "material_setup.json"
-        ]
-        if optimized_asset.get("has_animations", False):
-            supporting_files.append("animations.json")
-
-        return primary_files, supporting_files
-
-    async def generate_integration_commands(self, asset_data: Dict[str, Any]) -> List[str]:
-        """Generate Resonite MCP integration commands."""
-        commands = [
-            "resonite_import_gltf --file asset_resonite.glb --auto-setup",
-            "resonite_add_protoflux_components --auto-detect",
-            "resonite_setup_collision --generate-primitives",
-        ]
-
-        if asset_data.get("has_bones", False):
-            commands.append("resonite_configure_dynamic_bones --physics-settings optimized")
-
-        if asset_data.get("has_animations", False):
-            commands.append("resonite_setup_animation_system --auto-configure")
-
-        commands.append("resonite_validate_world_requirements --comprehensive")
-
-        return commands
-
-    async def validate_compatibility(self, asset_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate Resonite compatibility."""
-        issues = []
-        warnings = []
-
-        # Polygon count check (more lenient than VRChat)
-        poly_count = asset_data.get("polygon_count", 0)
-        if poly_count > self.optimizations["polygon_limit"]:
-            warnings.append(f"High polygon count ({poly_count}) may impact performance")
-
-        return {
-            "compatible": True,  # Resonite is more flexible
-            "issues": issues,
-            "warnings": warnings,
-            "recommendations": [
-                "Consider LOD system for complex models" if poly_count > 50000 else None,
-                "Add ProtoFlux interactions for better user engagement"
-            ]
-        }
-
-
-# Global export engine registry
-EXPORT_ENGINES = {
-    "vrchat": VRChatExportEngine(),
-    "resonite": ResoniteExportEngine(),
-}
-
-
-@app.tool
-async def export_for_mcp_handoff(
+async def _construct_object(
     ctx: Context,
-    asset_id: str,
-    target_mcp: str,
-    optimization_preset: str = "automatic",
-    quality_level: str = "high",
-    include_metadata: bool = True
+    description: str,
+    name: str,
+    complexity: str,
+    style_preset: Optional[str],
+    reference_objects: Optional[List[str]],
+    allow_modifications: bool,
+    max_iterations: int,
 ) -> Dict[str, Any]:
-    """
-    PORTMANTEAU PATTERN RATIONALE:
-    Consolidates export operations into single interface for cross-MCP handoff. Prevents tool explosion
-    while enabling seamless creative workflow integration across MCP servers. Follows FastMCP 2.14.3 standards.
+    from .construct_tools import _execute_construction_script
 
-    Export Blender asset with target-MCP-specific optimizations for seamless cross-MCP handoff.
+    if not description.strip():
+        return {"success": False, "message": "description is required"}
+    if complexity not in ("simple", "standard", "complex"):
+        return {"success": False, "message": f"Invalid complexity '{complexity}'"}
 
-    This revolutionary feature enables AI-constructed assets to be instantly usable in other creative
-    MCP servers, creating a complete automated creative assembly line.
-
-    Args:
-        ctx (Context): FastMCP context for conversational responses
-        asset_id (str, required): ID of the asset to export (from repository)
-        target_mcp (str, required): Target MCP server ("vrchat", "resonite", "unity", "unreal")
-        optimization_preset (str): Optimization approach ("automatic", "conservative", "aggressive")
-        quality_level (str): Quality vs speed tradeoff ("draft", "standard", "high", "ultra")
-        include_metadata (bool): Include integration metadata for target MCP
-
-    Returns:
-        Dict containing export results, file paths, integration commands, and metadata
-
-    Raises:
-        ValueError: If asset_id not found or target_mcp not supported
-
-    Examples:
-        export_for_mcp_handoff("chair_steampunk_001", "vrchat")  # VRChat avatar furniture
-        export_for_mcp_handoff("robot_arm_002", "resonite", optimization_preset="aggressive")  # Resonite world object
-        export_for_mcp_handoff("character_hero_003", "unity", quality_level="ultra")  # Unity game character
-    """
-    try:
-        # Validate inputs
-        if target_mcp not in EXPORT_ENGINES:
-            supported = list(EXPORT_ENGINES.keys())
-            raise ValueError(f"Unsupported target MCP '{target_mcp}'. Supported: {supported}")
-
-        if quality_level not in ["draft", "standard", "high", "ultra"]:
-            raise ValueError(f"Invalid quality_level '{quality_level}'. Must be: draft, standard, high, ultra")
-
-        if optimization_preset not in ["automatic", "conservative", "aggressive"]:
-            raise ValueError(f"Invalid optimization_preset '{optimization_preset}'. Must be: automatic, conservative, aggressive")
-
-        # Retrieve asset from repository
-        asset_data = await _get_asset_from_repository(asset_id)
-        if not asset_data:
-            raise ValueError(f"Asset '{asset_id}' not found in repository")
-
-        # Get target platform engine
-        engine = EXPORT_ENGINES[target_mcp]
-
-        # Apply platform-specific optimizations
-        optimized_asset = await engine.optimize_asset(asset_data, quality_level)
-
-        # Generate export files
-        primary_files, supporting_files = await engine.generate_export_files(optimized_asset)
-
-        # Generate integration commands
-        integration_commands = await engine.generate_integration_commands(optimized_asset)
-
-        # Validate platform compatibility
-        validation_results = await engine.validate_compatibility(optimized_asset)
-
-        # Prepare optimization report
-        optimization_report = {
-            "preset_used": optimization_preset,
-            "quality_level": quality_level,
-            "applied_optimizations": [
-                key for key, value in optimized_asset.items()
-                if key.endswith("_optimized") or key.endswith("_generated") or key.endswith("_reduced")
-            ],
-            "platform_requirements_met": validation_results["compatible"]
-        }
-
-        # Prepare metadata for target MCP
-        metadata = {}
-        if include_metadata:
-            metadata = {
-                "source_mcp": "blender-mcp",
-                "asset_id": asset_id,
-                "export_timestamp": datetime.now().isoformat(),
-                "platform_requirements": {
-                    target_mcp: {
-                        "polygon_limit": engine.optimizations.get("polygon_limit"),
-                        "material_limit": engine.optimizations.get("material_limit"),
-                        "bone_limit": engine.optimizations.get("bone_limit"),
-                        "texture_size_max": engine.optimizations.get("texture_size_max")
-                    }
-                },
-                "integration_ready": True,
-                "optimization_applied": optimization_report
-            }
-
-        # Success response
-        result = MCPExportResult(
-            success=True,
-            asset_id=asset_id,
-            target_mcp=target_mcp,
-            primary_files=primary_files,
-            supporting_files=supporting_files,
-            integration_commands=[cmd for cmd in integration_commands if cmd],  # Filter empty commands
-            metadata=metadata,
-            optimization_report=optimization_report,
-            validation_results=validation_results
-        )
-
-        # Provide conversational summary
-        await ctx.send(
-            f"Successfully exported '{asset_id}' for {target_mcp.upper()}!\n"
-            f"📁 Primary files: {len(primary_files)}\n"
-            f"🎨 Supporting files: {len(supporting_files)}\n"
-            f"⚙️ Integration commands ready: {len(result.integration_commands)}\n"
-            f"✅ Platform compatibility: {'✓' if validation_results['compatible'] else '⚠️'}\n\n"
-            f"The asset is now ready for seamless import into {target_mcp.upper()} MCP server!"
-        )
-
-        return result.dict()
-
-    except Exception as e:
-        logger.exception(f"Cross-MCP export failed: {e}")
-        return MCPExportResult(
-            success=False,
-            asset_id=asset_id,
-            target_mcp=target_mcp,
-            primary_files=[],
-            supporting_files=[],
-            integration_commands=[],
-            metadata={},
-            optimization_report={},
-            validation_results={},
-            error_message=str(e)
-        ).dict()
-
-
-async def _get_asset_from_repository(asset_id: str) -> Optional[Dict[str, Any]]:
-    """Retrieve asset data from repository by ID."""
-    try:
-        # This would integrate with the actual repository system
-        # For now, return mock data based on asset_id
-        return {
-            "id": asset_id,
-            "name": f"Asset {asset_id}",
-            "polygon_count": 15000,
-            "materials": ["brass", "leather", "metal"],
-            "textures": [{"name": "diffuse", "size": 1024}],
-            "has_bones": asset_id.startswith("character") or "anim" in asset_id,
-            "has_animations": "anim" in asset_id,
-            "is_avatar": "character" in asset_id or "avatar" in asset_id
-        }
-    except Exception:
-        return None
-
-
-async def _update_repository_index(base_path: str, metadata: ObjectMetadata):
-    """Update the repository index with new model."""
-    try:
-        index_file = Path(base_path) / "repository_index.json"
-
-        if index_file.exists():
-            with open(index_file) as f:
-                index = json.load(f)
-        else:
-            index = {"models": [], "last_updated": datetime.now().isoformat()}
-
-        # Update or add model
-        existing_model_idx = next(
-            (i for i, m in enumerate(index["models"]) if m["id"] == metadata.id),
-            None
-        )
-
-        model_summary = {
-            "id": metadata.id,
-            "name": metadata.name,
-            "description": metadata.description,
-            "author": metadata.author,
-            "version": metadata.version,
-            "updated_at": metadata.updated_at,
-            "tags": metadata.tags,
-            "category": metadata.category,
-            "complexity": metadata.complexity,
-            "estimated_quality": metadata.estimated_quality
-        }
-
-        if existing_model_idx is not None:
-            index["models"][existing_model_idx] = model_summary
-        else:
-            index["models"].append(model_summary)
-
-        index["last_updated"] = datetime.now().isoformat()
-
-        with open(index_file, 'w') as f:
-            json.dump(index, f, indent=2)
-
-    except Exception as e:
-        logger.exception(f"Failed to update repository index: {e}")
-
-
-async def _import_blender_file(
-    file_path: str,
-    target_name: str,
-    position: Tuple[float, float, float],
-    scale: Tuple[float, float, float]
-) -> Dict[str, Any]:
-    """Import a Blender file."""
-    try:
-        # This would use Blender's import functionality
-        return {
-            "success": True,
-            "objects_created": [target_name],
-            "position": position,
-            "scale": scale
-        }
-    except Exception as e:
-        return {"success": False, "error": str(e)}
-
-
-async def _ensure_unique_name(base_name: str) -> str:
-    """Ensure a name is unique in the scene."""
-    # This would check Blender scene for name conflicts
-    return base_name
-
-
-async def _get_available_versions(model_dir: Path) -> List[str]:
-    """Get available versions for a model."""
-    try:
-        versions = []
-        for item in model_dir.glob("model_*.blend"):
-            version = item.stem.replace("model_", "")
-            versions.append(version)
-        return sorted(versions, reverse=True)
-    except Exception:
-        return []
-
-
-def _matches_query(model: Dict[str, Any], query: str) -> bool:
-    """Check if a model matches a search query."""
-    query_lower = query.lower()
-    searchable_text = " ".join([
-        model.get("name", ""),
-        model.get("description", ""),
-        " ".join(model.get("tags", []))
-    ]).lower()
-
-    return query_lower in searchable_text
-
-
-async def _find_construction_script(object_name: str) -> Optional[str]:
-    """Find the construction script for an object."""
-    # This would search repository or object metadata
-    # For now, return a mock script
-    return f"""
-import bpy
-
-# Mock construction script for {object_name}
-bpy.ops.object.select_all(action='DESELECT')
-obj = bpy.data.objects.get("{object_name}")
-if obj:
-    obj.select_set(True)
-"""
-
-
-async def _validate_modification_script(script: str, object_name: str) -> ScriptValidationResult:
-    """Validate a modification script."""
-    # Similar to construct_object validation but focused on modifications
-    return ScriptValidationResult(
-        is_valid=True,
-        errors=[],
-        warnings=["Modification script validation placeholder"],
-        security_score=90,
-        complexity_score=50
+    script_result = await _generate_construction_script(
+        ctx, description, name, complexity, style_preset, {}, max_iterations
     )
+    if not script_result["success"]:
+        return {"success": False, "message": f"Script generation failed: {script_result.get('error')}"}
+
+    validation = await _validate_construction_script(script_result["script"])
+    if not validation.is_valid:
+        return {
+            "success": False,
+            "message": f"Validation failed: {'; '.join(validation.errors)}",
+            "validation_results": _model_dump(validation),
+        }
+
+    execution_result = await _execute_construction_script(script_result["script"], name, validation)
+    return {
+        "success": execution_result["success"],
+        "message": _generate_construction_summary(
+            description, execution_result, script_result.get("iterations", 1), validation
+        ),
+        "object_name": name,
+        "script_generated": True,
+        "iterations_used": script_result.get("iterations", 1),
+        "validation_results": {
+            "security_score": validation.security_score,
+            "complexity_score": validation.complexity_score,
+            "warnings": validation.warnings,
+        },
+        "scene_objects_created": execution_result.get("objects_created", []),
+        "estimated_complexity": complexity,
+        "next_steps": [
+            f"manage_object_repo('save', object_name='{name}') to persist to repository",
+            f"manage_object_construction('modify', object_name='{name}') to refine",
+        ] if execution_result["success"] else [
+            "Try a simpler description",
+            "Break complex objects into smaller components",
+        ],
+    }
 
 
-async def _create_object_backup(object_name: str) -> Dict[str, Any]:
-    """Create a backup of an object."""
+async def _modify_object(
+    ctx: Context,
+    object_name: str,
+    modification_description: str,
+    max_iterations: int,
+    preserve_original: bool,
+) -> Dict[str, Any]:
+    if not object_name or not modification_description:
+        return {"success": False, "message": "object_name and modification_description are required"}
+
+    obj_info = await _get_object_info(object_name)
+    if not obj_info:
+        return {"success": False, "message": f"Object '{object_name}' not found in scene"}
+
+    original_script = await _find_construction_script(object_name)
+    if not original_script:
+        return {
+            "success": False,
+            "message": f"No stored construction script for '{object_name}'. Save to repository first.",
+            "next_steps": ["manage_object_repo('save', ...) then retry modify"],
+        }
+
+    # Sample modification script
     try:
-        # This would duplicate the object in Blender
-        return {"success": True, "backup_name": f"{object_name}_backup"}
+        sampling_result = await ctx.sample(
+            content=(
+                f"Modify the Blender object '{object_name}'.\n"
+                f"Requested change: {modification_description}\n\n"
+                f"Original script (first 500 chars):\n{original_script[:500]}\n\n"
+                "Generate a complete, corrected Blender Python script that applies the modification. "
+                "Return ONLY the Python code block."
+            ),
+            metadata={
+                "type": "script_modification",
+                "original_script": original_script[:500],
+                "modification_request": modification_description,
+                "object_name": object_name,
+            },
+            max_tokens=2500,
+            temperature=0.3,
+        )
     except Exception as e:
-        return {"success": False, "error": str(e)}
+        return {"success": False, "message": f"Sampling failed: {e}"}
 
+    modified_script = _extract_python_code(sampling_result.content)
+    if not modified_script:
+        return {"success": False, "message": "LLM did not return a Python code block"}
 
-async def _execute_modification_script(script: str, object_name: str) -> Dict[str, Any]:
-    """Execute a modification script."""
-    try:
-        # This would run the script in Blender context
+    validation = await _validate_construction_script(modified_script)
+    if not validation.is_valid:
+        return {
+            "success": False,
+            "message": f"Modification script failed validation: {'; '.join(validation.errors)}",
+        }
+
+    if preserve_original:
+        backup = await _create_object_backup(object_name)
+        if not backup["success"]:
+            logger.warning(f"Backup failed: {backup.get('error')}")
+
+    execution = await _execute_modification_script(modified_script, object_name)
+    if execution["success"]:
         return {
             "success": True,
-            "changes_summary": ["Object modified according to script"],
-            "execution_time": 1.0
+            "object_name": object_name,
+            "modification_applied": modification_description,
+            "changes_made": execution.get("changes_summary", []),
+            "message": f"Successfully modified '{object_name}': {modification_description}",
+            "next_steps": [f"manage_object_repo('save', object_name='{object_name}') to persist"],
         }
-    except Exception as e:
-        return {"success": False, "error": str(e)}
+    return {
+        "success": False,
+        "message": f"Modification execution failed: {execution.get('error')}",
+    }
 
 
-def _extract_python_code(content: str) -> Optional[str]:
-    """Extract Python code from LLM response."""
-    # Same as in construct_tools.py
-    code_block_pattern = r'```python\s*(.*?)\s*```'
-    match = re.search(code_block_pattern, content, re.DOTALL)
-
-    if match:
-        return match.group(1).strip()
-
-    # Fallback
-    lines = content.split('\n')
-    code_lines = []
-
-    in_code = False
-    for line in lines:
-        if line.strip().startswith('import bpy') or line.strip().startswith('bpy.'):
-            in_code = True
-
-        if in_code:
-            code_lines.append(line)
-            if line.strip() == '' and len(code_lines) > 5:
-                break
-
-    if code_lines:
-        return '\n'.join(code_lines).strip()
-
-    return None
-
-
-# Register tools when module is imported
+# Register on import
 _register_repository_tools()

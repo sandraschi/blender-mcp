@@ -3,6 +3,7 @@
 import functools
 import time
 from typing import Any, Callable, TypeVar
+
 from loguru import logger
 
 from blender_mcp.compat import *
@@ -18,16 +19,16 @@ def blender_operation(
     validate_blender: bool = True,
 ) -> Callable[[F], F]:
     """
-from ..compat import *
+    from ..compat import *
 
 
-    Decorator for Blender operations with comprehensive logging and error handling.
+        Decorator for Blender operations with comprehensive logging and error handling.
 
-    Args:
-        operation_name: Human-readable operation name for logging
-        log_args: Whether to log function arguments
-        log_result: Whether to log function result
-        validate_blender: Whether to validate Blender availability before operation
+        Args:
+            operation_name: Human-readable operation name for logging
+            log_args: Whether to log function arguments
+            log_result: Whether to log function result
+            validate_blender: Whether to validate Blender availability before operation
     """
 
     def decorator(func: F) -> F:

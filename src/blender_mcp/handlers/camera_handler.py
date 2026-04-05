@@ -2,12 +2,14 @@
 
 This module provides camera creation and manipulation functions that can be registered as FastMCP tools.
 """
+
+import logging
 from enum import Enum
 from typing import Any, Dict, Tuple, Union
 
-from loguru import logger
-
 from ..compat import *
+
+logger = logging.getLogger(__name__)
 from ..decorators import blender_operation
 from ..utils.blender_executor import get_blender_executor
 
@@ -66,22 +68,22 @@ def create_camera():
     cam_data.clip_start = {clip_start}
     cam_data.clip_end = {clip_end}
     cam_data.sensor_fit = '{sensor_fit}'
-    
+
     # Set camera type
     cam_data.type = '{camera_type}'
-    
+
     # Create camera object
     cam_obj = bpy.data.objects.new('{name}', cam_data)
     cam_obj.location = {list(location)}
     cam_obj.rotation_euler = {list(rotation)}
-    
+
     # Link to scene
     bpy.context.collection.objects.link(cam_obj)
-    
+
     # Set as active camera if no active camera exists
     if not bpy.context.scene.camera:
         bpy.context.scene.camera = cam_obj
-    
+
     return cam_obj
 
 # Execute creation

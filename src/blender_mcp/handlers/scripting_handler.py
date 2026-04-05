@@ -1,14 +1,15 @@
 """Scripting operations handler for Blender MCP."""
 
 import json
+import logging
 import uuid
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Union
 
-from loguru import logger
-
 from ..decorators import blender_operation
+
+logger = logging.getLogger(__name__)
 from ..utils.blender_executor import get_blender_executor
 
 _executor = get_blender_executor()
@@ -59,15 +60,15 @@ async def execute_script(
         Dict containing execution status and result/output
     """
     script_type = script_type.upper()
-    scope = kwargs.get("scope", ScriptScope.SCENE).upper()
-    target = kwargs.get("target")
+    kwargs.get("scope", ScriptScope.SCENE).upper()
+    kwargs.get("target")
     as_module = kwargs.get("as_module", False)
     return_result = kwargs.get("return_result", True)
     script_args = kwargs.get("args", {})
     context_vars = kwargs.get("context_vars", {})
 
     # Generate a unique ID for this script execution
-    exec_id = f"script_{uuid.uuid4().hex[:8]}"
+    f"script_{uuid.uuid4().hex[:8]}"
 
     # Handle different script types
     if script_type == ScriptLanguage.EXTERNAL_FILE:
@@ -109,21 +110,21 @@ try:
     # Execute the script
     _script_globals = globals().copy()
     _script_locals = locals().copy()
-    
+
     # Add script arguments to locals
     _script_locals.update({script_args})
-    
+
     # Execute the script
     if {as_module}:
         import importlib.util
         import tempfile
         import os
-        
+
         # Create a temporary module
         with tempfile.NamedTemporaryFile(suffix='.py', delete=False, mode='w', encoding='utf-8') as f:
             f.write('''{script}''')
             temp_path = f.name
-        
+
         try:
             # Import the module
             module_name = os.path.splitext(os.path.basename(temp_path))[0]
@@ -142,7 +143,7 @@ try:
         # Execute as a code block
         _code = compile('''{script}''', '<string>', 'exec')
         exec(_code, _script_globals, _script_locals)
-        
+
         # If the script defined a 'main' function, call it
         if 'main' in _script_locals and callable(_script_locals['main']):
             _result = _script_locals['main'](**{script_args})
@@ -153,11 +154,11 @@ try:
             locals_diff = set(_script_locals.keys()) - set(globals().keys())
             if len(locals_diff) == 1:
                 _result = _script_locals[list(locals_diff)[0]]
-    
+
     # Capture any remaining output
     sys.stdout.flush()
     sys.stderr.flush()
-    
+
 except Exception as e:
     import traceback
     _error = {{
@@ -224,10 +225,10 @@ async def create_driver(
     Returns:
         Dict containing driver creation status and details
     """
-    variable_type = kwargs.get("variable_type", "SINGLE_PROP")
+    kwargs.get("variable_type", "SINGLE_PROP")
     variables = kwargs.get("variables", [])
-    use_self = kwargs.get("use_self", False)
-    is_simple_expression = kwargs.get("is_simple_expression", False)
+    kwargs.get("use_self", False)
+    kwargs.get("is_simple_expression", False)
 
     script = rf"""
 import json
@@ -238,7 +239,7 @@ def create_driver():
         parts = '{target}'.split('.')
         obj_name = parts[0]
         prop_path = '.'.join(parts[1:]) if len(parts) > 1 else ''
-        
+
         # Get the target data
         data = None
         if obj_name in bpy.data.objects:
@@ -253,7 +254,7 @@ def create_driver():
             data = bpy.data.cameras[obj_name]
         else:
             return {{"status": "ERROR", "error": f"Target not found: {{obj_name}}"}}
-        
+
         # Navigate the data path if needed
         if prop_path:
             try:
@@ -261,12 +262,12 @@ def create_driver():
                 import re
                 path_parts = re.split(r'(\.|\[|\])', prop_path)
                 path_parts = [p for p in path_parts if p and p not in ('.', '[', ']')]
-                
+
                 current = data
                 for part in path_parts:
                     if part.startswith('"') and part.endswith('"'):
                         part = part[1:-1]  # Remove quotes
-                    
+
                     # Handle list/dict access
                     if '[' in part and ']' in part:
                         key = part[part.find('[')+1:part.rfind(']')]
@@ -277,64 +278,64 @@ def create_driver():
                         current = current[key]
                     else:
                         current = getattr(current, part)
-                
+
                 data = current
             except (AttributeError, KeyError, IndexError) as e:
                 return {{"status": "ERROR", "error": f"Invalid data path: {{prop_path}} - {{str(e)}}"}}
-        
+
         # Create the driver
         data_path = '{data_path}'
-        
+
         # Check if driver already exists
         if hasattr(data, 'animation_data') and data.animation_data and data.animation_data.drivers:
             for fcurve in data.animation_data.drives:
                 if fcurve.data_path == data_path:
                     return {{"status": "ERROR", "error": f"Driver for {{data_path}} already exists"}}
-        
+
         # Create animation data if it doesn't exist
         if not hasattr(data, 'animation_data') or not data.animation_data:
             data.animation_data_create()
-        
+
         # Create the driver
         driver = data.driver_add(data_path)
-        
+
         # Set driver expression
         driver.driver.expression = '''{expression}'''
-        
+
         # Set driver type
         driver.driver.type = 'SCRIPTED'
-        
+
         # Add variables if provided
         if {variables}:
             for var_def in {variables}:
                 var = driver.driver.variables.new()
                 var.name = var_def.get('name', 'var')
                 var.type = var_def.get('type', 'SINGLE_PROP')
-                
+
                 # Set variable targets
                 for i, target in enumerate(var_def.get('targets', [])):
                     if i >= len(var.targets):
                         break
-                    
+
                     t = var.targets[i]
                     if 'id' in target:
                         # Resolve ID (object, material, etc.)
                         id_parts = target['id'].split('.')
                         if id_parts[0] in bpy.data:
                             t.id = bpy.data[id_parts[0]]
-                    
+
                     if 'data_path' in target:
                         t.data_path = target['data_path']
                     if 'id_type' in target:
                         t.id_type = target['id_type']
-        
+
         return {{
             "status": "SUCCESS",
             "target": '{target}',
             "data_path": '{data_path}',
             "expression": '''{expression}'''
         }}
-    
+
     except Exception as e:
         import traceback
         return {{
@@ -388,7 +389,7 @@ def create_text():
     try:
         # Check if text block already exists
         text_block = bpy.data.texts.get('{name}')
-        
+
         if text_block:
             if {overwrite}:
                 # Clear existing text
@@ -402,14 +403,14 @@ def create_text():
             text_block = bpy.data.texts.new('{name}')
             text_block.write('''{text}''')
             action = 'created'
-        
+
         return {{
             "status": "SUCCESS",
             "action": action,
             "name": text_block.name,
             "characters": len(text_block.as_string())
         }}
-    
+
     except Exception as e:
         return {{"status": "ERROR", "error": str(e)}}
 

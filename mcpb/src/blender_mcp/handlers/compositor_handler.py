@@ -1,12 +1,13 @@
 """Compositor operations handler for Blender MCP."""
 
-from typing import Tuple, Dict, Any, Union
 from enum import Enum
+from typing import Any, Dict, Tuple, Union
+
 from loguru import logger
 
 from ..compat import *
-from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
+from ..utils.blender_executor import get_blender_executor
 
 _executor = get_blender_executor()
 

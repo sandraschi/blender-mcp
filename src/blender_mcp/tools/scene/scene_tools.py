@@ -12,6 +12,7 @@ from blender_mcp.compat import *
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -22,18 +23,26 @@ def _register_scene_tools():
     @app.tool
     async def blender_scene(
         operation: Literal[
-            "create_scene", "list_scenes", "clear_scene", "set_active_scene",
-            "link_object_to_scene", "create_collection", "add_to_collection",
-            "set_active_collection", "set_view_layer", "setup_lighting",
-            "setup_camera", "set_render_settings"
+            "create_scene",
+            "list_scenes",
+            "clear_scene",
+            "set_active_scene",
+            "link_object_to_scene",
+            "create_collection",
+            "add_to_collection",
+            "set_active_collection",
+            "set_view_layer",
+            "setup_lighting",
+            "setup_camera",
+            "set_render_settings",
         ] = "list_scenes",
         scene_name: str = "NewScene",
         object_name: str = "",
         collection_name: str = "",
         layer_name: str = "",
         light_type: str = "SUN",
-        location: List[float] = [0, 0, 5],
-        rotation: List[float] = [1.0, 0, 0],
+        location: List[float] = None,
+        rotation: List[float] = None,
         resolution_x: int = 1920,
         resolution_y: int = 1080,
     ) -> str:
@@ -106,6 +115,10 @@ def _register_scene_tools():
             setup_lighting as _setup_lighting,
         )
 
+        if rotation is None:
+            rotation = [1.0, 0, 0]
+        if location is None:
+            location = [0, 0, 5]
         try:
             if operation == "create_scene":
                 return await _create_scene(scene_name)

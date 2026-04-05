@@ -39,7 +39,6 @@ from ..compat import (
     JSONType,
     List,
     Optional,
-    ToolManager,
     Type,
     TypeAlias,
     TypeVar,
@@ -188,14 +187,14 @@ def get_tool(name: str) -> Optional[Any]:
     return _tools.get(name)
 
 
-def get_toolset() -> Any:
+def get_toolset() -> List[Any]:
     """
-    Get the MCP toolset with all registered tools.
+    Get all registered tools as a plain list.
 
     Returns:
-        ToolManager containing all registered tools
+        List of all registered Tool instances
     """
-    return ToolManager(tools=list(_tools.values()))
+    return list(_tools.values())
 
 
 def register_tools(server: Any) -> None:

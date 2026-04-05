@@ -7,7 +7,7 @@ This script demonstrates how to connect to a Blender-MCP server and use various 
 import asyncio
 import json
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Configure logging
 logging.basicConfig(

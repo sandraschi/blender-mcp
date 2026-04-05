@@ -4,10 +4,10 @@ Furniture and complex object creation tools for Blender MCP.
 Provides tools for creating complex objects like furniture, buildings, and structures.
 """
 
-from blender_mcp.compat import *
-
 from typing import Tuple
+
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_furniture_tools():
@@ -67,19 +67,19 @@ def _register_furniture_tools():
         Returns:
             Success message with creation details
         """
-        from blender_mcp.handlers.furniture_handler import (
-            create_chair,
-            create_table,
-            create_bed,
-            create_sofa,
-            create_cabinet,
-            create_desk,
-            create_shelf,
-            create_stool,
-            create_room,
-        )
-
         from loguru import logger
+
+        from blender_mcp.handlers.furniture_handler import (
+            create_bed,
+            create_cabinet,
+            create_chair,
+            create_desk,
+            create_room,
+            create_shelf,
+            create_sofa,
+            create_stool,
+            create_table,
+        )
 
         logger.info(f"🪑 blender_furniture called with operation='{operation}', name='{name}'")
 

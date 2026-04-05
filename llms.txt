@@ -1,36 +1,30 @@
-# Blender MCP Server
+# blender-mcp
+> **Guides, best practices, and lessons learned for developing blender-mcp** --- 📄 [AI_DEVELOPMENT_RULES.md](AI_DEVELOPMENT_RULES.md) **Guidelines for AI-assisted development** - Best practices for work...
 
-> Complete Blender 3D automation MCP server with 50+ tools across 19 categories for professional 3D content creation workflows. Enables natural language control over Blender's Python API through Claude Desktop and other AI assistants.
+This project includes automated llms.txt generation for AI accessibility.
 
-## Core Documentation
+## Docs
+- [Readme](docs\development\README.md): **Guides, best practices, and lessons learned for developing blender-mcp**
+- [Readme](docs\mcp-technical\README.md): **Technical guides for MCP server development, deployment, and troubleshooting**
+- [Readme](docs\glama\platform\README.md): **Complete guide to achieving and maintaining Gold Status on Glama.ai**
+- [Readme](README.md): <p align="center">
+- [Readme](docs\github\README.md): > **Purpose**: Comprehensive GitHub configuration guide to avoid hours of trial-and-error setup.
+- [Readme](docs\repository-protection\README.md): **Complete guide to keeping your notepadpp-mcp repository safe**
+- [Readme](docs\docsviewer\README.md): **Complete MkDocs setup for viewing Blender MCP documentation with beautiful sidebar navigation and ...
+- [Readme](docs\mcpb-packaging\README.md): **Complete guide to packaging and distributing MCP servers with MCPB**
+- [Readme New](README_NEW.md): A comprehensive FastMCP 2.12 compliant MCP server for Blender automation, designed to provide progra...
+- [Readme](docs\blender\README.md): **Complete documentation for Blender MCP and Blender ecosystem integration.**
 
-- [Quick Start](docs/quickstart.md): Get up and running in 5 minutes with your first 3D scene
-- [Installation Guide](docs/installation.md): Complete setup instructions for all platforms
-- [Tool Reference](docs/blender/TOOL_REFERENCE.md): Complete API reference for all 50+ Blender MCP tools
-- [Functionality Overview](docs/blender/BLENDER_MCP_FUNCTIONALITY_PLAN.md): Tool inventory and implementation status
-- [Configuration Guide](docs/configuration.md): Environment variables and performance tuning
+## Examples
+- [Examples](examples/): Example code and implementations
+- [Examples](docs\EXAMPLES.md): Example usage and code samples
 
-## Asset Management
+## Configuration
+- [Pyproject](pyproject.toml): Python project configuration and dependencies
+- [Package](webapp\frontend\package.json): Node.js project configuration and dependencies
+- [Cargo](Cargo.toml): Rust project configuration and dependencies
+- [Config](.git\config): Application configuration files
 
-- [BlenderKit Guide](docs/blender/BLENDERKIT_GUIDE.md): Official asset platform integration
-- [Free Assets Guide](docs/blender/FREE_ASSETS_GUIDE.md): Legal free 3D asset sources
-- [Download Tools](docs/download_tools.md): Automated asset downloading and importing
-
-## Development & Technical
-
-- [Development Documentation](docs/development/README.md): Best practices and lessons learned
-- [MCP Technical Guide](docs/mcp-technical/README.md): Server architecture and troubleshooting
-- [Packaging Guide](docs/mcpb-packaging/README.md): Build and distribution instructions
-
-## Specialized Tools
-
-- [Log Tools](docs/log_tools.md): Debugging and monitoring capabilities
-- [Help System](docs/docsviewer/README.md): Interactive documentation viewer
-- [GLAMA Platform](docs/glama/README.md): AI platform integration
-
-## Optional Resources
-
-- [Examples](examples/README.md): Code samples and usage patterns
-- [Contributing Guidelines](CONTRIBUTING.md): Development and contribution process
-- [License](LICENSE): Project licensing information
-- [Repository Protection](docs/repository-protection/README.md): Backup and recovery guides
+## Optional
+- [Changelog](CHANGELOG.md): Project changelog information
+- [License](LICENSE): Project license information

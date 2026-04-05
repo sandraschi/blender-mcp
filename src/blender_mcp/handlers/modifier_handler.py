@@ -1,11 +1,12 @@
 """Modifier operations handler for Blender MCP."""
 
+import logging
 from enum import Enum
 from typing import Any, Dict, Optional, Union
 
-from loguru import logger
-
 from ..decorators import blender_operation
+
+logger = logging.getLogger(__name__)
 from ..utils.blender_executor import get_blender_executor
 
 _executor = get_blender_executor()
@@ -90,20 +91,20 @@ def add_modifier():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{"status": "ERROR", "error": "Object not found"}}
-    
+
     try:
         # Check if modifier with this name already exists
         if '{name}' in obj.modifiers:
             return {{"status": "ERROR", "error": f"Modifier '{{name}}' already exists"}}
-        
+
         # Add the modifier
         mod = obj.modifiers.new('{name}', '{modifier_type}')
         if not mod:
             return {{"status": "ERROR", "error": f"Failed to create modifier of type '{{modifier_type}}'"}}
-        
+
         # Set properties if any
         {f"for k, v in {{{props_str}}}.items(): setattr(mod, k, v)" if props_str else ""}
-        
+
         return {{
             "status": "SUCCESS",
             "modifier": mod.name,
@@ -145,10 +146,10 @@ def remove_modifier():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{"status": "ERROR", "error": "Object not found"}}
-    
+
     if '{modifier_name}' not in obj.modifiers:
         return {{"status": "ERROR", "error": f"Modifier '{{modifier_name}}' not found"}}
-    
+
     try:
         # Store modifier info before removal
         mod = obj.modifiers['{modifier_name}']
@@ -159,10 +160,10 @@ def remove_modifier():
             "show_render": getattr(mod, 'show_render', True),
             "show_in_editmode": getattr(mod, 'show_in_editmode', False)
         }}
-        
+
         # Remove the modifier
         obj.modifiers.remove(mod)
-        
+
         return {{
             "status": "SUCCESS",
             "removed_modifier": mod_info,
@@ -205,14 +206,14 @@ def get_modifiers():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{"status": "ERROR", "error": "Object not found"}}
-    
+
     try:
         modifiers = []
         for mod in obj.modifiers:
             # Skip if type filter is specified and doesn't match
             if '{modifier_type}' and mod.type != '{modifier_type}':
                 continue
-                
+
             # Get common properties
             mod_info = {{
                 "name": mod.name,
@@ -223,7 +224,7 @@ def get_modifiers():
                 "show_on_cage": getattr(mod, 'show_on_cage', False),
                 "show_expanded": getattr(mod, 'show_expanded', True)
             }}
-            
+
             # Add type-specific properties
             if hasattr(mod, 'levels'):
                 mod_info['levels'] = mod.levels
@@ -231,9 +232,9 @@ def get_modifiers():
                 mod_info['render_levels'] = mod.render_levels
             if hasattr(mod, 'strength'):
                 mod_info['strength'] = mod.strength
-                
+
             modifiers.append(mod_info)
-        
+
         return {{
             "status": "SUCCESS",
             "object": obj.name,
@@ -275,10 +276,10 @@ def apply_modifier():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{"status": "ERROR", "error": "Object not found"}}
-    
+
     if '{modifier_name}' not in obj.modifiers:
         return {{"status": "ERROR", "error": f"Modifier '{{modifier_name}}' not found"}}
-    
+
     try:
         # Store modifier info before applying
         mod = obj.modifiers['{modifier_name}']
@@ -286,14 +287,14 @@ def apply_modifier():
             "name": mod.name,
             "type": mod.type
         }}
-        
+
         # Make the object active
         bpy.context.view_layer.objects.active = obj
         obj.select_set(True)
-        
+
         # Apply the modifier
         bpy.ops.object.modifier_apply(modifier=mod.name)
-        
+
         return {{
             "status": "SUCCESS",
             "applied_modifier": mod_info,

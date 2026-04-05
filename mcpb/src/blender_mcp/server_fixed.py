@@ -4,19 +4,19 @@ This version avoids circular imports by registering tools manually after
 all modules are loaded.
 """
 
-from ..compat import *
-
-import asyncio
-import sys
-import os
 import argparse
-from loguru import logger
+import asyncio
+import os
+import sys
 
 # Import FastMCP
 from fastmcp import FastMCP
+from loguru import logger
 
 # Import utilities and config
 from blender_mcp.compat import *
+
+from ..compat import *
 
 # Initialize FastMCP application
 app = FastMCP(name="blender-mcp", version="1.0.0")

@@ -6,13 +6,12 @@ including Kenney Assets, Quaternius, Open Game Art, and Poly Haven.
 """
 
 import asyncio
-from blender_mcp.utils.blender_executor import get_blender_executor
+
 from blender_mcp.handlers.asset_repository_handler import (
+    AssetRepository,
     download_and_import_asset,
     list_available_assets,
     search_assets,
-    AssetRepository,
-    AssetType,
 )
 
 

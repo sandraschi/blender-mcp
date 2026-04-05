@@ -4,12 +4,15 @@ Mesh creation and manipulation tools for Blender MCP.
 Provides portmanteau tools for creating basic mesh primitives and manipulating objects.
 """
 
+import logging
 from typing import Tuple
 
 from pydantic import BaseModel, Field
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
+
+logger = logging.getLogger(__name__)
 
 
 class CreatePrimitiveParams(BaseModel):
@@ -101,8 +104,6 @@ def _register_mesh_tools():
             All objects are created with default materials. Use blender_materials tools for texturing.
             Transform operations can be applied immediately after creation using blender_transform.
         """
-        from loguru import logger
-
         from blender_mcp.handlers.mesh_handler import (
             create_cone,
             create_cube,

@@ -4,11 +4,11 @@ Animation and motion handler for Blender MCP.
 Provides functions for creating keyframes and basic animations.
 """
 
-from ..compat import *
+from typing import Optional, Tuple
 
-from typing import Tuple, Optional
-from ..utils.blender_executor import get_blender_executor
+from ..compat import *
 from ..decorators import blender_operation
+from ..utils.blender_executor import get_blender_executor
 
 _executor = get_blender_executor()
 
@@ -285,6 +285,7 @@ logger.info(f"🎬 Cleared animation data from {object_name}")
 # SHAPE KEYS (Essential for VRM facial expressions)
 # =============================================================================
 
+
 @blender_operation("list_shape_keys")
 async def list_shape_keys(object_name: str) -> str:
     """List all shape keys on a mesh object (VRM expressions, morphs)."""
@@ -338,7 +339,9 @@ print(f"Set shape key '{shape_key_name}' to {value}")
 
 
 @blender_operation("keyframe_shape_key")
-async def keyframe_shape_key(object_name: str, shape_key_name: str, frame: int = 1, value: float = None) -> str:
+async def keyframe_shape_key(
+    object_name: str, shape_key_name: str, frame: int = 1, value: float = None
+) -> str:
     """Insert keyframe for shape key at specified frame."""
     value_str = f"key.value = {value}" if value is not None else ""
     script = f"""
@@ -399,6 +402,7 @@ print(f"Created shape key '{shape_key_name}' on '{object_name}'")
 # =============================================================================
 # ACTION MANAGEMENT (Animation clips)
 # =============================================================================
+
 
 @blender_operation("list_actions")
 async def list_actions() -> str:
@@ -508,11 +512,10 @@ print(f"Pushed action to NLA track '{track_name}'")
 # INTERPOLATION (Easing, smoothing)
 # =============================================================================
 
+
 @blender_operation("set_interpolation")
 async def set_interpolation(
-    object_name: str,
-    interpolation: str = "BEZIER",
-    data_path: str = None
+    object_name: str, interpolation: str = "BEZIER", data_path: str = None
 ) -> str:
     """Set keyframe interpolation type (CONSTANT, LINEAR, BEZIER, BOUNCE, ELASTIC, etc.)."""
     data_path_filter = f'and fc.data_path == "{data_path}"' if data_path else ""
@@ -566,12 +569,10 @@ print(f"Set {{count}} keyframes to {easing} easing")
 # CONSTRAINTS (Copy rotation, track-to, etc.)
 # =============================================================================
 
+
 @blender_operation("add_constraint")
 async def add_constraint(
-    object_name: str,
-    constraint_type: str,
-    target_name: str = None,
-    **kwargs
+    object_name: str, constraint_type: str, target_name: str = None, **kwargs
 ) -> str:
     """Add constraint to object (COPY_ROTATION, TRACK_TO, DAMPED_TRACK, COPY_LOCATION, etc.)."""
     target_str = ""
@@ -604,7 +605,7 @@ async def add_bone_constraint(
     constraint_type: str,
     target_armature: str = None,
     target_bone: str = None,
-    influence: float = 1.0
+    influence: float = 1.0,
 ) -> str:
     """Add constraint to pose bone (for VRM/character rigs)."""
     target_str = ""
@@ -646,6 +647,7 @@ print(f"Added {constraint_type} constraint to bone '{bone_name}'")
 # BAKE ANIMATION (Export-ready)
 # =============================================================================
 
+
 @blender_operation("bake_action")
 async def bake_action(
     object_name: str,
@@ -654,7 +656,7 @@ async def bake_action(
     only_selected: bool = False,
     visual_keying: bool = True,
     clear_constraints: bool = False,
-    bake_types: str = "POSE"  # POSE, OBJECT, or both
+    bake_types: str = "POSE",  # POSE, OBJECT, or both
 ) -> str:
     """Bake constraints/physics to keyframes (essential for export)."""
     script = f"""

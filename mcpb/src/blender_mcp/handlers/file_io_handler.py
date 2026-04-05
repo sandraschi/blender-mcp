@@ -1,14 +1,15 @@
 """File I/O operations handler for Blender MCP."""
 
 import os
-from pathlib import Path
-from typing import Dict, Any, Union
 from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, Union
+
 from loguru import logger
 
-from ..utils.blender_executor import get_blender_executor
-from ..decorators import blender_operation
 from ..compat import *
+from ..decorators import blender_operation
+from ..utils.blender_executor import get_blender_executor
 
 _executor = get_blender_executor()
 
@@ -30,7 +31,7 @@ async def read_file(
 
     try:
         if file_type == FileType.TEXT:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, encoding="utf-8") as f:
                 content = f.read()
         elif file_type == FileType.BINARY:
             with open(filepath, "rb") as f:

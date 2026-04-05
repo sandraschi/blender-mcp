@@ -93,7 +93,6 @@ def _register_import_tools():
         except Exception as e:
             return f"Error in import operation '{operation}': {str(e)}"
 
-
     @app.tool
     async def import_cad_file(
         filepath: str,
@@ -126,10 +125,11 @@ def _register_import_tools():
         Returns:
             Success message with import details
         """
-        from blender_mcp.handlers.import_handler import import_file
-        from pathlib import Path
-        import tempfile
         import os
+        import tempfile
+        from pathlib import Path
+
+        from blender_mcp.handlers.import_handler import import_file
 
         try:
             cad_file = Path(filepath)
@@ -195,13 +195,13 @@ async def _direct_cad_conversion(
     """Direct CAD conversion using available tools."""
     try:
         # Check for Mayo converter (most reliable)
-        import subprocess
         import os
+        import subprocess
 
         mayo_paths = [
             "C:\\Program Files\\Mayo\\mayo-conv.exe",
             "C:\\Program Files (x86)\\Mayo\\mayo-conv.exe",
-            "mayo-conv.exe"
+            "mayo-conv.exe",
         ]
 
         mayo_exe = None

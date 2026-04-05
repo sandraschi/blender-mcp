@@ -4,9 +4,10 @@ Selection tools for Blender MCP.
 Provides tools for selecting objects and elements in Blender scenes.
 """
 
+import logging
 from typing import List
 
-from loguru import logger
+logger = logging.getLogger(__name__)
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
@@ -19,7 +20,7 @@ def _register_selection_tools():
     @app.tool
     async def blender_selection(
         operation: str = "select_objects",
-        object_names: List[str] = [],
+        object_names: List[str] = None,
         object_type: str = "MESH",
         material_name: str = "",
         mode: str = "REPLACE",
@@ -53,6 +54,8 @@ def _register_selection_tools():
             select_objects,
         )
 
+        if object_names is None:
+            object_names = []
         try:
             if operation == "select_objects":
                 if not object_names:

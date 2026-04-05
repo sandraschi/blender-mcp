@@ -1,275 +1,224 @@
-# **Blender MCP - Project Assessment**
+# Blender MCP — Project Assessment
 
-**Category**: AI-Powered 3D Creation MCP Server
-**Assessment Date**: 2026-01-19
-**Status**: Production Ready
-**Grade**: A+ (Excellent)
-
----
-
-## **📊 Executive Assessment Summary**
-
-### **Core Innovation**
-The Blender MCP Server implements an advanced AI-powered 3D creation system that enables natural language-driven object construction. The server provides a comprehensive interface for conversational 3D modeling through integration with state-of-the-art language models.
-
-### **Key Metrics**
-
-| **Metric** | **Value** | **Significance** |
-|------------|-----------|------------------|
-| **Technical Innovation** | Advanced | First conversational 3D creation platform |
-| **AI Integration Level** | Enterprise | FastMCP 2.14.3 with sampling & resources |
-| **Security Posture** | Production-Ready | Multi-layer validation & sandboxing |
-| **User Experience** | Efficient | 95% time reduction vs traditional 3D modeling |
-| **Scalability** | Enterprise | Batch processing, caching, parallel execution |
-| **Industry Impact** | Significant | Democratizes professional 3D creation |
-| **Code Quality** | Excellent | 40+ tools, 150+ operations, comprehensive docs |
-| **Community Potential** | Strong | Open-source ecosystem for AI-powered creativity |
-
-### **Key Capabilities**
-- **Natural Language Processing**: Convert plain English descriptions to 3D models
-- **AI Construction Pipeline**: Complete workflow from concept to creation
-- **Enterprise Security**: Multi-layer validation and sandboxing
-- **Intelligent Repository**: Versioned asset management with search capabilities
-- **Cross-Platform Support**: Compatible with Windows, Mac, Linux
+**Assessment Date**: 2026-03-29
+**Version**: 0.4.2
+**Status**: Active Development — Production-Grade Core, Continued Feature Work
 
 ---
 
-## **AI Construction System**
+## Executive Summary
 
-### **3D Creation Pipeline**
+Blender MCP is a FastMCP 3.1.1 server exposing Blender 3D operations as MCP tools,
+enabling AI-driven 3D creation workflows from natural language through to VR-ready
+exports. The codebase has CI/CD, mcpb packaging, Glama.ai publication, and a React
+webapp frontend.
+
+Versions 0.4.0 and 0.4.1 represent a substantial quality pass: 9 stub/mock
+implementations replaced with real Blender executor calls, 7 distinct bugs fixed
+across the core package (broken function signatures, top-level `import bpy`,
+blocking async I/O, pydantic compat, dead f-string prompt, `compat.py` footgun),
+and housekeeping across version strings, docstrings, orphan files, and the test
+scaffold.
+
+---
+
+## Capability Matrix
+
+| Area | Status | Notes |
+|------|--------|-------|
+| Core MCP server (stdio + HTTP) | Production | FastMCP 3.1.1, transport layer clean |
+| Blender executor (subprocess) | Production | Async, timeout, process kill, TBBmalloc tolerance |
+| Mesh / scene / transform tools | Production | 40+ tools across handlers |
+| Material / texture tools | Production | PBR, procedural, UV |
+| Animation / rigging | Production | Keyframes, shape keys, IK, NLA |
+| Render tools | Production | Cycles, EEVEE, all output formats |
+| Import / export | Production | FBX, OBJ, glTF, VRM, PLY, USD, Alembic |
+| VR pipeline (VRChat, Resonite) | Production | Validation, atlasing, export presets |
+| Object repository | Fixed 0.4.0 | Real .blend save/load/search; session-required flag documented |
+| Cross-MCP export (VRChat/Resonite) | Fixed 0.4.0 | Real FBX/GLB export via executor |
+| AI construction (sampling) | Functional* | Requires sampling-capable client; prompt was previously discarded |
+| Addon management | New 0.4.0 | Install, enable, disable, known-addon registry |
+| Gaussian Splat / WorldLabs import | Fixed 0.4.0 | Auto-install addon, 3-operator fallback chain |
+| Asset library (PolyHaven) | Production | Real API, real async download |
+| Download tool | Fixed 0.4.0 | Async httpx; was blocking event loop |
+| Webapp frontend | Active | React/Tailwind; Repository + Addon Manager pages added |
+| Test coverage | Improved | 6 test files, ~80 tests; integration tests still need live Blender |
+| Version hygiene | Fixed 0.4.1 | All version strings, docstrings, orphan files cleaned |
+
+*AI construction requires Claude Desktop or Antigravity as MCP client (sampling support).
+
+---
+
+## What Was Fixed in 0.4.0
+
+### Critical Bugs
+- `splatting_handler.py`: top-level `import bpy` crashed MCP server on startup —
+  rewritten to executor subprocess pattern
+- `construct_tools.py`: called nonexistent `execute_blender_script(timeout_seconds=...,
+  max_memory_mb=...)` — fixed to `executor.execute_script(timeout=120)`
+- `download_tools.py`: synchronous `requests.get()` in async tool blocked the event
+  loop — replaced with async `httpx.AsyncClient` streaming
+
+### Stubs Replaced (all previously returned mock data or unconditional `True`)
+- `_get_object_info` — real Blender executor call
+- `_find_construction_script` — searches repository index JSON
+- `_save_object` — exports glTF/blend via executor; writes metadata; updates index;
+  documents session_required limitation
+- `_load_object` — appends .blend via `bpy.data.libraries.load`
+- `_list_objects` / `_search_objects` — real index reads with filter support
+- `_create_object_backup` — duplicates object in Blender, hides from viewport/render
+- `_execute_modification_script` — runs via executor, returns real output
+- `_get_asset_from_repository` — reads metadata.json from disk
+- `VRChatExportEngine.export_blend_file` — real FBX via executor
+- `ResoniteExportEngine.export_blend_file` — real GLB via executor
+
+### New Capabilities
+- `manage_blender_addons` MCP tool: search, install_known, install_url,
+  list_installed, enable, disable
+- `blender_splatting` operation `worldlabs`: probes for 3DGS operator, auto-installs
+  `gaussian_splat` addon, falls back across three operators
+- `construct_and_save` compound operation: construct → validate → execute → save
+- Webapp: Repository page (`/repository`), Addon Manager page (`/addons`)
+- `mcp.ts`: `repositoryList/Save/Load/Search`, `addonManage`, `splatWorldlabs`
+
+---
+
+## What Was Fixed in 0.4.1
+
+### Logic Bugs
+- `construct_tools._generate_construction_script`: full prompt was built into a
+  discarded f-string expression (never sent to LLM); now assigned and passed as
+  `content=` to `ctx.sample()` with all context fields
+- `construct_tools._gather_construction_context`: broken `from
+  blender_mcp.handlers.scene_handler import get_scene_info` (function doesn't exist);
+  replaced with real executor call returning scene object/material counts
+- `construct_tools._analyze_reference_object`: was a stub returning hardcoded
+  `{"type": "mesh", "vertex_count": 0}`; replaced with real executor call
+- `addon_tools.list_installed`: `not {enabled_only} or mod_name` was always True;
+  fixed to correct logic iterating `preferences.addons.keys()`
+- `addon_tools` enable/disable: deferred `import json` inside branch caused scope
+  issues; lifted to local alias at point of use
+
+### Pydantic Compat
+- `_model_dump()` shim added to `construct_tools` and imported into
+  `repository_tools`; all `validation.dict()` and `validation.model_dump()` calls
+  replaced with `_model_dump(validation)` — works on both pydantic v1 and v2
+
+### Repository Save Session Context
+- `_save_object` now documents that `--factory-startup` executor starts a fresh empty
+  scene; attempts glTF export first, falls back to placeholder blend, records
+  `session_required: True` in metadata and return value with a clear note
+
+### Version / Housekeeping
+- `__init__.py`: bumped `0.2.0` → `0.4.1`
+- `app.py`: version now reads from `__version__` dynamically; instructions and health
+  endpoint no longer hardcode stale version strings
+- `config.py`: junk `from ..compat import *` comment removed from docstring; default
+  Blender path now uses `_find_default_blender()` probing 4.2/4.3/4.4 on Windows and
+  common Linux paths
+- `decorators.py`: same junk comment removed from docstring
+- `transport.py`: all `FastMCP 2.14.4+` references updated to `3.1.1`
+- `compat.py`: replaced `Tool = None` / `FunctionTool = None` pre-assignment footgun
+  with direct eager imports that fail loudly with a clear install message
+- Orphan files removed: `server_fixed.py`, `server_new.py`, `server_fixed.bak`,
+  `update_imports.py` — all pre-refactor artefacts
+- All `.bak` files from the editing session deleted
+
+### Test Scaffold
+- `tests/conftest.py` created: session-scoped event loop, autouse env/repo path
+  patching, `make_mock_executor`, `mock_ctx`, `repo_dir` fixtures, marker registration
+- `tests/test_construct_tools.py`: 25 tests — `_model_dump`, validation, extraction,
+  context gathering, reference object analysis, script generation (with prompt content
+  verification), execution, summary
+- `tests/test_fixes_0_4_1.py`: session_required path, construct_and_save short-circuit,
+  search edge cases, JSON-serialisable output
+- `tests/test_repository.py`: 15 tests — object info, save, list, search, find script,
+  get asset
+- `tests/test_addon_handler.py`: 8 tests — search, addons dir, install from URL,
+  tool registration
+- `tests/test_splatting.py`: 9 tests — import (file not found/bad format/no
+  operator/success/crash), collision mesh, Resonite export
+
+---
+
+## Known Remaining Issues
+
+| Issue | Priority | Notes |
+|-------|----------|-------|
+| `_save_object` requires active Blender session | Medium | Documented; `session_required` flag returned; fix = HTTP bridge or addon-side call |
+| Resource scripts in `app.py` are mock data | **Fixed 0.4.2** | Real scripts in `data/scripts/*.json`; 7 working bpy scripts across robots/furniture/rooms/vehicles |
+| Session context limitation for `_save_object` | **Fixed 0.4.2** | Bridge addon + `/api/v1/blender/exec|pending|result` endpoints; `_exec_in_blender_session()` helper |
+| `modify` operation unreachable in `manage_object_construction` | **Fixed 0.4.2** | Dead `return` statement removed |
+| Plaintext JWT secret in `data/secrets/jwt_secret.txt` | **Fixed 0.4.2** | File deleted; `data/secrets/` and `*.bak` added to `.gitignore` |
+
+---
+
+## Architecture Notes
+
+### Repository Layout (`~/.blender-mcp/repository/`)
 ```
-User Request → AI Analysis → Script Generation → Security Validation → Safe Execution → Repository Storage
+repository/
+  repository_index.json          # flat index, updated on every save
+  {obj_id}/
+    metadata.json                # full metadata including obj_info, blend_file, session_required
+    model_{version}.glb          # glTF export (preferred, works headless)
+    model_{version}.blend        # blend export (requires active session or placeholder)
 ```
 
-#### **1. Conversational Interface**
-- **Natural Language Processing**: Advanced context understanding and style recognition
-- **Multi-Turn Conversations**: Iterative refinement with conversational feedback
-- **Reference Object Integration**: Style consistency from existing scene assets
-- **Complexity Scaling**: Automatic adaptation from simple primitives to complex rigs
+### Executor Pattern
+All Blender operations run via `BlenderExecutor.execute_script(script, timeout=N)`:
+1. Write script to temp file
+2. Launch `blender --background --factory-startup --enable-autoexec --python {script}`
+3. Capture stdout/stderr
+4. Parse structured output via sentinel prefixes (`GS_RESULT:`, `OBJ_INFO:`,
+   `EXPORT_OK:`, `SCENE_CTX:`, `REF_OBJ:`, etc.)
 
-#### **2. AI Script Generation Engine**
-- **FastMCP 2.14.3 Sampling**: Leverages SOTA LLMs for production-ready Blender code
-- **Context Preservation**: Maintains conversational state across refinement cycles
-- **Best Practices Integration**: Generates optimized, professional-grade Python scripts
-- **Error Resilience**: Automatic failure detection and recovery mechanisms
+**Session limitation**: The executor always starts fresh — objects from the user's
+running Blender are not present. Operations that need the active session (save, backup)
+work correctly when called from the MCP HTTP bridge with a running Blender instance,
+or from a Blender addon.
 
-#### **3. Enterprise Security Architecture**
-- **Multi-Layer Validation**: Syntax checking, AST parsing, security scoring (0-100)
-- **Sandbox Execution**: Isolated Blender environment with resource limits
-- **Operation Whitelisting**: Approved Blender API calls with audit logging
-- **Zero-Trust Design**: All inputs validated, all operations monitored
+### Tool Discovery
+`discover_tools()` in `tools/__init__.py` imports all `*.py` modules in `tools/`,
+triggering `_register_*_tools()` calls which register `@app.tool` decorators.
 
-#### **4. Intelligent Object Repository**
-- **Version Control System**: Rich metadata tracking with quality scoring (1-10)
-- **AI-Powered Search**: Natural language queries across descriptions and tags
-- **Dependency Management**: Object relationship tracking and requirements management
-- **Community Marketplace**: Extensible system for shared content ecosystem
-
-#### **5. Performance Optimization**
-- **Batch Processing**: Multiple operations in single execution context
-- **Caching Strategies**: Script validation and metadata indexing
-- **Parallel Execution**: Concurrent processing capabilities
-- **Memory Management**: Efficient resource utilization for large scenes
+### Pydantic Compat
+`_model_dump(model)` in `construct_tools.py` handles v1 (`.dict()`) and v2
+(`.model_dump()`) transparently. Import it wherever pydantic models are serialised.
 
 ---
 
-## **🏗️ Technical Excellence Analysis**
+## Standards Compliance
 
-### **Architecture Assessment**
-
-#### **FastMCP 2.14.3 Integration**
-- **Sampling Facility**: Advanced conversational AI interaction capabilities
-- **Resource System**: URI-based access to script collections and templates
-- **Portmanteau Design**: Prevents tool explosion while maintaining functionality
-- **Context Preservation**: Maintains state across complex interactions
-
-#### **Code Quality**
-- **40+ Professional Tools**: Comprehensive Blender API coverage
-- **150+ Operations**: Complete 3D creation workflow support
-- **Comprehensive Documentation**: Extensive docstrings and examples
-- **Error Handling**: Graceful failure recovery and user feedback
-
-#### **Security Implementation**
-- **Multi-Layer Validation**: Syntax, security, and complexity validation
-- **Sandbox Isolation**: Controlled execution environment
-- **Audit Logging**: Comprehensive security event tracking
-
-### **VR Avatar Pipeline Assessment**
-- **Complete Workflow**: From concept to cross-platform deployment
-- **Professional Tools**: Rigging, materials, animation, validation
-- **Platform Support**: VRChat, Resonite, Unity, VRM compatibility
-- **Mobile Optimization**: Texture atlasing and draw call reduction
-
-### **Deployment & Operations**
-- **Multiple Installation Methods**: PyPI, Docker, MCPB, systemd
-- **Cross-Platform Support**: Windows, Mac, Linux compatibility
-- **CI/CD Pipeline**: Automated testing and deployment
-- **Monitoring Stack**: Production-ready observability
+- FastMCP 3.1.1 portmanteau pattern
+- mcpb packaging via Anthropic mcpb CLI (validate + pack)
+- Glama.ai: https://glama.ai/mcp/servers?query=sandraschi
+- CI/CD: GitHub Actions with ruff, mypy, pytest
+- All new tools documented with full operation descriptions in docstrings
 
 ---
 
-## **📈 Performance & Scalability Metrics**
+## Next Steps
 
-### **Efficiency Improvements**
-- **95% Time Reduction**: From hours of manual modeling to minutes of conversation
-- **100% AI Accuracy**: Eliminates human modeling errors
-- **Infinite Variations**: Generate unlimited design iterations
-- **Professional Quality**: Industry-standard 3D output
+### Before Next Release (0.5.0)
+1. Integration test scaffold with Blender Docker image in CI
+2. Fix `construct_and_save` quality_rating passthrough (currently hardcoded 5)
+3. Test bridge addon end-to-end with a live Blender 4.4 instance
+4. Test WorldLabs end-to-end with a real `.ply` file
 
-### **Scalability Achievements**
-- **Concurrent Processing**: Support for 100+ simultaneous users
-- **Batch Operations**: Multiple objects created in single workflows
-- **Resource Optimization**: Memory-efficient execution (<2GB per session)
-- **Horizontal Scaling**: Enterprise-grade deployment capabilities
+### Short Term
+1. FastMCP 3.1.1 CodeMode transform on tool set (BM25 discovery for 40+ tools)
+2. Repository thumbnail preview (render active object via executor, store PNG)
+3. Extend `KNOWN_ADDONS` with animation addons (Auto-Rig Pro, Rigify extensions)
+4. Webapp Repository page: tag editing, thumbnail display
+5. Add `nature` category scripts (trees, terrain)
 
-### **User Experience Metrics**
-- **<30 Minutes Learning Curve**: Create first object quickly
-- **Conversational Interface**: Natural interaction patterns
-- **Real-Time Feedback**: Immediate status and progress updates
-- **Error Recovery**: Automatic refinement and user guidance
-
----
-
-## **🎯 Industry Impact Assessment**
-
-### **Market Impact**
-- **Conversational 3D Platform**: First implementation of natural language 3D creation
-- **Democratization of 3D**: Reduces technical barriers to 3D content creation
-- **AI-Human Collaboration**: Establishes new workflows combining AI and human creativity
-- **Educational Access**: Makes 3D learning more accessible across skill levels
-
-### **Target User Segments**
-- **Game Developers**: Rapid prototyping and asset generation
-- **Architects**: Quick visualization and client presentations
-- **VR Creators**: Complete avatar pipeline with automated optimization
-- **Digital Artists**: Creative exploration without technical constraints
-- **Educators**: Conversational learning and progressive skill building
-
-### **Competitive Advantages**
-- **AI-Driven Creation**: Unique natural language to 3D object conversion
-- **Enterprise-Grade**: Production-ready security and performance
-- **Standards Compliance**: MCP protocol implementation with extensibility
-- **Open-Source Foundation**: Community-driven development and growth
+### Medium Term
+1. Multi-user repository isolation
+2. `blender://scripts/` MCP resource backed by the new JSON files (already wired)
+3. Bridge addon auto-start on Blender launch via startup script
 
 ---
 
-## **🔮 Future Outlook Assessment**
-
-### **Short-Term Roadmap (Q1 2026)**
-- **Multi-Modal Input**: Image, voice, and sketch-based creation
-- **Style Transfer**: AI-powered visual style adaptation
-- **Real-Time Collaboration**: Multi-user creation workflows
-- **Performance Optimization**: Enhanced scalability and speed
-
-### **Medium-Term Vision (2026)**
-- **Enterprise Features**: Team collaboration and compliance
-- **Third-Party Integrations**: Unity, Unreal, web platforms
-- **Mobile Companion**: Native mobile creation app
-- **Global Marketplace**: Community-driven content ecosystem
-
-### **Long-Term Revolution (2027+)**
-- **AI-First 3D Creation**: AI as primary interface for all 3D work
-- **Multi-Modal Revolution**: Voice, gesture, thought-based creation
-- **Real-Time Global Collaboration**: Worldwide teams creating together
-- **Industry Transformation**: 3D creation as accessible as word processing
-
----
-
-## **⚖️ Critical Analysis**
-
-### **Strengths**
-- **Advanced Technology**: First conversational 3D creation platform
-- **Production-Ready**: Enterprise security, scalability, reliability
-- **Comprehensive Coverage**: 40+ tools, 150+ operations, complete workflows
-- **Standards Compliance**: MCP protocol implementation, extensive documentation
-- **Performance**: 95% time reduction with professional quality output
-
-### **Areas for Enhancement**
-- **Script Quality Consistency**: LLM output can vary - needs refinement
-- **Large Scene Handling**: Memory optimization for complex environments
-- **Community Content**: Expand user-contributed script collections
-- **Real-Time Preview**: Live preview during creation process
-
-### **Risk Assessment**
-- **Low Risk**: Well-architected with comprehensive security measures
-- **High Reward**: Massive market opportunity in AI-powered creativity
-- **Sustainability**: Strong open-source foundation and community potential
-
----
-
-## **Final Assessment Grade: A+ (Excellent)**
-
-### **Justification**
-The Blender MCP Server demonstrates advanced technical implementation and significant innovation in AI-powered 3D creation. Key strengths include:
-
-- **Advanced AI Integration**: Conversational 3D creation with LLM integration
-- **Enterprise Security**: Production-ready validation and sandboxing
-- **Efficiency Gains**: 95% time reduction with professional quality output
-- **Standards Compliance**: MCP protocol implementation and cross-platform compatibility
-- **Scalable Architecture**: Future-proof design for continued development
-
-### **Impact Statement**
-The project advances 3D content creation by enabling natural language-driven workflows, reducing technical barriers and establishing new standards for AI-assisted creative tools.
-
-### **Recommendation**
-**Production Deployment Approved** - The system is ready for production use with demonstrated capabilities in AI-powered 3D creation.
-
----
-
-## **📋 Standards Compliance**
-
-- ✅ **FastMCP 2.14.3 Standards**: Sampling, resources, portmanteau tools
-- ✅ **Security Standards**: Multi-layer validation, sandboxing, audit logging
-- ✅ **Documentation Standards**: Comprehensive docs, examples, PRD
-- ✅ **CI/CD Standards**: Automated testing, deployment, monitoring
-- ✅ **Code Quality Standards**: Professional tooling, extensive test coverage
-- ✅ **MCPB Packaging**: Complete packaging with extensive prompt templates
-
----
-
-## **🚀 Next Steps & Recommendations**
-
-### **Immediate Actions (Week 1-2)**
-1. **Production Deployment**: Enable conversational 3D creation capabilities
-2. **Feature Announcement**: Communicate AI construction capabilities
-3. **Documentation Review**: Ensure comprehensive feature documentation
-4. **Performance Monitoring**: Establish usage metrics and monitoring
-
-### **Short-Term Goals (Month 1-3)**
-1. **User Adoption**: Increase awareness and adoption of conversational features
-2. **Quality Improvements**: Enhance script generation consistency
-3. **Third-Party Integration**: Develop integrations with Unity, Unreal
-4. **Community Development**: Build user-contributed content ecosystem
-
-### **Medium-Term Vision (Month 3-6)**
-1. **Multi-Modal Features**: Add image, voice, sketch input capabilities
-2. **Enterprise Features**: Implement team collaboration and compliance
-3. **Mobile Applications**: Develop companion mobile applications
-4. **Marketplace Development**: Create community-driven content marketplace
-
-### **Long-Term Innovation (6+ Months)**
-1. **AI Enhancement**: Improve conversational capabilities and understanding
-2. **Collaborative Features**: Enable multi-user creation environments
-3. **Industry Partnerships**: Integrate with major 3D software providers
-4. **Educational Platform**: Develop comprehensive 3D learning resources
-
----
-
-## **📚 References & Documentation**
-
-- **[AI Construction Assessment](docs/AI_CONSTRUCTION_ASSESSMENT.md)**: Comprehensive technical analysis
-- **[Product Requirements Document](docs/PRD.md)**: Complete roadmap and requirements
-- **[Technical Documentation](docs/blender/TOOL_REFERENCE.md)**: 40+ tools, 150+ operations
-- **[MCP Central Standards](../mcp-central-docs/STANDARDS.md)**: Compliance standards
-- **[README.md](README.md)**: User-facing documentation and examples
-
----
-
-**Assessment Author**: FlowEngineer sandraschi
-**Assessment Date**: January 19, 2026
-**Next Review**: March 1, 2026
-**Status**: Production Ready
-
----
-
-*The Blender MCP Server advances 3D technology by enabling natural language-driven creation workflows and establishing new standards for AI-assisted creative tools.*
+**Last updated**: 2026-03-29
+**Next review**: 2026-04-30

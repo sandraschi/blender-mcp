@@ -1,11 +1,12 @@
 """Rigging and armature operations handler for Blender MCP."""
 
+import logging
 from enum import Enum
 from typing import Any, Dict, Tuple
 
-from loguru import logger
-
 from ..decorators import blender_operation
+
+logger = logging.getLogger(__name__)
 from ..utils.blender_executor import get_blender_executor
 
 _executor = get_blender_executor()
@@ -223,6 +224,7 @@ async def pose_bone(
 ) -> Dict[str, Any]:
     """Set bone rotation/location in pose mode (for VRM posing)."""
     import math
+
     rot_rad = [math.radians(r) for r in rotation]
     loc_str = f"list({list(location)})" if location else "None"
 
@@ -382,7 +384,7 @@ async def transfer_weights(
     armature_name: str,
     method: str = "NEAREST_FACE",
     max_distance: float = 0.1,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """
     Transfer vertex weights from source mesh to target mesh.
@@ -471,7 +473,7 @@ print("SUCCESS: Weight transfer completed")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         source_name = "Unknown"
         target_name = "Unknown"
@@ -502,7 +504,7 @@ print("SUCCESS: Weight transfer completed")
             "vertex_groups_after": vgroups_after,
             "transfer_method": method,
             "max_distance": max_distance,
-            "message": f"Transferred weights from {source_name} to {target_name} ({vgroups_after} vertex groups)"
+            "message": f"Transferred weights from {source_name} to {target_name} ({vgroups_after} vertex groups)",
         }
 
     except Exception as e:
@@ -518,7 +520,7 @@ async def manage_vertex_groups(
     source_group: str = None,
     new_name: str = None,
     vertex_indices: list = None,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """
     Manage vertex groups on a mesh object.
@@ -637,7 +639,7 @@ print("SUCCESS: Vertex group operation completed")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         mesh_name = "Unknown"
         final_vgroups = 0
@@ -667,7 +669,7 @@ print("SUCCESS: Vertex group operation completed")
             "operation": operation,
             "final_vertex_groups": final_vgroups,
             "result": operation_result,
-            "message": f"Vertex group operation '{operation}' completed on {mesh_name}"
+            "message": f"Vertex group operation '{operation}' completed on {mesh_name}",
         }
 
     except Exception as e:
@@ -677,10 +679,7 @@ print("SUCCESS: Vertex group operation completed")
 
 @blender_operation("humanoid_mapping")
 async def humanoid_mapping(
-    armature_name: str,
-    mapping_preset: str = "VRCHAT",
-    auto_rename: bool = True,
-    **kwargs: Any
+    armature_name: str, mapping_preset: str = "VRCHAT", auto_rename: bool = True, **kwargs: Any
 ) -> Dict[str, Any]:
     """
     Apply humanoid bone mapping for VR platforms.
@@ -779,7 +778,7 @@ print("SUCCESS: Humanoid mapping applied")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         armature_actual = "Unknown"
         current_bones_count = 0
@@ -811,7 +810,7 @@ print("SUCCESS: Humanoid mapping applied")
             "unmapped_humanoid": unmapped,
             "renamed_bones": renamed_bones,
             "auto_rename": auto_rename,
-            "message": f"Humanoid mapping applied: {mapped_count}/{len(vrchat_mapping)} bones mapped"
+            "message": f"Humanoid mapping applied: {mapped_count}/{len(vrchat_mapping)} bones mapped",
         }
 
     except Exception as e:

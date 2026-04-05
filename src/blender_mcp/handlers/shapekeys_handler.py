@@ -4,11 +4,12 @@ Provides tools for managing shape keys, visemes, and facial animation
 for VRM avatars and character models.
 """
 
+import logging
 from typing import Any, Dict, List, Optional
 
-from loguru import logger
-
 from ..decorators import blender_operation
+
+logger = logging.getLogger(__name__)
 from ..exceptions import BlenderShapeKeysError
 from ..utils.blender_executor import get_blender_executor
 
@@ -18,11 +19,11 @@ _executor = get_blender_executor()
 
 # VRM Standard Viseme mappings
 VRM_VISEMES = {
-    "aa": "A",    # A sound (wide open mouth)
-    "ih": "I",    # I sound (narrow mouth)
-    "ou": "U",    # U sound (rounded lips)
-    "ee": "E",    # E sound (wide smile)
-    "oh": "O"     # O sound (rounded wide mouth)
+    "aa": "A",  # A sound (wide open mouth)
+    "ih": "I",  # I sound (narrow mouth)
+    "ou": "U",  # U sound (rounded lips)
+    "ee": "E",  # E sound (wide smile)
+    "oh": "O",  # O sound (rounded wide mouth)
 }
 
 
@@ -31,7 +32,7 @@ async def create_viseme_shapekeys(
     target_mesh: Optional[str] = None,
     viseme_type: str = "vrm",
     auto_generate: bool = True,
-    base_expression: Optional[str] = None
+    base_expression: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Create standard viseme shape keys for lip sync animation.
@@ -126,7 +127,7 @@ print("SUCCESS: Viseme shape keys processed")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         mesh_name = "Unknown"
         existing_keys = []
@@ -158,7 +159,7 @@ print("SUCCESS: Viseme shape keys processed")
             "missing_visemes": missing_visemes,
             "created_visemes": created_visemes,
             "auto_generated": auto_generate,
-            "message": f"Viseme shape keys processed for {mesh_name}"
+            "message": f"Viseme shape keys processed for {mesh_name}",
         }
 
     except Exception as e:
@@ -170,7 +171,7 @@ print("SUCCESS: Viseme shape keys processed")
 async def create_blink_shapekey(
     target_mesh: Optional[str] = None,
     blink_intensity: float = 1.0,
-    eyelid_vertices: Optional[List[int]] = None
+    eyelid_vertices: Optional[List[int]] = None,
 ) -> Dict[str, Any]:
     """
     Create or configure blink shape key for eye animation.
@@ -244,7 +245,7 @@ print("SUCCESS: Blink shape key configured")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         mesh_name = "Unknown"
         blink_created = False
@@ -267,7 +268,7 @@ print("SUCCESS: Blink shape key configured")
             "blink_exists": blink_exists_name,
             "blink_intensity": blink_intensity,
             "eyelid_vertices": eyelid_vertices,
-            "message": f"Blink shape key {'created' if blink_created else 'found'} for {mesh_name}"
+            "message": f"Blink shape key {'created' if blink_created else 'found'} for {mesh_name}",
         }
 
     except Exception as e:
@@ -279,7 +280,7 @@ print("SUCCESS: Blink shape key configured")
 async def set_viseme_weights(
     target_mesh: Optional[str] = None,
     viseme_weights: Optional[Dict[str, float]] = None,
-    frame: int = 1
+    frame: int = 1,
 ) -> Dict[str, Any]:
     """
     Set shape key weights for viseme animation at a specific frame.
@@ -347,7 +348,7 @@ print("SUCCESS: Viseme weights applied")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         mesh_name = "Unknown"
         applied_weights = {}
@@ -373,7 +374,7 @@ print("SUCCESS: Viseme weights applied")
             "applied_weights": applied_weights,
             "missing_visemes": missing_visemes,
             "requested_weights": default_weights,
-            "message": f"Viseme weights set at frame {frame} on {mesh_name}"
+            "message": f"Viseme weights set at frame {frame} on {mesh_name}",
         }
 
     except Exception as e:
@@ -387,7 +388,7 @@ async def create_facial_expression(
     expression_name: str = "expression",
     base_visemes: Optional[Dict[str, float]] = None,
     blink_weight: float = 0.0,
-    additional_modifiers: Optional[Dict[str, float]] = None
+    additional_modifiers: Optional[Dict[str, float]] = None,
 ) -> Dict[str, Any]:
     """
     Create a complete facial expression combining visemes and blink.
@@ -470,7 +471,7 @@ print("SUCCESS: Facial expression created")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         mesh_name = "Unknown"
         expression_created = False
@@ -491,7 +492,7 @@ print("SUCCESS: Facial expression created")
             "base_visemes": default_visemes,
             "blink_weight": blink_weight,
             "additional_modifiers": additional_modifiers or {},
-            "message": f"Facial expression '{expression_name}' created for {mesh_name}"
+            "message": f"Facial expression '{expression_name}' created for {mesh_name}",
         }
 
     except Exception as e:
@@ -501,8 +502,7 @@ print("SUCCESS: Facial expression created")
 
 @blender_operation("analyze_shapekeys")
 async def analyze_shapekeys(
-    target_mesh: Optional[str] = None,
-    include_statistics: bool = True
+    target_mesh: Optional[str] = None, include_statistics: bool = True
 ) -> Dict[str, Any]:
     """
     Analyze shape keys on a mesh for facial animation readiness.
@@ -588,7 +588,7 @@ print("SUCCESS: Shape key analysis complete")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         mesh_name = "Unknown"
         total_keys = 0
@@ -624,7 +624,8 @@ print("SUCCESS: Shape key analysis complete")
             "visemes_present": len(existing_visemes),
             "visemes_missing": len(missing_visemes),
             "has_blink": has_blink,
-            "total_score": (len(existing_visemes) + (1 if has_blink else 0)) / (len(VRM_VISEMES) + 1)
+            "total_score": (len(existing_visemes) + (1 if has_blink else 0))
+            / (len(VRM_VISEMES) + 1),
         }
 
         return {
@@ -636,7 +637,7 @@ print("SUCCESS: Shape key analysis complete")
             "missing_visemes": missing_visemes,
             "existing_visemes": existing_visemes,
             "has_blink": has_blink,
-            "message": f"Shape key analysis complete for {mesh_name}"
+            "message": f"Shape key analysis complete for {mesh_name}",
         }
 
     except Exception as e:

@@ -3,12 +3,14 @@
 This module provides material creation functions that can be registered as FastMCP tools.
 Supports physically-based rendering (PBR) materials with advanced node setups.
 """
+
+import logging
 from enum import Enum
 from typing import Dict, List, Optional, Tuple, Union
 
-from loguru import logger
-
 from ..compat import *
+
+logger = logging.getLogger(__name__)
 from ..decorators import blender_operation
 from ..exceptions import BlenderMaterialError
 from ..utils.blender_executor import get_blender_executor
@@ -111,40 +113,40 @@ try:
     # Remove existing material if it exists
     if "{name}" in bpy.data.materials:
         bpy.data.materials.remove(bpy.data.materials["{name}"])
-    
+
     # Create new material with nodes
     mat = bpy.data.materials.new(name="{name}")
     mat.use_nodes = True
     nodes = mat.node_tree.nodes
     links = mat.node_tree.links
-    
+
     # Clear default nodes
     for node in nodes:
         nodes.remove(node)
-    
+
     # Add output and shader nodes
     output = nodes.new(type='ShaderNodeOutputMaterial')
     output.location = (400, 0)
-    
+
     bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
     bsdf.location = (200, 0)
-    
+
     # Connect BSDF to output
     links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
-    
+
     # Add texture coordinate and mapping nodes as they're commonly used
     tex_coord = nodes.new(type='ShaderNodeTexCoord')
     tex_coord.location = (-600, 0)
-    
+
     mapping = nodes.new(type='ShaderNodeMapping')
     mapping.location = (-400, 0)
-    
+
     # Connect texture coordinate to mapping
     links.new(tex_coord.outputs['UV'], mapping.inputs['Vector'])
-    
+
     # Store material type as custom property
     mat["material_type"] = "{material_type}"
-    
+
     # Return all created nodes for further processing
     return {{
         'mat': mat,
@@ -154,7 +156,7 @@ try:
         'tex_coord': tex_coord,
         'mapping': mapping
     }}
-    
+
 except Exception as e:
     print(f"ERROR: Failed to create base material: {{str(e)}}")
     import traceback
@@ -163,50 +165,9 @@ except Exception as e:
 """
 
 
-# Register tools after app is created to avoid circular imports
-def _register_material_tools():
-    app = get_app()
+# Registration is now handled by the portmanteau tool in blender_mcp.tools.materials.material_tools
+# or by individual tool decorators if preferred.
 
-    @app.tool
-    @blender_operation("create_fabric_material", log_args=True)
-    async def create_fabric_material_tool(
-        name: str = "ElegantFabric",
-        fabric_type: Union[str, MaterialPreset] = MaterialPreset.VELVET,
-        base_color: Tuple[float, float, float] = (0.8, 0.75, 0.7),
-        roughness: float = 0.8,
-        sub_surface: float = 0.2,
-        normal_strength: float = 0.5,
-        velvet_softness: float = 0.5,
-        silk_sheen: float = 0.8,
-        weave_scale: float = 1.0,
-    ) -> str:
-        """Create comprehensive fabric material with PBR properties.
-
-        Args:
-            name: Name for the new material
-            fabric_type: Type of fabric (velvet, silk, cotton, linen, brocade, satin, wool)
-            base_color: Base color as RGB tuple (0-1)
-            roughness: Roughness value (0-1)
-            sub_surface: Subsurface scattering amount (0-1)
-            normal_strength: Normal map strength (0-1)
-            velvet_softness: For velvet materials (0-1)
-            silk_sheen: For silk materials (0-1)
-            weave_scale: For woven fabrics (0.1-10.0)
-
-        Returns:
-            str: Confirmation message
-        """
-        return await create_fabric_material(
-            name=name,
-            fabric_type=fabric_type,
-            base_color=base_color,
-            roughness=roughness,
-            sub_surface=sub_surface,
-            normal_strength=normal_strength,
-            velvet_softness=velvet_softness,
-            silk_sheen=silk_sheen,
-            weave_scale=weave_scale,
-        )
 
 
 # Keep the original function for backward compatibility
@@ -1627,5 +1588,4 @@ async def create_material_from_preset(
         raise BlenderMaterialError(preset_name, "create_from_preset", error_msg)
 
 
-# Register tools when this module is imported
-_register_material_tools()
+

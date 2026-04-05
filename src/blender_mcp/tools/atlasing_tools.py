@@ -5,13 +5,15 @@ Provides tools for material and texture atlasing to reduce draw calls
 and optimize performance for VR platforms.
 """
 
+import logging
 from typing import Any, Dict, List, Literal, Optional
 
-from loguru import logger
+logger = logging.getLogger(__name__)
 
 
 def get_app():
     from blender_mcp.app import app
+
     return app
 
 
@@ -22,8 +24,10 @@ def _register_atlasing_tools():
     @app.tool
     async def blender_atlasing(
         operation: Literal[
-            "create_material_atlas", "merge_texture_atlas", "optimize_draw_calls",
-            "get_atlas_uv_layout"
+            "create_material_atlas",
+            "merge_texture_atlas",
+            "optimize_draw_calls",
+            "get_atlas_uv_layout",
         ] = "create_material_atlas",
         # Material atlas params
         target_mesh: Optional[str] = None,
@@ -38,7 +42,7 @@ def _register_atlasing_tools():
         combine_by_color: bool = True,
         preserve_normals: bool = True,
         # UV layout params
-        atlas_info: Optional[Dict[str, Any]] = None
+        atlas_info: Optional[Dict[str, Any]] = None,
     ) -> str:
         """
         Advanced material and texture atlasing for VR performance optimization.
@@ -86,7 +90,7 @@ def _register_atlasing_tools():
                     atlas_size=atlas_size,
                     padding=padding,
                     output_path=output_path,
-                    combine_similar=combine_similar
+                    combine_similar=combine_similar,
                 )
 
             elif operation == "merge_texture_atlas":
@@ -96,7 +100,7 @@ def _register_atlasing_tools():
                     texture_paths=texture_paths,
                     output_path=output_path,
                     atlas_size=atlas_size,
-                    padding=padding
+                    padding=padding,
                 )
 
             elif operation == "optimize_draw_calls":
@@ -104,14 +108,11 @@ def _register_atlasing_tools():
                     target_mesh=target_mesh,
                     max_materials=max_materials,
                     combine_by_color=combine_by_color,
-                    preserve_normals=preserve_normals
+                    preserve_normals=preserve_normals,
                 )
 
             elif operation == "get_atlas_uv_layout":
-                result = await get_atlas_uv_layout(
-                    target_mesh=target_mesh,
-                    atlas_info=atlas_info
-                )
+                result = await get_atlas_uv_layout(target_mesh=target_mesh, atlas_info=atlas_info)
 
             else:
                 return f"Unknown atlasing operation: {operation}"
@@ -129,12 +130,7 @@ def _format_atlasing_result(result: dict) -> str:
     status = result.get("status", "unknown")
 
     # Status indicator
-    status_icons = {
-        "success": "✅",
-        "warning": "⚠️",
-        "error": "❌",
-        "info": "ℹ️"
-    }
+    status_icons = {"success": "✅", "warning": "⚠️", "error": "❌", "info": "ℹ️"}
     status_icon = status_icons.get(status, "❓")
 
     report = f"{status_icon} **Atlasing Operation Result**\n"

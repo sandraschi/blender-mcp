@@ -4,10 +4,13 @@ Rigging tools for Blender MCP.
 Provides tools for creating armatures and character rigging systems.
 """
 
+import logging
 from typing import Tuple
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
+
+logger = logging.getLogger(__name__)
 
 
 def _register_rigging_tools():
@@ -149,8 +152,6 @@ def _register_rigging_tools():
             Weight transfer quality depends on mesh topology similarity.
             Humanoid mapping essential for VRChat and Unity character compatibility.
         """
-        from loguru import logger
-
         from blender_mcp.handlers.rigging_handler import (
             add_bone,
             create_armature,
@@ -226,9 +227,7 @@ def _register_rigging_tools():
 
             elif operation == "create_basic_rig":
                 # Create a simple biped rig
-                await create_armature(
-                    name=f"{armature_name}_basic", location=location
-                )
+                await create_armature(name=f"{armature_name}_basic", location=location)
 
                 # Add basic bones (spine, arms, legs)
                 bones = [

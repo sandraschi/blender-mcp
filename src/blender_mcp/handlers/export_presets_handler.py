@@ -4,11 +4,12 @@ Provides platform-specific export configurations for VR platforms including
 VRChat, Resonite, and Unity with appropriate scale, format, and settings.
 """
 
+import logging
 from typing import Any, Dict, List, Optional
 
-from loguru import logger
-
 from ..decorators import blender_operation
+
+logger = logging.getLogger(__name__)
 from ..exceptions import BlenderExportError
 from ..utils.blender_executor import get_blender_executor
 
@@ -25,7 +26,7 @@ PLATFORM_PRESETS = {
         "include_animation": True,
         "bone_naming": "HUMANOID",
         "max_bones": 256,
-        "description": "Unity-compatible export for VRChat avatars"
+        "description": "Unity-compatible export for VRChat avatars",
     },
     "RESONITE": {
         "scale": 1.0,
@@ -34,7 +35,7 @@ PLATFORM_PRESETS = {
         "include_animation": True,
         "bone_naming": "STANDARD",
         "max_bones": 512,
-        "description": "Resonite-compatible export with GLTF format"
+        "description": "Resonite-compatible export with GLTF format",
     },
     "UNITY": {
         "scale": 1.0,
@@ -43,7 +44,7 @@ PLATFORM_PRESETS = {
         "include_animation": True,
         "bone_naming": "HUMANOID",
         "max_bones": 256,
-        "description": "Generic Unity export preset"
+        "description": "Generic Unity export preset",
     },
     "BLENDER": {
         "scale": 1.0,
@@ -52,7 +53,7 @@ PLATFORM_PRESETS = {
         "include_animation": True,
         "bone_naming": "BLENDER",
         "max_bones": None,
-        "description": "Native Blender format export"
+        "description": "Native Blender format export",
     },
     "LEGACY_VRCHAT": {
         "scale": 0.01,
@@ -61,8 +62,8 @@ PLATFORM_PRESETS = {
         "include_animation": True,
         "bone_naming": "HUMANOID",
         "max_bones": 256,
-        "description": "Legacy VRChat export with 0.01 scale"
-    }
+        "description": "Legacy VRChat export with 0.01 scale",
+    },
 }
 
 
@@ -74,7 +75,7 @@ async def export_with_preset(
     include_materials: bool = True,
     include_textures: bool = True,
     apply_modifiers: bool = True,
-    **kwargs: Any
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """
     Export objects using platform-specific presets.
@@ -209,7 +210,7 @@ print("EXPORT_COMPLETE: True")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         final_path = ""
         objects_exported = 0
@@ -233,7 +234,7 @@ print("EXPORT_COMPLETE: True")
             "output_path": final_path,
             "objects_exported": objects_exported,
             "warnings": warnings,
-            "message": f"Successfully exported {objects_exported} objects for {platform} platform"
+            "message": f"Successfully exported {objects_exported} objects for {platform} platform",
         }
 
     except Exception as e:
@@ -247,7 +248,7 @@ async def validate_export_preset(
     platform: str = "VRCHAT",
     check_bones: bool = True,
     check_materials: bool = True,
-    check_scale: bool = True
+    check_scale: bool = True,
 ) -> Dict[str, Any]:
     """
     Validate objects against platform export requirements.
@@ -379,7 +380,7 @@ print("VALIDATION_RESULTS:" + json.dumps(validation_results))
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         validation_results = {}
         status = "UNKNOWN"
@@ -391,13 +392,14 @@ print("VALIDATION_RESULTS:" + json.dumps(validation_results))
                 status = line.split(": ")[1]
             elif line.startswith("VALIDATION_RESULTS:"):
                 import json
+
                 validation_results = json.loads(line[19:])
 
         return {
             "status": status,
             "platform": platform,
             "validation_results": validation_results,
-            "message": f"Validation complete for {platform} export"
+            "message": f"Validation complete for {platform} export",
         }
 
     except Exception as e:
@@ -426,7 +428,7 @@ async def get_platform_presets() -> Dict[str, Any]:
             "status": "success",
             "presets": PLATFORM_PRESETS,
             "platforms": list(PLATFORM_PRESETS.keys()),
-            "message": f"Retrieved {len(PLATFORM_PRESETS)} platform presets"
+            "message": f"Retrieved {len(PLATFORM_PRESETS)} platform presets",
         }
 
     except Exception as e:
@@ -438,7 +440,7 @@ async def get_platform_presets() -> Dict[str, Any]:
 async def create_custom_preset(
     preset_name: str,
     base_platform: str = "VRCHAT",
-    custom_settings: Optional[Dict[str, Any]] = None
+    custom_settings: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Create a custom export preset based on an existing platform.
@@ -461,7 +463,9 @@ async def create_custom_preset(
 
     if base_platform not in PLATFORM_PRESETS:
         supported = list(PLATFORM_PRESETS.keys())
-        raise BlenderExportError(f"Unsupported base platform '{base_platform}'. Supported: {supported}")
+        raise BlenderExportError(
+            f"Unsupported base platform '{base_platform}'. Supported: {supported}"
+        )
 
     # Start with base preset
     custom_preset = PLATFORM_PRESETS[base_platform].copy()
@@ -479,7 +483,7 @@ async def create_custom_preset(
             "preset_name": preset_name,
             "base_platform": base_platform,
             "custom_preset": custom_preset,
-            "message": f"Custom preset '{preset_name}' created successfully"
+            "message": f"Custom preset '{preset_name}' created successfully",
         }
 
     except Exception as e:

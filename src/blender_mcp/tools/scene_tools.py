@@ -311,11 +311,45 @@ class FrameRangeParams(BaseModel):
 # - set_render_settings: Configure render settings
 
 
-def register() -> None:
+def register(app) -> None:
     """Register all scene tools."""
-    # Tools are already registered via @app.tool decorators in handlers
-    pass
+    from blender_mcp.handlers import scene_handler
+
+    @app.tool
+    async def create_scene(scene_name: str = "NewScene") -> str:
+        """Create a new Blender scene with the specified name."""
+        return await scene_handler.create_scene(scene_name)
+
+    @app.tool
+    async def list_scenes() -> str:
+        """List all scenes in the current Blender file."""
+        return await scene_handler.list_scenes()
+
+    @app.tool
+    async def clear_scene() -> str:
+        """Remove all objects from the current scene."""
+        return await scene_handler.clear_scene()
+
+    @app.tool
+    async def scene_get_hierarchy() -> str:
+        """Get the full scene hierarchy as a JSON-formatted string."""
+        return await scene_handler.scene_get_hierarchy()
+
+    @app.tool
+    async def set_active_scene(scene_name: str) -> str:
+        """Set the active scene by name."""
+        return await scene_handler.set_active_scene(scene_name)
+
+    @app.tool
+    async def create_collection(collection_name: str) -> str:
+        """Create a new collection."""
+        return await scene_handler.create_collection(collection_name)
+
+    @app.tool
+    async def add_to_collection(collection_name: str, object_name: str) -> str:
+        """Add an object to a collection."""
+        return await scene_handler.add_to_collection(collection_name, object_name)
 
 
-# Auto-register tools when module is imported
-register()
+# Auto-registration is handled via discover_tools and register(app) call in app.py
+

@@ -17,10 +17,10 @@ BLENDER_EXECUTABLE: str = os.environ.get("BLENDER_EXECUTABLE", DEFAULT_BLENDER_E
 def validate_blender_executable() -> bool:
     """Check if the Blender executable exists and is accessible.
 
-from ..compat import *
+    from ..compat import *
 
-    Returns:
-        bool: True if the Blender executable is valid, False otherwise
+        Returns:
+            bool: True if the Blender executable is valid, False otherwise
     """
     if not BLENDER_EXECUTABLE:
         return False

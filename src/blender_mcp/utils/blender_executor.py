@@ -1,6 +1,9 @@
 """Comprehensive Blender script executor with extensive error handling and logging."""
 
 import asyncio
+
+# Third-party imports
+import logging
 import os
 import shutil
 import subprocess
@@ -9,11 +12,11 @@ import time
 from pathlib import Path
 from typing import List, Optional, TypeVar
 
-# Third-party imports
 import psutil
-from loguru import logger
 
 from ..compat import *
+
+logger = logging.getLogger(__name__)
 from ..config import BLENDER_EXECUTABLE, validate_blender_executable
 from ..exceptions import BlenderNotFoundError, BlenderScriptError
 
@@ -231,10 +234,10 @@ try:
     # Test basic Blender operations
     scene_count = len(bpy.data.scenes)
     object_count = len(bpy.context.scene.objects)
-    
+
     print(f"BLENDER_TEST_SUCCESS: Scenes={scene_count}, Objects={object_count}")
     print(f"BLENDER_PYTHON_VERSION: {sys.version}")
-    
+
 except Exception as e:
     print(f"BLENDER_TEST_ERROR: {str(e)}")
     sys.exit(1)
@@ -390,9 +393,9 @@ print(f"BLENDER_SCRIPT_START: {{SCRIPT_ID}}")
 try:
     # User script starts here
 {self._indent_script(script, 4)}
-    
+
     print(f"BLENDER_SCRIPT_SUCCESS: {{SCRIPT_ID}}")
-    
+
 except Exception as user_error:
     print(f"BLENDER_SCRIPT_ERROR: {{SCRIPT_ID}} - {{str(user_error)}}")
     print(f"BLENDER_SCRIPT_TRACEBACK: {{SCRIPT_ID}} - {{traceback.format_exc()}}")

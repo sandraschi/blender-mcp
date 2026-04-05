@@ -1,12 +1,13 @@
 """Import operations handler for Blender MCP."""
 
+import logging
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, Union
 
-from loguru import logger
-
 from ..compat import *
+
+logger = logging.getLogger(__name__)
 from ..decorators import blender_operation
 from ..utils.blender_executor import get_blender_executor
 
@@ -132,8 +133,8 @@ async def import_file(
         return {
             "status": "ERROR",
             "error": f"Point cloud format {file_format} requires addon installation. "
-                     f"Install 'Point Cloud Visualizer' or import as PLY instead.",
-            "hint": "Convert point cloud to PLY format, or use blender_addons to install a point cloud addon."
+            f"Install 'Point Cloud Visualizer' or import as PLY instead.",
+            "hint": "Convert point cloud to PLY format, or use blender_addons to install a point cloud addon.",
         }
 
     else:
@@ -148,7 +149,7 @@ import os
 def import_asset():
     # Store existing objects to determine what was imported
     existing_objects = set(bpy.data.objects)
-    
+
     # Execute the import
     try:
         result = {import_cmd}
@@ -162,10 +163,10 @@ def import_asset():
             'status': 'ERROR',
             'error': str(e)
         }}
-    
+
     # Find newly imported objects
     imported_objects = list(set(bpy.data.objects) - existing_objects)
-    
+
     return {{
         'status': 'SUCCESS',
         'imported_objects': [obj.name for obj in imported_objects],
@@ -223,10 +224,10 @@ def link_asset():
     # Store existing objects/materials to determine what was added
     existing_objects = set(bpy.data.objects)
     existing_materials = set(bpy.data.materials)
-    
+
     # Determine if we're linking or appending
     operation = 'LINK' if {str(link).lower()} else 'APPEND'
-    
+
     # Build the operator parameters
     params = {{
         'filepath': os.path.join(r'{directory}', '{asset_name}'),
@@ -235,7 +236,7 @@ def link_asset():
         'link': {str(link).lower()},
         'relative_path': {str(relative).lower()}
     }}
-    
+
     # Execute the link/append operation
     try:
         if '{directory}'.startswith('Object'):
@@ -244,7 +245,7 @@ def link_asset():
             result = bpy.ops.wm.link_append(**params, instance_collections=True, instance_object_data=False)
         else:
             result = bpy.ops.wm.link_append(**params)
-            
+
         if 'FINISHED' not in result:
             return {{
                 'status': 'ERROR',
@@ -255,11 +256,11 @@ def link_asset():
             'status': 'ERROR',
             'error': str(e)
         }}
-    
+
     # Find newly added objects/materials
     new_objects = [obj.name for obj in set(bpy.data.objects) - existing_objects]
     new_materials = [mat.name for mat in set(bpy.data.materials) - existing_materials]
-    
+
     return {{
         'status': 'SUCCESS',
         'operation': operation,

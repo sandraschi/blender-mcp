@@ -5,18 +5,23 @@ various Blender operations as FastMCP tools using the decorator pattern.
 """
 
 import argparse
+import datetime
+import logging
 import sys
 
-from loguru import logger
+logger = logging.getLogger(__name__)
 
-# Import the app instance
+# Import the app instance (FastMCP)
 from blender_mcp.app import app
+
+# ASGI app for uvicorn (webapp/start.ps1): uvicorn blender_mcp.server:asgi_app
+asgi_app = app.http_app()
 
 # Import from our compatibility module
 from blender_mcp.compat import *
 
-# Import all handlers to ensure tool registration
-# These imports are necessary for the @app.tool decorators to register the tools
+# Import all handlers to ensure tool registration is handled in app.py
+from blender_mcp import handlers
 
 
 def parse_args():
@@ -37,110 +42,85 @@ _memory_logs = []
 _MAX_MEMORY_LOGS = 1000  # Keep last 1000 log entries
 
 
-def _memory_log_handler(message):
-    """Memory handler that stores recent logs for viewing."""
-    global _memory_logs
+class _MemoryLogHandler(logging.Handler):
+    """Handler that stores recent log records for get_recent_logs / blender_view_logs."""
 
-    # Add new log entry
-    _memory_logs.append(
-        {
-            "timestamp": message.record["time"],
-            "level": message.record["level"].name,
-            "name": message.record["name"],
-            "function": message.record["function"],
-            "line": message.record["line"],
-            "message": message.record["message"],
-            "extra": message.record["extra"],
-        }
-    )
-
-    # Keep only the most recent logs (circular buffer)
-    if len(_memory_logs) > _MAX_MEMORY_LOGS:
-        _memory_logs.pop(0)
+    def emit(self, record: logging.LogRecord) -> None:
+        global _memory_logs
+        try:
+            _memory_logs.append(
+                {
+                    "timestamp": datetime.datetime.fromtimestamp(record.created),
+                    "level": record.levelname,
+                    "name": record.name,
+                    "function": record.funcName,
+                    "line": record.lineno,
+                    "message": record.getMessage(),
+                    "extra": getattr(record, "extra", {}),
+                }
+            )
+            if len(_memory_logs) > _MAX_MEMORY_LOGS:
+                _memory_logs.pop(0)
+        except Exception:
+            self.handleError(record)
 
 
 def get_recent_logs(level_filter=None, module_filter=None, limit=50, since_minutes=None):
     """Get recent logs with optional filtering."""
     global _memory_logs
-    import datetime
-
     logs = _memory_logs.copy()
 
-    # Apply time filter
     if since_minutes:
         cutoff_time = datetime.datetime.now() - datetime.timedelta(minutes=since_minutes)
         logs = [log for log in logs if log["timestamp"] > cutoff_time]
 
-    # Apply level filter
     if level_filter:
         level_filter = level_filter.upper()
         logs = [log for log in logs if log["level"] == level_filter]
 
-    # Apply module filter
     if module_filter:
         logs = [log for log in logs if module_filter.lower() in log["name"].lower()]
 
-    # Return most recent logs (limited)
     return logs[-limit:] if limit else logs
 
 
-def setup_logging(log_level: str = "INFO"):
-    """Configure structured logging with loguru."""
-    logger.remove()  # Remove default handler
+def setup_logging(log_level: str = "INFO") -> None:
+    """Configure stdlib logging with stderr and in-memory buffer."""
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+    for h in root.handlers[:]:
+        root.removeHandler(h)
 
-    # Configure log format
-    log_format = (
-        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
-        "<level>{level: <8}</level> | "
-        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
-        "<level>{message}</level>"
+    fmt = logging.Formatter(
+        "%(asctime)s | %(levelname)-8s | %(name)s:%(funcName)s:%(lineno)d - %(message)s"
     )
+    stderr = logging.StreamHandler(sys.stderr)
+    stderr.setLevel(getattr(logging, log_level.upper(), logging.INFO))
+    stderr.setFormatter(fmt)
+    root.addHandler(stderr)
 
-    # Add console handler
-    logger.add(sys.stderr, level=log_level, format=log_format, colorize=True)
-
-    # Add memory handler for log viewing (always captures DEBUG and above)
-    logger.add(
-        _memory_log_handler,
-        level="DEBUG",
-        format="{time} | {level} | {name}:{function}:{line} - {message}",
-        filter=lambda record: True,  # Capture all logs for memory buffer
-    )
+    memory_handler = _MemoryLogHandler()
+    memory_handler.setLevel(logging.DEBUG)
+    root.addHandler(memory_handler)
 
 
 def main():
-    """Main entry point for the Blender MCP server."""
-    # Parse command line arguments
-    args = parse_args()
+    """Main entry point for the Blender MCP server with unified transport (FastMCP 2.14.4+)."""
+    from .transport import run_server
 
-    # Configure logging
-    log_level = "DEBUG" if args.debug else "INFO"
-    setup_logging(log_level)
+    # Configure logging before starting
+    setup_logging("INFO")
 
     logger.info("[START] Starting Blender MCP Server")
     logger.info(f"Python version: {sys.version}")
-    logger.info(f"Running in {'HTTP' if args.http else 'stdio'} mode")
 
-    try:
-        if args.http:
-            logger.info(f"[HTTP] Starting HTTP server on {args.host}:{args.port}")
-            # HTTP mode - use the app's built-in HTTP server
-            app.run(transport="http", host=args.host, port=args.port)
-        else:
-            logger.info("[STDIO] Starting stdio server")
-            # Stdio mode - use the app's built-in stdio server
-            app.run(transport="stdio")
-    except Exception as e:
-        logger.error(f"[ERROR] Server error: {e}")
-        sys.exit(1)
-    except KeyboardInterrupt:
-        logger.info("[SHUTDOWN] Shutting down gracefully...")
-        sys.exit(0)
+    run_server(app, server_name="blender-mcp")
 
 
 # =============================================================================
 # MCP Entry Points - Industry Standard Installation
 # =============================================================================
+
 
 def create_server():
     """Create and return the MCP server instance.
@@ -161,6 +141,7 @@ def main_stdio():
     through stdin/stdout streams.
     """
     import logging
+
     logging.basicConfig(level=logging.INFO)
 
     logger.info("[MCP] Starting Blender MCP server in stdio mode")
@@ -175,7 +156,7 @@ def main_stdio():
         raise
 
 
-def main_http(host="127.0.0.1", port=8000):
+def main_http(host="127.0.0.1", port=10771):
     """Entry point for HTTP mode - for web-based MCP clients.
 
     Args:
@@ -183,6 +164,7 @@ def main_http(host="127.0.0.1", port=8000):
         port: Port to bind to
     """
     import logging
+
     logging.basicConfig(level=logging.INFO)
 
     logger = logging.getLogger(__name__)

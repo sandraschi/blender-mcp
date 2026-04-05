@@ -1,11 +1,13 @@
 """Command-line interface for Blender MCP."""
 
 import argparse
-import sys
 import logging
+import sys
 from pathlib import Path
 
-from blender_mcp.server import create_server, main_stdio
+from blender_mcp.server import main_stdio
+
+logger = logging.getLogger(__name__)
 
 
 def main():
@@ -37,77 +39,53 @@ ENVIRONMENT VARIABLES:
   BLENDER_EXECUTABLE    Path to Blender executable (auto-detected if not set)
 
 For more information, visit: https://github.com/sandraschi/blender-mcp
-        """
+        """,
     )
 
     parser.add_argument(
-        "--stdio",
-        action="store_true",
-        help="Run in stdio mode for MCP clients (default)"
+        "--stdio", action="store_true", help="Run in stdio mode for MCP clients (default)"
+    )
+
+    parser.add_argument("--http", action="store_true", help="Run in HTTP mode for web clients")
+
+    parser.add_argument(
+        "--host", default="127.0.0.1", help="Host to bind HTTP server to (default: 127.0.0.1)"
     )
 
     parser.add_argument(
-        "--http",
-        action="store_true",
-        help="Run in HTTP mode for web clients"
+        "--port", type=int, default=8000, help="Port to bind HTTP server to (default: 8000)"
+    )
+
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+
+    parser.add_argument(
+        "--install-config", action="store_true", help="Install Claude Desktop configuration"
     )
 
     parser.add_argument(
-        "--host",
-        default="127.0.0.1",
-        help="Host to bind HTTP server to (default: 127.0.0.1)"
-    )
-
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=8000,
-        help="Port to bind HTTP server to (default: 8000)"
-    )
-
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Enable debug logging"
-    )
-
-    parser.add_argument(
-        "--install-config",
-        action="store_true",
-        help="Install Claude Desktop configuration"
-    )
-
-    parser.add_argument(
-        "--check-blender",
-        action="store_true",
-        help="Check Blender installation and compatibility"
+        "--check-blender", action="store_true", help="Check Blender installation and compatibility"
     )
 
     parser.add_argument(
         "--list-tools",
         action="store_true",
-        help="List all available MCP tools and their descriptions"
+        help="List all available MCP tools and their descriptions",
     )
 
     parser.add_argument(
         "--show-config",
         action="store_true",
-        help="Show current configuration and environment settings"
+        help="Show current configuration and environment settings",
     )
 
-    parser.add_argument(
-        "--version",
-        action="version",
-        version="%(prog)s 1.0.0"
-    )
+    parser.add_argument("--version", action="version", version="%(prog)s 1.0.0")
 
     args = parser.parse_args()
 
     # Configure logging
     log_level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        level=log_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
     logger = logging.getLogger(__name__)
@@ -133,13 +111,11 @@ For more information, visit: https://github.com/sandraschi/blender-mcp
             # Run HTTP server
             logger.info(f"Starting HTTP server on {args.host}:{args.port}")
             import uvicorn
+
             from blender_mcp.server import app
 
             uvicorn.run(
-                app,
-                host=args.host,
-                port=args.port,
-                log_level="debug" if args.debug else "info"
+                app, host=args.host, port=args.port, log_level="debug" if args.debug else "info"
             )
         else:
             # Run stdio mode (default for MCP clients)
@@ -153,15 +129,15 @@ For more information, visit: https://github.com/sandraschi/blender-mcp
         logger.error(f"Server error: {e}")
         if args.debug:
             import traceback
+
             traceback.print_exc()
         sys.exit(1)
 
 
 def install_claude_config():
     """Install Claude Desktop configuration."""
-    import platform
     import json
-    from pathlib import Path
+    import platform
 
     system = platform.system().lower()
 
@@ -183,7 +159,7 @@ def install_claude_config():
     # Load existing config or create new one
     if config_file.exists():
         try:
-            with open(config_file, 'r') as f:
+            with open(config_file) as f:
                 config = json.load(f)
         except json.JSONDecodeError:
             logger.warning("Existing config file is corrupted, creating new one")
@@ -193,18 +169,17 @@ def install_claude_config():
 
     # Add Blender MCP configuration
     import sys
+
     python_executable = sys.executable
 
     config["mcpServers"]["blender-mcp"] = {
         "command": python_executable,
         "args": ["-c", "from blender_mcp.server import main_stdio; main_stdio()"],
-        "env": {
-            "PYTHONPATH": str(Path(__file__).parent.parent)
-        }
+        "env": {"PYTHONPATH": str(Path(__file__).parent.parent)},
     }
 
     # Write config file
-    with open(config_file, 'w') as f:
+    with open(config_file, "w") as f:
         json.dump(config, f, indent=2)
 
     print("✅ Claude Desktop configuration installed!")
@@ -218,8 +193,8 @@ def install_claude_config():
 
 def check_blender_installation():
     """Check Blender installation and compatibility."""
-    import subprocess
     import shutil
+    import subprocess
 
     print("🔍 Checking Blender installation...")
 
@@ -231,15 +206,12 @@ def check_blender_installation():
         # Try to get version
         try:
             result = subprocess.run(
-                [blender_path, "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10
+                [blender_path, "--version"], capture_output=True, text=True, timeout=10
             )
 
             if result.returncode == 0:
                 # Extract version from first line
-                version_line = result.stdout.strip().split('\n')[0]
+                version_line = result.stdout.strip().split("\n")[0]
                 print(f"📦 {version_line}")
 
                 # Check if version is compatible
@@ -262,12 +234,13 @@ def check_blender_installation():
         print("2. Add Blender to your system PATH")
         print("3. Or set BLENDER_PATH environment variable")
 
-    # Check Python integration
+    # Check Python integration (import tests availability)
     try:
-        import bpy
-        print("✅ Blender Python API (bpy) available")
+        import bpy  # noqa: F401
+
+        print("Blender Python API (bpy) available")
     except ImportError:
-        print("ℹ️  Blender Python API not available (normal for external MCP usage)")
+        print("Blender Python API not available (normal for external MCP usage)")
 
     print()
     print("🎯 Blender MCP is ready to use with external Blender installations!")
@@ -281,13 +254,14 @@ def list_available_tools():
     try:
         # Try to get the app and list tools directly
         from blender_mcp.app import get_app
+
         app = get_app()
-        if app and hasattr(app, 'list_tools'):
+        if app and hasattr(app, "list_tools"):
             tools = app.list_tools()
             print(f"\nFound {len(tools)} registered tools:")
             for tool in tools:
                 print(f"\n- {tool.name}")
-                if hasattr(tool, 'description') and tool.description:
+                if hasattr(tool, "description") and tool.description:
                     print(f"  {tool.description}")
         else:
             print("MCP server not initialized. Run the server first to see available tools.")
@@ -299,6 +273,7 @@ def list_available_tools():
 def show_configuration():
     """Show current configuration and environment settings."""
     import os
+
     from blender_mcp.config import BLENDER_EXECUTABLE, DEFAULT_BLENDER_EXECUTABLE
 
     print("Blender MCP Configuration")
@@ -307,26 +282,32 @@ def show_configuration():
     print("Blender Executable:")
     print(f"   Configured: {BLENDER_EXECUTABLE}")
     print(f"   Default:    {DEFAULT_BLENDER_EXECUTABLE}")
-    print(f"   From env:   {'BLENDER_EXECUTABLE' if os.environ.get('BLENDER_EXECUTABLE') else 'auto-detected'}")
+    print(
+        f"   From env:   {'BLENDER_EXECUTABLE' if os.environ.get('BLENDER_EXECUTABLE') else 'auto-detected'}"
+    )
 
     print("\nEnvironment Variables:")
-    relevant_env_vars = ['BLENDER_EXECUTABLE', 'BLENDER_PATH', 'PYTHONPATH']
+    relevant_env_vars = ["BLENDER_EXECUTABLE", "BLENDER_PATH", "PYTHONPATH"]
     for var in relevant_env_vars:
-        value = os.environ.get(var, 'Not set')
+        value = os.environ.get(var, "Not set")
         print(f"   {var}: {value}")
 
     print("\nSystem Information:")
     import platform
+
     print(f"   Platform: {platform.platform()}")
     print(f"   Python:   {platform.python_version()}")
 
     print("\nMCP Server Status:")
     try:
         from blender_mcp.app import get_app
+
         app = get_app()
         if app:
             print("   Server: Ready")
-            print(f"   Tools registered: {len(app.list_tools()) if hasattr(app, 'list_tools') else 'Unknown'}")
+            print(
+                f"   Tools registered: {len(app.list_tools()) if hasattr(app, 'list_tools') else 'Unknown'}"
+            )
         else:
             print("   Server: Not initialized")
     except Exception as e:

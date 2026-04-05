@@ -4,9 +4,8 @@ Import tools for Blender MCP.
 Provides tools for importing various file formats into Blender.
 """
 
-from blender_mcp.compat import *
-
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_import_tools():

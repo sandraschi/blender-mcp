@@ -98,7 +98,7 @@ class CreateFabricMaterialParams(BaseModel):
     name: str = Field(..., description="Name for the new material")
     fabric_type: MaterialPreset = Field(default=MaterialPreset.VELVET, description="Type of fabric")
     base_color: List[float] = Field(
-        default=[0.8, 0.75, 0.7], description="Base color as RGB (0-1)", min_items=3, max_items=3
+        default=[0.8, 0.75, 0.7], description="Base color as RGB (0-1)", min_length=3, max_length=3
     )
     roughness: float = Field(default=0.8, ge=0.0, le=1.0, description="Roughness value")
     sub_surface: float = Field(default=0.2, ge=0.0, le=1.0, description="Subsurface scattering")
@@ -114,7 +114,7 @@ class CreateMetalMaterialParams(BaseModel):
     name: str = Field(..., description="Name for the new material")
     metal_type: MaterialPreset = Field(default=MaterialPreset.GOLD, description="Type of metal")
     base_color: List[float] = Field(
-        default=[1.0, 0.8, 0.0], description="Base color as RGB (0-1)", min_items=3, max_items=3
+        default=[1.0, 0.8, 0.0], description="Base color as RGB (0-1)", min_length=3, max_length=3
     )
     roughness: float = Field(default=0.2, ge=0.0, le=1.0, description="Roughness value")
     metallic: float = Field(default=1.0, ge=0.0, le=1.0, description="Metallic value")
@@ -127,7 +127,7 @@ class CreateWoodMaterialParams(BaseModel):
     name: str = Field(..., description="Name for the new material")
     wood_type: MaterialPreset = Field(default=MaterialPreset.OAK, description="Type of wood")
     base_color: List[float] = Field(
-        default=[0.6, 0.4, 0.2], description="Base color as RGB (0-1)", min_items=3, max_items=3
+        default=[0.6, 0.4, 0.2], description="Base color as RGB (0-1)", min_length=3, max_length=3
     )
     roughness: float = Field(default=0.7, ge=0.0, le=1.0, description="Roughness value")
     grain_scale: float = Field(default=1.0, ge=0.1, le=5.0, description="Wood grain scale")
@@ -139,7 +139,7 @@ class CreateGlassMaterialParams(BaseModel):
     name: str = Field(..., description="Name for the new material")
     glass_type: MaterialPreset = Field(default=MaterialPreset.CLEAR, description="Type of glass")
     base_color: List[float] = Field(
-        default=[0.9, 0.95, 1.0], description="Base color as RGB (0-1)", min_items=3, max_items=3
+        default=[0.9, 0.95, 1.0], description="Base color as RGB (0-1)", min_length=3, max_length=3
     )
     transmission: float = Field(default=1.0, ge=0.0, le=1.0, description="Transmission amount")
     roughness: float = Field(default=0.0, ge=0.0, le=1.0, description="Roughness")

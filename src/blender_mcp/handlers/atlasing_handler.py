@@ -4,11 +4,12 @@ Provides tools for merging multiple materials and textures into atlas textures
 to reduce draw calls and optimize performance for VR platforms.
 """
 
+import logging
 from typing import Any, Dict, List, Optional
 
-from loguru import logger
-
 from ..decorators import blender_operation
+
+logger = logging.getLogger(__name__)
 from ..exceptions import BlenderAtlasingError
 from ..utils.blender_executor import get_blender_executor
 
@@ -22,7 +23,7 @@ async def create_material_atlas(
     atlas_size: int = 2048,
     padding: int = 4,
     output_path: str = "//material_atlas.png",
-    combine_similar: bool = True
+    combine_similar: bool = True,
 ) -> Dict[str, Any]:
     """
     Create a material atlas by combining multiple materials into a single texture.
@@ -102,7 +103,7 @@ print("SUCCESS: Material atlas prepared")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         mesh_name = "Unknown"
         material_count = 0
@@ -126,7 +127,7 @@ print("SUCCESS: Material atlas prepared")
                 "status": "info",
                 "message": f"Mesh '{mesh_name}' already has minimal materials ({material_count})",
                 "materials_before": material_count,
-                "materials_after": material_count
+                "materials_after": material_count,
             }
 
         return {
@@ -137,7 +138,7 @@ print("SUCCESS: Material atlas prepared")
             "materials_count": material_count,
             "materials_reduced": max(1, material_count // 2),
             "output_path": output_path,
-            "message": f"Material atlas prepared for {mesh_name} ({material_count} materials → ~{max(1, material_count // 2)} draw calls)"
+            "message": f"Material atlas prepared for {mesh_name} ({material_count} materials → ~{max(1, material_count // 2)} draw calls)",
         }
 
     except Exception as e:
@@ -150,7 +151,7 @@ async def merge_texture_atlas(
     texture_paths: List[str],
     output_path: str = "//texture_atlas.png",
     atlas_size: int = 2048,
-    padding: int = 2
+    padding: int = 2,
 ) -> Dict[str, Any]:
     """
     Merge multiple texture files into a single atlas texture.
@@ -231,7 +232,7 @@ print("SUCCESS: Texture atlas prepared")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         atlas_grid = "Unknown"
         loaded_textures = []
@@ -251,7 +252,7 @@ print("SUCCESS: Texture atlas prepared")
             "atlas_grid": atlas_grid,
             "output_path": output_path,
             "loaded_textures": loaded_textures,
-            "message": f"Texture atlas prepared with {len(loaded_textures)} textures"
+            "message": f"Texture atlas prepared with {len(loaded_textures)} textures",
         }
 
     except Exception as e:
@@ -264,7 +265,7 @@ async def optimize_draw_calls(
     target_mesh: Optional[str] = None,
     max_materials: int = 4,
     combine_by_color: bool = True,
-    preserve_normals: bool = True
+    preserve_normals: bool = True,
 ) -> Dict[str, Any]:
     """
     Optimize mesh for reduced draw calls by intelligent material consolidation.
@@ -362,7 +363,7 @@ print("SUCCESS: Draw call optimization analyzed")
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         mesh_name = "Unknown"
         initial_materials = 0
@@ -389,7 +390,7 @@ print("SUCCESS: Draw call optimization analyzed")
                 "status": "info",
                 "message": f"Mesh '{mesh_name}' already within material limits ({initial_materials} ≤ {max_materials})",
                 "materials_before": initial_materials,
-                "materials_after": initial_materials
+                "materials_after": initial_materials,
             }
 
         return {
@@ -401,7 +402,7 @@ print("SUCCESS: Draw call optimization analyzed")
             "max_materials": max_materials,
             "combine_by_color": combine_by_color,
             "preserve_normals": preserve_normals,
-            "message": f"Draw call optimization: {initial_materials} → {potential_materials} materials ({reduction} reduction)"
+            "message": f"Draw call optimization: {initial_materials} → {potential_materials} materials ({reduction} reduction)",
         }
 
     except Exception as e:
@@ -411,8 +412,7 @@ print("SUCCESS: Draw call optimization analyzed")
 
 @blender_operation("get_atlas_uv_layout")
 async def get_atlas_uv_layout(
-    target_mesh: Optional[str] = None,
-    atlas_info: Optional[Dict[str, Any]] = None
+    target_mesh: Optional[str] = None, atlas_info: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Generate UV layout information for atlas textures.
@@ -439,7 +439,7 @@ async def get_atlas_uv_layout(
                 "status": "success",
                 "atlas_info": atlas_info,
                 "uv_mappings": _calculate_uv_mappings(atlas_info),
-                "message": "UV layout calculated from provided atlas info"
+                "message": "UV layout calculated from provided atlas info",
             }
 
         script = """
@@ -470,7 +470,7 @@ else:
 """
 
         output = await _executor.execute_script(script)
-        lines = output.strip().split('\n')
+        lines = output.strip().split("\n")
 
         mesh_name = "Unknown"
         atlas_found = None
@@ -487,7 +487,7 @@ else:
             return {
                 "status": "info",
                 "message": f"No atlas information found on mesh '{mesh_name}'",
-                "mesh_name": mesh_name
+                "mesh_name": mesh_name,
             }
 
         uv_mappings = _calculate_uv_mappings(atlas_found)
@@ -497,7 +497,7 @@ else:
             "mesh_name": mesh_name,
             "atlas_info": atlas_found,
             "uv_mappings": uv_mappings,
-            "message": f"Atlas UV layout generated for {mesh_name}"
+            "message": f"Atlas UV layout generated for {mesh_name}",
         }
 
     except Exception as e:
@@ -525,20 +525,22 @@ def _calculate_uv_mappings(atlas_info: Dict[str, Any]) -> List[Dict[str, Any]]:
         u_max = u_min + region_size / atlas_size
         v_max = v_min + region_size / atlas_size
 
-        mappings.append({
-            "region_index": i,
-            "uv_coords": {
-                "u_min": round(u_min, 4),
-                "v_min": round(v_min, 4),
-                "u_max": round(u_max, 4),
-                "v_max": round(v_max, 4)
-            },
-            "pixel_coords": {
-                "x": col * (region_size + padding) + padding,
-                "y": row * (region_size + padding) + padding,
-                "width": region_size,
-                "height": region_size
+        mappings.append(
+            {
+                "region_index": i,
+                "uv_coords": {
+                    "u_min": round(u_min, 4),
+                    "v_min": round(v_min, 4),
+                    "u_max": round(u_max, 4),
+                    "v_max": round(v_max, 4),
+                },
+                "pixel_coords": {
+                    "x": col * (region_size + padding) + padding,
+                    "y": row * (region_size + padding) + padding,
+                    "width": region_size,
+                    "height": region_size,
+                },
             }
-        })
+        )
 
     return mappings

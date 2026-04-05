@@ -1,13 +1,14 @@
 """Import operations handler for Blender MCP."""
 
-from typing import Dict, Any, Union
 from enum import Enum
 from pathlib import Path
+from typing import Any, Dict, Union
+
 from loguru import logger
 
 from ..compat import *
-from ..utils.blender_executor import get_blender_executor
 from ..decorators import blender_operation
+from ..utils.blender_executor import get_blender_executor
 
 _executor = get_blender_executor()
 
@@ -27,21 +28,21 @@ class ImportFormat(str, Enum):
     USDC = "USDC"
     USDZ = "USDZ"
     ABC = "ALEMBIC"
-    
+
     # Mesh/geometry formats
     PLY = "PLY"  # Also used for point clouds and gaussian splats
     STL = "STL"
-    
+
     # Animation/curve formats
     BVH = "BVH"
     SVG = "SVG"
     DXF = "DXF"
-    
+
     # Point cloud / AI-generated formats
     XYZ = "XYZ"  # Point cloud
     E57 = "E57"  # LiDAR point cloud
     LAS = "LAS"  # LiDAR
-    
+
     # Legacy
     FBX_BINARY = "FBX_BINARY"
 
@@ -131,8 +132,8 @@ async def import_file(
         return {
             "status": "ERROR",
             "error": f"Point cloud format {file_format} requires addon installation. "
-                     f"Install 'Point Cloud Visualizer' or import as PLY instead.",
-            "hint": "Convert point cloud to PLY format, or use blender_addons to install a point cloud addon."
+            f"Install 'Point Cloud Visualizer' or import as PLY instead.",
+            "hint": "Convert point cloud to PLY format, or use blender_addons to install a point cloud addon.",
         }
 
     else:

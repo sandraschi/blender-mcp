@@ -4,10 +4,10 @@ Lighting creation and management tools for Blender MCP.
 Provides tools for creating various types of lights and managing lighting setups.
 """
 
-from blender_mcp.compat import *
-
 from typing import Tuple
+
 from blender_mcp.app import get_app
+from blender_mcp.compat import *
 
 
 def _register_lighting_tools():
@@ -56,17 +56,17 @@ def _register_lighting_tools():
         Returns:
             Operation result message
         """
+        from loguru import logger
+
         from blender_mcp.handlers.lighting_handler import (
-            create_sun_light,
+            adjust_light,
+            create_area_light,
             create_point_light,
             create_spot_light,
-            create_area_light,
-            setup_three_point_lighting,
+            create_sun_light,
             setup_hdri_environment,
-            adjust_light,
+            setup_three_point_lighting,
         )
-
-        from loguru import logger
 
         logger.info(
             f"💡 blender_lighting called with operation='{operation}', light_name='{light_name}', location={location}"
