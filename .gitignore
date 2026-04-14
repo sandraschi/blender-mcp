@@ -186,5 +186,13 @@ secrets/
 # Editor backup files
 *.bak
 
-# Private documentation (internal dev notes, not for public)
-docs-private/
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
