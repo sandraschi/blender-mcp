@@ -5,7 +5,7 @@ blink/viseme mappings, spring bone parameters, and other VRM avatar data.
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from ..decorators import blender_operation
 
@@ -22,8 +22,8 @@ async def set_first_person_offset(
     offset_x: float = 0.0,
     offset_y: float = 0.0,
     offset_z: float = 0.0,
-    target_armature: Optional[str] = None,
-) -> Dict[str, Any]:
+    target_armature: str | None = None,
+) -> dict[str, Any]:
     """
     Set the first person camera offset for VRM avatars.
 
@@ -49,7 +49,7 @@ async def set_first_person_offset(
 import bpy
 
 # Get target armature
-armature_name = {repr(target_armature)}
+armature_name = {target_armature!r}
 if armature_name:
     armature = bpy.data.objects.get(armature_name)
 else:
@@ -98,15 +98,15 @@ print("SUCCESS: First person offset configured")
 
     except Exception as e:
         logger.error(f"First person offset setting failed: {e}")
-        raise BlenderVRMError(f"Failed to set first person offset: {str(e)}") from e
+        raise BlenderVRMError(f"Failed to set first person offset: {e!s}") from e
 
 
 @blender_operation("setup_blink_viseme_mappings")
 async def setup_blink_viseme_mappings(
-    viseme_mappings: Optional[Dict[str, str]] = None,
+    viseme_mappings: dict[str, str] | None = None,
     blink_shape_key: str = "blink",
-    target_mesh: Optional[str] = None,
-) -> Dict[str, Any]:
+    target_mesh: str | None = None,
+) -> dict[str, Any]:
     """
     Configure VRM blink and viseme shape key mappings.
 
@@ -143,7 +143,7 @@ async def setup_blink_viseme_mappings(
 import bpy
 
 # Get target mesh
-mesh_name = {repr(target_mesh)}
+mesh_name = {target_mesh!r}
 if mesh_name:
     mesh = bpy.data.objects.get(mesh_name)
 else:
@@ -165,7 +165,7 @@ else:
 
 # Check for required viseme shape keys
 viseme_keys = {list(default_mappings.values())}
-blink_key = {repr(blink_shape_key)}
+blink_key = {blink_shape_key!r}
 
 found_visemes = []
 missing_visemes = []
@@ -189,7 +189,7 @@ print(f"BLINK_FOUND: {{blink_found}}")
 if mesh.data.shape_keys:
     vrm_mappings = {{
         "viseme_mappings": {default_mappings!r},
-        "blink_shape_key": {repr(blink_shape_key)}
+        "blink_shape_key": {blink_shape_key!r}
     }}
     mesh.data.shape_keys["vrm_metadata"] = str(vrm_mappings)
 
@@ -233,21 +233,19 @@ print("SUCCESS: VRM facial mappings configured")
         if missing_visemes:
             result["warnings"] = [f"Missing viseme shape keys: {missing_visemes}"]
         if not blink_found:
-            result["warnings"] = result.get("warnings", []) + [
-                f"Blink shape key '{blink_shape_key}' not found"
-            ]
+            result["warnings"] = [*result.get("warnings", []), f"Blink shape key '{blink_shape_key}' not found"]
 
         return result
 
     except Exception as e:
         logger.error(f"VRM facial mapping setup failed: {e}")
-        raise BlenderVRMError(f"Failed to setup VRM facial mappings: {str(e)}") from e
+        raise BlenderVRMError(f"Failed to setup VRM facial mappings: {e!s}") from e
 
 
 @blender_operation("configure_spring_bones")
 async def configure_spring_bones(
-    spring_bone_settings: Optional[Dict[str, Any]] = None, target_armature: Optional[str] = None
-) -> Dict[str, Any]:
+    spring_bone_settings: dict[str, Any] | None = None, target_armature: str | None = None
+) -> dict[str, Any]:
     """
     Configure VRM spring bone parameters for dynamic hair/cloth physics.
 
@@ -284,7 +282,7 @@ async def configure_spring_bones(
 import bpy
 
 # Get target armature
-armature_name = {repr(target_armature)}
+armature_name = {target_armature!r}
 if armature_name:
     armature = bpy.data.objects.get(armature_name)
 else:
@@ -330,13 +328,13 @@ print("SUCCESS: Spring bone settings configured")
 
     except Exception as e:
         logger.error(f"Spring bone configuration failed: {e}")
-        raise BlenderVRMError(f"Failed to configure spring bones: {str(e)}") from e
+        raise BlenderVRMError(f"Failed to configure spring bones: {e!s}") from e
 
 
 @blender_operation("set_vrm_look_at")
 async def set_vrm_look_at(
-    look_at_settings: Optional[Dict[str, Any]] = None, target_armature: Optional[str] = None
-) -> Dict[str, Any]:
+    look_at_settings: dict[str, Any] | None = None, target_armature: str | None = None
+) -> dict[str, Any]:
     """
     Configure VRM look-at functionality for eye tracking.
 
@@ -372,7 +370,7 @@ async def set_vrm_look_at(
 import bpy
 
 # Get target armature
-armature_name = {repr(target_armature)}
+armature_name = {target_armature!r}
 if armature_name:
     armature = bpy.data.objects.get(armature_name)
 else:
@@ -416,16 +414,16 @@ print("SUCCESS: VRM look-at configured")
 
     except Exception as e:
         logger.error(f"VRM look-at configuration failed: {e}")
-        raise BlenderVRMError(f"Failed to configure VRM look-at: {str(e)}") from e
+        raise BlenderVRMError(f"Failed to configure VRM look-at: {e!s}") from e
 
 
 @blender_operation("export_vrm_metadata")
 async def export_vrm_metadata(
     output_path: str = "//vrm_metadata.json",
-    target_armature: Optional[str] = None,
+    target_armature: str | None = None,
     include_spring_bones: bool = True,
     include_look_at: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Export VRM metadata for use with VRM exporters.
 
@@ -452,7 +450,7 @@ import bpy
 import json
 
 # Get target armature
-armature_name = {repr(target_armature)}
+armature_name = {target_armature!r}
 if armature_name:
     armature = bpy.data.objects.get(armature_name)
 else:
@@ -495,7 +493,7 @@ if {include_look_at!r} and "vrm_look_at" in armature:
         metadata["look_at"] = armature["vrm_look_at"]
 
 # Save metadata
-output_file = {repr(output_path)}
+output_file = {output_path!r}
 with open(bpy.path.abspath(output_file), 'w') as f:
     json.dump(metadata, f, indent=2)
 
@@ -526,4 +524,4 @@ print("SUCCESS: VRM metadata exported")
 
     except Exception as e:
         logger.error(f"VRM metadata export failed: {e}")
-        raise BlenderVRMError(f"Failed to export VRM metadata: {str(e)}") from e
+        raise BlenderVRMError(f"Failed to export VRM metadata: {e!s}") from e

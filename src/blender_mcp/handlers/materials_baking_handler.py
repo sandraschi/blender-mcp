@@ -5,7 +5,7 @@ for cross-platform compatibility.
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from ..decorators import blender_operation
 
@@ -21,10 +21,10 @@ _executor = get_blender_executor()
 async def bake_toon_to_pbr(
     resolution: int = 2048,
     margin: int = 16,
-    target_mesh: Optional[str] = None,
+    target_mesh: str | None = None,
     output_dir: str = "//bakes",
     bake_type: str = "combined",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Convert cel-shaded or toon materials to PBR textures.
 
@@ -52,7 +52,7 @@ import bpy
 import os
 
 # Get target object
-target_name = {repr(target_mesh)}
+target_name = {target_mesh!r}
 if target_name:
     obj = bpy.data.objects.get(target_name)
 else:
@@ -113,13 +113,13 @@ print("STATUS: Materials analysis complete")
 
     except Exception as e:
         logger.error(f"Toon to PBR baking failed: {e}")
-        raise BlenderMaterialError(f"Failed to bake materials: {str(e)}") from e
+        raise BlenderMaterialError(f"Failed to bake materials: {e!s}") from e
 
 
 @blender_operation("consolidate_materials")
 async def consolidate_materials(
-    max_atlas_size: int = 4096, remove_unused_uvs: bool = True, target_mesh: Optional[str] = None
-) -> Dict[str, Any]:
+    max_atlas_size: int = 4096, remove_unused_uvs: bool = True, target_mesh: str | None = None
+) -> dict[str, Any]:
     """
     Merge multiple material slots into atlas textures.
 
@@ -144,7 +144,7 @@ async def consolidate_materials(
 import bpy
 
 # Get target object
-target_name = {repr(target_mesh)}
+target_name = {target_mesh!r}
 if target_name:
     obj = bpy.data.objects.get(target_name)
 else:
@@ -204,13 +204,13 @@ else:
 
     except Exception as e:
         logger.error(f"Material consolidation failed: {e}")
-        raise BlenderMaterialError(f"Failed to consolidate materials: {str(e)}") from e
+        raise BlenderMaterialError(f"Failed to consolidate materials: {e!s}") from e
 
 
 @blender_operation("convert_vrm_shaders")
 async def convert_vrm_shaders(
-    target_mesh: Optional[str] = None, preserve_lighting: bool = True, create_backup: bool = True
-) -> Dict[str, Any]:
+    target_mesh: str | None = None, preserve_lighting: bool = True, create_backup: bool = True
+) -> dict[str, Any]:
     """
     Convert VRM-specific shaders to standard PBR.
 
@@ -235,7 +235,7 @@ async def convert_vrm_shaders(
 import bpy
 
 # Get target object
-target_name = {repr(target_mesh)}
+target_name = {target_mesh!r}
 if target_name:
     obj = bpy.data.objects.get(target_name)
 else:
@@ -294,7 +294,7 @@ print(f"VRM_MATERIALS: {{vrm_count}}")
 
     except Exception as e:
         logger.error(f"VRM shader conversion failed: {e}")
-        raise BlenderMaterialError(f"Failed to convert VRM shaders: {str(e)}") from e
+        raise BlenderMaterialError(f"Failed to convert VRM shaders: {e!s}") from e
 
 
 # Helper functions removed - implementation simplified for now

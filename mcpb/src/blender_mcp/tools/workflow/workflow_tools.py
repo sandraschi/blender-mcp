@@ -6,7 +6,7 @@ and enabling complex workflows to be saved and reused.
 """
 
 import json
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
@@ -67,11 +67,11 @@ def _register_workflow_tools():
     async def blender_workflow(
         operation: Literal["execute", "list_templates", "get_template"] = "list_templates",
         # For execute operation
-        steps: Optional[List[Dict[str, Any]]] = None,
-        template: Optional[str] = None,
-        params: Optional[Dict[str, Any]] = None,
+        steps: list[dict[str, Any]] | None = None,
+        template: str | None = None,
+        params: dict[str, Any] | None = None,
         # For get_template operation
-        template_name: Optional[str] = None,
+        template_name: str | None = None,
         stop_on_error: bool = True,
     ) -> str:
         """
@@ -179,9 +179,7 @@ def _register_workflow_tools():
                 if not tool_name or not tool_operation:
                     error = f"Step {step_num}: Missing 'tool' or 'operation'"
                     if stop_on_error:
-                        return json.dumps(
-                            {"success": False, "error": error, "step": step_num, "results": results}
-                        )
+                        return json.dumps({"success": False, "error": error, "step": step_num, "results": results})
                     results.append({"step": step_num, "error": error})
                     continue
 
@@ -189,9 +187,7 @@ def _register_workflow_tools():
                 if condition and results:
                     last_result = results[-1].get("result", "")
                     if condition not in str(last_result):
-                        results.append(
-                            {"step": step_num, "skipped": f"Condition not met: {condition}"}
-                        )
+                        results.append({"step": step_num, "skipped": f"Condition not met: {condition}"})
                         continue
 
                 # Substitute variables in parameters
@@ -285,7 +281,7 @@ def _register_workflow_tools():
                         variables[var_name] = result
 
                 except Exception as e:
-                    error = f"Step {step_num}: {str(e)}"
+                    error = f"Step {step_num}: {e!s}"
                     logger.error(f"❌ Workflow error: {error}")
                     if stop_on_error:
                         return json.dumps(
@@ -299,14 +295,10 @@ def _register_workflow_tools():
                         )
                     results.append({"step": step_num, "error": error})
 
-            return json.dumps(
-                {"success": True, "steps_executed": len(results), "results": results}, indent=2
-            )
+            return json.dumps({"success": True, "steps_executed": len(results), "results": results}, indent=2)
 
         else:
-            return (
-                f"Unknown operation: {operation}. Available: execute, list_templates, get_template"
-            )
+            return f"Unknown operation: {operation}. Available: execute, list_templates, get_template"
 
 
 _register_workflow_tools()

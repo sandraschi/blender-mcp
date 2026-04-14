@@ -18,6 +18,7 @@ import pytest
 @pytest.fixture(autouse=True)
 def patch_repo_base(tmp_path: Path, monkeypatch):
     import blender_mcp.tools.repository_tools as rt
+
     monkeypatch.setattr(rt, "REPO_BASE", tmp_path / "repository")
     monkeypatch.setattr(rt, "INDEX_FILE", tmp_path / "repository" / "repository_index.json")
 
@@ -26,35 +27,40 @@ def patch_repo_base(tmp_path: Path, monkeypatch):
 # _save_object — session_required path
 # ---------------------------------------------------------------------------
 
+
 class TestSaveObjectSessionRequired:
     @pytest.mark.asyncio
     async def test_session_required_still_saves_metadata(self, tmp_path):
         obj_info = {
-            "name": "Chair", "type": "MESH", "vertex_count": 100,
-            "materials": ["Wood"], "bone_count": 0,
-            "location": [0, 0, 0], "dimensions": [1, 1, 1]
+            "name": "Chair",
+            "type": "MESH",
+            "vertex_count": 100,
+            "materials": ["Wood"],
+            "bone_count": 0,
+            "location": [0, 0, 0],
+            "dimensions": [1, 1, 1],
         }
         # First call: _get_object_info succeeds
         # Second call: export — returns session required + placeholder
         placeholder_path = str(tmp_path / "repository" / "placeholder.blend")
         info_output = f"OBJ_INFO:{json.dumps(obj_info)}"
         export_output = (
-            "EXPORT_SESSION_REQUIRED: Object not in executor session.\n"
-            f"EXPORT_PLACEHOLDER:{placeholder_path}"
+            f"EXPORT_SESSION_REQUIRED: Object not in executor session.\nEXPORT_PLACEHOLDER:{placeholder_path}"
         )
         executor = MagicMock()
         executor.execute_script = AsyncMock(side_effect=[info_output, export_output])
 
-        with patch("blender_mcp.tools.repository_tools.get_blender_executor", return_value=executor):
+        with patch("blender_mcp.utils.blender_executor.get_blender_executor", return_value=executor):
             from blender_mcp.tools.repository_tools import _save_object
+
             result = await _save_object("Chair", "Comfy Chair", "test", [], "furniture", 7, False)
 
         assert result["success"] is True
         assert result["session_required"] is True
         assert "NOTE" in result["message"]
         # Metadata file should still exist
-        from blender_mcp.tools import repository_tools as rt
         import blender_mcp.tools.repository_tools as rt2
+
         obj_id = result["object_id"]
         meta_path = rt2.REPO_BASE / obj_id / "metadata.json"
         assert meta_path.exists()
@@ -63,6 +69,7 @@ class TestSaveObjectSessionRequired:
 # ---------------------------------------------------------------------------
 # construct_and_save
 # ---------------------------------------------------------------------------
+
 
 class TestConstructAndSave:
     @pytest.mark.asyncio
@@ -85,21 +92,24 @@ class TestConstructAndSave:
 
         mock_ctx = MagicMock()
 
-        with patch("blender_mcp.tools.repository_tools._construct_object",
-                   AsyncMock(return_value=construct_result)) as mock_construct, \
-             patch("blender_mcp.tools.repository_tools._save_object",
-                   AsyncMock(return_value=save_result)) as mock_save:
-            from blender_mcp.tools.repository_tools import _construct_object, _save_object
+        with (
+            patch("blender_mcp.tools.repository_tools._construct_object", AsyncMock(return_value=construct_result)),
+            patch("blender_mcp.tools.repository_tools._save_object", AsyncMock(return_value=save_result)),
+        ):
             # Trigger via the registered tool
             from blender_mcp.app import get_app
+
             app = get_app()
             # Call the tool directly via app
-            result_raw = await app.call_tool("manage_object_construction", {
-                "ctx": mock_ctx,
-                "operation": "construct_and_save",
-                "description": "a robot",
-                "name": "MyRobot",
-            })
+            await app.call_tool(
+                "manage_object_construction",
+                {
+                    "ctx": mock_ctx,
+                    "operation": "construct_and_save",
+                    "description": "a robot",
+                    "name": "MyRobot",
+                },
+            )
 
         # The tool was called and both sub-operations should have been invoked
         # (We patched at module level so let's just check the result structure)
@@ -114,18 +124,19 @@ class TestConstructAndSave:
         construct_result = {"success": False, "message": "Script generation failed"}
         mock_ctx = MagicMock()
 
-        with patch("blender_mcp.tools.repository_tools._construct_object",
-                   AsyncMock(return_value=construct_result)) as mock_construct, \
-             patch("blender_mcp.tools.repository_tools._save_object",
-                   AsyncMock()) as mock_save:
-            from blender_mcp.tools.repository_tools import manage_object_construction_logic
-
+        with (
+            patch("blender_mcp.tools.repository_tools._construct_object", AsyncMock(return_value=construct_result)),
+            patch("blender_mcp.tools.repository_tools._save_object", AsyncMock()) as mock_save,
+        ):
             # Test the logic directly — access via the closure
             # We simulate the construct_and_save branch
             from blender_mcp.tools import repository_tools as rt
-            result = await rt._construct_object.__wrapped__(mock_ctx, "bad desc", "X", "simple", None, None, True, 1) \
-                if hasattr(rt._construct_object, "__wrapped__") \
+
+            result = (
+                await rt._construct_object.__wrapped__(mock_ctx, "bad desc", "X", "simple", None, None, True, 1)
+                if hasattr(rt._construct_object, "__wrapped__")
                 else construct_result
+            )
 
             assert result["success"] is False
             mock_save.assert_not_called()
@@ -135,9 +146,11 @@ class TestConstructAndSave:
 # _search_objects — additional edge cases
 # ---------------------------------------------------------------------------
 
+
 class TestSearchObjectsEdgeCases:
     def _write_index(self, repo_dir: Path, models: list) -> None:
         import blender_mcp.tools.repository_tools as rt
+
         repo_dir.mkdir(parents=True, exist_ok=True)
         with open(rt.INDEX_FILE, "w") as f:
             json.dump({"models": models, "last_updated": "2026-01-01"}, f)
@@ -145,25 +158,46 @@ class TestSearchObjectsEdgeCases:
     @pytest.mark.asyncio
     async def test_limit_respected(self, tmp_path):
         import blender_mcp.tools.repository_tools as rt
-        self._write_index(rt.REPO_BASE, [
-            {"id": f"id{i}", "name": f"Obj{i}", "category": "general",
-             "tags": [], "estimated_quality": 5, "description": ""}
-            for i in range(20)
-        ])
+
+        self._write_index(
+            rt.REPO_BASE,
+            [
+                {
+                    "id": f"id{i}",
+                    "name": f"Obj{i}",
+                    "category": "general",
+                    "tags": [],
+                    "estimated_quality": 5,
+                    "description": "",
+                }
+                for i in range(20)
+            ],
+        )
         from blender_mcp.tools.repository_tools import _search_objects
+
         result = await _search_objects(None, None, None, None, None, None, limit=5)
         assert result["total_matches"] == 5
 
     @pytest.mark.asyncio
     async def test_category_case_insensitive(self, tmp_path):
         import blender_mcp.tools.repository_tools as rt
-        self._write_index(rt.REPO_BASE, [
-            {"id": "a1", "name": "A", "category": "Furniture",
-             "tags": [], "estimated_quality": 5, "description": ""},
-            {"id": "a2", "name": "B", "category": "scifi",
-             "tags": [], "estimated_quality": 5, "description": ""},
-        ])
+
+        self._write_index(
+            rt.REPO_BASE,
+            [
+                {
+                    "id": "a1",
+                    "name": "A",
+                    "category": "Furniture",
+                    "tags": [],
+                    "estimated_quality": 5,
+                    "description": "",
+                },
+                {"id": "a2", "name": "B", "category": "scifi", "tags": [], "estimated_quality": 5, "description": ""},
+            ],
+        )
         from blender_mcp.tools.repository_tools import _search_objects
+
         result = await _search_objects(None, "furniture", None, None, None, None, limit=10)
         assert result["total_matches"] == 1
         assert result["objects"][0]["id"] == "a1"
@@ -171,6 +205,7 @@ class TestSearchObjectsEdgeCases:
     @pytest.mark.asyncio
     async def test_empty_index_returns_empty(self):
         from blender_mcp.tools.repository_tools import _search_objects
+
         result = await _search_objects("robot", None, None, None, None, None, limit=10)
         assert result["success"] is True
         assert result["total_matches"] == 0
@@ -179,6 +214,7 @@ class TestSearchObjectsEdgeCases:
 # ---------------------------------------------------------------------------
 # _model_dump in _construct_object response
 # ---------------------------------------------------------------------------
+
 
 class TestConstructObjectModelDump:
     @pytest.mark.asyncio
@@ -194,16 +230,17 @@ class TestConstructObjectModelDump:
         executor = MagicMock()
         executor.execute_script = AsyncMock(return_value=exec_output)
 
-        with patch("blender_mcp.tools.construct_tools.get_blender_executor", return_value=executor), \
-             patch("blender_mcp.tools.repository_tools.get_blender_executor", return_value=executor):
+        with (
+            patch("blender_mcp.utils.blender_executor.get_blender_executor", return_value=executor),
+        ):
             from blender_mcp.tools.repository_tools import _construct_object
-            result = await _construct_object(
-                mock_ctx, "a cube", "MyCube", "simple", None, None, True, 1
-            )
+
+            result = await _construct_object(mock_ctx, "a cube", "MyCube", "simple", None, None, True, 1)
 
         # validation_results should be a plain dict, not a pydantic model
         assert isinstance(result.get("validation_results"), dict)
         assert "security_score" in result["validation_results"]
         # Should be JSON-serialisable
         import json as _json
+
         _json.dumps(result)  # should not raise

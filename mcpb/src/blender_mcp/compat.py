@@ -7,31 +7,25 @@ This module provides type definitions and compatibility shims to handle differen
 between Python versions and FastMCP implementations.
 """
 
+from collections.abc import Awaitable, Callable, Mapping, Sequence
 from typing import (
     Any,
-    Awaitable,
-    Callable,
     Dict,
     List,
-    Mapping,
     Optional,
-    Sequence,
     Tuple,
     Type,
     TypeAlias,
     TypeVar,
     Union,
 )
-from typing import (
-    Set as TypingSet,
-)
 
 # Define JSON-compatible types
 JSONPrimitive = Union[str, int, float, bool, None]
-JSONType = Union[JSONPrimitive, Dict[str, Any], List[Any]]
+JSONType = Union[JSONPrimitive, dict[str, Any], list[Any]]
 
 # Re-export Set as both Set and TypingSet for compatibility
-Set = TypingSet
+Set = set
 
 # Initialize FastMCP components as None
 Tool = None
@@ -60,8 +54,7 @@ def _import_fastmcp_components():
 
         except ImportError as e:
             raise ImportError(
-                "Failed to import FastMCP components. Make sure FastMCP is installed. "
-                f"Original error: {e}"
+                f"Failed to import FastMCP components. Make sure FastMCP is installed. Original error: {e}"
             )
 
 
@@ -70,27 +63,27 @@ _import_fastmcp_components()
 
 # Re-export commonly used types and components
 __all__ = [
+    "Any",
+    "Awaitable",
+    "Callable",
     # Basic types
     "Dict",
-    "List",
-    "Tuple",
-    "Set",
-    "Sequence",
-    "Mapping",
-    "Any",
-    "Type",
-    "Callable",
-    "Awaitable",
-    "TypeVar",
-    "TypeAlias",
-    "Optional",
-    "Union",
+    "FunctionTool",
+    "JSONPrimitive",
     # Custom types
     "JSONType",
-    "JSONPrimitive",
+    "List",
+    "LowLevelServer",
+    "Mapping",
+    "Optional",
+    "Sequence",
+    "Set",
     # FastMCP components
     "Tool",
-    "FunctionTool",
     "ToolManager",
-    "LowLevelServer",
+    "Tuple",
+    "Type",
+    "TypeAlias",
+    "TypeVar",
+    "Union",
 ]

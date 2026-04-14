@@ -65,9 +65,7 @@ def _register_particle_tools():
             elif operation == "bake_particles":
                 if not object_name:
                     return "object_name parameter required"
-                return await bake_particles(
-                    object_name=object_name, start_frame=start_frame, end_frame=end_frame
-                )
+                return await bake_particles(object_name=object_name, start_frame=start_frame, end_frame=end_frame)
 
             elif operation == "create_hair_particles":
                 if not object_name:
@@ -151,7 +149,7 @@ logger.info(f"🔥 Created fire particle effect for '{object_name}'")
                 return f"Unknown particle operation: {operation}. Available: create_particle_system, create_hair_particles, create_fire_effect, bake_particles"
 
         except Exception as e:
-            return f"Error in particle operation '{operation}': {str(e)}"
+            return f"Error in particle operation '{operation}': {e!s}"
 
 
 _register_particle_tools()

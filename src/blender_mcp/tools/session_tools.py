@@ -16,20 +16,20 @@ endpoint that allows the MCP server to execute code inside the live session.
 import asyncio
 import json
 import logging
-import os
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 # Single managed Blender GUI process (one at a time)
-_blender_process: Optional[subprocess.Popen] = None
-_blender_pid: Optional[int] = None
+_blender_process: subprocess.Popen | None = None
+_blender_pid: int | None = None
 
 
 def _get_blender_exe() -> str:
     from blender_mcp.config import BLENDER_EXECUTABLE
+
     return BLENDER_EXECUTABLE
 
 
@@ -42,6 +42,7 @@ def _is_running() -> bool:
 
 def _register_session_tools() -> None:
     from blender_mcp.app import get_app
+
     app = get_app()
 
     @app.tool
@@ -52,7 +53,7 @@ def _register_session_tools() -> None:
         script_name: str = "mcp_script",
         demo_name: str = "living_room_with_car",
         timeout: int = 30,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Manage a Blender GUI session from the MCP server.
 
@@ -86,11 +87,12 @@ def _register_session_tools() -> None:
                     "running": running,
                     "pid": _blender_pid if running else None,
                     "message": f"Blender GUI {'is running' if running else 'is not running'}"
-                               + (f" (PID {_blender_pid})" if running else ""),
+                    + (f" (PID {_blender_pid})" if running else ""),
                     "bridge_hint": (
                         "Enable the bridge addon in Blender (Properties > Scene > Blender MCP Bridge > Start) "
                         "to allow run_script and demo operations."
-                        if running else ""
+                        if running
+                        else ""
                     ),
                 }
 
@@ -99,7 +101,7 @@ def _register_session_tools() -> None:
                     return {
                         "success": False,
                         "message": f"Blender GUI is already running (PID {_blender_pid}). "
-                                   "Use operation='stop' first, or operation='status' to check.",
+                        "Use operation='stop' first, or operation='status' to check.",
                     }
 
                 exe = _get_blender_exe()
@@ -107,7 +109,7 @@ def _register_session_tools() -> None:
                     return {
                         "success": False,
                         "message": f"Blender executable not found: {exe}. "
-                                   "Set BLENDER_EXECUTABLE env var to the correct path.",
+                        "Set BLENDER_EXECUTABLE env var to the correct path.",
                     }
 
                 cmd = [exe, "--enable-autoexec"]
@@ -194,10 +196,11 @@ def _register_session_tools() -> None:
             return {"success": False, "message": f"Operation failed: {e}", "operation": operation}
 
 
-async def _exec_via_bridge(script: str, script_name: str, timeout: int) -> Dict[str, Any]:
+async def _exec_via_bridge(script: str, script_name: str, timeout: int) -> dict[str, Any]:
     """Send a script to the Blender bridge and wait for the result."""
     try:
         from blender_mcp.app import _exec_in_blender_session
+
         result = await _exec_in_blender_session(script, script_name=script_name, timeout=timeout)
         if result["session_used"]:
             return {
@@ -220,7 +223,7 @@ async def _exec_via_bridge(script: str, script_name: str, timeout: int) -> Dict[
         return {"success": False, "message": str(e), "session_used": False}
 
 
-def _get_demo_script(demo_name: str) -> Optional[str]:
+def _get_demo_script(demo_name: str) -> str | None:
     """Return the bpy script for the named demo."""
     data_dir = Path(__file__).parent.parent.parent.parent / "data" / "scripts"
     demo_file = data_dir / "demos.json"

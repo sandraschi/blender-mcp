@@ -7,7 +7,6 @@ Supports models, textures, and other assets with automatic format detection.
 
 import os
 import tempfile
-from typing import Optional
 from urllib.parse import urlparse
 
 import requests
@@ -87,10 +86,10 @@ def _download_file(url: str, output_path: str, timeout: int = 30) -> bool:
         return True
 
     except requests.exceptions.RequestException as e:
-        logger.error(f"Download failed: {str(e)}")
+        logger.error(f"Download failed: {e!s}")
         return False
     except Exception as e:
-        logger.error(f"Unexpected error during download: {str(e)}")
+        logger.error(f"Unexpected error during download: {e!s}")
         return False
 
 
@@ -175,7 +174,7 @@ except Exception as e:
 async def blender_download(
     url: str,
     import_into_scene: bool = True,
-    custom_filename: Optional[str] = None,
+    custom_filename: str | None = None,
     timeout: int = 30,
 ) -> str:
     """
@@ -259,9 +258,7 @@ async def blender_download(
 
         # Parse the result
         if "SUCCESS:" in import_result:
-            success_line = [
-                line for line in import_result.split("\n") if line.startswith("SUCCESS:")
-            ]
+            success_line = [line for line in import_result.split("\n") if line.startswith("SUCCESS:")]
             if success_line:
                 return success_line[0].replace("SUCCESS: ", "")
             else:
@@ -271,8 +268,8 @@ async def blender_download(
             return f"Downloaded: {filename} ({file_size} bytes) - Import result: {import_result}"
 
     except Exception as e:
-        logger.error(f"Error in blender_download: {str(e)}")
-        return f"Error downloading file: {str(e)}"
+        logger.error(f"Error in blender_download: {e!s}")
+        return f"Error downloading file: {e!s}"
 
 
 @app.tool

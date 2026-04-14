@@ -6,7 +6,7 @@ to ensure compatibility with VR platforms like VRChat and Resonite.
 """
 
 import logging
-from typing import Literal, Optional
+from typing import Literal
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +37,9 @@ def _register_validation_tools():
         check_rigging: bool = True,
         check_transforms: bool = True,
         check_textures: bool = True,
-        polycount_limit: Optional[int] = None,
-        material_limit: Optional[int] = None,
-        bone_limit: Optional[int] = None,
+        polycount_limit: int | None = None,
+        material_limit: int | None = None,
+        bone_limit: int | None = None,
     ) -> str:
         """
         Comprehensive validation tools for avatars and 3D models.
@@ -130,7 +130,7 @@ def _register_validation_tools():
 
         except Exception as e:
             logger.error(f"Validation operation '{operation}' failed: {e}")
-            return f"Validation failed: {str(e)}"
+            return f"Validation failed: {e!s}"
 
 
 def _format_validation_report(result: dict) -> str:

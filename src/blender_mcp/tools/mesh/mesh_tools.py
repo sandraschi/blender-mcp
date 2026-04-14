@@ -5,7 +5,6 @@ Provides portmanteau tools for creating basic mesh primitives and manipulating o
 """
 
 import logging
-from typing import Tuple
 
 from pydantic import BaseModel, Field
 
@@ -22,10 +21,8 @@ class CreatePrimitiveParams(BaseModel):
         ..., description="Type of primitive: cube, sphere, cylinder, cone, plane, torus, monkey"
     )
     name: str = Field("Object", description="Name for the new object")
-    location: Tuple[float, float, float] = Field(
-        (0, 0, 0), description="Location coordinates (x, y, z)"
-    )
-    scale: Tuple[float, float, float] = Field((1, 1, 1), description="Scale factors (x, y, z)")
+    location: tuple[float, float, float] = Field((0, 0, 0), description="Location coordinates (x, y, z)")
+    scale: tuple[float, float, float] = Field((1, 1, 1), description="Scale factors (x, y, z)")
 
 
 def _register_mesh_tools():
@@ -37,8 +34,8 @@ def _register_mesh_tools():
         operation: str = "create_cube",
         name: str = "Object",
         primitive_type: str = "cube",
-        location: Tuple[float, float, float] = (0, 0, 0),
-        scale: Tuple[float, float, float] = (1, 1, 1),
+        location: tuple[float, float, float] = (0, 0, 0),
+        scale: tuple[float, float, float] = (1, 1, 1),
         radius: float = 1.0,
         depth: float = 2.0,
         vertices: int = 32,
@@ -128,18 +125,14 @@ def _register_mesh_tools():
                 else location
             )
             scale_tuple = (
-                tuple(float(x) for x in scale)
-                if hasattr(scale, "__iter__") and not isinstance(scale, str)
-                else scale
+                tuple(float(x) for x in scale) if hasattr(scale, "__iter__") and not isinstance(scale, str) else scale
             )
 
             # Ensure we have 3-tuples
             if len(location_tuple) != 3:
                 return f"Error: location must be a 3-element array/tuple, got {len(location_tuple)} elements"
             if len(scale_tuple) != 3:
-                return (
-                    f"Error: scale must be a 3-element array/tuple, got {len(scale_tuple)} elements"
-                )
+                return f"Error: scale must be a 3-element array/tuple, got {len(scale_tuple)} elements"
 
             # Validate numeric parameters
             try:
@@ -211,8 +204,8 @@ def _register_mesh_tools():
                 return f"Unknown operation: {operation}"
 
         except Exception as e:
-            logger.error(f"❌ Error in mesh operation '{operation}': {str(e)}")
-            return f"Error in mesh operation '{operation}': {str(e)}"
+            logger.error(f"❌ Error in mesh operation '{operation}': {e!s}")
+            return f"Error in mesh operation '{operation}': {e!s}"
 
 
 _register_mesh_tools()

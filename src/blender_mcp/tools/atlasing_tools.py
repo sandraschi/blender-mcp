@@ -6,7 +6,7 @@ and optimize performance for VR platforms.
 """
 
 import logging
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 logger = logging.getLogger(__name__)
 
@@ -30,19 +30,19 @@ def _register_atlasing_tools():
             "get_atlas_uv_layout",
         ] = "create_material_atlas",
         # Material atlas params
-        target_mesh: Optional[str] = None,
+        target_mesh: str | None = None,
         atlas_size: int = 2048,
         padding: int = 4,
         output_path: str = "//material_atlas.png",
         combine_similar: bool = True,
         # Texture atlas params
-        texture_paths: Optional[List[str]] = None,
+        texture_paths: list[str] | None = None,
         # Draw call optimization params
         max_materials: int = 4,
         combine_by_color: bool = True,
         preserve_normals: bool = True,
         # UV layout params
-        atlas_info: Optional[Dict[str, Any]] = None,
+        atlas_info: dict[str, Any] | None = None,
     ) -> str:
         """
         Advanced material and texture atlasing for VR performance optimization.
@@ -72,9 +72,7 @@ def _register_atlasing_tools():
             - blender_atlasing("get_atlas_uv_layout") - Get UV coordinates for atlas usage
             - blender_atlasing("merge_texture_atlas", texture_paths=["tex1.png", "tex2.png"]) - Merge textures
         """
-        logger.info(
-            f"blender_atlasing called with operation='{operation}', atlas_size={atlas_size}"
-        )
+        logger.info(f"blender_atlasing called with operation='{operation}', atlas_size={atlas_size}")
 
         from blender_mcp.handlers.atlasing_handler import (
             create_material_atlas,
@@ -122,7 +120,7 @@ def _register_atlasing_tools():
 
         except Exception as e:
             logger.error(f"Atlasing operation '{operation}' failed: {e}")
-            return f"Atlasing operation failed: {str(e)}"
+            return f"Atlasing operation failed: {e!s}"
 
 
 def _format_atlasing_result(result: dict) -> str:
@@ -171,20 +169,22 @@ def _format_atlasing_result(result: dict) -> str:
         report += f"**Output Path:** {result['output_path']}\n"
 
     # Texture lists
-    if "loaded_textures" in result and result["loaded_textures"]:
+    if result.get("loaded_textures"):
         report += "**Loaded Textures:**\n"
         for tex in result["loaded_textures"]:
             report += f"  • {tex}\n"
         report += "\n"
 
     # UV mappings (summary)
-    if "uv_mappings" in result and result["uv_mappings"]:
+    if result.get("uv_mappings"):
         mappings = result["uv_mappings"]
         report += f"**UV Regions:** {len(mappings)}\n"
         if len(mappings) <= 5:  # Show details for small atlases
             for i, mapping in enumerate(mappings):
                 uv = mapping["uv_coords"]
-                report += f"  Region {i}: ({uv['u_min']:.3f}, {uv['v_min']:.3f}) → ({uv['u_max']:.3f}, {uv['v_max']:.3f})\n"
+                report += (
+                    f"  Region {i}: ({uv['u_min']:.3f}, {uv['v_min']:.3f}) → ({uv['u_max']:.3f}, {uv['v_max']:.3f})\n"
+                )
 
     # Message
     if "message" in result:

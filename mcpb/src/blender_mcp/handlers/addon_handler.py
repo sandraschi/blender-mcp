@@ -2,7 +2,7 @@
 
 import json
 from enum import Enum
-from typing import Any, Dict
+from typing import Any
 
 from loguru import logger
 
@@ -25,7 +25,7 @@ class AddonInstallType(str, Enum):
 @blender_operation("install_addon", log_args=True)
 async def install_addon(
     source: str, install_type: AddonInstallType = AddonInstallType.FILE, **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Install a Blender addon.
 
     Args:
@@ -54,12 +54,12 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return json.loads(output)
     except Exception as e:
-        logger.error(f"Failed to install addon: {str(e)}")
+        logger.error(f"Failed to install addon: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("uninstall_addon", log_args=True)
-async def uninstall_addon(name: str, **kwargs: Any) -> Dict[str, Any]:
+async def uninstall_addon(name: str, **kwargs: Any) -> dict[str, Any]:
     """Uninstall a Blender addon.
 
     Args:
@@ -84,12 +84,12 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return json.loads(output)
     except Exception as e:
-        logger.error(f"Failed to uninstall addon: {str(e)}")
+        logger.error(f"Failed to uninstall addon: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("list_addons", log_args=True)
-async def list_addons(enabled_only: bool = False, **kwargs: Any) -> Dict[str, Any]:
+async def list_addons(enabled_only: bool = False, **kwargs: Any) -> dict[str, Any]:
     """List installed Blender addons.
 
     Args:
@@ -111,7 +111,7 @@ try:
                 'name': addon.module,
                 'enabled': addon.enabled
             }})
-    
+
     result = {{"status": "SUCCESS", "addons": addons}}
     print(json.dumps(result))
 except Exception as e:
@@ -121,5 +121,5 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return json.loads(output)
     except Exception as e:
-        logger.error(f"Failed to list addons: {str(e)}")
+        logger.error(f"Failed to list addons: {e!s}")
         return {"status": "ERROR", "error": str(e)}

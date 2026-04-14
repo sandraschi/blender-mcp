@@ -5,7 +5,7 @@ to reduce draw calls and optimize performance for VR platforms.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ..decorators import blender_operation
 
@@ -19,12 +19,12 @@ _executor = get_blender_executor()
 
 @blender_operation("create_material_atlas")
 async def create_material_atlas(
-    target_mesh: Optional[str] = None,
+    target_mesh: str | None = None,
     atlas_size: int = 2048,
     padding: int = 4,
     output_path: str = "//material_atlas.png",
     combine_similar: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Create a material atlas by combining multiple materials into a single texture.
 
@@ -52,7 +52,7 @@ import bpy
 import math
 
 # Get target mesh
-mesh_name = {repr(target_mesh)}
+mesh_name = {target_mesh!r}
 if mesh_name:
     mesh = bpy.data.objects.get(mesh_name)
 else:
@@ -143,16 +143,16 @@ print("SUCCESS: Material atlas prepared")
 
     except Exception as e:
         logger.error(f"Material atlas creation failed: {e}")
-        raise BlenderAtlasingError(f"Failed to create material atlas: {str(e)}") from e
+        raise BlenderAtlasingError(f"Failed to create material atlas: {e!s}") from e
 
 
 @blender_operation("merge_texture_atlas")
 async def merge_texture_atlas(
-    texture_paths: List[str],
+    texture_paths: list[str],
     output_path: str = "//texture_atlas.png",
     atlas_size: int = 2048,
     padding: int = 2,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Merge multiple texture files into a single atlas texture.
 
@@ -179,7 +179,7 @@ import bpy
 import os
 
 texture_list = {texture_paths!r}
-output_file = {repr(output_path)}
+output_file = {output_path!r}
 atlas_size = {atlas_size}
 padding = {padding}
 
@@ -257,16 +257,16 @@ print("SUCCESS: Texture atlas prepared")
 
     except Exception as e:
         logger.error(f"Texture atlas merging failed: {e}")
-        raise BlenderAtlasingError(f"Failed to merge texture atlas: {str(e)}") from e
+        raise BlenderAtlasingError(f"Failed to merge texture atlas: {e!s}") from e
 
 
 @blender_operation("optimize_draw_calls")
 async def optimize_draw_calls(
-    target_mesh: Optional[str] = None,
+    target_mesh: str | None = None,
     max_materials: int = 4,
     combine_by_color: bool = True,
     preserve_normals: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Optimize mesh for reduced draw calls by intelligent material consolidation.
 
@@ -292,7 +292,7 @@ async def optimize_draw_calls(
 import bpy
 
 # Get target mesh
-mesh_name = {repr(target_mesh)}
+mesh_name = {target_mesh!r}
 if mesh_name:
     mesh = bpy.data.objects.get(mesh_name)
 else:
@@ -407,13 +407,13 @@ print("SUCCESS: Draw call optimization analyzed")
 
     except Exception as e:
         logger.error(f"Draw call optimization failed: {e}")
-        raise BlenderAtlasingError(f"Failed to optimize draw calls: {str(e)}") from e
+        raise BlenderAtlasingError(f"Failed to optimize draw calls: {e!s}") from e
 
 
 @blender_operation("get_atlas_uv_layout")
 async def get_atlas_uv_layout(
-    target_mesh: Optional[str] = None, atlas_info: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    target_mesh: str | None = None, atlas_info: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """
     Generate UV layout information for atlas textures.
 
@@ -502,10 +502,10 @@ else:
 
     except Exception as e:
         logger.error(f"Atlas UV layout generation failed: {e}")
-        raise BlenderAtlasingError(f"Failed to generate UV layout: {str(e)}") from e
+        raise BlenderAtlasingError(f"Failed to generate UV layout: {e!s}") from e
 
 
-def _calculate_uv_mappings(atlas_info: Dict[str, Any]) -> List[Dict[str, Any]]:
+def _calculate_uv_mappings(atlas_info: dict[str, Any]) -> list[dict[str, Any]]:
     """Calculate UV coordinate mappings for atlas regions."""
     mappings = []
 

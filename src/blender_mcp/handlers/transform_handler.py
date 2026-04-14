@@ -2,7 +2,7 @@
 
 import logging
 from enum import Enum
-from typing import Any, Dict, List, Union
+from typing import Any
 
 from ..compat import *
 
@@ -32,12 +32,12 @@ class TransformType(str, Enum):
 
 @blender_operation("set_transform", log_args=True)
 async def set_transform(
-    object_names: Union[str, List[str]],
-    transform_type: Union[TransformType, str],
-    values: Union[List[float], Dict[str, float]],
-    space: Union[TransformSpace, str] = TransformSpace.WORLD,
+    object_names: str | list[str],
+    transform_type: TransformType | str,
+    values: list[float] | dict[str, float],
+    space: TransformSpace | str = TransformSpace.WORLD,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Set transform values for objects."""
     if isinstance(object_names, str):
         object_names = [object_names]
@@ -87,16 +87,16 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Transform failed: {str(e)}")
+        logger.error(f"Transform failed: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("apply_transform", log_args=True)
 async def apply_transform(
-    object_names: Union[str, List[str]],
-    transform_types: Union[str, List[str]] = "ALL",
+    object_names: str | list[str],
+    transform_types: str | list[str] = "ALL",
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Apply transform to objects."""
     if isinstance(object_names, str):
         object_names = [object_names]
@@ -143,5 +143,5 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Apply transform failed: {str(e)}")
+        logger.error(f"Apply transform failed: {e!s}")
         return {"status": "ERROR", "error": str(e)}

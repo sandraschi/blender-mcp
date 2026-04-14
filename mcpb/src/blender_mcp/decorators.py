@@ -2,7 +2,8 @@
 
 import functools
 import time
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from loguru import logger
 
@@ -51,9 +52,7 @@ def blender_operation(
                 result = await func(*args, **kwargs)
 
                 execution_time = time.time() - start_time
-                logger.info(
-                    f"Blender operation completed: {operation_name} [{operation_id}] ({execution_time:.2f}s)"
-                )
+                logger.info(f"Blender operation completed: {operation_name} [{operation_id}] ({execution_time:.2f}s)")
 
                 if log_result:
                     logger.debug(f"Operation result: {result}")
@@ -71,16 +70,14 @@ def blender_operation(
                 logger.error(
                     f"Unexpected error in Blender operation: {operation_name} [{operation_id}] ({execution_time:.2f}s) - {e}"
                 )
-                raise BlenderMCPError(
-                    f"Unexpected error in {operation_name}: {str(e)}", "UNEXPECTED_ERROR"
-                )
+                raise BlenderMCPError(f"Unexpected error in {operation_name}: {e!s}", "UNEXPECTED_ERROR")
 
         return wrapper
 
     return decorator
 
 
-def validate_scene_exists(func: F) -> F:
+def validate_scene_exists[F: Callable[..., Any]](func: F) -> F:
     """Decorator to validate that a Blender scene exists before operation."""
 
     @functools.wraps(func)

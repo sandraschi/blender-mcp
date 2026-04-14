@@ -5,7 +5,7 @@ for VRM avatars and character models.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ..decorators import blender_operation
 
@@ -29,11 +29,11 @@ VRM_VISEMES = {
 
 @blender_operation("create_viseme_shapekeys")
 async def create_viseme_shapekeys(
-    target_mesh: Optional[str] = None,
+    target_mesh: str | None = None,
     viseme_type: str = "vrm",
     auto_generate: bool = True,
-    base_expression: Optional[str] = None,
-) -> Dict[str, Any]:
+    base_expression: str | None = None,
+) -> dict[str, Any]:
     """
     Create standard viseme shape keys for lip sync animation.
 
@@ -61,7 +61,7 @@ async def create_viseme_shapekeys(
 import bpy
 
 # Get target mesh
-mesh_name = {repr(target_mesh)}
+mesh_name = {target_mesh!r}
 if mesh_name:
     mesh = bpy.data.objects.get(mesh_name)
 else:
@@ -164,15 +164,15 @@ print("SUCCESS: Viseme shape keys processed")
 
     except Exception as e:
         logger.error(f"Viseme creation failed: {e}")
-        raise BlenderShapeKeysError(f"Failed to create viseme shape keys: {str(e)}") from e
+        raise BlenderShapeKeysError(f"Failed to create viseme shape keys: {e!s}") from e
 
 
 @blender_operation("create_blink_shapekey")
 async def create_blink_shapekey(
-    target_mesh: Optional[str] = None,
+    target_mesh: str | None = None,
     blink_intensity: float = 1.0,
-    eyelid_vertices: Optional[List[int]] = None,
-) -> Dict[str, Any]:
+    eyelid_vertices: list[int] | None = None,
+) -> dict[str, Any]:
     """
     Create or configure blink shape key for eye animation.
 
@@ -197,7 +197,7 @@ async def create_blink_shapekey(
 import bpy
 
 # Get target mesh
-mesh_name = {repr(target_mesh)}
+mesh_name = {target_mesh!r}
 if mesh_name:
     mesh = bpy.data.objects.get(mesh_name)
 else:
@@ -273,15 +273,15 @@ print("SUCCESS: Blink shape key configured")
 
     except Exception as e:
         logger.error(f"Blink creation failed: {e}")
-        raise BlenderShapeKeysError(f"Failed to create blink shape key: {str(e)}") from e
+        raise BlenderShapeKeysError(f"Failed to create blink shape key: {e!s}") from e
 
 
 @blender_operation("set_viseme_weights")
 async def set_viseme_weights(
-    target_mesh: Optional[str] = None,
-    viseme_weights: Optional[Dict[str, float]] = None,
+    target_mesh: str | None = None,
+    viseme_weights: dict[str, float] | None = None,
     frame: int = 1,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Set shape key weights for viseme animation at a specific frame.
 
@@ -311,7 +311,7 @@ async def set_viseme_weights(
 import bpy
 
 # Get target mesh
-mesh_name = {repr(target_mesh)}
+mesh_name = {target_mesh!r}
 if mesh_name:
     mesh = bpy.data.objects.get(mesh_name)
 else:
@@ -379,17 +379,17 @@ print("SUCCESS: Viseme weights applied")
 
     except Exception as e:
         logger.error(f"Viseme weight setting failed: {e}")
-        raise BlenderShapeKeysError(f"Failed to set viseme weights: {str(e)}") from e
+        raise BlenderShapeKeysError(f"Failed to set viseme weights: {e!s}") from e
 
 
 @blender_operation("create_facial_expression")
 async def create_facial_expression(
-    target_mesh: Optional[str] = None,
+    target_mesh: str | None = None,
     expression_name: str = "expression",
-    base_visemes: Optional[Dict[str, float]] = None,
+    base_visemes: dict[str, float] | None = None,
     blink_weight: float = 0.0,
-    additional_modifiers: Optional[Dict[str, float]] = None,
-) -> Dict[str, Any]:
+    additional_modifiers: dict[str, float] | None = None,
+) -> dict[str, Any]:
     """
     Create a complete facial expression combining visemes and blink.
 
@@ -421,7 +421,7 @@ async def create_facial_expression(
 import bpy
 
 # Get target mesh
-mesh_name = {repr(target_mesh)}
+mesh_name = {target_mesh!r}
 if mesh_name:
     mesh = bpy.data.objects.get(mesh_name)
 else:
@@ -440,7 +440,7 @@ if not mesh.data.shape_keys:
 # Create expression shape key
 bpy.ops.object.shape_key_add(from_mix=False)
 expression_key = mesh.data.shape_keys.key_blocks[-1]
-expression_key.name = {repr(expression_name)}
+expression_key.name = {expression_name!r}
 
 # Apply base visemes
 visemes = {default_visemes!r}
@@ -497,13 +497,11 @@ print("SUCCESS: Facial expression created")
 
     except Exception as e:
         logger.error(f"Facial expression creation failed: {e}")
-        raise BlenderShapeKeysError(f"Failed to create facial expression: {str(e)}") from e
+        raise BlenderShapeKeysError(f"Failed to create facial expression: {e!s}") from e
 
 
 @blender_operation("analyze_shapekeys")
-async def analyze_shapekeys(
-    target_mesh: Optional[str] = None, include_statistics: bool = True
-) -> Dict[str, Any]:
+async def analyze_shapekeys(target_mesh: str | None = None, include_statistics: bool = True) -> dict[str, Any]:
     """
     Analyze shape keys on a mesh for facial animation readiness.
 
@@ -527,7 +525,7 @@ async def analyze_shapekeys(
 import bpy
 
 # Get target mesh
-mesh_name = {repr(target_mesh)}
+mesh_name = {target_mesh!r}
 if mesh_name:
     mesh = bpy.data.objects.get(mesh_name)
 else:
@@ -624,8 +622,7 @@ print("SUCCESS: Shape key analysis complete")
             "visemes_present": len(existing_visemes),
             "visemes_missing": len(missing_visemes),
             "has_blink": has_blink,
-            "total_score": (len(existing_visemes) + (1 if has_blink else 0))
-            / (len(VRM_VISEMES) + 1),
+            "total_score": (len(existing_visemes) + (1 if has_blink else 0)) / (len(VRM_VISEMES) + 1),
         }
 
         return {
@@ -642,4 +639,4 @@ print("SUCCESS: Shape key analysis complete")
 
     except Exception as e:
         logger.error(f"Shape key analysis failed: {e}")
-        raise BlenderShapeKeysError(f"Failed to analyze shape keys: {str(e)}") from e
+        raise BlenderShapeKeysError(f"Failed to analyze shape keys: {e!s}") from e

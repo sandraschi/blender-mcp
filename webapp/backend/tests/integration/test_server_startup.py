@@ -38,9 +38,7 @@ except Exception as e:
         test_file.write_text(test_script)
 
         # Run the test script
-        result = subprocess.run(
-            [sys.executable, str(test_file)], capture_output=True, text=True, env=env, timeout=30
-        )
+        result = subprocess.run([sys.executable, str(test_file)], capture_output=True, text=True, env=env, timeout=30)
 
         assert result.returncode == 0, f"Server test failed: {result.stderr}"
         assert "Server import successful" in result.stdout
@@ -93,9 +91,7 @@ except Exception as e:
         test_file = temp_dir / "tool_test.py"
         test_file.write_text(test_script)
 
-        result = subprocess.run(
-            [sys.executable, str(test_file)], capture_output=True, text=True, env=env, timeout=30
-        )
+        result = subprocess.run([sys.executable, str(test_file)], capture_output=True, text=True, env=env, timeout=30)
 
         assert result.returncode == 0, f"Tool test failed: {result.stderr}"
         assert "Server and all handlers imported successfully" in result.stdout
@@ -162,9 +158,7 @@ except Exception as e:
         test_file = temp_dir / "config_test.py"
         test_file.write_text(test_script)
 
-        result = subprocess.run(
-            [sys.executable, str(test_file)], capture_output=True, text=True, env=env, timeout=30
-        )
+        result = subprocess.run([sys.executable, str(test_file)], capture_output=True, text=True, env=env, timeout=30)
 
         assert result.returncode == 0, f"Config test failed: {result.stderr}"
         assert "Valid configuration accepted" in result.stdout
@@ -218,9 +212,7 @@ except Exception as e:
         test_file = temp_dir / "communication_test.py"
         test_file.write_text(test_script)
 
-        result = subprocess.run(
-            [sys.executable, str(test_file)], capture_output=True, text=True, env=env, timeout=30
-        )
+        result = subprocess.run([sys.executable, str(test_file)], capture_output=True, text=True, env=env, timeout=30)
 
         assert result.returncode == 0, f"Communication test failed: {result.stderr}"
         assert "Server communication setup test completed" in result.stdout

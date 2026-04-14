@@ -121,7 +121,7 @@ def _register_modifier_tools():
                 return f"Unknown modifier operation: {operation}. Available: add_[type], remove_modifier, apply_modifier, get_modifiers"
 
         except Exception as e:
-            return f"Error in modifier operation '{operation}': {str(e)}"
+            return f"Error in modifier operation '{operation}': {e!s}"
 
 
 _register_modifier_tools()

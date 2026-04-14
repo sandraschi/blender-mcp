@@ -56,30 +56,22 @@ def _register_uv_tools():
             elif operation == "smart_project":
                 if not object_name:
                     return "object_name parameter required"
-                return await project_from_view(
-                    object_name=object_name, project_type="SMART_UV", margin=margin
-                )
+                return await project_from_view(object_name=object_name, project_type="SMART_UV", margin=margin)
 
             elif operation == "cube_project":
                 if not object_name:
                     return "object_name parameter required"
-                return await project_from_view(
-                    object_name=object_name, project_type="CUBE", margin=margin
-                )
+                return await project_from_view(object_name=object_name, project_type="CUBE", margin=margin)
 
             elif operation == "cylinder_project":
                 if not object_name:
                     return "object_name parameter required"
-                return await project_from_view(
-                    object_name=object_name, project_type="CYLINDER", margin=margin
-                )
+                return await project_from_view(object_name=object_name, project_type="CYLINDER", margin=margin)
 
             elif operation == "sphere_project":
                 if not object_name:
                     return "object_name parameter required"
-                return await project_from_view(
-                    object_name=object_name, project_type="SPHERE", margin=margin
-                )
+                return await project_from_view(object_name=object_name, project_type="SPHERE", margin=margin)
 
             elif operation == "reset_uvs":
                 if not object_name:
@@ -95,7 +87,7 @@ def _register_uv_tools():
                 return f"Unknown UV operation: {operation}. Available: unwrap, smart_project, cube_project, cylinder_project, sphere_project, reset_uvs, get_uv_info"
 
         except Exception as e:
-            return f"Error in UV operation '{operation}': {str(e)}"
+            return f"Error in UV operation '{operation}': {e!s}"
 
 
 _register_uv_tools()

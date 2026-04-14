@@ -16,9 +16,7 @@ OLLAMA_DEFAULT = "http://localhost:11434"
 BLENDER_SCRIPT_SYSTEM = """You are a Blender Python (bpy) expert. Output only a single, valid Python script. No markdown, no code fences, no explanation. Use only 'import bpy' and standard library. Script must create or modify the scene as requested. Start with import bpy."""
 
 
-async def _ollama_generate(
-    prompt: str, model: str, url: str = "http://localhost:11434", timeout: float = 120.0
-) -> str:
+async def _ollama_generate(prompt: str, model: str, url: str = "http://localhost:11434", timeout: float = 120.0) -> str:
     async with httpx.AsyncClient() as client:
         r = await client.post(
             f"{url.rstrip('/')}/api/generate",
@@ -54,7 +52,7 @@ def _register_llm_tools():
                     models["ollama"] = [m["name"] for m in data.get("models", [])]
         except Exception as e:
             logger.debug(f"Ollama discovery failed: {e}")
-            models["errors"].append(f"Ollama: {str(e)}")
+            models["errors"].append(f"Ollama: {e!s}")
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get("http://localhost:1234/v1/models", timeout=2.0)
@@ -63,7 +61,7 @@ def _register_llm_tools():
                     models["lm_studio"] = [m["id"] for m in data.get("data", [])]
         except Exception as e:
             logger.debug(f"LM Studio discovery failed: {e}")
-            models["errors"].append(f"LM Studio: {str(e)}")
+            models["errors"].append(f"LM Studio: {e!s}")
         return {
             "success": True,
             "operation": "list_local_models",
@@ -115,9 +113,7 @@ def _register_llm_tools():
         """
         base = ollama_url.rstrip("/")
         if operation in ("pull", "remove") and not (model_name and model_name.strip()):
-            return json.dumps(
-                {"success": False, "summary": "model_name required for pull/remove", "result": []}
-            )
+            return json.dumps({"success": False, "summary": "model_name required for pull/remove", "result": []})
         try:
             async with httpx.AsyncClient(timeout=300.0) as client:
                 if operation == "list":
@@ -145,15 +141,11 @@ def _register_llm_tools():
                 if operation == "remove":
                     r = await client.delete(f"{base}/api/delete", json={"name": model_name.strip()})
                     r.raise_for_status()
-                    return json.dumps(
-                        {"success": True, "summary": f"Removed {model_name}", "result": []}
-                    )
+                    return json.dumps({"success": True, "summary": f"Removed {model_name}", "result": []})
         except Exception as e:
             logger.warning("llm_models %s failed: %s", operation, e)
             return json.dumps({"success": False, "summary": str(e), "result": []})
-        return json.dumps(
-            {"success": False, "summary": f"Unknown operation: {operation}", "result": []}
-        )
+        return json.dumps({"success": False, "summary": f"Unknown operation: {operation}", "result": []})
 
 
 _register_llm_tools()

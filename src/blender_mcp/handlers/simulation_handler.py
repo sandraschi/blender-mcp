@@ -2,7 +2,7 @@
 
 import logging
 from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 from ..compat import *
 
@@ -28,9 +28,7 @@ class SimulationType(str, Enum):
 
 
 @blender_operation("add_simulation", log_args=True)
-async def add_simulation(
-    object_name: str, simulation_type: Union[SimulationType, str], **kwargs: Any
-) -> Dict[str, Any]:
+async def add_simulation(object_name: str, simulation_type: SimulationType | str, **kwargs: Any) -> dict[str, Any]:
     """Add a physics simulation to an object.
 
     Args:
@@ -216,14 +214,14 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to add simulation: {str(e)}")
+        logger.error(f"Failed to add simulation: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("bake_simulation", log_args=True)
 async def bake_simulation(
-    object_name: str, simulation_type: Optional[Union[SimulationType, str]] = None, **kwargs: Any
-) -> Dict[str, Any]:
+    object_name: str, simulation_type: SimulationType | str | None = None, **kwargs: Any
+) -> dict[str, Any]:
     """Bake a physics simulation.
 
     Args:
@@ -388,7 +386,7 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to bake simulation: {str(e)}")
+        logger.error(f"Failed to bake simulation: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -399,7 +397,7 @@ async def set_simulation_visibility(
     viewport: bool = True,
     render: bool = True,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Set the visibility of a simulation in viewport and render.
 
     Args:
@@ -470,5 +468,5 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to set simulation visibility: {str(e)}")
+        logger.error(f"Failed to set simulation visibility: {e!s}")
         return {"status": "ERROR", "error": str(e)}

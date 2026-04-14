@@ -4,7 +4,7 @@ import logging
 import os
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any
 
 from ..compat import *
 
@@ -23,9 +23,7 @@ class FileType(str, Enum):
 
 
 @blender_operation("read_file", log_args=True)
-async def read_file(
-    filepath: str, file_type: Union[FileType, str] = FileType.TEXT, **kwargs: Any
-) -> Dict[str, Any]:
+async def read_file(filepath: str, file_type: FileType | str = FileType.TEXT, **kwargs: Any) -> dict[str, Any]:
     """Read a file's contents."""
 
     filepath = str(Path(filepath).absolute())
@@ -47,14 +45,14 @@ async def read_file(
             "size": os.path.getsize(filepath),
         }
     except Exception as e:
-        logger.error(f"Failed to read file: {str(e)}")
+        logger.error(f"Failed to read file: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("write_file", log_args=True)
 async def write_file(
-    filepath: str, content: str, file_type: Union[FileType, str] = FileType.TEXT, **kwargs: Any
-) -> Dict[str, Any]:
+    filepath: str, content: str, file_type: FileType | str = FileType.TEXT, **kwargs: Any
+) -> dict[str, Any]:
     """Write content to a file."""
     filepath = str(Path(filepath).absolute())
 
@@ -72,12 +70,12 @@ async def write_file(
 
         return {"status": "SUCCESS", "filepath": filepath}
     except Exception as e:
-        logger.error(f"Failed to write file: {str(e)}")
+        logger.error(f"Failed to write file: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("list_directory", log_args=True)
-async def list_directory(directory: str, recursive: bool = False, **kwargs: Any) -> Dict[str, Any]:
+async def list_directory(directory: str, recursive: bool = False, **kwargs: Any) -> dict[str, Any]:
     """List contents of a directory."""
     from pathlib import Path
 
@@ -112,16 +110,16 @@ async def list_directory(directory: str, recursive: bool = False, **kwargs: Any)
 
         return {"status": "SUCCESS", "directory": str(path), "files": results}
     except Exception as e:
-        logger.error(f"Failed to list directory: {str(e)}")
+        logger.error(f"Failed to list directory: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("create_directory", log_args=True)
-async def create_directory(directory: str, **kwargs: Any) -> Dict[str, Any]:
+async def create_directory(directory: str, **kwargs: Any) -> dict[str, Any]:
     """Create a directory."""
     try:
         os.makedirs(directory, exist_ok=True)
         return {"status": "SUCCESS", "directory": directory}
     except Exception as e:
-        logger.error(f"Failed to create directory: {str(e)}")
+        logger.error(f"Failed to create directory: {e!s}")
         return {"status": "ERROR", "error": str(e)}

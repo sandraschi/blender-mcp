@@ -7,12 +7,10 @@ This script demonstrates how to connect to a Blender-MCP server and use various 
 import asyncio
 import json
 import logging
-from typing import Any, Dict
+from typing import Any
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -44,7 +42,7 @@ class BlenderMCPClient:
             await self.session.close()
             self.session = None
 
-    async def call_tool(self, tool_name: str, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def call_tool(self, tool_name: str, params: dict[str, Any]) -> dict[str, Any]:
         """Call an MCP tool.
 
         Args:

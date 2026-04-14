@@ -1,14 +1,12 @@
 """Custom exceptions for Blender MCP operations."""
 
-from typing import Optional
-
 from blender_mcp.compat import *
 
 
 class BlenderMCPError(Exception):
     """Base exception for all Blender MCP operations."""
 
-    def __init__(self, message: str, error_code: Optional[str] = None):
+    def __init__(self, message: str, error_code: str | None = None):
         self.message = message
         self.error_code = error_code
         super().__init__(message)
@@ -51,9 +49,7 @@ class BlenderMaterialError(BlenderMCPError):
     """Raised when material operations fail."""
 
     def __init__(self, material_name: str, operation: str, error: str):
-        super().__init__(
-            f"Material '{material_name}' {operation} failed: {error}", "MATERIAL_ERROR"
-        )
+        super().__init__(f"Material '{material_name}' {operation} failed: {error}", "MATERIAL_ERROR")
         self.material_name = material_name
         self.operation = operation
 

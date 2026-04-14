@@ -114,9 +114,7 @@ def _register_physics_tools():
                 field_type = "FORCE"
                 strength = 10.0
                 location = (0, 0, 0)
-                return await add_force_field(
-                    field_type=field_type, strength=strength, location=location
-                )
+                return await add_force_field(field_type=field_type, strength=strength, location=location)
 
             elif operation == "set_rigid_body_constraint":
                 if not object_name:
@@ -131,15 +129,13 @@ def _register_physics_tools():
             elif operation == "set_collision_shape":
                 if not object_name:
                     return "object_name parameter required"
-                return await set_rigid_body_collision_shape(
-                    object_name=object_name, collision_shape=collision_shape
-                )
+                return await set_rigid_body_collision_shape(object_name=object_name, collision_shape=collision_shape)
 
             else:
                 return f"Unknown physics operation: {operation}. Available: enable_rigid_body, enable_cloth, enable_soft_body, enable_fluid, bake_physics, add_force_field, set_rigid_body_constraint, configure_world, set_collision_shape"
 
         except Exception as e:
-            return f"Error in physics operation '{operation}': {str(e)}"
+            return f"Error in physics operation '{operation}': {e!s}"
 
 
 _register_physics_tools()

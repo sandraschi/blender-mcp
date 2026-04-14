@@ -63,7 +63,7 @@ def _register_status_tools():
             get_app()
             status_parts.append("✅ MCP Server: Running")
         except Exception as e:
-            status_parts.append(f"❌ MCP Server: Error - {str(e)}")
+            status_parts.append(f"❌ MCP Server: Error - {e!s}")
 
         if include_blender_info:
             status_parts.append("")
@@ -123,12 +123,10 @@ def _register_status_tools():
 
                 # Disk usage
                 disk = psutil.disk_usage("/")
-                status_parts.append(
-                    f"💿 Disk Usage: {disk.percent:.1f}% ({disk.free // (1024**3):.1f} GB free)"
-                )
+                status_parts.append(f"💿 Disk Usage: {disk.percent:.1f}% ({disk.free // (1024**3):.1f} GB free)")
 
             except Exception as e:
-                status_parts.append(f"⚠️  Performance monitoring unavailable: {str(e)}")
+                status_parts.append(f"⚠️  Performance monitoring unavailable: {e!s}")
 
         return "\n".join(status_parts)
 
@@ -191,9 +189,7 @@ def _register_status_tools():
             info_parts.append(f"  • Available Memory: {memory.available // (1024**3):.1f} GB")
 
             # CPU
-            info_parts.append(
-                f"  • CPU Cores: {psutil.cpu_count()} physical, {psutil.cpu_count(logical=True)} logical"
-            )
+            info_parts.append(f"  • CPU Cores: {psutil.cpu_count()} physical, {psutil.cpu_count(logical=True)} logical")
 
             # Disk
             disk = psutil.disk_usage("/")
@@ -202,7 +198,7 @@ def _register_status_tools():
             )
 
         except Exception as e:
-            info_parts.append(f"  • Resource info unavailable: {str(e)}")
+            info_parts.append(f"  • Resource info unavailable: {e!s}")
 
         return "\n".join(info_parts)
 
@@ -230,7 +226,7 @@ def _register_status_tools():
             get_app()
             checks.append("✅ MCP Server: Running and accessible")
         except Exception as e:
-            checks.append(f"❌ MCP Server: Failed - {str(e)}")
+            checks.append(f"❌ MCP Server: Failed - {e!s}")
             overall_status = "❌ UNHEALTHY"
 
         # Check 2: Blender Availability
@@ -243,7 +239,7 @@ def _register_status_tools():
                 checks.append("❌ Blender: Not found or inaccessible")
                 overall_status = "❌ UNHEALTHY"
         except Exception as e:
-            checks.append(f"❌ Blender: Check failed - {str(e)}")
+            checks.append(f"❌ Blender: Check failed - {e!s}")
             overall_status = "❌ UNHEALTHY"
 
         # Check 3: System Resources
@@ -258,16 +254,14 @@ def _register_status_tools():
                 resource_issues.append(f"low disk space ({disk.percent:.1f}% used)")
 
             if resource_issues:
-                checks.append(
-                    f"⚠️  System Resources: Issues detected - {', '.join(resource_issues)}"
-                )
+                checks.append(f"⚠️  System Resources: Issues detected - {', '.join(resource_issues)}")
                 if overall_status == "✅ HEALTHY":
                     overall_status = "⚠️  WARNING"
             else:
                 checks.append("✅ System Resources: Adequate levels")
 
         except Exception as e:
-            checks.append(f"⚠️  System Resources: Monitoring unavailable - {str(e)}")
+            checks.append(f"⚠️  System Resources: Monitoring unavailable - {e!s}")
 
         # Check 4: Tool Registration
         try:
@@ -277,15 +271,13 @@ def _register_status_tools():
             total_tools = sum(len(list_functions(cat)) for cat in categories)
 
             if total_tools > 0:
-                checks.append(
-                    f"✅ Tool Registration: {total_tools} tools across {len(categories)} categories"
-                )
+                checks.append(f"✅ Tool Registration: {total_tools} tools across {len(categories)} categories")
             else:
                 checks.append("❌ Tool Registration: No tools registered")
                 overall_status = "❌ UNHEALTHY"
 
         except Exception as e:
-            checks.append(f"❌ Tool Registration: Check failed - {str(e)}")
+            checks.append(f"❌ Tool Registration: Check failed - {e!s}")
             overall_status = "❌ UNHEALTHY"
 
         # Format the response
@@ -382,7 +374,7 @@ def _register_status_tools():
             result += f"\nMonitoring completed in {duration:.1f} seconds"
 
         except Exception as e:
-            result += f"❌ Performance monitoring failed: {str(e)}\n"
+            result += f"❌ Performance monitoring failed: {e!s}\n"
             result += "This may be due to system permissions or psutil not being available."
 
         return result

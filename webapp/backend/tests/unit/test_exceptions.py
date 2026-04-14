@@ -124,9 +124,7 @@ class TestExceptionMessages:
     @pytest.mark.unit
     def test_validation_error_with_field(self):
         """Test MCPValidationError with field information."""
-        error = MCPValidationError(
-            "Invalid value", {"field": "timeout", "value": -1, "expected": "positive integer"}
-        )
+        error = MCPValidationError("Invalid value", {"field": "timeout", "value": -1, "expected": "positive integer"})
         assert "Invalid value" in str(error)
         assert isinstance(error, MCPError)
 
@@ -155,9 +153,7 @@ class TestExceptionChaining:
         """Test nested exception chaining."""
         OSError("File not found")
         script_error = BlenderScriptError("print('test')", "Script failed to load")
-        operation_error = BlenderOperationError(
-            "Operation completely failed", {"cause": str(script_error)}
-        )
+        operation_error = BlenderOperationError("Operation completely failed", {"cause": str(script_error)})
 
         # Check basic properties
         assert isinstance(script_error, BlenderMCPError)

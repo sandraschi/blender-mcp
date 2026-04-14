@@ -1,19 +1,14 @@
-# blender-mcp
-> **Guides, best practices, and lessons learned for developing blender-mcp** --- 📄 [AI_DEVELOPMENT_RULES.md](AI_DEVELOPMENT_RULES.md) **Guidelines for AI-assisted development** - Best practices for work...
+# blender-mcp (v0.5.0)
+> **AI-Powered 3D Creation Hub** - Comprehensive FastMCP 3.2.0 server for 3D modeling, animation, and scene management in Blender.
 
-This project includes automated llms.txt generation for AI accessibility.
+This project uses the SOTA 14.1 Industrial Quality Stack (Ruff + Biome) and follows strict JSON-RPC protocol compliance.
 
 ## Docs
-- [Readme](docs\development\README.md): **Guides, best practices, and lessons learned for developing blender-mcp**
-- [Readme](docs\mcp-technical\README.md): **Technical guides for MCP server development, deployment, and troubleshooting**
-- [Readme](docs\glama\platform\README.md): **Complete guide to achieving and maintaining Gold Status on Glama.ai**
-- [Readme](README.md): <p align="center">
-- [Readme](docs\github\README.md): > **Purpose**: Comprehensive GitHub configuration guide to avoid hours of trial-and-error setup.
-- [Readme](docs\repository-protection\README.md): **Complete guide to keeping your notepadpp-mcp repository safe**
-- [Readme](docs\docsviewer\README.md): **Complete MkDocs setup for viewing Blender MCP documentation with beautiful sidebar navigation and ...
-- [Readme](docs\mcpb-packaging\README.md): **Complete guide to packaging and distributing MCP servers with MCPB**
-- [Readme New](README_NEW.md): A comprehensive FastMCP 2.12 compliant MCP server for Blender automation, designed to provide progra...
-- [Readme](docs\blender\README.md): **Complete documentation for Blender MCP and Blender ecosystem integration.**
+- [Readme](README.md): Main project overview, architecture, and Industrial Quality Stack documentation.
+- [Changelog](CHANGELOG.md): Detailed history of releases and transitions.
+- [Development](docs/development/README.md): Best practices for AI-assisted development in this repository.
+- [MCP Technical](docs/mcp-technical/README.md): Detailed technical spec for the Blender-MCP bridge and session management.
+- [Repository Protection](docs/repository-protection/README.md): Guide to maintaining repository integrity and safety.
 
 ## Examples
 - [Examples](examples/): Example code and implementations

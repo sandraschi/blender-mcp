@@ -7,7 +7,6 @@ This module provides parameter models and enums for documentation and validation
 """
 
 from enum import Enum
-from typing import List, Tuple
 
 from pydantic import BaseModel, Field
 
@@ -132,14 +131,12 @@ class CreateSceneParams(BaseModel):
     name: str = Field(..., description="Name of the scene")
     use_nodes: bool = Field(False, description="Use compositing nodes")
     use_gravity: bool = Field(True, description="Use gravity")
-    gravity: Tuple[float, float, float] = Field((0, 0, -9.81), description="Gravity vector")
+    gravity: tuple[float, float, float] = Field((0, 0, -9.81), description="Gravity vector")
     unit_system: UnitSystem = Field(UnitSystem.METRIC, description="Unit system")
     unit_length: UnitLength = Field(UnitLength.METERS, description="Unit length")
     unit_mass: UnitMass = Field(UnitMass.KILOGRAMS, description="Unit mass")
     unit_time: UnitTime = Field(UnitTime.SECONDS, description="Unit time")
-    unit_temperature: UnitTemperature = Field(
-        UnitTemperature.CELSIUS, description="Unit temperature"
-    )
+    unit_temperature: UnitTemperature = Field(UnitTemperature.CELSIUS, description="Unit temperature")
 
 
 class SetActiveSceneParams(BaseModel):
@@ -184,10 +181,10 @@ class SetupLightingParams(BaseModel):
     """Parameters for setting up lighting."""
 
     light_type: LightType = Field(LightType.SUN, description="Type of light")
-    location: Tuple[float, float, float] = Field((0, 0, 5), description="Light location")
-    rotation: Tuple[float, float, float] = Field((0, 0, 0), description="Light rotation")
+    location: tuple[float, float, float] = Field((0, 0, 5), description="Light location")
+    rotation: tuple[float, float, float] = Field((0, 0, 0), description="Light rotation")
     energy: float = Field(1.0, gt=0.0, description="Light energy")
-    color: Tuple[float, float, float] = Field((1, 1, 1), description="Light color")
+    color: tuple[float, float, float] = Field((1, 1, 1), description="Light color")
     use_shadow: bool = Field(True, description="Use shadows")
     shadow_soft_size: float = Field(0.25, gt=0.0, description="Shadow soft size")
 
@@ -195,8 +192,8 @@ class SetupLightingParams(BaseModel):
 class SetupCameraParams(BaseModel):
     """Parameters for setting up a camera."""
 
-    location: Tuple[float, float, float] = Field((0, -5, 2), description="Camera location")
-    rotation: Tuple[float, float, float] = Field((1.0, 0, 0), description="Camera rotation")
+    location: tuple[float, float, float] = Field((0, -5, 2), description="Camera location")
+    rotation: tuple[float, float, float] = Field((1.0, 0, 0), description="Camera rotation")
     focal_length: float = Field(50.0, gt=0.0, description="Focal length")
     sensor_width: float = Field(32.0, gt=0.0, description="Sensor width")
     sensor_height: float = Field(18.0, gt=0.0, description="Sensor height")
@@ -227,18 +224,14 @@ class SetWorldSettingsParams(BaseModel):
     """Parameters for setting world settings."""
 
     use_nodes: bool = Field(True, description="Use world nodes")
-    background_color: Tuple[float, float, float] = Field(
-        (0.05, 0.05, 0.05), description="Background color"
-    )
+    background_color: tuple[float, float, float] = Field((0.05, 0.05, 0.05), description="Background color")
     strength: float = Field(1.0, gt=0.0, description="World strength")
     use_ambient_occlusion: bool = Field(True, description="Use ambient occlusion")
     ao_factor: float = Field(1.0, gt=0.0, description="AO factor")
     ao_distance: float = Field(1.0, gt=0.0, description="AO distance")
     use_environment_lighting: bool = Field(True, description="Use environment lighting")
     environment_energy: float = Field(1.0, gt=0.0, description="Environment energy")
-    environment_color: Tuple[float, float, float] = Field(
-        (1, 1, 1), description="Environment color"
-    )
+    environment_color: tuple[float, float, float] = Field((1, 1, 1), description="Environment color")
 
 
 class SetUnitsParams(BaseModel):
@@ -248,15 +241,13 @@ class SetUnitsParams(BaseModel):
     unit_length: UnitLength = Field(UnitLength.METERS, description="Unit length")
     unit_mass: UnitMass = Field(UnitMass.KILOGRAMS, description="Unit mass")
     unit_time: UnitTime = Field(UnitTime.SECONDS, description="Unit time")
-    unit_temperature: UnitTemperature = Field(
-        UnitTemperature.CELSIUS, description="Unit temperature"
-    )
+    unit_temperature: UnitTemperature = Field(UnitTemperature.CELSIUS, description="Unit temperature")
 
 
 class SetGravityParams(BaseModel):
     """Parameters for setting gravity."""
 
-    gravity: Tuple[float, float, float] = Field((0, 0, -9.81), description="Gravity vector")
+    gravity: tuple[float, float, float] = Field((0, 0, -9.81), description="Gravity vector")
     use_gravity: bool = Field(True, description="Use gravity")
 
 
@@ -277,7 +268,7 @@ class SetActiveObjectParams(BaseModel):
 class SelectObjectsParams(BaseModel):
     """Parameters for selecting objects."""
 
-    object_names: List[str] = Field(..., description="Names of objects to select")
+    object_names: list[str] = Field(..., description="Names of objects to select")
     extend: bool = Field(False, description="Extend selection")
     deselect_all: bool = Field(False, description="Deselect all first")
 
@@ -352,4 +343,3 @@ def register(app) -> None:
 
 
 # Auto-registration is handled via discover_tools and register(app) call in app.py
-

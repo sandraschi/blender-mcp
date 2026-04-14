@@ -6,7 +6,7 @@ VRChat, Resonite, and general 3D model requirements.
 
 import logging
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
 from ..decorators import blender_operation
 
@@ -34,7 +34,7 @@ def validate_avatar(
     check_rigging: bool = True,
     check_transforms: bool = True,
     check_textures: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Comprehensive avatar validation for VR platforms.
 
@@ -59,30 +59,22 @@ def validate_avatar(
     try:
         # Get the validation function based on platform
         if target_platform.lower() == "vrchat":
-            return _validate_vrchat_avatar(
-                check_materials, check_rigging, check_transforms, check_textures
-            )
+            return _validate_vrchat_avatar(check_materials, check_rigging, check_transforms, check_textures)
         elif target_platform.lower() == "resonite":
-            return _validate_resonite_avatar(
-                check_materials, check_rigging, check_transforms, check_textures
-            )
+            return _validate_resonite_avatar(check_materials, check_rigging, check_transforms, check_textures)
         elif target_platform.lower() == "unity":
-            return _validate_unity_avatar(
-                check_materials, check_rigging, check_transforms, check_textures
-            )
+            return _validate_unity_avatar(check_materials, check_rigging, check_transforms, check_textures)
         else:
-            return _validate_generic_model(
-                check_materials, check_rigging, check_transforms, check_textures
-            )
+            return _validate_generic_model(check_materials, check_rigging, check_transforms, check_textures)
 
     except Exception as e:
         logger.error(f"Avatar validation failed: {e}")
-        raise BlenderValidationError(f"Failed to validate avatar: {str(e)}") from e
+        raise BlenderValidationError(f"Failed to validate avatar: {e!s}") from e
 
 
 def _validate_vrchat_avatar(
     check_materials: bool, check_rigging: bool, check_transforms: bool, check_textures: bool
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """VRChat-specific avatar validation."""
     report = {
         "status": "PASS",
@@ -139,16 +131,14 @@ def _validate_vrchat_avatar(
         report["recommendations"].append("Avatar passes all VRChat requirements!")
     else:
         report["recommendations"].append("Consider using blender_atlasing to reduce draw calls")
-        report["recommendations"].append(
-            "Use blender_modifiers.decimate to reduce polycount if needed"
-        )
+        report["recommendations"].append("Use blender_modifiers.decimate to reduce polycount if needed")
 
     return report
 
 
 def _validate_resonite_avatar(
     check_materials: bool, check_rigging: bool, check_transforms: bool, check_textures: bool
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Resonite-specific avatar validation."""
     report = {
         "status": "PASS",
@@ -205,7 +195,7 @@ def _validate_resonite_avatar(
 
 def _validate_unity_avatar(
     check_materials: bool, check_rigging: bool, check_transforms: bool, check_textures: bool
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Unity-specific avatar validation."""
     report = {
         "status": "PASS",
@@ -253,7 +243,7 @@ def _validate_unity_avatar(
 
 def _validate_generic_model(
     check_materials: bool, check_rigging: bool, check_transforms: bool, check_textures: bool
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generic 3D model validation."""
     report = {
         "status": "PASS",
@@ -290,7 +280,7 @@ def _validate_generic_model(
     return report
 
 
-def _validate_polycount(pc_limit: int, mobile_limit: Optional[int] = None) -> Dict[str, Any]:
+def _validate_polycount(pc_limit: int, mobile_limit: int | None = None) -> dict[str, Any]:
     """Validate polycount against platform limits."""
     result = {"status": "PASS", "issues": [], "stats": {}}
 
@@ -337,12 +327,12 @@ if {mobile_limit} is not None and tri_count > {mobile_limit}:
 
     except Exception as e:
         result["status"] = "ERROR"
-        result["issues"].append(f"Polycount validation failed: {str(e)}")
+        result["issues"].append(f"Polycount validation failed: {e!s}")
 
     return result
 
 
-def _validate_materials(max_materials: int) -> Dict[str, Any]:
+def _validate_materials(max_materials: int) -> dict[str, Any]:
     """Validate material count and complexity."""
     result = {"status": "PASS", "issues": [], "stats": {}}
 
@@ -382,12 +372,12 @@ if empty_slots > 0:
 
     except Exception as e:
         result["status"] = "ERROR"
-        result["issues"].append(f"Material validation failed: {str(e)}")
+        result["issues"].append(f"Material validation failed: {e!s}")
 
     return result
 
 
-def _validate_rigging(max_bones: int) -> Dict[str, Any]:
+def _validate_rigging(max_bones: int) -> dict[str, Any]:
     """Validate rigging and bone structure."""
     result = {"status": "PASS", "issues": [], "stats": {}}
 
@@ -444,12 +434,12 @@ else:
 
     except Exception as e:
         result["status"] = "ERROR"
-        result["issues"].append(f"Rigging validation failed: {str(e)}")
+        result["issues"].append(f"Rigging validation failed: {e!s}")
 
     return result
 
 
-def _validate_transforms() -> Dict[str, Any]:
+def _validate_transforms() -> dict[str, Any]:
     """Validate that transforms are applied correctly."""
     result = {"status": "PASS", "issues": []}
 
@@ -503,12 +493,12 @@ if rotation_issues:
 
     except Exception as e:
         result["status"] = "ERROR"
-        result["issues"].append(f"Transform validation failed: {str(e)}")
+        result["issues"].append(f"Transform validation failed: {e!s}")
 
     return result
 
 
-def _validate_textures() -> Dict[str, Any]:
+def _validate_textures() -> dict[str, Any]:
     """Validate texture requirements."""
     result = {"status": "PASS", "issues": [], "stats": {}}
 
@@ -563,6 +553,6 @@ if missing_textures > 0:
 
     except Exception as e:
         result["status"] = "ERROR"
-        result["issues"].append(f"Texture validation failed: {str(e)}")
+        result["issues"].append(f"Texture validation failed: {e!s}")
 
     return result

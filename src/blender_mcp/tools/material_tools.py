@@ -7,7 +7,6 @@ This module provides parameter models and enums for documentation and validation
 """
 
 from enum import Enum
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -97,7 +96,7 @@ class CreateFabricMaterialParams(BaseModel):
 
     name: str = Field(..., description="Name for the new material")
     fabric_type: MaterialPreset = Field(default=MaterialPreset.VELVET, description="Type of fabric")
-    base_color: List[float] = Field(
+    base_color: list[float] = Field(
         default=[0.8, 0.75, 0.7], description="Base color as RGB (0-1)", min_length=3, max_length=3
     )
     roughness: float = Field(default=0.8, ge=0.0, le=1.0, description="Roughness value")
@@ -113,7 +112,7 @@ class CreateMetalMaterialParams(BaseModel):
 
     name: str = Field(..., description="Name for the new material")
     metal_type: MaterialPreset = Field(default=MaterialPreset.GOLD, description="Type of metal")
-    base_color: List[float] = Field(
+    base_color: list[float] = Field(
         default=[1.0, 0.8, 0.0], description="Base color as RGB (0-1)", min_length=3, max_length=3
     )
     roughness: float = Field(default=0.2, ge=0.0, le=1.0, description="Roughness value")
@@ -126,7 +125,7 @@ class CreateWoodMaterialParams(BaseModel):
 
     name: str = Field(..., description="Name for the new material")
     wood_type: MaterialPreset = Field(default=MaterialPreset.OAK, description="Type of wood")
-    base_color: List[float] = Field(
+    base_color: list[float] = Field(
         default=[0.6, 0.4, 0.2], description="Base color as RGB (0-1)", min_length=3, max_length=3
     )
     roughness: float = Field(default=0.7, ge=0.0, le=1.0, description="Roughness value")
@@ -138,7 +137,7 @@ class CreateGlassMaterialParams(BaseModel):
 
     name: str = Field(..., description="Name for the new material")
     glass_type: MaterialPreset = Field(default=MaterialPreset.CLEAR, description="Type of glass")
-    base_color: List[float] = Field(
+    base_color: list[float] = Field(
         default=[0.9, 0.95, 1.0], description="Base color as RGB (0-1)", min_length=3, max_length=3
     )
     transmission: float = Field(default=1.0, ge=0.0, le=1.0, description="Transmission amount")
@@ -151,7 +150,7 @@ class AssignMaterialParams(BaseModel):
 
     object_name: str = Field(..., description="Name of the object")
     material_name: str = Field(..., description="Name of the material to assign")
-    material_slot: Optional[int] = Field(default=None, description="Material slot index (optional)")
+    material_slot: int | None = Field(default=None, description="Material slot index (optional)")
 
 
 class RemoveMaterialParams(BaseModel):

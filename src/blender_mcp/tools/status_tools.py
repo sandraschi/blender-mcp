@@ -20,13 +20,12 @@ from ..compat import *
 def _register_status_tools():
     """Register the blender_status portmanteau tool."""
     from blender_mcp.app import get_app
+
     app = get_app()
 
     @app.tool
     async def blender_status(
-        operation: Literal[
-            "status", "system_info", "health_check", "performance_monitor"
-        ] = "status",
+        operation: Literal["status", "system_info", "health_check", "performance_monitor"] = "status",
         include_blender_info: bool = True,
         include_system_info: bool = True,
         include_performance: bool = True,
@@ -57,8 +56,10 @@ def _register_status_tools():
             if format == "json":
                 try:
                     from blender_mcp.config import validate_blender_executable
+
                     blender_ok = validate_blender_executable()
                     from blender_mcp import __version__
+
                     version = __version__
                 except Exception:
                     blender_ok = False
@@ -72,6 +73,7 @@ def _register_status_tools():
 
             try:
                 from blender_mcp.app import get_app as _ga
+
                 _ga()
                 parts.append("MCP Server: Running")
             except Exception as e:
@@ -81,6 +83,7 @@ def _register_status_tools():
                 parts.append("\nBlender:")
                 try:
                     from blender_mcp.config import BLENDER_EXECUTABLE, validate_blender_executable
+
                     if validate_blender_executable():
                         parts.append(f"  Available: {BLENDER_EXECUTABLE}")
                     else:
@@ -150,6 +153,7 @@ def _register_status_tools():
 
             try:
                 from blender_mcp.app import get_app as _ga
+
                 _ga()
                 checks.append("MCP Server: OK")
             except Exception as e:
@@ -158,6 +162,7 @@ def _register_status_tools():
 
             try:
                 from blender_mcp.config import validate_blender_executable
+
                 if validate_blender_executable():
                     checks.append("Blender: Available")
                 else:
@@ -185,12 +190,7 @@ def _register_status_tools():
                 checks.append(f"Resources: FAIL — {e}")
 
             ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            lines = [
-                f"Blender MCP Health Check — {ts}",
-                "=" * 50,
-                f"Overall: {status}",
-                "",
-            ] + checks
+            lines = [f"Blender MCP Health Check — {ts}", "=" * 50, f"Overall: {status}", "", *checks]
             return "\n".join(lines)
 
         # ------------------------------------------------------------------
@@ -201,13 +201,15 @@ def _register_status_tools():
             try:
                 for _ in range(0, duration_seconds, 2):
                     t = datetime.now()
-                    samples.append({
-                        "n": len(samples) + 1,
-                        "time": t.strftime("%H:%M:%S"),
-                        "cpu": psutil.cpu_percent(interval=1),
-                        "mem": psutil.virtual_memory().percent,
-                        "disk": psutil.disk_usage("/").percent,
-                    })
+                    samples.append(
+                        {
+                            "n": len(samples) + 1,
+                            "time": t.strftime("%H:%M:%S"),
+                            "cpu": psutil.cpu_percent(interval=1),
+                            "mem": psutil.virtual_memory().percent,
+                            "disk": psutil.disk_usage("/").percent,
+                        }
+                    )
                     if len(samples) * 2 < duration_seconds:
                         time.sleep(1)
             except Exception as e:
@@ -230,17 +232,14 @@ def _register_status_tools():
                 lines += [
                     "",
                     "Summary:",
-                    f"  CPU:    avg {sum(cpu_v)/len(cpu_v):.1f}%  max {max(cpu_v):.1f}%  min {min(cpu_v):.1f}%",
-                    f"  Memory: avg {sum(mem_v)/len(mem_v):.1f}%  max {max(mem_v):.1f}%  min {min(mem_v):.1f}%",
+                    f"  CPU:    avg {sum(cpu_v) / len(cpu_v):.1f}%  max {max(cpu_v):.1f}%  min {min(cpu_v):.1f}%",
+                    f"  Memory: avg {sum(mem_v) / len(mem_v):.1f}%  max {max(mem_v):.1f}%  min {min(mem_v):.1f}%",
                 ]
             return "\n".join(lines)
 
         # ------------------------------------------------------------------
         else:
-            return (
-                f"Unknown operation '{operation}'. "
-                "Use: status, system_info, health_check, performance_monitor"
-            )
+            return f"Unknown operation '{operation}'. Use: status, system_info, health_check, performance_monitor"
 
     @app.tool
     async def server_info() -> str:
@@ -248,17 +247,19 @@ def _register_status_tools():
         try:
             from blender_mcp import __version__
             from blender_mcp.config import BLENDER_EXECUTABLE, validate_blender_executable
-            
+
             blender_ok = validate_blender_executable()
-            return json.dumps({
-                "name": "blender-mcp",
-                "version": __version__,
-                "status": "connected",
-                "blender_executable": str(BLENDER_EXECUTABLE),
-                "blender_status": "ok" if blender_ok else "error",
-                "platform": platform.system(),
-                "python_version": sys.version.split()[0]
-            })
+            return json.dumps(
+                {
+                    "name": "blender-mcp",
+                    "version": __version__,
+                    "status": "connected",
+                    "blender_executable": str(BLENDER_EXECUTABLE),
+                    "blender_status": "ok" if blender_ok else "error",
+                    "platform": platform.system(),
+                    "python_version": sys.version.split()[0],
+                }
+            )
         except Exception as e:
             return json.dumps({"status": "error", "message": str(e)})
 

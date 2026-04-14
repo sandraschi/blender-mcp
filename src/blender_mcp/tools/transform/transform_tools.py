@@ -4,8 +4,6 @@ Transform tools for Blender MCP.
 Provides tools for positioning, rotating, and scaling objects.
 """
 
-from typing import List, Union
-
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
 
@@ -17,7 +15,7 @@ def _register_transform_tools():
     @app.tool
     async def blender_transform(
         operation: str = "set_location",
-        object_names: Union[str, List[str]] = "",
+        object_names: str | list[str] = "",
         x: float = 0.0,
         y: float = 0.0,
         z: float = 0.0,
@@ -159,7 +157,7 @@ def _register_transform_tools():
                 return f"Unknown transform operation: {operation}. Available: set_location, set_rotation, set_scale, translate, rotate, scale, apply_transform, reset_transform"
 
         except Exception as e:
-            return f"Error in transform operation '{operation}': {str(e)}"
+            return f"Error in transform operation '{operation}': {e!s}"
 
 
 _register_transform_tools()

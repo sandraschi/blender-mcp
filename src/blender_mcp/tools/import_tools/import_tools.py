@@ -83,15 +83,13 @@ def _register_import_tools():
                 )
 
             elif operation == "link_asset":
-                return await link_asset(
-                    filepath=filepath, name=kwargs.get("asset_name", "LinkedAsset")
-                )
+                return await link_asset(filepath=filepath, name=kwargs.get("asset_name", "LinkedAsset"))
 
             else:
                 return f"Unknown import operation: {operation}. Use import_[format] or link_asset"
 
         except Exception as e:
-            return f"Error in import operation '{operation}': {str(e)}"
+            return f"Error in import operation '{operation}': {e!s}"
 
     @app.tool
     async def import_cad_file(
@@ -174,7 +172,7 @@ def _register_import_tools():
             return f"CAD import successful: {result}"
 
         except Exception as e:
-            return f"Error importing CAD file: {str(e)}"
+            return f"Error importing CAD file: {e!s}"
 
 
 async def _try_robotics_cad_conversion(

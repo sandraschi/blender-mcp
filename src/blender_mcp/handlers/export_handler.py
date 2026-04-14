@@ -18,7 +18,7 @@ from ..utils.blender_executor import get_blender_executor
 _executor = get_blender_executor()
 
 
-def _get_export_script_setup(output_path: str, blend_path: str = None) -> str:
+def _get_export_script_setup(output_path: str, blend_path: str | None = None) -> str:
     """Generate the common setup script for export operations.
 
     Args:
@@ -143,9 +143,9 @@ try:
         'export_path': export_path,
         'object_count': len(mesh_objects),
         'scale_factor': {scale},
-        'applied_modifiers': {str(apply_modifiers)},
-        'optimized_materials': {str(optimize_materials)},
-        'baked_textures': {str(bake_textures)},
+        'applied_modifiers': {apply_modifiers!s},
+        'optimized_materials': {optimize_materials!s},
+        'baked_textures': {bake_textures!s},
         'lod_levels': {lod_levels}
     }}
 
@@ -178,15 +178,13 @@ except Exception as e:
                 # If file was created or updated, treat as success
                 if not file_existed_before or file_mtime_after > file_mtime_before:
                     file_size = os.path.getsize(output_path)
-                    logger.warning(
-                        f"Blender exited with error but FBX file was created: {error_str}"
-                    )
+                    logger.warning(f"Blender exited with error but FBX file was created: {error_str}")
                     return f"Successfully exported to {output_path} ({file_size} bytes) - warning ignored"
             # If no file was created, raise error
             raise BlenderExportError("FBX", output_path, error_str) from e
 
     except Exception as e:
-        logger.error(f"Failed to export for Unity: {str(e)}")
+        logger.error(f"Failed to export for Unity: {e!s}")
         raise BlenderExportError("FBX", output_path, str(e)) from e
 
 
@@ -259,10 +257,8 @@ else:
 """
         # Execute the export script
         await _executor.execute_script(script, script_name="vrc_export")
-        return (
-            f"Successfully exported to {output_path} with {performance_rank} performance settings"
-        )
+        return f"Successfully exported to {output_path} with {performance_rank} performance settings"
 
     except Exception as e:
-        logger.error(f"Failed to export for VRChat: {str(e)}")
+        logger.error(f"Failed to export for VRChat: {e!s}")
         raise BlenderExportError("VRM", output_path, str(e)) from e

@@ -1,7 +1,7 @@
 """Modifier operations handler for Blender MCP."""
 
 from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 from loguru import logger
 
@@ -62,10 +62,10 @@ class ModifierType(str, Enum):
 @blender_operation("add_modifier", log_args=True)
 async def add_modifier(
     object_name: str,
-    modifier_type: Union[ModifierType, str],
-    name: Optional[str] = None,
+    modifier_type: ModifierType | str,
+    name: str | None = None,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Add a modifier to an object.
 
     Args:
@@ -82,7 +82,7 @@ async def add_modifier(
 
     # Convert kwargs to a string representation of a dictionary
     # that can be used in the Blender script
-    props_str = ", ".join(f"{k}={repr(v)}" for k, v in kwargs.items())
+    props_str = ", ".join(f"{k}={v!r}" for k, v in kwargs.items())
 
     script = f"""
 
@@ -90,20 +90,20 @@ def add_modifier():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{"status": "ERROR", "error": "Object not found"}}
-    
+
     try:
         # Check if modifier with this name already exists
         if '{name}' in obj.modifiers:
             return {{"status": "ERROR", "error": f"Modifier '{{name}}' already exists"}}
-        
+
         # Add the modifier
         mod = obj.modifiers.new('{name}', '{modifier_type}')
         if not mod:
             return {{"status": "ERROR", "error": f"Failed to create modifier of type '{{modifier_type}}'"}}
-        
+
         # Set properties if any
         {f"for k, v in {{{props_str}}}.items(): setattr(mod, k, v)" if props_str else ""}
-        
+
         return {{
             "status": "SUCCESS",
             "modifier": mod.name,
@@ -124,12 +124,12 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to add modifier: {str(e)}")
+        logger.error(f"Failed to add modifier: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("remove_modifier", log_args=True)
-async def remove_modifier(object_name: str, modifier_name: str, **kwargs: Any) -> Dict[str, Any]:
+async def remove_modifier(object_name: str, modifier_name: str, **kwargs: Any) -> dict[str, Any]:
     """Remove a modifier from an object.
 
     Args:
@@ -145,10 +145,10 @@ def remove_modifier():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{"status": "ERROR", "error": "Object not found"}}
-    
+
     if '{modifier_name}' not in obj.modifiers:
         return {{"status": "ERROR", "error": f"Modifier '{{modifier_name}}' not found"}}
-    
+
     try:
         # Store modifier info before removal
         mod = obj.modifiers['{modifier_name}']
@@ -159,10 +159,10 @@ def remove_modifier():
             "show_render": getattr(mod, 'show_render', True),
             "show_in_editmode": getattr(mod, 'show_in_editmode', False)
         }}
-        
+
         # Remove the modifier
         obj.modifiers.remove(mod)
-        
+
         return {{
             "status": "SUCCESS",
             "removed_modifier": mod_info,
@@ -182,14 +182,14 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to remove modifier: {str(e)}")
+        logger.error(f"Failed to remove modifier: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("get_modifiers", log_args=True)
 async def get_modifiers(
-    object_name: str, modifier_type: Optional[Union[ModifierType, str]] = None, **kwargs: Any
-) -> Dict[str, Any]:
+    object_name: str, modifier_type: ModifierType | str | None = None, **kwargs: Any
+) -> dict[str, Any]:
     """Get information about modifiers on an object.
 
     Args:
@@ -205,14 +205,14 @@ def get_modifiers():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{"status": "ERROR", "error": "Object not found"}}
-    
+
     try:
         modifiers = []
         for mod in obj.modifiers:
             # Skip if type filter is specified and doesn't match
             if '{modifier_type}' and mod.type != '{modifier_type}':
                 continue
-                
+
             # Get common properties
             mod_info = {{
                 "name": mod.name,
@@ -223,7 +223,7 @@ def get_modifiers():
                 "show_on_cage": getattr(mod, 'show_on_cage', False),
                 "show_expanded": getattr(mod, 'show_expanded', True)
             }}
-            
+
             # Add type-specific properties
             if hasattr(mod, 'levels'):
                 mod_info['levels'] = mod.levels
@@ -231,9 +231,9 @@ def get_modifiers():
                 mod_info['render_levels'] = mod.render_levels
             if hasattr(mod, 'strength'):
                 mod_info['strength'] = mod.strength
-                
+
             modifiers.append(mod_info)
-        
+
         return {{
             "status": "SUCCESS",
             "object": obj.name,
@@ -254,12 +254,12 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to get modifiers: {str(e)}")
+        logger.error(f"Failed to get modifiers: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("apply_modifier", log_args=True)
-async def apply_modifier(object_name: str, modifier_name: str, **kwargs: Any) -> Dict[str, Any]:
+async def apply_modifier(object_name: str, modifier_name: str, **kwargs: Any) -> dict[str, Any]:
     """Apply a modifier to the object's geometry.
 
     Args:
@@ -275,10 +275,10 @@ def apply_modifier():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{"status": "ERROR", "error": "Object not found"}}
-    
+
     if '{modifier_name}' not in obj.modifiers:
         return {{"status": "ERROR", "error": f"Modifier '{{modifier_name}}' not found"}}
-    
+
     try:
         # Store modifier info before applying
         mod = obj.modifiers['{modifier_name}']
@@ -286,14 +286,14 @@ def apply_modifier():
             "name": mod.name,
             "type": mod.type
         }}
-        
+
         # Make the object active
         bpy.context.view_layer.objects.active = obj
         obj.select_set(True)
-        
+
         # Apply the modifier
         bpy.ops.object.modifier_apply(modifier=mod.name)
-        
+
         return {{
             "status": "SUCCESS",
             "applied_modifier": mod_info,
@@ -313,5 +313,5 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to apply modifier: {str(e)}")
+        logger.error(f"Failed to apply modifier: {e!s}")
         return {"status": "ERROR", "error": str(e)}

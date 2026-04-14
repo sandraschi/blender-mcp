@@ -9,7 +9,7 @@ Use manage_blender_addons to install one before calling import_gaussian_splat.
 import json
 import logging
 import os
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 from ..utils.blender_executor import get_blender_executor
 
@@ -20,9 +20,7 @@ def _executor():
     return get_blender_executor()
 
 
-async def import_gaussian_splat(
-    file_path: str, sh_degree: int = 3, setup_proxy: bool = True
-) -> Dict[str, Any]:
+async def import_gaussian_splat(file_path: str, sh_degree: int = 3, setup_proxy: bool = True) -> dict[str, Any]:
     """
     Import a Gaussian Splat .ply or .spz file into Blender.
 
@@ -90,7 +88,7 @@ else:
     obj = bpy.context.active_object
     if obj:
         obj.name = obj_name
-    
+
     # Get point count
     point_count = 0
     if obj and obj.type == "POINTCLOUD" and obj.data:
@@ -126,7 +124,7 @@ else:
         output = await _executor().execute_script(script, script_name="import_gs")
         for line in output.splitlines():
             if line.startswith("GS_RESULT:"):
-                return json.loads(line[len("GS_RESULT:"):])
+                return json.loads(line[len("GS_RESULT:") :])
         return {"status": "error", "message": f"Script produced no result. Output: {output[-400:]}"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
@@ -135,9 +133,9 @@ else:
 async def crop_splat(
     crop_type: str = "sphere",
     radius: float = 5.0,
-    center_point: Optional[Tuple[float, float, float]] = None,
+    center_point: tuple[float, float, float] | None = None,
     invert: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Crop active Gaussian Splat using geometry nodes volume selection."""
     cx, cy, cz = center_point if center_point else (0, 0, 0)
     script = f"""
@@ -173,7 +171,7 @@ else:
         output = await _executor().execute_script(script, script_name="crop_splat")
         for line in output.splitlines():
             if line.startswith("CROP_RESULT:"):
-                return json.loads(line[len("CROP_RESULT:"):])
+                return json.loads(line[len("CROP_RESULT:") :])
         return {"status": "error", "message": output[-300:]}
     except Exception as e:
         return {"status": "error", "message": str(e)}
@@ -183,7 +181,7 @@ async def generate_collision_mesh(
     density_threshold: float = 0.1,
     decimation_ratio: float = 0.1,
     smoothing_iterations: int = 2,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate a simplified collision mesh from the active splat object."""
     script = f"""
 import bpy, json
@@ -233,7 +231,7 @@ else:
         output = await _executor().execute_script(script, script_name="gen_collision")
         for line in output.splitlines():
             if line.startswith("COLL_RESULT:"):
-                return json.loads(line[len("COLL_RESULT:"):])
+                return json.loads(line[len("COLL_RESULT:") :])
         return {"status": "error", "message": output[-300:]}
     except Exception as e:
         return {"status": "error", "message": str(e)}
@@ -243,7 +241,7 @@ async def export_splat_for_resonite(
     target_format: str = "ply",
     include_collision: bool = True,
     optimize_for_mobile: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Export active splat as PLY or GLB for Resonite."""
     script = f"""
 import bpy, json, os, tempfile
@@ -292,7 +290,7 @@ else:
         output = await _executor().execute_script(script, script_name="export_splat_resonite")
         for line in output.splitlines():
             if line.startswith("EXPORT_RESULT:"):
-                return json.loads(line[len("EXPORT_RESULT:"):])
+                return json.loads(line[len("EXPORT_RESULT:") :])
         return {"status": "error", "message": output[-300:]}
     except Exception as e:
         return {"status": "error", "message": str(e)}

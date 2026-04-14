@@ -5,7 +5,6 @@ Supports physically-based rendering (PBR) materials with advanced node setups.
 """
 
 from enum import Enum
-from typing import Dict, List, Optional, Tuple, Union
 
 from loguru import logger
 
@@ -94,7 +93,7 @@ class MaterialPreset(str, Enum):
 
 
 @blender_operation
-def _create_base_material_script(name: str, material_type: Union[str, MaterialType]) -> str:
+def _create_base_material_script(name: str, material_type: str | MaterialType) -> str:
     """Generate a base material creation script with error handling.
 
     Args:
@@ -112,40 +111,40 @@ try:
     # Remove existing material if it exists
     if "{name}" in bpy.data.materials:
         bpy.data.materials.remove(bpy.data.materials["{name}"])
-    
+
     # Create new material with nodes
     mat = bpy.data.materials.new(name="{name}")
     mat.use_nodes = True
     nodes = mat.node_tree.nodes
     links = mat.node_tree.links
-    
+
     # Clear default nodes
     for node in nodes:
         nodes.remove(node)
-    
+
     # Add output and shader nodes
     output = nodes.new(type='ShaderNodeOutputMaterial')
     output.location = (400, 0)
-    
+
     bsdf = nodes.new(type='ShaderNodeBsdfPrincipled')
     bsdf.location = (200, 0)
-    
+
     # Connect BSDF to output
     links.new(bsdf.outputs['BSDF'], output.inputs['Surface'])
-    
+
     # Add texture coordinate and mapping nodes as they're commonly used
     tex_coord = nodes.new(type='ShaderNodeTexCoord')
     tex_coord.location = (-600, 0)
-    
+
     mapping = nodes.new(type='ShaderNodeMapping')
     mapping.location = (-400, 0)
-    
+
     # Connect texture coordinate to mapping
     links.new(tex_coord.outputs['UV'], mapping.inputs['Vector'])
-    
+
     # Store material type as custom property
     mat["material_type"] = "{material_type}"
-    
+
     # Return all created nodes for further processing
     return {{
         'mat': mat,
@@ -155,7 +154,7 @@ try:
         'tex_coord': tex_coord,
         'mapping': mapping
     }}
-    
+
 except Exception as e:
     print(f"ERROR: Failed to create base material: {{str(e)}}")
     import traceback
@@ -172,8 +171,8 @@ def _register_material_tools():
     @blender_operation("create_fabric_material", log_args=True)
     async def create_fabric_material_tool(
         name: str = "ElegantFabric",
-        fabric_type: Union[str, MaterialPreset] = MaterialPreset.VELVET,
-        base_color: Tuple[float, float, float] = (0.8, 0.75, 0.7),
+        fabric_type: str | MaterialPreset = MaterialPreset.VELVET,
+        base_color: tuple[float, float, float] = (0.8, 0.75, 0.7),
         roughness: float = 0.8,
         sub_surface: float = 0.2,
         normal_strength: float = 0.5,
@@ -214,8 +213,8 @@ def _register_material_tools():
 @blender_operation("create_fabric_material", log_args=True)
 async def create_fabric_material(
     name: str = "ElegantFabric",
-    fabric_type: Union[str, MaterialPreset] = MaterialPreset.VELVET,
-    base_color: Tuple[float, float, float] = (0.8, 0.75, 0.7),
+    fabric_type: str | MaterialPreset = MaterialPreset.VELVET,
+    base_color: tuple[float, float, float] = (0.8, 0.75, 0.7),
     roughness: float = 0.8,
     sub_surface: float = 0.2,
     normal_strength: float = 0.5,
@@ -375,7 +374,7 @@ print(f"SUCCESS: Created {{'{fabric_type.value}'}} fabric material: {{mat.name}}
         return f"Created {fabric_type.value} fabric material: {name}"
 
     except Exception as e:
-        error_msg = f"Failed to create fabric material {name}: {str(e)}"
+        error_msg = f"Failed to create fabric material {name}: {e!s}"
         logger.error(error_msg)
         raise BlenderMaterialError(name, "fabric_create", error_msg)
 
@@ -383,7 +382,7 @@ print(f"SUCCESS: Created {{'{fabric_type.value}'}} fabric material: {{mat.name}}
 @blender_operation("create_metal_material", log_args=True)
 async def create_metal_material(
     name: str = "OrnateMetal",
-    metal_type: Union[str, MaterialPreset] = MaterialPreset.GOLD,
+    metal_type: str | MaterialPreset = MaterialPreset.GOLD,
     roughness: float = 0.2,
     anisotropic: float = 0.0,
     clearcoat: float = 0.0,
@@ -609,7 +608,7 @@ print(f"SUCCESS: Created {{'{metal_type.value}'}} metal material: {{mat.name}}")
         return f"Created {metal_type.value} metal material: {name}"
 
     except Exception as e:
-        error_msg = f"Failed to create metal material {name}: {str(e)}"
+        error_msg = f"Failed to create metal material {name}: {e!s}"
         logger.error(error_msg)
         raise BlenderMaterialError(name, "metal_create", error_msg)
 
@@ -693,7 +692,7 @@ print(f"SUCCESS: Created {{'{wood_type}'}} wood material: {{mat.name}}")
         return f"Created {wood_type} wood material: {name}"
 
     except Exception as e:
-        error_msg = f"Failed to create wood material {name}: {str(e)}"
+        error_msg = f"Failed to create wood material {name}: {e!s}"
         logger.error(error_msg)
         raise BlenderMaterialError(name, "wood_create", error_msg)
 
@@ -701,8 +700,8 @@ print(f"SUCCESS: Created {{'{wood_type}'}} wood material: {{mat.name}}")
 @blender_operation("create_glass_material", log_args=True)
 async def create_glass_material(
     name: str = "GlassMaterial",
-    glass_type: Union[str, MaterialPreset] = MaterialPreset.CLEAR_GLASS,
-    color: Tuple[float, float, float] = (1.0, 1.0, 1.0),
+    glass_type: str | MaterialPreset = MaterialPreset.CLEAR_GLASS,
+    color: tuple[float, float, float] = (1.0, 1.0, 1.0),
     roughness: float = 0.0,
     ior: float = 1.45,
     **kwargs,
@@ -845,7 +844,7 @@ print(f"SUCCESS: Created {{'{glass_type.value}'}} glass material: {{mat.name}}")
         return f"Created {glass_type.value} glass material: {name}"
 
     except Exception as e:
-        error_msg = f"Failed to create glass material {name}: {str(e)}"
+        error_msg = f"Failed to create glass material {name}: {e!s}"
         logger.error(error_msg)
         raise BlenderMaterialError(name, "glass_create", error_msg)
 
@@ -853,8 +852,8 @@ print(f"SUCCESS: Created {{'{glass_type.value}'}} glass material: {{mat.name}}")
 @blender_operation("create_ceramic_material", log_args=True)
 async def create_ceramic_material(
     name: str = "CeramicMaterial",
-    ceramic_type: Union[str, MaterialPreset] = MaterialPreset.PORCELAIN,
-    base_color: Tuple[float, float, float] = (0.9, 0.9, 0.9),
+    ceramic_type: str | MaterialPreset = MaterialPreset.PORCELAIN,
+    base_color: tuple[float, float, float] = (0.9, 0.9, 0.9),
     roughness: float = 0.1,
     **kwargs,
 ) -> str:
@@ -884,9 +883,7 @@ async def create_ceramic_material(
 
     if ceramic_type not in valid_ceramic_types:
         valid = ", ".join([t.value for t in valid_ceramic_types])
-        raise BlenderMaterialError(
-            name, "ceramic_create", f"Invalid ceramic type. Use one of: {valid}"
-        )
+        raise BlenderMaterialError(name, "ceramic_create", f"Invalid ceramic type. Use one of: {valid}")
 
     # Get additional parameters with defaults
     glaze_strength = kwargs.get("glaze_strength", 0.8)
@@ -949,7 +946,7 @@ print(f"SUCCESS: Created {{'{ceramic_type.value}'}} ceramic material: {{mat.name
         return f"Created {ceramic_type.value} ceramic material: {name}"
 
     except Exception as e:
-        error_msg = f"Failed to create ceramic material {name}: {str(e)}"
+        error_msg = f"Failed to create ceramic material {name}: {e!s}"
         logger.error(error_msg)
         raise BlenderMaterialError(name, "ceramic_create", error_msg)
 
@@ -957,8 +954,8 @@ print(f"SUCCESS: Created {{'{ceramic_type.value}'}} ceramic material: {{mat.name
 @blender_operation("create_leather_material", log_args=True)
 async def create_leather_material(
     name: str = "LeatherMaterial",
-    leather_type: Union[str, MaterialPreset] = MaterialPreset.LEATHER,
-    base_color: Tuple[float, float, float] = (0.15, 0.05, 0.02),
+    leather_type: str | MaterialPreset = MaterialPreset.LEATHER,
+    base_color: tuple[float, float, float] = (0.15, 0.05, 0.02),
     roughness: float = 0.7,
     **kwargs,
 ) -> str:
@@ -989,9 +986,7 @@ async def create_leather_material(
 
     if leather_type not in valid_leather_types:
         valid = ", ".join([t.value for t in valid_leather_types])
-        raise BlenderMaterialError(
-            name, "leather_create", f"Invalid leather type. Use one of: {valid}"
-        )
+        raise BlenderMaterialError(name, "leather_create", f"Invalid leather type. Use one of: {valid}")
 
     # Get additional parameters with defaults
     wear_amount = kwargs.get("wear_amount", 0.3)
@@ -1101,7 +1096,7 @@ print(f"SUCCESS: Created {{'{leather_type.value}'}} leather material: {{mat.name
         return f"Created {leather_type.value} leather material: {name}"
 
     except Exception as e:
-        error_msg = f"Failed to create leather material {name}: {str(e)}"
+        error_msg = f"Failed to create leather material {name}: {e!s}"
         logger.error(error_msg)
         raise BlenderMaterialError(name, "leather_create", error_msg)
 
@@ -1109,9 +1104,9 @@ print(f"SUCCESS: Created {{'{leather_type.value}'}} leather material: {{mat.name
 @blender_operation("create_stone_material", log_args=True)
 async def create_stone_material(
     name: str = "StoneMaterial",
-    stone_type: Union[str, MaterialPreset] = MaterialPreset.MARBLE,
-    base_color: Tuple[float, float, float] = (0.8, 0.8, 0.8),
-    secondary_color: Optional[Tuple[float, float, float]] = None,
+    stone_type: str | MaterialPreset = MaterialPreset.MARBLE,
+    base_color: tuple[float, float, float] = (0.8, 0.8, 0.8),
+    secondary_color: tuple[float, float, float] | None = None,
     roughness: float = 0.2,
     **kwargs,
 ) -> str:
@@ -1267,7 +1262,7 @@ print(f"SUCCESS: Created {{'{stone_type.value}'}} stone material: {{mat.name}}")
         return f"Created {stone_type.value} stone material: {name}"
 
     except Exception as e:
-        error_msg = f"Failed to create stone material {name}: {str(e)}"
+        error_msg = f"Failed to create stone material {name}: {e!s}"
         logger.error(error_msg)
         raise BlenderMaterialError(name, "stone_create", error_msg)
 
@@ -1383,9 +1378,7 @@ else:
 
 
 @blender_operation("assign_material", log_args=True)
-async def assign_material_async(
-    object_name: str, material_name: str, material_index: int = 0
-) -> str:
+async def assign_material_async(object_name: str, material_name: str, material_index: int = 0) -> str:
     """Assign a material to an object asynchronously.
 
     Args:
@@ -1398,12 +1391,10 @@ async def assign_material_async(
     """
     try:
         script = assign_material(object_name, material_name, material_index)
-        await _executor.execute_script(
-            script, script_name=f"assign_material_{object_name}_{material_name}"
-        )
+        await _executor.execute_script(script, script_name=f"assign_material_{object_name}_{material_name}")
         return f"Assigned material '{material_name}' to object '{object_name}' at slot {material_index}"
     except Exception as e:
-        error_msg = f"Failed to assign material to object: {str(e)}"
+        error_msg = f"Failed to assign material to object: {e!s}"
         logger.error(error_msg)
         raise BlenderMaterialError(object_name, "assign_material", error_msg)
 
@@ -1421,12 +1412,10 @@ async def remove_material_async(object_name: str, material_index: int = 0) -> st
     """
     try:
         script = remove_material(object_name, material_index)
-        await _executor.execute_script(
-            script, script_name=f"remove_material_{object_name}_{material_index}"
-        )
+        await _executor.execute_script(script, script_name=f"remove_material_{object_name}_{material_index}")
         return f"Removed material from slot {material_index} of object '{object_name}'"
     except Exception as e:
-        error_msg = f"Failed to remove material from object: {str(e)}"
+        error_msg = f"Failed to remove material from object: {e!s}"
         logger.error(error_msg)
         raise BlenderMaterialError(object_name, "remove_material", error_msg)
 
@@ -1443,12 +1432,10 @@ async def get_material_assignments_async(object_name: str) -> str:
     """
     try:
         script = get_material_assignments(object_name)
-        result = await _executor.execute_script(
-            script, script_name=f"get_material_assignments_{object_name}"
-        )
+        result = await _executor.execute_script(script, script_name=f"get_material_assignments_{object_name}")
         return result or f"No material assignments found for object '{object_name}'"
     except Exception as e:
-        error_msg = f"Failed to get material assignments: {str(e)}"
+        error_msg = f"Failed to get material assignments: {e!s}"
         logger.error(error_msg)
         raise BlenderMaterialError(object_name, "get_material_assignments", error_msg)
 
@@ -1469,7 +1456,7 @@ class MaterialLibrary:
         self,
         name: str,
         material_type: str,
-        parameters: Dict[str, Any],
+        parameters: dict[str, Any],
         category: str = "uncategorized",
     ) -> None:
         """Add a material preset to the library.
@@ -1490,7 +1477,7 @@ class MaterialLibrary:
             "created_at": datetime.datetime.now().isoformat(),
         }
 
-    def get_preset(self, name: str) -> Dict[str, Any]:
+    def get_preset(self, name: str) -> dict[str, Any]:
         """Get a material preset by name.
 
         Args:
@@ -1503,7 +1490,7 @@ class MaterialLibrary:
             raise KeyError(f"Preset '{name}' not found in library")
         return self.presets[name]
 
-    def list_presets(self, category: Optional[str] = None) -> List[Dict[str, Any]]:
+    def list_presets(self, category: str | None = None) -> list[dict[str, Any]]:
         """List all presets, optionally filtered by category.
 
         Args:
@@ -1576,7 +1563,7 @@ def get_default_library() -> MaterialLibrary:
 
 @blender_operation("create_material_from_preset", log_args=True)
 async def create_material_from_preset(
-    preset_name: str, material_name: Optional[str] = None, library: Optional[MaterialLibrary] = None
+    preset_name: str, material_name: str | None = None, library: MaterialLibrary | None = None
 ) -> str:
     """Create a material from a preset in the library.
 
@@ -1623,7 +1610,7 @@ async def create_material_from_preset(
             raise ValueError(f"Unsupported material type: {material_type}")
 
     except Exception as e:
-        error_msg = f"Failed to create material from preset '{preset_name}': {str(e)}"
+        error_msg = f"Failed to create material from preset '{preset_name}': {e!s}"
         logger.error(error_msg)
         raise BlenderMaterialError(preset_name, "create_from_preset", error_msg)
 

@@ -2,7 +2,7 @@
 
 import logging
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 from ..compat import *
 
@@ -35,9 +35,9 @@ class GPStrokeType(str, Enum):
 @blender_operation("create_grease_pencil", log_args=True)
 async def create_grease_pencil(
     name: str = "GPencil",
-    placement: Union[GPStrokePlacement, str] = GPStrokePlacement.ORIGIN,
+    placement: GPStrokePlacement | str = GPStrokePlacement.ORIGIN,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a new Grease Pencil object.
 
     Args:
@@ -111,17 +111,17 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to create Grease Pencil: {str(e)}")
+        logger.error(f"Failed to create Grease Pencil: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("draw_grease_pencil_stroke", log_args=True)
 async def draw_grease_pencil_stroke(
     gp_object: str,
-    stroke_type: Union[GPStrokeType, str] = GPStrokeType.LINE,
-    points: Optional[List[Tuple[float, float, float]]] = None,
+    stroke_type: GPStrokeType | str = GPStrokeType.LINE,
+    points: list[tuple[float, float, float]] | None = None,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Draw a stroke with the Grease Pencil.
 
     Args:
@@ -270,14 +270,12 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to draw Grease Pencil stroke: {str(e)}")
+        logger.error(f"Failed to draw Grease Pencil stroke: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("convert_grease_pencil", log_args=True)
-async def convert_grease_pencil(
-    gp_object: str, target_type: str = "MESH", **kwargs: Any
-) -> Dict[str, Any]:
+async def convert_grease_pencil(gp_object: str, target_type: str = "MESH", **kwargs: Any) -> dict[str, Any]:
     """Convert Grease Pencil object to another type.
 
     Args:
@@ -361,5 +359,5 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to convert Grease Pencil: {str(e)}")
+        logger.error(f"Failed to convert Grease Pencil: {e!s}")
         return {"status": "ERROR", "error": str(e)}

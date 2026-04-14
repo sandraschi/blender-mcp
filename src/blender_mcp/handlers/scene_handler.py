@@ -18,7 +18,6 @@ _executor = get_blender_executor()
 # Registration is now handled by blender_mcp.tools.scene_tools.register(app)
 
 
-
 # @app.tool  # Will be registered manually
 @blender_operation("create_scene")
 async def create_scene(scene_name: str = "NewScene") -> str:
@@ -289,9 +288,7 @@ print(f"Added {{light_type}} light to scene")
 
 # @app.tool  # Will be registered manually
 @blender_operation("setup_camera")
-async def setup_camera(
-    location: tuple = (0, -5, 2), rotation: tuple = (1.0, 0, 0), lens: float = 50.0
-) -> str:
+async def setup_camera(location: tuple = (0, -5, 2), rotation: tuple = (1.0, 0, 0), lens: float = 50.0) -> str:
     """Set up a camera in the scene.
 
     Args:
@@ -364,6 +361,7 @@ print(f"Render settings updated: {{resolution_x}}x{{resolution_y}} using {{engin
     await _executor.execute_script(script)
     return f"Updated render settings: {resolution_x}x{resolution_y} using {engine} with {samples} samples"
 
+
 @blender_operation("scene_get_hierarchy")
 async def scene_get_hierarchy() -> str:
     """Get a structural hierarchy of the scene (collections and objects).
@@ -381,7 +379,7 @@ def get_collection_data(collection):
         "objects": [],
         "children": []
     }
-    
+
     for obj in collection.objects:
         if obj.parent is None: # Only root objects in collection
             data["objects"].append({
@@ -389,10 +387,10 @@ def get_collection_data(collection):
                 "type": obj.type,
                 "location": list(obj.location)
             })
-            
+
     for child_col in collection.children:
         data["children"].append(get_collection_data(child_col))
-        
+
     return data
 
 hierarchy = get_collection_data(bpy.context.scene.collection)

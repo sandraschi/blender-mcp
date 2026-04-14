@@ -2,7 +2,7 @@
 
 import logging
 from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 from ..decorators import blender_operation
 
@@ -63,10 +63,10 @@ class ModifierType(str, Enum):
 @blender_operation("add_modifier", log_args=True)
 async def add_modifier(
     object_name: str,
-    modifier_type: Union[ModifierType, str],
-    name: Optional[str] = None,
+    modifier_type: ModifierType | str,
+    name: str | None = None,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Add a modifier to an object.
 
     Args:
@@ -83,7 +83,7 @@ async def add_modifier(
 
     # Convert kwargs to a string representation of a dictionary
     # that can be used in the Blender script
-    props_str = ", ".join(f"{k}={repr(v)}" for k, v in kwargs.items())
+    props_str = ", ".join(f"{k}={v!r}" for k, v in kwargs.items())
 
     script = f"""
 
@@ -125,12 +125,12 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to add modifier: {str(e)}")
+        logger.error(f"Failed to add modifier: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("remove_modifier", log_args=True)
-async def remove_modifier(object_name: str, modifier_name: str, **kwargs: Any) -> Dict[str, Any]:
+async def remove_modifier(object_name: str, modifier_name: str, **kwargs: Any) -> dict[str, Any]:
     """Remove a modifier from an object.
 
     Args:
@@ -183,14 +183,14 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to remove modifier: {str(e)}")
+        logger.error(f"Failed to remove modifier: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("get_modifiers", log_args=True)
 async def get_modifiers(
-    object_name: str, modifier_type: Optional[Union[ModifierType, str]] = None, **kwargs: Any
-) -> Dict[str, Any]:
+    object_name: str, modifier_type: ModifierType | str | None = None, **kwargs: Any
+) -> dict[str, Any]:
     """Get information about modifiers on an object.
 
     Args:
@@ -255,12 +255,12 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to get modifiers: {str(e)}")
+        logger.error(f"Failed to get modifiers: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("apply_modifier", log_args=True)
-async def apply_modifier(object_name: str, modifier_name: str, **kwargs: Any) -> Dict[str, Any]:
+async def apply_modifier(object_name: str, modifier_name: str, **kwargs: Any) -> dict[str, Any]:
     """Apply a modifier to the object's geometry.
 
     Args:
@@ -314,5 +314,5 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to apply modifier: {str(e)}")
+        logger.error(f"Failed to apply modifier: {e!s}")
         return {"status": "ERROR", "error": str(e)}

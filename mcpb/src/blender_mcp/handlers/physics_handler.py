@@ -4,7 +4,7 @@ This module provides physics simulation and rigid body functions that can be reg
 """
 
 from enum import Enum
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any
 
 from loguru import logger
 
@@ -63,13 +63,13 @@ class CollisionShapeType(str, Enum):
 @blender_operation("enable_physics", log_args=True)
 async def enable_physics(
     object_name: str,
-    physics_type: Union[PhysicsType, str] = PhysicsType.RIGID_BODY,
-    rigid_body_type: Union[RigidBodyType, str] = RigidBodyType.ACTIVE,
+    physics_type: PhysicsType | str = PhysicsType.RIGID_BODY,
+    rigid_body_type: RigidBodyType | str = RigidBodyType.ACTIVE,
     mass: float = 1.0,
     friction: float = 0.5,
     bounciness: float = 0.5,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Enable physics simulation for an object.
 
     Args:
@@ -101,16 +101,16 @@ def setup_physics():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{'status': 'ERROR', 'error': 'Object not found'}}
-    
+
     # Make sure the object is selected and active
     bpy.ops.object.select_all(action='DESELECT')
     obj.select_set(True)
     bpy.context.view_layer.objects.active = obj
-    
+
     # Enable rigid body physics
     if '{physics_type}' == 'RIGID_BODY':
         bpy.ops.rigidbody.object_add()
-        
+
         # Set rigid body type and properties
         obj.rigid_body.type = '{rigid_body_type}'
         obj.rigid_body.mass = {mass}
@@ -121,22 +121,22 @@ def setup_physics():
         obj.rigid_body.collision_shape = '{collision_shape}'
         obj.rigid_body.use_margin = {str(use_margin).lower()}
         obj.rigid_body.collision_margin = {collision_margin}
-        
+
         # Set collision group/mask if provided
         if {kwargs.get("collision_groups", None)} is not None:
             for i, enabled in enumerate({kwargs.get("collision_groups", [])}):
                 if i < 20:  # Blender supports 20 collision groups
                     obj.rigid_body.collision_groups[i] = bool(enabled)
-    
+
     # Enable cloth simulation
     elif '{physics_type}' == 'CLOTH':
         # Add cloth modifier if it doesn't exist
         if 'Cloth' not in obj.modifiers:
             bpy.ops.object.modifier_add(type='CLOTH')
-        
+
         # Get the cloth modifier
         cloth = obj.modifiers['Cloth']
-        
+
         # Configure cloth settings
         settings = cloth.settings
         settings.quality = {kwargs.get("quality", 5)}  # Default quality level
@@ -146,22 +146,22 @@ def setup_physics():
         settings.compression_stiffness = {kwargs.get("compression_stiffness", 15.0)}
         settings.shear_stiffness = {kwargs.get("shear_stiffness", 5.0)}
         settings.bending_stiffness = {kwargs.get("bending_stiffness", 0.5)}
-        
+
         # Collision settings
         settings.use_collision = {str(kwargs.get("use_collision", True)).lower()}
         settings.use_self_collision = {str(kwargs.get("use_self_collision", True)).lower()}
         settings.self_collision_quality = {kwargs.get("self_collision_quality", 5)}
         settings.self_collision_distance = {kwargs.get("self_collision_distance", 0.015)}
-        
+
         # Cache settings
         if 'cache' not in settings:
             settings.use_internal_springs = {str(kwargs.get("use_internal_springs", True)).lower()}
-        
+
         # Pin group for cloth (vertex group to pin parts of the cloth)
         if '{kwargs.get("pin_group", "")}':
             settings.vertex_group_mass = '{kwargs["pin_group"]}'
             settings.pin_stiffness = {kwargs.get("pin_stiffness", 0.5)}
-    
+
     return {{
         'status': 'SUCCESS',
         'object': obj.name,
@@ -186,14 +186,14 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to enable physics: {str(e)}")
+        logger.error(f"Failed to enable physics: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("bake_physics_simulation", log_args=True)
 async def bake_physics_simulation(
     frame_start: int = 1, frame_end: int = 250, step: int = 1, **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Bake physics simulation to keyframes.
 
     Args:
@@ -217,16 +217,16 @@ def bake_simulation():
     scene = bpy.context.scene
     scene.frame_start = {frame_start}
     scene.frame_end = {frame_end}
-    
+
     # Select objects if needed
     if {str(only_selected).lower()} and not bpy.context.selected_objects:
         return {{'status': 'ERROR', 'error': 'No objects selected'}}
-    
+
     # Clear existing animation data if needed
     if {str(clear_cached).lower()}:
         bpy.ops.ptcache.free_bake()
         bpy.ops.ptcache.free_bake_all()
-    
+
     # Bake the simulation
     bpy.ops.ptcache.bake(
         bake=True,
@@ -235,7 +235,7 @@ def bake_simulation():
         step={step},
         only_selected={str(only_selected).lower()}
     )
-    
+
     return {{
         'status': 'SUCCESS',
         'frame_range': ({frame_start}, {frame_end}),
@@ -258,18 +258,18 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to bake physics simulation: {str(e)}")
+        logger.error(f"Failed to bake physics simulation: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("add_force_field", log_args=True)
 async def add_force_field(
     field_type: str = "FORCE",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
     strength: float = 1.0,
     falloff: float = 2.0,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Add a force field to the scene.
 
     Args:
@@ -301,14 +301,14 @@ def add_force_field():
         location={list(location)},
         scale=(0.5, 0.5, 0.5)
     )
-    
+
     empty = bpy.context.active_object
     empty.name = 'ForceField_{field_type}'
-    
+
     # Add a force field to the empty
     bpy.ops.object.effects_add(type='{field_type}')
     field = empty.field
-    
+
     # Configure the force field
     field.strength = {strength}
     field.falloff_power = {falloff}
@@ -316,13 +316,13 @@ def add_force_field():
     field.direction = {list(direction)}
     field.use_max_distance = {str(use_max_distance).lower()}
     field.distance_max = {max_distance}
-    
+
     # Additional field type specific settings
     if '{field_type}' == 'WIND':
         field.noise = {kwargs.get("noise", 0.0)}
     elif '{field_type}' == 'VORTEX':
         field.falloff_type = '{kwargs.get("falloff_type", "TUBE")}'
-    
+
     return {{
         'status': 'SUCCESS',
         'field_name': empty.name,
@@ -346,7 +346,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to add force field: {str(e)}")
+        logger.error(f"Failed to add force field: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -368,7 +368,7 @@ async def configure_cloth_simulation(
     pin_group: str = "",
     pin_stiffness: float = 0.5,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Configure cloth simulation settings for an object.
 
     Args:
@@ -405,50 +405,50 @@ def configure_cloth():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{'status': 'ERROR', 'error': 'Object not found'}}
-    
+
     # Get or add cloth modifier
     if 'Cloth' not in obj.modifiers:
         return {{'status': 'ERROR', 'error': 'Cloth modifier not found'}}
-    
+
     cloth = obj.modifiers['Cloth']
     settings = cloth.settings
-    
+
     # Basic settings
     settings.quality = {quality}
     settings.mass = {mass}
     settings.air_damping = {air_damping}
-    
+
     # Stiffness settings
     settings.tension_stiffness = {tension_stiffness}
     settings.compression_stiffness = {compression_stiffness}
     settings.shear_stiffness = {shear_stiffness}
     settings.bending_stiffness = {bending_stiffness}
-    
+
     # Collision settings
     settings.use_collision = {str(use_collision).lower()}
     settings.use_self_collision = {str(use_self_collision).lower()}
     settings.self_collision_quality = {self_collision_quality}
     settings.self_collision_distance = {self_collision_distance}
-    
+
     # Cache and internal springs
     settings.use_internal_springs = {str(use_internal_springs).lower()}
-    
+
     # Pin group settings
     if '{pin_group}':
         settings.vertex_group_mass = '{pin_group}'
         settings.pin_stiffness = {pin_stiffness}
-    
+
     # Pressure settings (for closed meshes)
     settings.use_pressure = {str(pressure > 0).lower()}
     settings.uniform_pressure_force = {pressure}
     settings.shrink_min = {shrink_min}
     settings.shrink_max = {shrink_max}
-    
+
     # Additional settings from kwargs
     for key, value in {kwargs}.items():
         if hasattr(settings, key):
             setattr(settings, key, value)
-    
+
     return {{
         'status': 'SUCCESS',
         'object': obj.name,
@@ -479,7 +479,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to configure cloth simulation: {str(e)}")
+        logger.error(f"Failed to configure cloth simulation: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -491,7 +491,7 @@ async def bake_cloth_simulation(
     step: int = 1,
     clear_previous: bool = True,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Bake cloth simulation to keyframes.
 
     Args:
@@ -518,48 +518,48 @@ def bake_cloth():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{'status': 'ERROR', 'error': 'Object not found'}}
-    
+
     # Get cloth modifier
     cloth_mod = next((m for m in obj.modifiers if m.type == 'CLOTH'), None)
     if not cloth_mod:
         return {{'status': 'ERROR', 'error': 'Cloth modifier not found'}}
-    
+
     # Set up scene for baking
     scene = bpy.context.scene
     scene.frame_start = {frame_start}
     scene.frame_end = {frame_end}
     scene.frame_step = {step}
-    
+
     # Store original frame
     original_frame = scene.frame_current
-    
+
     # Clear existing keyframes if requested
     if {str(clear_previous).lower()}:
         for fcurve in obj.data.shape_keys.animation_data.action.fcurves if obj.data.shape_keys and obj.data.shape_keys.animation_data and obj.data.shape_keys.animation_data.action else []:
             obj.data.shape_keys.animation_data.action.fcurves.remove(fcurve)
-    
+
     # Set up bake settings
     settings = cloth_mod.settings
     settings.point_cache.frame_start = {frame_start}
     settings.point_cache.frame_end = {frame_end}
-    
+
     # Select the object and make it active
     bpy.ops.object.select_all(action='DESELECT')
     obj.select_set(True)
     bpy.context.view_layer.objects.active = obj
-    
+
     # Bake the simulation
     try:
-        bpy.ops.ptcache.bake(bake=True, frame_start={frame_start}, frame_end={frame_end}, 
+        bpy.ops.ptcache.bake(bake=True, frame_start={frame_start}, frame_end={frame_end},
                             step={step}, use_gravity={str(use_gravity).lower()})
-        
+
         # Convert to mesh if requested
         if {str(use_shape_keys).lower()} and obj.data.shape_keys:
             # Create basis shape key if it doesn't exist
             if not obj.data.shape_keys.key_blocks.get('Basis'):
                 basis = obj.shape_key_add(name='Basis')
                 basis.interpolation = 'KEY_LINEAR'
-            
+
             # Create shape key for each frame
             for frame in range({frame_start}, {frame_end} + 1, {step}):
                 scene.frame_set(frame)
@@ -567,20 +567,20 @@ def bake_cloth():
                 if key_name not in obj.data.shape_keys.key_blocks:
                     shape_key = obj.shape_key_add(name=key_name, from_mix=True)
                     shape_key.interpolation = 'KEY_LINEAR'
-                    
+
                     # Add keyframe
                     shape_key.value = 1.0
                     shape_key.keyframe_insert(data_path='value', frame=frame)
-                    
+
                     # Reset for next frame
                     shape_key.value = 0.0
-    
+
     except Exception as e:
         return {{'status': 'ERROR', 'error': f'Baking failed: {{str(e)}}'}}
     finally:
         # Restore original frame
         scene.frame_set(original_frame)
-    
+
     return {{
         'status': 'SUCCESS',
         'object': obj.name,
@@ -605,7 +605,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to bake cloth simulation: {str(e)}")
+        logger.error(f"Failed to bake cloth simulation: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -613,14 +613,14 @@ print(str(result))
 async def add_rigid_body_constraint(
     object_a: str,
     object_b: str,
-    constraint_type: Union[RigidBodyConstraintType, str],
-    pivot_a: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    pivot_b: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+    constraint_type: RigidBodyConstraintType | str,
+    pivot_a: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    pivot_b: tuple[float, float, float] = (0.0, 0.0, 0.0),
     use_spring: bool = False,
     spring_stiffness: float = 10.0,
     spring_damping: float = 0.5,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Add a constraint between two rigid bodies.
 
     Args:
@@ -650,56 +650,56 @@ def add_constraint():
     obj_a = bpy.data.objects.get('{object_a}')
     if not obj_a:
         return {{'status': 'ERROR', 'error': f'Object A ({{object_a}}) not found'}}
-        
+
     obj_b = None
     if '{object_b}':
         obj_b = bpy.data.objects.get('{object_b}')
         if not obj_b:
             return {{'status': 'ERROR', 'error': f'Object B ({{object_b}}) not found'}}
-    
+
     # Create an empty to hold the constraint
     bpy.ops.object.empty_add(type='ARROWS', location=(0, 0, 0))
     empty = bpy.context.active_object
     empty.name = f'RBC_{object_a}_to_{object_b or "WORLD"}'
-    
+
     # Add rigid body constraint
     bpy.ops.rigidbody.constraint_add()
     constraint = empty.rigid_body_constraint
     constraint.type = '{constraint_type}'
-    
+
     # Set up the constraint
     constraint.object1 = obj_a
     if obj_b:
         constraint.object2 = obj_b
-    
+
     # Set pivot points
     constraint.pivot_type = 'ACTIVE' if obj_b else 'CENTER'
     constraint.pivot_x = {pivot_a[0]}
     constraint.pivot_y = {pivot_a[1]}
     constraint.pivot_z = {pivot_a[2]}
-    
+
     if obj_b:
         constraint.pivot_x = {pivot_b[0]}
         constraint.pivot_y = {pivot_b[1]}
         constraint.pivot_z = {pivot_b[2]}
-    
+
     # Spring settings
     constraint.use_spring = {str(use_spring).lower()}
     if {str(use_spring).lower()}:
         constraint.spring_stiffness = {spring_stiffness}
         constraint.spring_damping = {spring_damping}
-    
+
     # Set up limits from kwargs
     for axis in ['x', 'y', 'z', 'ang_x', 'ang_y', 'ang_z']:
         use_limit = {kwargs}.get(f'use_limit_{{axis}}', False)
         limit_min = {kwargs}.get(f'limit_{{axis}}_min', -1.0)
         limit_max = {kwargs}.get(f'limit_{{axis}}_max', 1.0)
-        
+
         setattr(constraint, f'use_limit_{axis}', use_limit)
         if use_limit:
             setattr(constraint, f'limit_{axis}_min', limit_min)
             setattr(constraint, f'limit_{axis}_max', limit_max)
-    
+
     # Motor settings
     use_motor = {kwargs}.get('use_motor', False)
     if hasattr(constraint, 'use_motor'):  # Only some constraint types support motors
@@ -707,7 +707,7 @@ def add_constraint():
         if use_motor:
             constraint.motor_velocity = {kwargs}.get('motor_velocity', 1.0)
             constraint.motor_max_impulse = {kwargs}.get('motor_max_impulse', 0.1)
-    
+
     return {{
         'status': 'SUCCESS',
         'constraint': empty.name,
@@ -733,20 +733,20 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to add rigid body constraint: {str(e)}")
+        logger.error(f"Failed to add rigid body constraint: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("configure_rigid_body_world", log_args=True)
 async def configure_rigid_body_world(
-    gravity: Tuple[float, float, float] = (0.0, 0.0, -9.81),
+    gravity: tuple[float, float, float] = (0.0, 0.0, -9.81),
     time_scale: float = 1.0,
     substeps_per_frame: int = 10,
     solver_iterations: int = 10,
     use_split_impulse: bool = True,
     split_impulse_threshold: float = 0.01,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Configure the rigid body world simulation settings.
 
     Args:
@@ -780,37 +780,37 @@ async def configure_rigid_body_world(
 
 def configure_world():
     scene = bpy.context.scene
-    
+
     # Enable rigid body world if not already enabled
     if not scene.rigidbody_world:
         bpy.ops.rigidbody.world_add()
-    
+
     rb_world = scene.rigidbody_world
-    
+
     # Set basic simulation parameters
     rb_world.gravity = {list(gravity)}
     rb_world.time_scale = {time_scale}
     rb_world.substeps_per_frame = {substeps_per_frame}
     rb_world.solver_iterations = {solver_iterations}
-    
+
     # Split impulse settings
     rb_world.use_split_impulse = {str(use_split_impulse).lower()}
     if {str(use_split_impulse).lower()}:
         rb_world.split_impulse_threshold = {split_impulse_threshold}
-    
+
     # Deactivation settings
     rb_world.use_deactivation = {str(use_deactivation).lower()}
     if {str(use_deactivation).lower()}:
         rb_world.deactivate_linear_threshold = {deactivate_linear_threshold}
         rb_world.deactivate_angular_threshold = {deactivate_angular_threshold}
         rb_world.deactivate_time = {deactivate_time}
-    
+
     # Continuous collision detection
     rb_world.use_continuous_collision = {str(use_continuous_collision).lower()}
     if {str(use_continuous_collision).lower()}:
         rb_world.ccd_mode = '{ccd_mode}'
         rb_world.ccd_threshold = {ccd_threshold}
-    
+
     return {{
         'status': 'SUCCESS',
         'gravity': {list(gravity)},
@@ -837,19 +837,19 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to configure rigid body world: {str(e)}")
+        logger.error(f"Failed to configure rigid body world: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("set_rigid_body_collision_shape", log_args=True)
 async def set_rigid_body_collision_shape(
     object_name: str,
-    shape_type: Union[CollisionShapeType, str],
-    source_object: Optional[str] = None,
+    shape_type: CollisionShapeType | str,
+    source_object: str | None = None,
     use_deform: bool = False,
     use_mesh: bool = False,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Set the collision shape for a rigid body.
 
     Args:
@@ -881,13 +881,13 @@ def set_collision_shape():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{'status': 'ERROR', 'error': 'Object not found'}}
-    
+
     if not obj.rigid_body:
         return {{'status': 'ERROR', 'error': 'Object does not have rigid body physics'}}
-    
+
     # Get the shape type
     shape_type = '{shape_type}'.upper()
-    
+
     # Set the collision shape
     if shape_type in ['MESH', 'CONVEX_HULL']:
         source_obj = None
@@ -895,48 +895,48 @@ def set_collision_shape():
             source_obj = bpy.data.objects.get('{source_object}')
             if not source_obj:
                 return {{'status': 'ERROR', 'error': f'Source object {{source_object}} not found'}}
-        
+
         if shape_type == 'MESH':
             if not source_obj and not obj.data:
                 return {{'status': 'ERROR', 'error': 'No mesh data or source object provided'}}
-            
+
             # Use source object or self
             mesh_obj = source_obj if source_obj else obj
-            
+
             # Set collision shape to mesh
             obj.rigid_body.collision_shape = 'MESH'
             obj.rigid_body.mesh_source = 'DEFORM' if {str(use_deform).lower()} else 'BASE'
             obj.rigid_body.use_mesh = {str(use_mesh).lower()}
-            
+
             # If using a source object, set up the collision mesh
             if source_obj:
                 # Make sure the source object is not visible in renders
                 source_obj.hide_render = True
                 source_obj.hide_viewport = True
-                
+
                 # Set the source object as the collision mesh
                 obj.rigid_body.collision_mesh = source_obj.data
-        
+
         elif shape_type == 'CONVEX_HULL':
             if not source_obj and not obj.data:
                 return {{'status': 'ERROR', 'error': 'No mesh data or source object provided'}}
-            
+
             # Use source object or self
             mesh_obj = source_obj if source_obj else obj
-            
+
             # Set collision shape to convex hull
             obj.rigid_body.collision_shape = 'CONVEX_HULL'
             obj.rigid_body.use_deform = {str(use_deform).lower()}
-            
+
             # If using a source object, set it as the convex hull source
             if source_obj:
                 source_obj.hide_render = True
                 source_obj.hide_viewport = True
                 obj.rigid_body.collision_mesh = source_obj.data
-    
+
     else:  # Primitive shapes
         obj.rigid_body.collision_shape = shape_type
-        
+
         # Set shape dimensions if provided
         if shape_type == 'SPHERE' and isinstance({radius}, (int, float)):
             # For sphere, we need to adjust the object scale
@@ -946,7 +946,7 @@ def set_collision_shape():
                 max_dim = max(bbox) if any(bbox) else 1.0
                 scale_factor = {radius} / (max_dim / 2) if max_dim > 0 else 1.0
                 obj.scale = (scale_factor, scale_factor, scale_factor)
-        
+
         elif shape_type in ['CAPSULE', 'CYLINDER', 'CONE']:
             # For capsules, cylinders, and cones, we might need to adjust height/radius
             if isinstance({height}, (int, float)) and {height} > 0:
@@ -955,7 +955,7 @@ def set_collision_shape():
                 if bbox_z > 0:
                     z_scale = {height} / bbox_z
                     obj.scale.z = z_scale
-            
+
             if isinstance({radius}, (int, float)) and {radius} > 0:
                 # Adjust X and Y scale to match desired radius
                 bbox_xy = max(obj.dimensions.x, obj.dimensions.y)
@@ -963,19 +963,19 @@ def set_collision_shape():
                     xy_scale = {radius} / (bbox_xy / 2) if bbox_xy > 0 else 1.0
                     obj.scale.x = xy_scale
                     obj.scale.y = xy_scale
-    
+
     # Set common properties
     obj.rigid_body.collision_margin = {margin}
     obj.rigid_body.use_compound = {str(use_compound).lower()}
     obj.rigid_body.use_deactivation = True
-    
+
     # Apply scale if needed
     if {str(use_scale).lower()} and obj.rigid_body.collision_shape != 'MESH':
         bpy.ops.object.select_all(action='DESELECT')
         obj.select_set(True)
         bpy.context.view_layer.objects.active = obj
         bpy.ops.object.transform_apply(scale=True)
-    
+
     return {{
         'status': 'SUCCESS',
         'object': obj.name,
@@ -1000,7 +1000,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to set rigid body collision shape: {str(e)}")
+        logger.error(f"Failed to set rigid body collision shape: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -1016,7 +1016,7 @@ async def create_particle_system(
     emit_from: str = "FACE",
     physics_type: str = "NEWTONIAN",
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create and configure a particle system on an object.
 
     Args:
@@ -1070,7 +1070,7 @@ def create_particles():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{'status': 'ERROR', 'error': 'Object not found'}}
-    
+
     # Add a new particle system
     if obj.particle_systems:
         # If object already has particle systems, add a new one
@@ -1078,11 +1078,11 @@ def create_particles():
     else:
         # Otherwise, add a new particle system with the settings
         bpy.ops.object.particle_system_add()
-    
+
     # Get the particle system and its settings
     particle_system = obj.particle_systems.active
     settings = particle_system.settings
-    
+
     # Basic settings
     settings.name = '{system_name}'
     settings.type = '{particle_type}'
@@ -1092,22 +1092,22 @@ def create_particles():
     settings.lifetime = {lifetime}
     settings.emit_from = '{emit_from}'
     settings.physics_type = '{physics_type}'
-    
+
     # Emission settings
     settings.use_emit_random = {str(use_emit_random).lower()}
     settings.use_even_distribution = {str(use_even_distribution).lower()}
     settings.use_modifier_stack = {str(use_modifier_stack).lower()}
     settings.normal_factor = {normal_factor}
-    
+
     # Render settings
     settings.render_type = 'HALO'  # Default, can be overridden by kwargs
     settings.particle_size = {size}
     settings.size_random = {size_random}
-    
+
     # Physics settings
     settings.mass = {mass}
     settings.use_multiply_size_mass = {str(use_multiply_size_mass).lower()}
-    
+
     # Rotation settings
     settings.use_rotations = {str(use_rotations).lower()}
     if {str(use_rotations).lower()}:
@@ -1116,15 +1116,15 @@ def create_particles():
         settings.use_dynamic_rotation = {str(use_dynamic_rotation).lower()}
         settings.angular_velocity_mode = '{angular_velocity_mode}'
         settings.angular_velocity_factor = {angular_velocity_factor}
-    
+
     # Apply additional settings from kwargs
     for key, value in {kwargs}.items():
         if hasattr(settings, key):
             setattr(settings, key, value)
-    
+
     # Update the viewport
     bpy.context.view_layer.update()
-    
+
     return {{
         'status': 'SUCCESS',
         'object': obj.name,
@@ -1150,14 +1150,14 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to configure particle physics: {str(e)}")
+        logger.error(f"Failed to configure particle physics: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("control_particle_emission", log_args=True)
 async def control_particle_emission(
     object_name: str, system_name: str = "ParticleSystem", action: str = "PAUSE", **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Control particle emission and caching.
 
     Args:
@@ -1196,35 +1196,35 @@ def control_emission():
     obj = bpy.data.objects.get('{object_name}')
     if not obj:
         return {{'status': 'ERROR', 'error': 'Object not found'}}
-    
+
     # Find the particle system
     particle_system = None
     for ps in obj.particle_systems:
         if ps.name == '{system_name}':
             particle_system = ps
             break
-    
+
     if not particle_system:
         return {{'status': 'ERROR', 'error': f'Particle system {{system_name}} not found'}}
-    
+
     settings = particle_system.settings
     action = '{action}'.upper()
-    
+
     # Apply settings
     settings.use_render_emitter = {str(use_render_emitter).lower()}
     settings.use_emit_random = {str(use_emit_random).lower()}
     settings.use_even_distribution = {str(use_even_distribution).lower()}
     settings.use_rotations = {str(use_rotations).lower()}
     settings.use_dynamic_rotation = {str(use_dynamic_rotation).lower()}
-    
+
     # Handle disk cache
     if {str(use_disk_cache).lower()} and '{cache_directory}':
         settings.use_disk_cache = True
         settings.disk_cache_dir = '{cache_directory}'
-    
+
     # Execute action
     result = {{'status': 'SUCCESS', 'action': action, 'system': particle_system.name}}
-    
+
     if action == 'PLAY':
         particle_system.point_cache.is_baked = True
         particle_system.point_cache.frame_start = {frame_start}
@@ -1232,42 +1232,42 @@ def control_emission():
         bpy.ops.ptcache.free_bake({"point_cache": particle_system.point_cache})
         bpy.ops.ptcache.bake({"point_cache": particle_system.point_cache}, bake=True)
         result['message'] = 'Particle system playing'
-    
+
     elif action == 'PAUSE':
         if particle_system.point_cache.is_baked:
             bpy.ops.ptcache.free_bake({{"point_cache": particle_system.point_cache}})
         result['message'] = 'Particle system paused'
-    
+
     elif action == 'RESTART':
         bpy.ops.ptcache.free_bake({{"point_cache": particle_system.point_cache}})
         particle_system.point_cache.is_baked = False
         result['message'] = 'Particle system restarted'
-    
+
     elif action == 'FREE_CACHE':
         bpy.ops.ptcache.free_bake({{"point_cache": particle_system.point_cache}})
         particle_system.point_cache.is_baked = False
         result['message'] = 'Particle cache cleared'
-    
+
     elif action == 'BAKE':
         if {str(clear_bake).lower()}:
             bpy.ops.ptcache.free_bake({{"point_cache": particle_system.point_cache}})
-        
+
         particle_system.point_cache.frame_start = {frame_start}
         particle_system.point_cache.frame_end = {frame_end}
-        
+
         # Bake the simulation
         bpy.ops.ptcache.bake({{"point_cache": particle_system.point_cache}}, bake=True)
-        
+
         result.update({{
             'baked': particle_system.point_cache.is_baked,
             'frame_range': ({frame_start}, {frame_end}),
             'use_disk_cache': {str(use_disk_cache).lower()},
             'cache_directory': '{cache_directory}'
         }})
-    
+
     else:
         return {{'status': 'ERROR', 'error': f'Unknown action: {{action}}'}}
-    
+
     # Update the viewport
     bpy.context.view_layer.update()
     return result
@@ -1287,5 +1287,5 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to control particle emission: {str(e)}")
+        logger.error(f"Failed to control particle emission: {e!s}")
         return {"status": "ERROR", "error": str(e)}

@@ -1,7 +1,7 @@
 """Transform operations handler for Blender MCP."""
 
 from enum import Enum
-from typing import Any, Dict, List, Union
+from typing import Any
 
 from loguru import logger
 
@@ -31,18 +31,18 @@ class TransformType(str, Enum):
 
 @blender_operation("set_transform", log_args=True)
 async def set_transform(
-    object_names: Union[str, List[str]],
-    transform_type: Union[TransformType, str],
-    values: Union[List[float], Dict[str, float]],
-    space: Union[TransformSpace, str] = TransformSpace.WORLD,
+    object_names: str | list[str],
+    transform_type: TransformType | str,
+    values: list[float] | dict[str, float],
+    space: TransformSpace | str = TransformSpace.WORLD,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Set transform values for objects."""
     if isinstance(object_names, str):
         object_names = [object_names]
 
     relative = kwargs.get("relative", False)
-    as_euler = kwargs.get("as_euler", False)
+    kwargs.get("as_euler", False)
 
     # Process values based on transform type
     if transform_type == TransformType.TRANSLATE:
@@ -61,7 +61,7 @@ def set_transform():
         if not obj:
             results[name] = {{"status": "ERROR", "error": "Object not found"}}
             continue
-            
+
         try:
             prev_loc = tuple(obj.location)
             {op}
@@ -86,16 +86,16 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Transform failed: {str(e)}")
+        logger.error(f"Transform failed: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("apply_transform", log_args=True)
 async def apply_transform(
-    object_names: Union[str, List[str]],
-    transform_types: Union[str, List[str]] = "ALL",
+    object_names: str | list[str],
+    transform_types: str | list[str] = "ALL",
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Apply transform to objects."""
     if isinstance(object_names, str):
         object_names = [object_names]
@@ -112,12 +112,12 @@ def apply_transform():
         if not obj:
             results[name] = {{"status": "ERROR", "error": "Object not found"}}
             continue
-            
+
         try:
             bpy.ops.object.select_all(action='DESELECT')
             obj.select_set(True)
             bpy.context.view_layer.objects.active = obj
-            
+
             for t in {transform_types}:
                 if t.upper() in ['ALL', 'LOCATION']:
                     bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
@@ -125,7 +125,7 @@ def apply_transform():
                     bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
                 if t.upper() in ['ALL', 'SCALE']:
                     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-            
+
             results[name] = {{"status": "SUCCESS"}}
         except Exception as e:
             results[name] = {{"status": "ERROR", "error": str(e)}}
@@ -142,5 +142,5 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Apply transform failed: {str(e)}")
+        logger.error(f"Apply transform failed: {e!s}")
         return {"status": "ERROR", "error": str(e)}

@@ -5,7 +5,7 @@ VRChat, Resonite, and Unity with appropriate scale, format, and settings.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from ..decorators import blender_operation
 
@@ -69,14 +69,14 @@ PLATFORM_PRESETS = {
 
 @blender_operation("export_with_preset")
 async def export_with_preset(
-    target_objects: List[str],
+    target_objects: list[str],
     platform: str = "VRCHAT",
     output_path: str = "//export",
     include_materials: bool = True,
     include_textures: bool = True,
     apply_modifiers: bool = True,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Export objects using platform-specific presets.
 
@@ -239,17 +239,17 @@ print("EXPORT_COMPLETE: True")
 
     except Exception as e:
         logger.error(f"Platform export failed: {e}")
-        raise BlenderExportError(f"Failed to export with {platform} preset: {str(e)}") from e
+        raise BlenderExportError(f"Failed to export with {platform} preset: {e!s}") from e
 
 
 @blender_operation("validate_export_preset")
 async def validate_export_preset(
-    target_objects: List[str],
+    target_objects: list[str],
     platform: str = "VRCHAT",
     check_bones: bool = True,
     check_materials: bool = True,
     check_scale: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Validate objects against platform export requirements.
 
@@ -404,11 +404,11 @@ print("VALIDATION_RESULTS:" + json.dumps(validation_results))
 
     except Exception as e:
         logger.error(f"Export validation failed: {e}")
-        raise BlenderExportError(f"Failed to validate export preset: {str(e)}") from e
+        raise BlenderExportError(f"Failed to validate export preset: {e!s}") from e
 
 
 @blender_operation("get_platform_presets")
-async def get_platform_presets() -> Dict[str, Any]:
+async def get_platform_presets() -> dict[str, Any]:
     """
     Get information about available platform export presets.
 
@@ -433,15 +433,15 @@ async def get_platform_presets() -> Dict[str, Any]:
 
     except Exception as e:
         logger.error(f"Platform presets retrieval failed: {e}")
-        raise BlenderExportError(f"Failed to get platform presets: {str(e)}") from e
+        raise BlenderExportError(f"Failed to get platform presets: {e!s}") from e
 
 
 @blender_operation("create_custom_preset")
 async def create_custom_preset(
     preset_name: str,
     base_platform: str = "VRCHAT",
-    custom_settings: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    custom_settings: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Create a custom export preset based on an existing platform.
 
@@ -463,9 +463,7 @@ async def create_custom_preset(
 
     if base_platform not in PLATFORM_PRESETS:
         supported = list(PLATFORM_PRESETS.keys())
-        raise BlenderExportError(
-            f"Unsupported base platform '{base_platform}'. Supported: {supported}"
-        )
+        raise BlenderExportError(f"Unsupported base platform '{base_platform}'. Supported: {supported}")
 
     # Start with base preset
     custom_preset = PLATFORM_PRESETS[base_platform].copy()
@@ -488,4 +486,4 @@ async def create_custom_preset(
 
     except Exception as e:
         logger.error(f"Custom preset creation failed: {e}")
-        raise BlenderExportError(f"Failed to create custom preset: {str(e)}") from e
+        raise BlenderExportError(f"Failed to create custom preset: {e!s}") from e

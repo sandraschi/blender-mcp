@@ -3,7 +3,7 @@
 import logging
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any
 
 from ..compat import *
 
@@ -49,9 +49,7 @@ class ImportFormat(str, Enum):
 
 
 @blender_operation("import_file", log_args=True)
-async def import_file(
-    filepath: str, file_format: Union[ImportFormat, str], **kwargs: Any
-) -> Dict[str, Any]:
+async def import_file(filepath: str, file_format: ImportFormat | str, **kwargs: Any) -> dict[str, Any]:
     """Import a 3D file into the current scene.
 
     Args:
@@ -191,14 +189,12 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to import file: {str(e)}")
+        logger.error(f"Failed to import file: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("link_asset", log_args=True)
-async def link_asset(
-    filepath: str, asset_name: str, link: bool = True, **kwargs: Any
-) -> Dict[str, Any]:
+async def link_asset(filepath: str, asset_name: str, link: bool = True, **kwargs: Any) -> dict[str, Any]:
     """Link or append an asset from another .blend file.
 
     Args:
@@ -285,5 +281,5 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to link/append asset: {str(e)}")
+        logger.error(f"Failed to link/append asset: {e!s}")
         return {"status": "ERROR", "error": str(e)}

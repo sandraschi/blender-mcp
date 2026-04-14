@@ -8,7 +8,7 @@ import logging
 import math
 from enum import Enum
 from math import radians
-from typing import Any, Dict, Tuple, Union
+from typing import Any
 
 from ..compat import *
 
@@ -408,18 +408,18 @@ class FurnitureHandler(FastMCP):
 @blender_operation("create_table", log_args=True)
 async def create_table(
     name: str = "Table",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    scale: Tuple[float, float, float] = (1.0, 1.0, 1.0),
-    style: Union[str, FurnitureStyle] = FurnitureStyle.MODERN,
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (1.0, 1.0, 1.0),
+    style: str | FurnitureStyle = FurnitureStyle.MODERN,
     table_type: str = "dining",  # dining, coffee, side, console, etc.
-    material: Union[str, MaterialType] = MaterialType.WOOD,
-    color: Tuple[float, float, float, float] = (0.7, 0.6, 0.4, 1.0),  # RGBA
+    material: str | MaterialType = MaterialType.WOOD,
+    color: tuple[float, float, float, float] = (0.7, 0.6, 0.4, 1.0),  # RGBA
     length: float = 1.2,
     width: float = 0.8,
     height: float = 0.75,
     leg_count: int = 4,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a table in the Blender scene.
 
     Args:
@@ -472,9 +472,7 @@ async def create_table(
     bmesh.ops.create_cube(
         bm,
         size=1.0,
-        matrix=Matrix.LocRotScale(
-            (0, 0, height - tabletop_thickness / 2), None, (length, width, tabletop_thickness)
-        ),
+        matrix=Matrix.LocRotScale((0, 0, height - tabletop_thickness / 2), None, (length, width, tabletop_thickness)),
     )
 
     # Create legs based on leg_count
@@ -645,18 +643,18 @@ async def create_table(
 @blender_operation("create_chair", log_args=True)
 async def create_chair(
     name: str = "Chair",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    scale: Tuple[float, float, float] = (1.0, 1.0, 1.0),
-    style: Union[str, FurnitureStyle] = FurnitureStyle.MODERN,
-    material: Union[str, MaterialType] = MaterialType.WOOD,
-    color: Tuple[float, float, float, float] = (0.7, 0.6, 0.4, 1.0),  # RGBA
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (1.0, 1.0, 1.0),
+    style: str | FurnitureStyle = FurnitureStyle.MODERN,
+    material: str | MaterialType = MaterialType.WOOD,
+    color: tuple[float, float, float, float] = (0.7, 0.6, 0.4, 1.0),  # RGBA
     seat_height: float = 0.45,
     seat_width: float = 0.5,
     seat_depth: float = 0.5,
     backrest_height: float = 0.4,
     has_armrests: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a chair in the Blender scene.
 
     Args:
@@ -832,17 +830,17 @@ async def create_chair(
 @blender_operation("create_sofa", log_args=True)
 async def create_sofa(
     name: str = "Sofa",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    scale: Tuple[float, float, float] = (1.0, 1.0, 1.0),
-    style: Union[str, FurnitureStyle] = FurnitureStyle.MODERN,
-    material: Union[str, MaterialType] = MaterialType.FABRIC,
-    color: Tuple[float, float, float, float] = (0.8, 0.8, 0.8, 1.0),  # Light gray by default
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (1.0, 1.0, 1.0),
+    style: str | FurnitureStyle = FurnitureStyle.MODERN,
+    material: str | MaterialType = MaterialType.FABRIC,
+    color: tuple[float, float, float, float] = (0.8, 0.8, 0.8, 1.0),  # Light gray by default
     seat_count: int = 3,
     has_chaise: bool = False,
     is_sleeper: bool = False,
     has_recliner: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a sofa in the Blender scene.
 
     Args:
@@ -907,9 +905,7 @@ async def create_sofa(
 
     # Add middle leg if sofa is long enough
     if seat_count > 3:
-        leg_positions.extend(
-            [(0, seat_depth / 2 - 0.1, leg_height / 2), (0, -seat_depth / 2 + 0.1, leg_height / 2)]
-        )
+        leg_positions.extend([(0, seat_depth / 2 - 0.1, leg_height / 2), (0, -seat_depth / 2 + 0.1, leg_height / 2)])
 
     for pos in leg_positions:
         bmesh.ops.create_cylinder(
@@ -942,9 +938,7 @@ async def create_sofa(
         bmesh.ops.create_cube(
             bm,
             size=1.0,
-            matrix=Matrix.LocRotScale(
-                pos, None, (armrest_width, seat_depth * 1.1, armrest_height - seat_height)
-            ),
+            matrix=Matrix.LocRotScale(pos, None, (armrest_width, seat_depth * 1.1, armrest_height - seat_height)),
         )
 
     # Add cushions (one per seat)
@@ -1112,18 +1106,18 @@ async def create_sofa(
 @blender_operation("create_bed", log_args=True)
 async def create_bed(
     name: str = "Bed",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    scale: Tuple[float, float, float] = (1.0, 1.0, 1.0),
-    style: Union[str, FurnitureStyle] = FurnitureStyle.MODERN,
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (1.0, 1.0, 1.0),
+    style: str | FurnitureStyle = FurnitureStyle.MODERN,
     bed_type: str = "queen",  # twin, full, queen, king, california_king
-    material: Union[str, MaterialType] = MaterialType.WOOD,
-    frame_color: Tuple[float, float, float, float] = (0.7, 0.6, 0.4, 1.0),  # RGBA
-    mattress_color: Tuple[float, float, float, float] = (0.95, 0.95, 0.95, 1.0),  # RGBA
+    material: str | MaterialType = MaterialType.WOOD,
+    frame_color: tuple[float, float, float, float] = (0.7, 0.6, 0.4, 1.0),  # RGBA
+    mattress_color: tuple[float, float, float, float] = (0.95, 0.95, 0.95, 1.0),  # RGBA
     has_headboard: bool = True,
     has_footboard: bool = False,
     has_storage: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a bed in the Blender scene.
 
     Args:
@@ -1289,11 +1283,11 @@ async def create_bed(
 @blender_operation("create_room", log_args=True)
 async def create_room(
     name: str = "Room",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    scale: Tuple[float, float, float] = (1.0, 1.0, 1.0),
-    room_type: Union[str, RoomType] = RoomType.LIVING,
-    style: Union[str, FurnitureStyle] = FurnitureStyle.MODERN,
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (1.0, 1.0, 1.0),
+    room_type: str | RoomType = RoomType.LIVING,
+    style: str | FurnitureStyle = FurnitureStyle.MODERN,
     length: float = 4.0,
     width: float = 4.0,
     height: float = 2.7,
@@ -1302,7 +1296,7 @@ async def create_room(
     window_count: int = 2,
     has_door: bool = True,
     door_location: str = "center",  # left, center, right
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a room in the Blender scene.
 
     Args:
@@ -1595,10 +1589,10 @@ async def create_room(
 @blender_operation("create_building", log_args=True)
 async def create_building(
     name: str = "House",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    scale: Tuple[float, float, float] = (1.0, 1.0, 1.0),
-    building_style: Union[str, HouseStyle] = HouseStyle.MODERN,
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (1.0, 1.0, 1.0),
+    building_style: str | HouseStyle = HouseStyle.MODERN,
     floors: int = 1,
     rooms_per_floor: int = 3,
     length: float = 10.0,
@@ -1609,7 +1603,7 @@ async def create_building(
     has_garage: bool = False,
     has_chimney: bool = False,
     window_style: str = "double_hung",  # casement, awning, sliding, etc.
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a building in the Blender scene.
 
     Args:
@@ -1726,9 +1720,7 @@ async def create_building(
             bmesh.ops.create_cube(
                 bm,
                 size=1.0,
-                matrix=Matrix.LocRotScale(
-                    (0, 0, roof_height / 2), None, (length * 1.1, width * 1.1, roof_height)
-                ),
+                matrix=Matrix.LocRotScale((0, 0, roof_height / 2), None, (length * 1.1, width * 1.1, roof_height)),
             )
         elif roof_type == "gabled":
             # Gabled roof
@@ -1787,9 +1779,7 @@ async def create_building(
         bmesh.ops.create_cube(
             bm,
             size=1.0,
-            matrix=Matrix.LocRotScale(
-                (0, 0, 0), None, (garage_length, garage_width, garage_height)
-            ),
+            matrix=Matrix.LocRotScale((0, 0, 0), None, (garage_length, garage_width, garage_height)),
         )
 
         # Add garage door
@@ -1834,9 +1824,7 @@ async def create_building(
         bmesh.ops.create_cube(
             bm,
             size=1.0,
-            matrix=Matrix.LocRotScale(
-                (0, 0, 0), None, (chimney_length, chimney_width, chimney_height)
-            ),
+            matrix=Matrix.LocRotScale((0, 0, 0), None, (chimney_length, chimney_width, chimney_height)),
         )
 
         # Update mesh
@@ -1859,9 +1847,7 @@ async def create_building(
     building_data = {
         "name": name,
         "type": "building",
-        "building_style": building_style.value
-        if isinstance(building_style, HouseStyle)
-        else building_style,
+        "building_style": building_style.value if isinstance(building_style, HouseStyle) else building_style,
         "object": building_obj.name,
         "location": location,
         "rotation": rotation,
@@ -1869,8 +1855,7 @@ async def create_building(
         "dimensions": {
             "length": length,
             "width": width,
-            "height": height_per_floor * floors
-            + (height_per_floor * 0.5 if has_roof and roof_type != "flat" else 0),
+            "height": height_per_floor * floors + (height_per_floor * 0.5 if has_roof and roof_type != "flat" else 0),
             "height_per_floor": height_per_floor,
             "floor_area": length * width,
             "total_area": length * width * floors,
@@ -1891,12 +1876,8 @@ async def create_building(
         "room_objects": [room["object"] for room in rooms if room["object"] in bpy.data.objects],
         "floor_objects": [obj.name for obj in floor_objects],
         "roof_object": roof_obj.name if roof_obj and roof_obj.name in bpy.data.objects else None,
-        "garage_object": garage_obj.name
-        if garage_obj and garage_obj.name in bpy.data.objects
-        else None,
-        "chimney_object": chimney_obj.name
-        if chimney_obj and chimney_obj.name in bpy.data.objects
-        else None,
+        "garage_object": garage_obj.name if garage_obj and garage_obj.name in bpy.data.objects else None,
+        "chimney_object": chimney_obj.name if chimney_obj and chimney_obj.name in bpy.data.objects else None,
     }
 
     logger.info(f"Created building: {name} with {floors} floors and {len(rooms)} rooms")

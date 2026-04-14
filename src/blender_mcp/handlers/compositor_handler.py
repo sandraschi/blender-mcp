@@ -2,7 +2,7 @@
 
 import logging
 from enum import Enum
-from typing import Any, Dict, Tuple, Union
+from typing import Any
 
 from ..compat import *
 
@@ -99,9 +99,7 @@ class CompositorNodeType(str, Enum):
 
 
 @blender_operation("enable_compositor", log_args=True)
-async def enable_compositor(
-    use_nodes: bool = True, use_sequencer: bool = False, **kwargs: Any
-) -> Dict[str, Any]:
+async def enable_compositor(use_nodes: bool = True, use_sequencer: bool = False, **kwargs: Any) -> dict[str, Any]:
     """Enable the compositor and configure basic settings."""
     script = f"""
 
@@ -151,17 +149,17 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to enable compositor: {str(e)}")
+        logger.error(f"Failed to enable compositor: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("add_compositor_node", log_args=True)
 async def add_compositor_node(
-    node_type: Union[CompositorNodeType, str],
-    node_name: str = None,
-    location: Tuple[float, float] = (0.0, 0.0),
+    node_type: CompositorNodeType | str,
+    node_name: str | None = None,
+    location: tuple[float, float] = (0.0, 0.0),
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Add a node to the compositor."""
     script = f"""
 
@@ -202,14 +200,14 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to add compositor node: {str(e)}")
+        logger.error(f"Failed to add compositor node: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("connect_compositor_nodes", log_args=True)
 async def connect_compositor_nodes(
     from_node: str, from_socket: str, to_node: str, to_socket: str, **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Connect two nodes in the compositor."""
     script = f"""
 
@@ -266,14 +264,12 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to connect compositor nodes: {str(e)}")
+        logger.error(f"Failed to connect compositor nodes: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("create_glow_effect", log_args=True)
-async def create_glow_effect(
-    threshold: float = 0.8, size: int = 10, quality: int = 2, **kwargs: Any
-) -> Dict[str, Any]:
+async def create_glow_effect(threshold: float = 0.8, size: int = 10, quality: int = 2, **kwargs: Any) -> dict[str, Any]:
     """Create a glow effect in the compositor."""
     script = f"""
 
@@ -341,5 +337,5 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to create glow effect: {str(e)}")
+        logger.error(f"Failed to create glow effect: {e!s}")
         return {"status": "ERROR", "error": str(e)}

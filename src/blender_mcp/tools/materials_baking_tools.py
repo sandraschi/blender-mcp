@@ -6,7 +6,7 @@ for cross-platform compatibility in VR environments.
 """
 
 import logging
-from typing import Literal, Optional
+from typing import Literal
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def _register_materials_baking_tools():
         ] = "bake_toon_to_pbr",
         resolution: int = 2048,
         margin: int = 16,
-        target_mesh: Optional[str] = None,
+        target_mesh: str | None = None,
         output_dir: str = "//bakes",
         bake_type: str = "combined",
         max_atlas_size: int = 4096,
@@ -127,7 +127,7 @@ def _register_materials_baking_tools():
 
         except Exception as e:
             logger.error(f"Materials baking operation '{operation}' failed: {e}")
-            return f"Materials baking failed: {str(e)}"
+            return f"Materials baking failed: {e!s}"
 
 
 def _format_baking_result(result: dict) -> str:
@@ -163,7 +163,7 @@ def _format_baking_result(result: dict) -> str:
         report += f"**Bake Type:** {result['bake_type']}\n"
 
     # Materials list
-    if "materials" in result and result["materials"]:
+    if result.get("materials"):
         report += "\n**Processed Materials:**\n"
         for mat_info in result["materials"]:
             mat_name = mat_info.get("material_name", "Unknown")

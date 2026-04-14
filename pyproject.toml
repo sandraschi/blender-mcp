@@ -35,7 +35,7 @@ classifiers = [
     "Framework :: AsyncIO",
 ]
 dependencies = [
-    "fastmcp>=3.1.1",
+    "fastmcp>=3.2.0",
     "httpx>=0.25.0",
     "psutil>=5.9",
     "pydantic>=2.0.0",
@@ -107,6 +107,7 @@ strict_equality = true
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "-ra -q --strict-markers --strict-config"
+asyncio_mode = "auto"
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
@@ -115,6 +116,7 @@ markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
+    "asyncio: marks tests as asynchronous",
 ]
 filterwarnings = [
     "error",
@@ -161,8 +163,17 @@ line-length = 120
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "B", "S", "UP", "RUF"]
+select = ["E", "F", "W", "I", "B", "S", "UP", "RUF", "T201"]
 ignore = ["S101", "B008"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/blender_mcp/cli.py" = ["T201"]
+"webapp/backend/tests/**" = ["T201"]
+"webapp/backend/tests/run_tests.py" = ["T201"]
+"verify_tools.py" = ["T201"]
+"setup.py" = ["T201"]
+"examples/**" = ["T201"]
+"scripts/**" = ["T201"]
 
 [tool.ruff.format]
 quote-style = "double"

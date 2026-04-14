@@ -46,9 +46,7 @@ def update_file(file_path: Path) -> bool:
         ]
 
         for type_name in typing_imports:
-            content = re.sub(
-                rf"from\s+typing\s+import\s+(?:[^\n,]*\b{type_name}\b[^\n,]*)(?:,\s*)?", "", content
-            )
+            content = re.sub(rf"from\s+typing\s+import\s+(?:[^\n,]*\b{type_name}\b[^\n,]*)(?:,\s*)?", "", content)
 
             # Remove empty typing imports
             content = re.sub(r"from\s+typing\s+import\s*\n", "", content)

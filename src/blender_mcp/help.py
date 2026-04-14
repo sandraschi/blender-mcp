@@ -6,7 +6,7 @@ and AI assistants to understand the available functionality.
 """
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from blender_mcp.compat import *
 
@@ -30,7 +30,7 @@ class FunctionInfo:
 
     name: str
     description: str
-    parameters: List[ParameterInfo] = field(default_factory=list)
+    parameters: list[ParameterInfo] = field(default_factory=list)
     returns: str = ""
     example: str = ""
     category: str = "General"
@@ -40,7 +40,7 @@ class HelpSystem:
     """Help system for the Blender MCP server."""
 
     def __init__(self):
-        self.functions: Dict[str, FunctionInfo] = {}
+        self.functions: dict[str, FunctionInfo] = {}
         self._initialize_help()
 
     def _initialize_help(self):
@@ -56,9 +56,7 @@ class HelpSystem:
                     ParameterInfo("x", "float", "0.0", "X position"),
                     ParameterInfo("y", "float", "0.0", "Y position"),
                     ParameterInfo("z", "float", "0.0", "Z position"),
-                    ParameterInfo(
-                        "style", "str", "'art_deco'", "Style: 'art_deco', 'victorian', 'modern'"
-                    ),
+                    ParameterInfo("style", "str", "'art_deco'", "Style: 'art_deco', 'victorian', 'modern'"),
                 ],
                 returns="str: Name of the created object",
                 example="create_vanity_table('MyTable', 0, 0, 0, 'modern')",
@@ -76,9 +74,7 @@ class HelpSystem:
                     ParameterInfo("y", "float", "0.0", "Y position"),
                     ParameterInfo("z", "float", "0.0", "Z position"),
                     ParameterInfo("count", "int", "3", "Number of candles"),
-                    ParameterInfo(
-                        "style", "str", "'elegant'", "Style: 'elegant', 'romantic', 'minimal'"
-                    ),
+                    ParameterInfo("style", "str", "'elegant'", "Style: 'elegant', 'romantic', 'minimal'"),
                 ],
                 returns="str: Name of the created object collection",
             )
@@ -94,9 +90,7 @@ class HelpSystem:
                     ParameterInfo("x", "float", "0.0", "X position"),
                     ParameterInfo("y", "float", "0.0", "Y position"),
                     ParameterInfo("z", "float", "0.0", "Z position"),
-                    ParameterInfo(
-                        "style", "str", "'baroque'", "Style: 'baroque', 'art_nouveau', 'modern'"
-                    ),
+                    ParameterInfo("style", "str", "'baroque'", "Style: 'baroque', 'art_nouveau', 'modern'"),
                 ],
                 returns="str: Name of the created object",
             )
@@ -112,9 +106,7 @@ class HelpSystem:
                     ParameterInfo("x", "float", "0.0", "X position"),
                     ParameterInfo("y", "float", "0.0", "Y position"),
                     ParameterInfo("z", "float", "0.0", "Z position"),
-                    ParameterInfo(
-                        "style", "str", "'classic'", "Style: 'classic', 'fluffy', 'exotic'"
-                    ),
+                    ParameterInfo("style", "str", "'classic'", "Style: 'classic', 'fluffy', 'exotic'"),
                 ],
                 returns="str: Name of the created object",
             )
@@ -134,9 +126,7 @@ class HelpSystem:
                         "'cotton'",
                         "Type: 'cotton', 'silk', 'velvet', 'wool', 'leather', 'denim'",
                     ),
-                    ParameterInfo(
-                        "color", "tuple[float, float, float]", "(0.8, 0.1, 0.3)", "RGB color (0-1)"
-                    ),
+                    ParameterInfo("color", "tuple[float, float, float]", "(0.8, 0.1, 0.3)", "RGB color (0-1)"),
                     ParameterInfo("roughness", "float", "0.7", "Surface roughness (0-1)"),
                 ],
                 returns="str: Name of the created material",
@@ -191,9 +181,7 @@ class HelpSystem:
                 category="Export",
                 description="Export the current scene for Unity3D.",
                 parameters=[
-                    ParameterInfo(
-                        "output_path", "str", required=True, description="Path to save the FBX file"
-                    ),
+                    ParameterInfo("output_path", "str", required=True, description="Path to save the FBX file"),
                     ParameterInfo("scale", "float", "1.0", "Scale factor for the exported model"),
                     ParameterInfo(
                         "apply_modifiers",
@@ -208,9 +196,7 @@ class HelpSystem:
                         "Whether to optimize materials for Unity",
                     ),
                     ParameterInfo("bake_textures", "bool", "False", "Whether to bake textures"),
-                    ParameterInfo(
-                        "lod_levels", "int", "0", "Number of LOD levels to generate (0 = no LOD)"
-                    ),
+                    ParameterInfo("lod_levels", "int", "0", "Number of LOD levels to generate (0 = no LOD)"),
                 ],
                 returns="str: Success message with export details",
             )
@@ -222,14 +208,10 @@ class HelpSystem:
                 category="Export",
                 description="Export the current scene for VRChat with performance limits.",
                 parameters=[
-                    ParameterInfo(
-                        "output_path", "str", required=True, description="Path to save the VRM file"
-                    ),
+                    ParameterInfo("output_path", "str", required=True, description="Path to save the VRM file"),
                     ParameterInfo("polygon_limit", "int", "20000", "Maximum allowed polygons"),
                     ParameterInfo("material_limit", "int", "8", "Maximum allowed materials"),
-                    ParameterInfo(
-                        "texture_size_limit", "int", "1024", "Maximum texture size in pixels"
-                    ),
+                    ParameterInfo("texture_size_limit", "int", "1024", "Maximum texture size in pixels"),
                     ParameterInfo("performance_rank", "str", "'Good'", "Target performance rank"),
                 ],
                 returns="str: Success message with export details",
@@ -329,9 +311,7 @@ class HelpSystem:
                         "import_gs",
                         "import_gs | crop_and_clean | generate_collision_mesh | export_for_resonite | ...",
                     ),
-                    ParameterInfo(
-                        "file_path", "str", "", "Path to .ply/splat file (for import_gs)"
-                    ),
+                    ParameterInfo("file_path", "str", "", "Path to .ply/splat file (for import_gs)"),
                 ],
                 returns="Operation result string",
                 example="blender_splatting(operation='import_gs', file_path='/path/to/splat.ply')",
@@ -351,9 +331,7 @@ class HelpSystem:
                         "None",
                         "Name of specific function to get help for",
                     ),
-                    ParameterInfo(
-                        "category", "Optional[str]", "None", "Category to filter help by"
-                    ),
+                    ParameterInfo("category", "Optional[str]", "None", "Category to filter help by"),
                 ],
                 returns="str: Formatted help text with function signatures and examples",
                 example="blender_help('create_cube') or blender_help(category='Mesh Creation')",
@@ -365,11 +343,7 @@ class HelpSystem:
                 name="blender_list_tools",
                 category="Help & Documentation",
                 description="List all available Blender MCP tools with descriptions.",
-                parameters=[
-                    ParameterInfo(
-                        "category", "Optional[str]", "None", "Category to filter tools by"
-                    )
-                ],
+                parameters=[ParameterInfo("category", "Optional[str]", "None", "Category to filter tools by")],
                 returns="Dict: Tools organized by categories with descriptions",
                 example="blender_list_tools('Mesh Creation')",
             )
@@ -434,12 +408,8 @@ class HelpSystem:
                         "True",
                         "Include Blender-specific information",
                     ),
-                    ParameterInfo(
-                        "include_system_info", "bool", "True", "Include general system information"
-                    ),
-                    ParameterInfo(
-                        "include_performance", "bool", "True", "Include performance metrics"
-                    ),
+                    ParameterInfo("include_system_info", "bool", "True", "Include general system information"),
+                    ParameterInfo("include_performance", "bool", "True", "Include performance metrics"),
                 ],
                 returns="Dict: Complete system status including MCP server, Blender, and performance data",
                 example="blender_status()",
@@ -473,11 +443,7 @@ class HelpSystem:
                 name="blender_performance_monitor",
                 category="System Status",
                 description="Monitor system performance over a specified duration.",
-                parameters=[
-                    ParameterInfo(
-                        "duration_seconds", "int", "10", "How long to monitor (max 60 seconds)"
-                    )
-                ],
+                parameters=[ParameterInfo("duration_seconds", "int", "10", "How long to monitor (max 60 seconds)")],
                 returns="Dict: Performance monitoring results with samples and summary statistics",
                 example="blender_performance_monitor(30)",
             )
@@ -497,9 +463,7 @@ class HelpSystem:
                         "Operation to perform (save/load/search/list_objects)",
                     ),
                     ParameterInfo("object_name", "str", "", "Blender object name (for save)"),
-                    ParameterInfo(
-                        "object_name_display", "str", "", "Display name for saved objects"
-                    ),
+                    ParameterInfo("object_name_display", "str", "", "Display name for saved objects"),
                     ParameterInfo("object_id", "str", "", "Repository ID (for load)"),
                     ParameterInfo("query", "str | None", "None", "Search query"),
                     ParameterInfo("category", "str", "'general'", "Object category"),
@@ -507,9 +471,7 @@ class HelpSystem:
                     ParameterInfo("description", "str", "", "Detailed description of the model"),
                     ParameterInfo("tags", "List[str]", "[]", "Tags for categorization and search"),
                     ParameterInfo("category", "str", "'general'", "Organizational category"),
-                    ParameterInfo(
-                        "construction_script", "str | None", "None", "Original construction script"
-                    ),
+                    ParameterInfo("construction_script", "str | None", "None", "Original construction script"),
                     ParameterInfo("quality_rating", "int", "5", "Quality rating 1-10"),
                     ParameterInfo("public", "bool", "False", "Make model publicly available"),
                 ],
@@ -525,12 +487,8 @@ class HelpSystem:
                 category="AI Construction",
                 description="AI-powered object construction and modification using natural language and LLM-generated Blender scripts.",
                 parameters=[
-                    ParameterInfo(
-                        "operation", "str", "construct", "Operation to perform (construct/modify)"
-                    ),
-                    ParameterInfo(
-                        "description", "str", "", "Natural language description (for construct)"
-                    ),
+                    ParameterInfo("operation", "str", "construct", "Operation to perform (construct/modify)"),
+                    ParameterInfo("description", "str", "", "Natural language description (for construct)"),
                     ParameterInfo("object_name", "str", "", "Existing object name (for modify)"),
                     ParameterInfo(
                         "modification_description",
@@ -643,17 +601,17 @@ class HelpSystem:
         """Add a function to the help system."""
         self.functions[func_info.name] = func_info
 
-    def get_function(self, name: str) -> Optional[FunctionInfo]:
+    def get_function(self, name: str) -> FunctionInfo | None:
         """Get information about a specific function."""
         return self.functions.get(name)
 
-    def list_functions(self, category: Optional[str] = None) -> List[FunctionInfo]:
+    def list_functions(self, category: str | None = None) -> list[FunctionInfo]:
         """List all available functions, optionally filtered by category."""
         if category:
             return [f for f in self.functions.values() if f.category == category]
         return list(self.functions.values())
 
-    def get_categories(self) -> List[str]:
+    def get_categories(self) -> list[str]:
         """Get a list of all available categories."""
         return sorted({f.category for f in self.functions.values()})
 
@@ -738,8 +696,8 @@ help_system = HelpSystem()
 
 
 def get_help(
-    function_name: Optional[str] = None,
-    category: Optional[str] = None,
+    function_name: str | None = None,
+    category: str | None = None,
     detail_level: str = "normal",
 ) -> str:
     """Get help for a specific function or list all available functions.
@@ -775,24 +733,20 @@ def get_help(
             for cat in categories:
                 category_counts[cat] = len(help_system.list_functions(cat))
             total_tools = sum(category_counts.values())
-            return (
-                f"Blender MCP: {total_tools} tools across {len(categories)} categories\n"
-                + "\n".join([f"• {cat}: {count} tools" for cat, count in category_counts.items()])
+            return f"Blender MCP: {total_tools} tools across {len(categories)} categories\n" + "\n".join(
+                [f"• {cat}: {count} tools" for cat, count in category_counts.items()]
             )
         elif detail_level == "detailed":
-            return (
-                help_system.format_all_help()
-                + "\n\nDetailed parameter information available for each tool."
-            )
+            return help_system.format_all_help() + "\n\nDetailed parameter information available for each tool."
         else:
             return help_system.format_all_help()
 
 
-def list_categories() -> List[str]:
+def list_categories() -> list[str]:
     """List all available categories."""
     return help_system.get_categories()
 
 
-def list_functions(category: Optional[str] = None) -> List[str]:
+def list_functions(category: str | None = None) -> list[str]:
     """List all available functions, optionally filtered by category."""
     return [f.name for f in help_system.list_functions(category)]

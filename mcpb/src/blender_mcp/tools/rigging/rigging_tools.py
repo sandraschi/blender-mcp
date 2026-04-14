@@ -4,8 +4,6 @@ Rigging tools for Blender MCP.
 Provides tools for creating armatures and character rigging systems.
 """
 
-from typing import Tuple
-
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
 
@@ -19,10 +17,10 @@ def _register_rigging_tools():
         operation: str = "create_armature",
         armature_name: str = "Armature",
         bone_name: str = "Bone",
-        location: Tuple[float, float, float] = (0, 0, 0),
-        rotation: Tuple[float, float, float] = (0, 0, 0),
-        head: Tuple[float, float, float] = (0, 0, 0),
-        tail: Tuple[float, float, float] = (0, 1, 0),
+        location: tuple[float, float, float] = (0, 0, 0),
+        rotation: tuple[float, float, float] = (0, 0, 0),
+        head: tuple[float, float, float] = (0, 0, 0),
+        tail: tuple[float, float, float] = (0, 1, 0),
         parent_bone: str = "",
         connected: bool = False,
         target_bone: str = "",
@@ -75,9 +73,7 @@ def _register_rigging_tools():
             set_bone_keyframe,
         )
 
-        logger.info(
-            f"🦴 blender_rigging called with operation='{operation}', armature_name='{armature_name}'"
-        )
+        logger.info(f"🦴 blender_rigging called with operation='{operation}', armature_name='{armature_name}'")
 
         try:
             # Convert tuple parameters to proper formats
@@ -87,27 +83,19 @@ def _register_rigging_tools():
                 else location
             )
             head_tuple = (
-                tuple(float(x) for x in head)
-                if hasattr(head, "__iter__") and not isinstance(head, str)
-                else head
+                tuple(float(x) for x in head) if hasattr(head, "__iter__") and not isinstance(head, str) else head
             )
             tail_tuple = (
-                tuple(float(x) for x in tail)
-                if hasattr(tail, "__iter__") and not isinstance(tail, str)
-                else tail
+                tuple(float(x) for x in tail) if hasattr(tail, "__iter__") and not isinstance(tail, str) else tail
             )
 
             # Validate 3-element vectors
             if len(location_tuple) != 3:
                 return f"Error: location must be a 3-element array/tuple, got {len(location_tuple)} elements"
             if len(head_tuple) != 3:
-                return (
-                    f"Error: head must be a 3-element array/tuple, got {len(head_tuple)} elements"
-                )
+                return f"Error: head must be a 3-element array/tuple, got {len(head_tuple)} elements"
             if len(tail_tuple) != 3:
-                return (
-                    f"Error: tail must be a 3-element array/tuple, got {len(tail_tuple)} elements"
-                )
+                return f"Error: tail must be a 3-element array/tuple, got {len(tail_tuple)} elements"
 
             if operation == "create_armature":
                 return await create_armature(name=armature_name, location=location_tuple)
@@ -207,8 +195,8 @@ def _register_rigging_tools():
                 return f"Unknown rigging operation: {operation}. Available: create_armature, add_bone, create_bone_ik, create_basic_rig, list_bones, pose_bone, set_bone_keyframe, reset_pose"
 
         except Exception as e:
-            logger.error(f"❌ Error in rigging operation '{operation}': {str(e)}")
-            return f"Error in rigging operation '{operation}': {str(e)}"
+            logger.error(f"❌ Error in rigging operation '{operation}': {e!s}")
+            return f"Error in rigging operation '{operation}': {e!s}"
 
 
 _register_rigging_tools()

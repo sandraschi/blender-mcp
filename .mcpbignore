@@ -1,19 +1,49 @@
-# MCPB Pack Exclusion List
-tests/
-.git/
-__pycache__/
-*.pyc
+# MCPB Blocklist (SOTA v2.0 Standard)
+
+# Logic/Dev Bloat
 .venv/
+node_modules/
+__pycache__/
+.ruff_cache/
+.pytest_cache/
+tests/
+.mypy_cache/
+htmlcov/
+.coverage
+*.pyc
+
+# Discovery & Fleet Metadata
+glama.json
+llms.txt
+llms-full.txt
+.git/
+.github/
+.vscode/
+.cursor/
+justfile
+Makefile
+build.ps1
+package-lock.json
+pyproject.toml
+uv.lock
+requirements-dev.txt
+Makefile
+
+# Project Directories (Forbidden in Bundle)
+docs/
+examples/
+webapp/
+systemd/
+scripts/
+test_data/
+
+# Build Artifacts
 dist/
 build/
+*.mcpb
 target/
 target_wasm/
-docs/
-scripts/
+
+# MCPB Packaging Assets (source)
 mcpb-packaging/
 mcpb/
-.cursor/
-.windsurf/
-.pytest_cache/
-.coverage
-Cargo.lock

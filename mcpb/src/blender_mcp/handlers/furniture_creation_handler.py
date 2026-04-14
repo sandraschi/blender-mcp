@@ -9,7 +9,7 @@ import logging
 from datetime import datetime
 from enum import Enum
 from math import radians
-from typing import Any, Dict, Tuple, Union
+from typing import Any
 
 from ..compat import *
 
@@ -312,13 +312,13 @@ def get_timestamp() -> str:
 @blender_operation("create_bed", log_args=True)
 async def create_bed(
     name: str = "Bed",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    scale: Tuple[float, float, float] = (1.0, 1.0, 1.0),
-    bed_type: Union[str, BedType] = BedType.DOUBLE,
-    style: Union[str, Style] = Style.MODERN,
-    material: Union[str, Material] = Material.WOOD,
-    color: Tuple[float, float, float, float] = (0.8, 0.8, 0.8, 1.0),
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (1.0, 1.0, 1.0),
+    bed_type: str | BedType = BedType.DOUBLE,
+    style: str | Style = Style.MODERN,
+    material: str | Material = Material.WOOD,
+    color: tuple[float, float, float, float] = (0.8, 0.8, 0.8, 1.0),
     has_headboard: bool = True,
     has_footboard: bool = True,
     has_posts: bool = False,
@@ -331,7 +331,7 @@ async def create_bed(
     is_hammock: bool = False,
     is_round: bool = False,
     is_futon: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a bed in the Blender scene.
 
     Args:
@@ -536,13 +536,13 @@ async def create_bed(
 @blender_operation("create_building", log_args=True)
 async def create_building(
     name: str = "Building",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    scale: Tuple[float, float, float] = (1.0, 1.0, 1.0),
-    building_type: Union[str, BuildingType] = BuildingType.RESIDENTIAL,
-    style: Union[str, Style] = Style.MODERN,
-    material: Union[str, Material] = Material.CONCRETE,
-    color: Tuple[float, float, float, float] = (0.8, 0.8, 0.8, 1.0),
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (1.0, 1.0, 1.0),
+    building_type: str | BuildingType = BuildingType.RESIDENTIAL,
+    style: str | Style = Style.MODERN,
+    material: str | Material = Material.CONCRETE,
+    color: tuple[float, float, float, float] = (0.8, 0.8, 0.8, 1.0),
     floors: int = 1,
     width: float = 10.0,
     depth: float = 15.0,
@@ -557,7 +557,7 @@ async def create_building(
     has_porch: bool = False,
     has_basement: bool = False,
     has_attic: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a building in the Blender scene.
 
     Args:
@@ -704,13 +704,13 @@ async def create_building(
 @blender_operation("create_weapon", log_args=True)
 async def create_weapon(
     name: str = "Weapon",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    scale: Tuple[float, float, float] = (1.0, 1.0, 1.0),
-    weapon_type: Union[str, WeaponType] = WeaponType.SWORD,
-    style: Union[str, Style] = Style.FANTASY,
-    material: Union[str, Material] = Material.METAL,
-    color: Tuple[float, float, float, float] = (0.5, 0.5, 0.5, 1.0),
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (1.0, 1.0, 1.0),
+    weapon_type: str | WeaponType = WeaponType.SWORD,
+    style: str | Style = Style.FANTASY,
+    material: str | Material = Material.METAL,
+    color: tuple[float, float, float, float] = (0.5, 0.5, 0.5, 1.0),
     length: float = 1.0,
     width: float = 0.1,
     height: float = 0.1,
@@ -723,7 +723,7 @@ async def create_weapon(
     is_cursed: bool = False,
     is_enchanted: bool = False,
     is_legendary: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a weapon in the Blender scene.
 
     Args:
@@ -751,9 +751,7 @@ async def create_weapon(
     Returns:
         Dictionary with information about the created weapon
     """
-    logger.warning(
-        "MOCK IMPLEMENTATION: create_weapon is not actually creating geometry in Blender"
-    )
+    logger.warning("MOCK IMPLEMENTATION: create_weapon is not actually creating geometry in Blender")
 
     weapon_data = {
         "name": name,
@@ -792,13 +790,13 @@ async def create_weapon(
 @blender_operation("create_ornament", log_args=True)
 async def create_ornament(
     name: str = "Ornament",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    scale: Tuple[float, float, float] = (1.0, 1.0, 1.0),
-    ornament_type: Union[str, OrnamentType] = OrnamentType.VASE,
-    style: Union[str, Style] = Style.CLASSIC,
-    material: Union[str, Material] = Material.GLASS,
-    color: Tuple[float, float, float, float] = (0.9, 0.9, 0.9, 1.0),
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (1.0, 1.0, 1.0),
+    ornament_type: str | OrnamentType = OrnamentType.VASE,
+    style: str | Style = Style.CLASSIC,
+    material: str | Material = Material.GLASS,
+    color: tuple[float, float, float, float] = (0.9, 0.9, 0.9, 1.0),
     height: float = 0.3,
     width: float = 0.2,
     depth: float = 0.2,
@@ -806,7 +804,7 @@ async def create_ornament(
     is_breakable: bool = True,
     is_valuable: bool = False,
     is_antique: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create an ornament in the Blender scene.
 
     Args:
@@ -829,9 +827,7 @@ async def create_ornament(
     Returns:
         Dictionary with information about the created ornament
     """
-    logger.warning(
-        "MOCK IMPLEMENTATION: create_ornament is not actually creating geometry in Blender"
-    )
+    logger.warning("MOCK IMPLEMENTATION: create_ornament is not actually creating geometry in Blender")
 
     ornament_data = {
         "name": name,
@@ -863,17 +859,17 @@ async def create_ornament(
 @blender_operation("create_room", log_args=True)
 async def create_room(
     name: str = "Room",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    scale: Tuple[float, float, float] = (1.0, 1.0, 1.0),
-    room_type: Union[str, RoomType] = RoomType.LIVING,
-    style: Union[str, Style] = Style.MODERN,
-    wall_material: Union[str, Material] = Material.PAINT,
-    floor_material: Union[str, Material] = Material.WOOD,
-    ceiling_material: Union[str, Material] = Material.PAINT,
-    wall_color: Tuple[float, float, float, float] = (0.95, 0.95, 0.95, 1.0),
-    floor_color: Tuple[float, float, float, float] = (0.5, 0.4, 0.3, 1.0),
-    ceiling_color: Tuple[float, float, float, float] = (0.98, 0.98, 0.98, 1.0),
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    scale: tuple[float, float, float] = (1.0, 1.0, 1.0),
+    room_type: str | RoomType = RoomType.LIVING,
+    style: str | Style = Style.MODERN,
+    wall_material: str | Material = Material.PAINT,
+    floor_material: str | Material = Material.WOOD,
+    ceiling_material: str | Material = Material.PAINT,
+    wall_color: tuple[float, float, float, float] = (0.95, 0.95, 0.95, 1.0),
+    floor_color: tuple[float, float, float, float] = (0.5, 0.4, 0.3, 1.0),
+    ceiling_color: tuple[float, float, float, float] = (0.98, 0.98, 0.98, 1.0),
     length: float = 5.0,
     width: float = 4.0,
     height: float = 2.7,
@@ -884,7 +880,7 @@ async def create_room(
     has_lighting: bool = True,
     has_furniture: bool = False,
     has_decoration: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a room in the Blender scene.
 
     Args:
@@ -986,15 +982,9 @@ async def create_room(
     obj.scale = scale
 
     # Create materials
-    wall_material_str = (
-        wall_material.value if isinstance(wall_material, Material) else wall_material
-    )
-    floor_material_str = (
-        floor_material.value if isinstance(floor_material, Material) else floor_material
-    )
-    ceiling_material_str = (
-        ceiling_material.value if isinstance(ceiling_material, Material) else ceiling_material
-    )
+    wall_material_str = wall_material.value if isinstance(wall_material, Material) else wall_material
+    floor_material_str = floor_material.value if isinstance(floor_material, Material) else floor_material
+    ceiling_material_str = ceiling_material.value if isinstance(ceiling_material, Material) else ceiling_material
 
     # Create wall material
     wall_mat = bpy.data.materials.new(name=f"{name}_Wall_Material")

@@ -52,9 +52,7 @@ async def demo_download_tools():
     print('# blender_download(url="https://example.com/texture.png", import_into_scene=False)')
     print()
     print("# Download with custom filename")
-    print(
-        '# blender_download(url="https://example.com/model.obj", custom_filename="my_custom_model")'
-    )
+    print('# blender_download(url="https://example.com/model.obj", custom_filename="my_custom_model")')
     print()
     print("# Download with longer timeout for large files")
     print('# blender_download(url="https://example.com/large_model.fbx", timeout=120)')

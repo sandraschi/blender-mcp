@@ -57,29 +57,23 @@ def _register_texture_tools():
             if operation.startswith("create_"):
                 # Extract texture type from operation (e.g., "create_noise" -> "NOISE")
                 texture_type = operation.replace("create_", "").upper()
-                return await create_texture(
-                    name=name, texture_type=texture_type, width=width, height=height
-                )
+                return await create_texture(name=name, texture_type=texture_type, width=width, height=height)
 
             elif operation == "assign_texture":
                 if not material_name:
                     return "material_name parameter required"
-                return await assign_texture_to_material(
-                    texture_name=name, material_name=material_name
-                )
+                return await assign_texture_to_material(texture_name=name, material_name=material_name)
 
             elif operation == "bake_texture":
                 if not object_name:
                     return "object_name parameter required for baking"
-                return await bake_texture(
-                    object_name=object_name, texture_name=name, width=width, height=height
-                )
+                return await bake_texture(object_name=object_name, texture_name=name, width=width, height=height)
 
             else:
                 return f"Unknown texture operation: {operation}. Available: create_[type], assign_texture, bake_texture"
 
         except Exception as e:
-            return f"Error in texture operation '{operation}': {str(e)}"
+            return f"Error in texture operation '{operation}': {e!s}"
 
 
 _register_texture_tools()

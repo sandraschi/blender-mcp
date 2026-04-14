@@ -1,7 +1,7 @@
 """Selection operations handler for Blender MCP."""
 
 from enum import Enum
-from typing import Any, Dict, List, Union
+from typing import Any
 
 from loguru import logger
 
@@ -47,8 +47,8 @@ class SelectableType(str, Enum):
 
 @blender_operation("select_objects", log_args=True)
 async def select_objects(
-    object_names: List[str], mode: Union[SelectMode, str] = SelectMode.REPLACE, **kwargs: Any
-) -> Dict[str, Any]:
+    object_names: list[str], mode: SelectMode | str = SelectMode.REPLACE, **kwargs: Any
+) -> dict[str, Any]:
     """Select objects in the scene.
 
     Args:
@@ -70,11 +70,11 @@ def select_objects():
     # Store current selection state
     prev_selection = [obj.name for obj in bpy.context.selected_objects]
     prev_active = bpy.context.active_object.name if bpy.context.active_object else None
-    
+
     # Deselect all if needed
     if {str(deselect_others).lower()} and '{mode}' == 'REPLACE':
         bpy.ops.object.select_all(action='DESELECT')
-    
+
     # Select objects based on mode
     selected = []
     for name in {object_names}:
@@ -92,13 +92,13 @@ def select_objects():
                 obj.select_set(not obj.select_get())
                 if obj.select_get():
                     selected.append(name)
-    
+
     # Set active object if specified
     if '{active_object}':
         active_obj = bpy.data.objects.get('{active_object}')
         if active_obj:
             bpy.context.view_layer.objects.active = active_obj
-    
+
     return {{
         'selected': selected,
         'previous_selection': prev_selection,
@@ -118,16 +118,16 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to select objects: {str(e)}")
+        logger.error(f"Failed to select objects: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("select_by_type", log_args=True)
 async def select_by_type(
-    type: Union[SelectableType, str],
-    mode: Union[SelectMode, str] = SelectMode.REPLACE,
+    type: SelectableType | str,
+    mode: SelectMode | str = SelectMode.REPLACE,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Select objects by type.
 
     Args:
@@ -141,14 +141,14 @@ async def select_by_type(
         Dict containing selection status and details
     """
     select_children = kwargs.get("select_children", True)
-    select_hidden = kwargs.get("select_hidden", False)
+    kwargs.get("select_hidden", False)
 
     script = f"""
 
 def select_by_type():
     # Store current selection state
     prev_selection = [obj.name for obj in bpy.context.selected_objects]
-    
+
     # Get objects of specified type
     objects = []
     for obj in bpy.data.objects:
@@ -156,7 +156,7 @@ def select_by_type():
             if not select_hidden and obj.hide_viewport:
                 continue
             objects.append(obj)
-    
+
     # Select objects based on mode
     selected = []
     if '{mode}' == 'REPLACE':
@@ -178,7 +178,7 @@ def select_by_type():
             obj.select_set(not obj.select_get())
             if obj.select_get():
                 selected.append(obj.name)
-    
+
     # Handle child objects if needed
     if {str(select_children).lower()} and '{mode}' != 'SUBTRACT':
         for obj in objects:
@@ -189,7 +189,7 @@ def select_by_type():
                     child.select_set(True)
                     if child.name not in selected:
                         selected.append(child.name)
-    
+
     return {{
         'selected': selected,
         'previous_selection': prev_selection,
@@ -208,14 +208,14 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to select by type: {str(e)}")
+        logger.error(f"Failed to select by type: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("select_by_material", log_args=True)
 async def select_by_material(
-    material_name: str, mode: Union[SelectMode, str] = SelectMode.REPLACE, **kwargs: Any
-) -> Dict[str, Any]:
+    material_name: str, mode: SelectMode | str = SelectMode.REPLACE, **kwargs: Any
+) -> dict[str, Any]:
     """Select objects using a specific material.
 
     Args:
@@ -234,7 +234,7 @@ async def select_by_material(
 def select_by_material():
     # Store current selection state
     prev_selection = [obj.name for obj in bpy.context.selected_objects]
-    
+
     # Find objects using the material
     objects = []
     for obj in bpy.data.objects:
@@ -250,7 +250,7 @@ def select_by_material():
                 if len(obj.material_slots) == 1 and obj.material_slots[0].material:
                     if obj.material_slots[0].material.name == '{material_name}':
                         objects.append(obj)
-    
+
     # Select objects based on mode
     selected = []
     if '{mode}' == 'REPLACE':
@@ -272,7 +272,7 @@ def select_by_material():
             obj.select_set(not obj.select_get())
             if obj.select_get():
                 selected.append(obj.name)
-    
+
     return {{
         'selected': selected,
         'previous_selection': prev_selection,
@@ -291,5 +291,5 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to select by material: {str(e)}")
+        logger.error(f"Failed to select by material: {e!s}")
         return {"status": "ERROR", "error": str(e)}

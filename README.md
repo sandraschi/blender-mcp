@@ -176,10 +176,10 @@ Add to your `claude_desktop_config.json`:
 Licensed under MIT - Free for personal and commercial use
 
 **Built with:**
--  **FastMCP 2.14.3** - MCP server framework
--  **Blender API** - 3D creation engine
--  **Claude Integration** - AI assistance
--  **Open Standards** - MCP protocol compliance
+-  **FastMCP 3.2.0** - SOTA MCP server framework
+-  **Blender API** - 3D creation engine (4.2+)
+-  **Claude Integration** - AI-powered agentic orchestration
+-  **SOTA 14.1** - Industrial protocol compliance
 
 ---
 
@@ -188,6 +188,16 @@ Licensed under MIT - Free for personal and commercial use
   <em>Transform how the world creates 3D content</em>
 </p>
 
+
+## 🛡️ Industrial Quality Stack
+
+This project adheres to **SOTA 14.1** industrial standards for high-fidelity agentic orchestration:
+
+- **Python (Core)**: [Ruff](https://astral.sh/ruff) for linting and formatting. Zero-tolerance for `print` statements in core handlers (`T201`).
+- **Webapp (UI)**: [Biome](https://biomejs.dev/) for sub-millisecond linting. Strict `noConsoleLog` enforcement.
+- **Protocol Compliance**: Hardened `stdout/stderr` isolation to ensure crash-resistant JSON-RPC communication.
+- **Automation**: [Justfile](./justfile) recipes for all fleet operations (`just lint`, `just fix`, `just dev`).
+- **Security**: Automated audits via `bandit` and `safety`.
 
 ##  Webapp Dashboard
 

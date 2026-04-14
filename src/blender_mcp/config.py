@@ -2,7 +2,6 @@
 
 import logging
 import os
-import sys
 from pathlib import Path
 
 from blender_mcp.compat import *
@@ -19,12 +18,14 @@ _DEFAULT_BLENDER_CANDIDATES = [
     "/snap/bin/blender",
 ]
 
+
 def _find_default_blender() -> str:
     """Return first candidate blender path that exists, or the primary candidate as fallback."""
     for p in _DEFAULT_BLENDER_CANDIDATES:
         if Path(p).exists():
             return p
     return _DEFAULT_BLENDER_CANDIDATES[0]
+
 
 DEFAULT_BLENDER_EXECUTABLE = _find_default_blender()
 
@@ -76,12 +77,9 @@ def validate_config(config: dict) -> None:
             raise ValueError(f"Blender executable not found at: {config['blender_executable']}")
 
 
-# Log the Blender executable being used - use stderr to avoid Claude Desktop JSON parsing issues
+# Log the Blender executable being used
 if not validate_blender_executable():
-    print(f"WARNING: Blender executable not found at: {BLENDER_EXECUTABLE}", file=sys.stderr)
-    print(
-        "Please set the BLENDER_EXECUTABLE environment variable to the correct path.",
-        file=sys.stderr,
-    )
+    logger.warning(f"Blender executable not found at: {BLENDER_EXECUTABLE}")
+    logger.warning("Please set the BLENDER_EXECUTABLE environment variable to the correct path.")
 else:
-    print(f"Using Blender executable: {BLENDER_EXECUTABLE}", file=sys.stderr)
+    logger.info(f"Using Blender executable: {BLENDER_EXECUTABLE}")

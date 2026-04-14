@@ -1,21 +1,15 @@
-import httpx
-import json
 import asyncio
+import json
+
+import httpx
+
 
 async def verify():
     url = "http://127.0.0.1:10849/mcp"
-    payload = {
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "tools/list",
-        "params": {}
-    }
-    
-    headers = {
-        "Accept": "application/json, text/event-stream",
-        "Content-Type": "application/json"
-    }
-    
+    payload = {"jsonrpc": "2.0", "id": 1, "method": "tools/list", "params": {}}
+
+    headers = {"Accept": "application/json, text/event-stream", "Content-Type": "application/json"}
+
     print(f"Connecting to {url}...")
     try:
         async with httpx.AsyncClient() as client:
@@ -28,7 +22,7 @@ async def verify():
                     print(f"Successfully retrieved {len(tools)} tools:")
                     for tool in tools:
                         print(f" - {tool['name']}: {tool.get('description', 'No description')[:50]}...")
-                    
+
                     # Check for specific tools we expect
                     tool_names = [t["name"] for t in tools]
                     expected = ["blender_materials", "create_scene", "list_scenes"]
@@ -45,6 +39,7 @@ async def verify():
                 print(response.text)
     except Exception as e:
         print(f"Verification failed: {e}")
+
 
 if __name__ == "__main__":
     asyncio.run(verify())

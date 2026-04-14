@@ -116,7 +116,9 @@ def collect_bundle_entries(node: dict[str, Any]) -> list[tuple[str, str]]:
     return out
 
 
-def resolve_texture_blend_bundle(files_data: dict[str, Any], resolution: str) -> tuple[list[tuple[str, str]], str | None]:
+def resolve_texture_blend_bundle(
+    files_data: dict[str, Any], resolution: str
+) -> tuple[list[tuple[str, str]], str | None]:
     """Texture: prefer packed .blend + texture includes."""
     blend_root = files_data.get("blend") or {}
     res_keys = [k for k in blend_root if isinstance(blend_root[k], dict)]
@@ -165,10 +167,10 @@ def resolve_model_import_bundle(
 
 
 __all__ = [
-    "PolyHavenAPI",
     "VALID_RESOLUTIONS",
-    "resolve_hdri_url",
-    "resolve_texture_blend_bundle",
-    "resolve_model_import_bundle",
+    "PolyHavenAPI",
     "collect_bundle_entries",
+    "resolve_hdri_url",
+    "resolve_model_import_bundle",
+    "resolve_texture_blend_bundle",
 ]

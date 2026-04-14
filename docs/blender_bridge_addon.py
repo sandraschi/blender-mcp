@@ -55,13 +55,13 @@ bl_info = {
     "category": "System",
 }
 
+import json
 import threading
 import time
-import json
-import bpy
-import urllib.request
 import urllib.error
-from typing import Optional
+import urllib.request
+
+import bpy
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -70,15 +70,15 @@ from typing import Optional
 MCP_BASE_URL = "http://127.0.0.1:10849"
 POLL_INTERVAL = 1.0  # seconds between polls
 _stop_event = threading.Event()
-_poll_thread: Optional[threading.Thread] = None
+_poll_thread: threading.Thread | None = None
 
 
 # ---------------------------------------------------------------------------
 # Result queue (thread → main thread)
 # ---------------------------------------------------------------------------
 
-_pending_exec: Optional[dict] = None   # set by poll thread
-_pending_result: Optional[dict] = None  # set by main-thread timer
+_pending_exec: dict | None = None  # set by poll thread
+_pending_result: dict | None = None  # set by main-thread timer
 
 
 def _post_json(path: str, payload: dict, timeout: int = 10) -> dict:
@@ -102,6 +102,7 @@ def _get_json(path: str, timeout: int = 5) -> dict:
 # Poll thread — runs outside main thread, only reads/writes _pending_exec
 # ---------------------------------------------------------------------------
 
+
 def _poll_loop():
     global _pending_exec
     while not _stop_event.is_set():
@@ -118,6 +119,7 @@ def _poll_loop():
 # Main-thread timer — safe to call bpy here
 # ---------------------------------------------------------------------------
 
+
 def _execute_pending():
     global _pending_exec, _pending_result
     task = _pending_exec
@@ -132,7 +134,9 @@ def _execute_pending():
     error_msg = None
 
     try:
-        import io, sys
+        import io
+        import sys
+
         buf = io.StringIO()
         old_stdout = sys.stdout
         sys.stdout = buf
@@ -147,12 +151,15 @@ def _execute_pending():
     # Post result back asynchronously (done in a thread to avoid blocking)
     def _post():
         try:
-            _post_json("/api/v1/blender/result", {
-                "id": task_id,
-                "output": "\n".join(output_lines),
-                "success": error_msg is None,
-                "error": error_msg,
-            })
+            _post_json(
+                "/api/v1/blender/result",
+                {
+                    "id": task_id,
+                    "output": "\n".join(output_lines),
+                    "success": error_msg is None,
+                    "error": error_msg,
+                },
+            )
         except Exception:
             pass
 
@@ -163,6 +170,7 @@ def _execute_pending():
 # ---------------------------------------------------------------------------
 # Blender UI panel
 # ---------------------------------------------------------------------------
+
 
 class MCP_PT_bridge_panel(bpy.types.Panel):
     bl_label = "Blender MCP Bridge"

@@ -5,7 +5,7 @@ import logging
 import uuid
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any
 
 from ..decorators import blender_operation
 
@@ -41,8 +41,8 @@ class ScriptScope(str, Enum):
 
 @blender_operation("execute_script", log_args=True)
 async def execute_script(
-    script: str, script_type: Union[ScriptLanguage, str] = ScriptLanguage.PYTHON, **kwargs: Any
-) -> Dict[str, Any]:
+    script: str, script_type: ScriptLanguage | str = ScriptLanguage.PYTHON, **kwargs: Any
+) -> dict[str, Any]:
     """Execute a script in Blender.
 
     Args:
@@ -202,14 +202,12 @@ print(json.dumps(_result_data, default=str))
         except json.JSONDecodeError:
             return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to execute script: {str(e)}")
+        logger.error(f"Failed to execute script: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("create_driver", log_args=True)
-async def create_driver(
-    target: str, data_path: str, expression: str, **kwargs: Any
-) -> Dict[str, Any]:
+async def create_driver(target: str, data_path: str, expression: str, **kwargs: Any) -> dict[str, Any]:
     """Create a driver for a property.
 
     Args:
@@ -358,12 +356,12 @@ except Exception as e:
         except json.JSONDecodeError:
             return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to create driver: {str(e)}")
+        logger.error(f"Failed to create driver: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("create_text_block", log_args=True)
-async def create_text_block(name: str, text: str = "", **kwargs: Any) -> Dict[str, Any]:
+async def create_text_block(name: str, text: str = "", **kwargs: Any) -> dict[str, Any]:
     """Create or update a text block in Blender.
 
     Args:
@@ -428,5 +426,5 @@ except Exception as e:
         except json.JSONDecodeError:
             return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to create text block: {str(e)}")
+        logger.error(f"Failed to create text block: {e!s}")
         return {"status": "ERROR", "error": str(e)}

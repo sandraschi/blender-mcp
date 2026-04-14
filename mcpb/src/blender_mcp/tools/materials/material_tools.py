@@ -4,7 +4,7 @@ Material creation portmanteau tool for Blender MCP.
 Provides a single comprehensive tool for creating and managing PBR materials.
 """
 
-from typing import List, Literal
+from typing import Literal
 
 from blender_mcp.compat import *
 
@@ -53,7 +53,7 @@ def _register_material_tools():
         ceramic_type: str = "porcelain",
         glossiness: float = 0.9,
         # Common params
-        base_color: List[float] = [0.8, 0.8, 0.8],
+        base_color: list[float] | None = None,
         roughness: float = 0.5,
         # Assignment params
         object_name: str = "",
@@ -111,6 +111,8 @@ def _register_material_tools():
             create_wood_material,
         )
 
+        if base_color is None:
+            base_color = [0.8, 0.8, 0.8]
         try:
             color_tuple = tuple(base_color) if len(base_color) == 3 else (0.8, 0.8, 0.8)
 
@@ -167,13 +169,11 @@ def _register_material_tools():
             elif operation == "create_from_preset":
                 if not preset_name:
                     return "Error: preset_name required for create_from_preset"
-                return await create_material_from_preset(
-                    preset_name, name if name != "Material" else None
-                )
+                return await create_material_from_preset(preset_name, name if name != "Material" else None)
             else:
                 return f"Unknown operation: {operation}"
         except Exception as e:
-            return f"Error in blender_materials({operation}): {str(e)}"
+            return f"Error in blender_materials({operation}): {e!s}"
 
 
 # Register tools when module is imported

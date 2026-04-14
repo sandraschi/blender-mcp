@@ -2,7 +2,7 @@
 
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any
 
 from loguru import logger
 
@@ -48,9 +48,7 @@ class ImportFormat(str, Enum):
 
 
 @blender_operation("import_file", log_args=True)
-async def import_file(
-    filepath: str, file_format: Union[ImportFormat, str], **kwargs: Any
-) -> Dict[str, Any]:
+async def import_file(filepath: str, file_format: ImportFormat | str, **kwargs: Any) -> dict[str, Any]:
     """Import a 3D file into the current scene.
 
     Args:
@@ -148,7 +146,7 @@ import os
 def import_asset():
     # Store existing objects to determine what was imported
     existing_objects = set(bpy.data.objects)
-    
+
     # Execute the import
     try:
         result = {import_cmd}
@@ -162,10 +160,10 @@ def import_asset():
             'status': 'ERROR',
             'error': str(e)
         }}
-    
+
     # Find newly imported objects
     imported_objects = list(set(bpy.data.objects) - existing_objects)
-    
+
     return {{
         'status': 'SUCCESS',
         'imported_objects': [obj.name for obj in imported_objects],
@@ -190,14 +188,12 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to import file: {str(e)}")
+        logger.error(f"Failed to import file: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("link_asset", log_args=True)
-async def link_asset(
-    filepath: str, asset_name: str, link: bool = True, **kwargs: Any
-) -> Dict[str, Any]:
+async def link_asset(filepath: str, asset_name: str, link: bool = True, **kwargs: Any) -> dict[str, Any]:
     """Link or append an asset from another .blend file.
 
     Args:
@@ -223,10 +219,10 @@ def link_asset():
     # Store existing objects/materials to determine what was added
     existing_objects = set(bpy.data.objects)
     existing_materials = set(bpy.data.materials)
-    
+
     # Determine if we're linking or appending
     operation = 'LINK' if {str(link).lower()} else 'APPEND'
-    
+
     # Build the operator parameters
     params = {{
         'filepath': os.path.join(r'{directory}', '{asset_name}'),
@@ -235,7 +231,7 @@ def link_asset():
         'link': {str(link).lower()},
         'relative_path': {str(relative).lower()}
     }}
-    
+
     # Execute the link/append operation
     try:
         if '{directory}'.startswith('Object'):
@@ -244,7 +240,7 @@ def link_asset():
             result = bpy.ops.wm.link_append(**params, instance_collections=True, instance_object_data=False)
         else:
             result = bpy.ops.wm.link_append(**params)
-            
+
         if 'FINISHED' not in result:
             return {{
                 'status': 'ERROR',
@@ -255,11 +251,11 @@ def link_asset():
             'status': 'ERROR',
             'error': str(e)
         }}
-    
+
     # Find newly added objects/materials
     new_objects = [obj.name for obj in set(bpy.data.objects) - existing_objects]
     new_materials = [mat.name for mat in set(bpy.data.materials) - existing_materials]
-    
+
     return {{
         'status': 'SUCCESS',
         'operation': operation,
@@ -284,5 +280,5 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to link/append asset: {str(e)}")
+        logger.error(f"Failed to link/append asset: {e!s}")
         return {"status": "ERROR", "error": str(e)}

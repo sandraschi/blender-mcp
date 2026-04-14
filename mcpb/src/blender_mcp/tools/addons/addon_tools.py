@@ -45,9 +45,7 @@ def _register_addon_tools():
             elif operation == "install_addon":
                 if not addon_path:
                     return "addon_path parameter required"
-                return await install_addon(
-                    addon_path=addon_path, enable_on_install=enable_on_install
-                )
+                return await install_addon(addon_path=addon_path, enable_on_install=enable_on_install)
 
             elif operation == "uninstall_addon":
                 if not addon_name:
@@ -58,7 +56,7 @@ def _register_addon_tools():
                 return f"Unknown addon operation: {operation}. Available: list_addons, install_addon, uninstall_addon"
 
         except Exception as e:
-            return f"Error in addon operation '{operation}': {str(e)}"
+            return f"Error in addon operation '{operation}': {e!s}"
 
 
 _register_addon_tools()

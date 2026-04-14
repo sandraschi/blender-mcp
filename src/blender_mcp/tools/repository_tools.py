@@ -9,20 +9,18 @@ and organizing Blender objects. All operations are backed by a real file-based i
 import hashlib
 import json
 import logging
-import re
 import tempfile
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
 
 # Import validation from construct_tools
 from .construct_tools import (
-    ScriptValidationResult,
     _extract_python_code,
     _generate_construction_script,
     _generate_construction_summary,
@@ -50,7 +48,7 @@ def _ensure_repo() -> None:
     REPO_BASE.mkdir(parents=True, exist_ok=True)
 
 
-def _load_index() -> Dict[str, Any]:
+def _load_index() -> dict[str, Any]:
     _ensure_repo()
     if INDEX_FILE.exists():
         try:
@@ -61,7 +59,7 @@ def _load_index() -> Dict[str, Any]:
     return {"models": [], "last_updated": datetime.now().isoformat()}
 
 
-def _save_index(index: Dict[str, Any]) -> None:
+def _save_index(index: dict[str, Any]) -> None:
     _ensure_repo()
     index["last_updated"] = datetime.now().isoformat()
     with open(INDEX_FILE, "w", encoding="utf-8") as f:
@@ -83,16 +81,16 @@ class ObjectMetadata(BaseModel):
     version: str
     created_at: str
     updated_at: str
-    tags: List[str]
+    tags: list[str]
     complexity: str
-    style_preset: Optional[str]
+    style_preset: str | None
     construction_script: str
     object_count: int
-    blender_version: Optional[str]
+    blender_version: str | None
     estimated_quality: int
     category: str
     license: str = "MIT"
-    dependencies: List[str] = []
+    dependencies: list[str] = []
 
 
 class MCPExportResult(BaseModel):
@@ -101,13 +99,13 @@ class MCPExportResult(BaseModel):
     success: bool
     asset_id: str
     target_mcp: str
-    primary_files: List[str]
-    supporting_files: List[str]
-    integration_commands: List[str]
-    metadata: Dict[str, Any]
-    optimization_report: Dict[str, Any]
-    validation_results: Dict[str, Any]
-    error_message: Optional[str] = None
+    primary_files: list[str]
+    supporting_files: list[str]
+    integration_commands: list[str]
+    metadata: dict[str, Any]
+    optimization_report: dict[str, Any]
+    validation_results: dict[str, Any]
+    error_message: str | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -133,7 +131,7 @@ def _get_next_version(model_dir: Path) -> str:
     return "1.0.0"
 
 
-async def _get_object_info(object_name: str) -> Optional[Dict[str, Any]]:
+async def _get_object_info(object_name: str) -> dict[str, Any] | None:
     """Query Blender for real object information."""
     try:
         from blender_mcp.utils.blender_executor import get_blender_executor
@@ -163,7 +161,7 @@ else:
         output = await executor.execute_script(script, script_name="get_obj_info")
         for line in output.splitlines():
             if line.startswith("OBJ_INFO:"):
-                payload = line[len("OBJ_INFO:"):]
+                payload = line[len("OBJ_INFO:") :]
                 if payload == "null":
                     return None
                 return json.loads(payload)
@@ -173,7 +171,7 @@ else:
         return None
 
 
-async def _find_construction_script(object_name: str) -> Optional[str]:
+async def _find_construction_script(object_name: str) -> str | None:
     """Look up the stored construction script for this object in the repository index."""
     index = _load_index()
     for model in index.get("models", []):
@@ -195,11 +193,11 @@ async def _save_object(
     object_name: str,
     object_name_display: str,
     description: str,
-    tags: Optional[List[str]],
+    tags: list[str] | None,
     category: str,
     quality_rating: int,
     public: bool,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Export object from Blender as .blend and save metadata to index."""
     from blender_mcp.utils.blender_executor import get_blender_executor
 
@@ -267,35 +265,31 @@ else:
     session_used = False
     try:
         from blender_mcp.app import _exec_in_blender_session
-        bridge_result = await _exec_in_blender_session(
-            export_script, script_name=f"save_{object_name}", timeout=30
-        )
+
+        bridge_result = await _exec_in_blender_session(export_script, script_name=f"save_{object_name}", timeout=30)
         if bridge_result["session_used"]:
             output = bridge_result["output"]
             session_used = True
         else:
             # Bridge not connected — fall back to executor
             output = await executor.execute_script(export_script, script_name="save_obj_export")
-    except Exception as e:
+    except Exception:
         try:
             output = await executor.execute_script(export_script, script_name="save_obj_export")
         except Exception as e2:
             return {"success": False, "message": f"Blender export failed: {e2}"}
 
     # Accept either real export or placeholder (session limitation documented)
-    export_ok = any(
-        line.startswith(("EXPORT_OK:", "EXPORT_PLACEHOLDER:"))
-        for line in output.splitlines()
-    )
+    export_ok = any(line.startswith(("EXPORT_OK:", "EXPORT_PLACEHOLDER:")) for line in output.splitlines())
     session_required = not session_used and any("EXPORT_SESSION_REQUIRED" in line for line in output.splitlines())
 
     # Determine the actual saved file path
     actual_blend_path = blend_path
     for line in output.splitlines():
         if line.startswith("EXPORT_OK:"):
-            actual_blend_path = Path(line[len("EXPORT_OK:"):].strip())
+            actual_blend_path = Path(line[len("EXPORT_OK:") :].strip())
         elif line.startswith("EXPORT_PLACEHOLDER:"):
-            actual_blend_path = Path(line[len("EXPORT_PLACEHOLDER:"):].strip())
+            actual_blend_path = Path(line[len("EXPORT_PLACEHOLDER:") :].strip())
 
     if not export_ok:
         return {"success": False, "message": f"Export script did not confirm success. Output: {output[-500:]}"}
@@ -361,11 +355,11 @@ else:
 
 async def _load_object(
     object_id: str,
-    target_name: Optional[str],
-    position: Tuple[float, float, float],
-    scale: Tuple[float, float, float],
-    version: Optional[str],
-) -> Dict[str, Any]:
+    target_name: str | None,
+    position: tuple[float, float, float],
+    scale: tuple[float, float, float],
+    version: str | None,
+) -> dict[str, Any]:
     """Append object from repository .blend into current Blender scene."""
     from blender_mcp.utils.blender_executor import get_blender_executor
 
@@ -433,7 +427,7 @@ print("IMPORT_OK:" + json.dumps(imported))
 
     for line in output.splitlines():
         if line.startswith("IMPORT_OK:"):
-            imported_names = json.loads(line[len("IMPORT_OK:"):])
+            imported_names = json.loads(line[len("IMPORT_OK:") :])
             return {
                 "success": True,
                 "message": f"Loaded '{blender_name}' from repository as '{final_name}'",
@@ -445,7 +439,7 @@ print("IMPORT_OK:" + json.dumps(imported))
     return {"success": False, "message": f"Import did not confirm success. Output: {output[-500:]}"}
 
 
-async def _list_objects() -> Dict[str, Any]:
+async def _list_objects() -> dict[str, Any]:
     """List all objects in the repository index."""
     index = _load_index()
     models = index.get("models", [])
@@ -458,14 +452,14 @@ async def _list_objects() -> Dict[str, Any]:
 
 
 async def _search_objects(
-    query: Optional[str],
-    category: Optional[str],
-    tags: Optional[List[str]],
-    author: Optional[str],
-    min_quality: Optional[int],
-    complexity: Optional[str],
+    query: str | None,
+    category: str | None,
+    tags: list[str] | None,
+    author: str | None,
+    min_quality: int | None,
+    complexity: str | None,
     limit: int,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Search repository index with optional filters."""
     index = _load_index()
     results = []
@@ -474,12 +468,14 @@ async def _search_objects(
         # Text query
         if query:
             q = query.lower()
-            searchable = " ".join([
-                model.get("name", ""),
-                model.get("description", ""),
-                " ".join(model.get("tags", [])),
-                model.get("category", ""),
-            ]).lower()
+            searchable = " ".join(
+                [
+                    model.get("name", ""),
+                    model.get("description", ""),
+                    " ".join(model.get("tags", [])),
+                    model.get("category", ""),
+                ]
+            ).lower()
             if q not in searchable:
                 continue
 
@@ -512,7 +508,7 @@ async def _search_objects(
     }
 
 
-async def _create_object_backup(object_name: str) -> Dict[str, Any]:
+async def _create_object_backup(object_name: str) -> dict[str, Any]:
     """Duplicate an object in Blender as a backup."""
     from blender_mcp.utils.blender_executor import get_blender_executor
 
@@ -538,13 +534,13 @@ else:
         output = await executor.execute_script(script, script_name="backup_obj")
         for line in output.splitlines():
             if line.startswith("BACKUP_OK:"):
-                return {"success": True, "backup_name": line[len("BACKUP_OK:"):].strip()}
+                return {"success": True, "backup_name": line[len("BACKUP_OK:") :].strip()}
         return {"success": False, "error": f"Backup script did not confirm. Output: {output[-300:]}"}
     except Exception as e:
         return {"success": False, "error": str(e)}
 
 
-async def _execute_modification_script(script: str, object_name: str) -> Dict[str, Any]:
+async def _execute_modification_script(script: str, object_name: str) -> dict[str, Any]:
     """Execute a modification script via Blender executor."""
     from blender_mcp.utils.blender_executor import get_blender_executor
 
@@ -560,7 +556,7 @@ async def _execute_modification_script(script: str, object_name: str) -> Dict[st
         return {"success": False, "error": str(e)}
 
 
-async def _get_asset_from_repository(asset_id: str) -> Optional[Dict[str, Any]]:
+async def _get_asset_from_repository(asset_id: str) -> dict[str, Any] | None:
     """Load asset data from repository metadata — real implementation."""
     obj_dir = REPO_BASE / asset_id
     meta_file = obj_dir / "metadata.json"
@@ -579,8 +575,7 @@ async def _get_asset_from_repository(asset_id: str) -> Optional[Dict[str, Any]]:
             "textures": [],
             "has_bones": obj_info.get("bone_count", 0) > 0,
             "has_animations": False,  # Would need animation data inspection
-            "is_avatar": "character" in meta.get("category", "").lower()
-                         or "avatar" in meta.get("name", "").lower(),
+            "is_avatar": "character" in meta.get("category", "").lower() or "avatar" in meta.get("name", "").lower(),
         }
     except Exception as e:
         logger.warning(f"_get_asset_from_repository failed for {asset_id}: {e}")
@@ -597,21 +592,21 @@ class PlatformExportEngine:
 
     def __init__(self, platform_name: str):
         self.platform_name = platform_name
-        self.optimizations: Dict[str, Any] = {}
+        self.optimizations: dict[str, Any] = {}
 
-    async def optimize_asset(self, asset_data: Dict[str, Any], quality_level: str) -> Dict[str, Any]:
+    async def optimize_asset(self, asset_data: dict[str, Any], quality_level: str) -> dict[str, Any]:
         raise NotImplementedError
 
     async def export_blend_file(
-        self, blend_file: str, out_dir: Path, asset_data: Dict[str, Any], quality_level: str
-    ) -> Tuple[List[str], List[str]]:
+        self, blend_file: str, out_dir: Path, asset_data: dict[str, Any], quality_level: str
+    ) -> tuple[list[str], list[str]]:
         """Run Blender to produce platform files. Returns (primary_files, supporting_files)."""
         raise NotImplementedError
 
-    async def generate_integration_commands(self, asset_data: Dict[str, Any]) -> List[str]:
+    async def generate_integration_commands(self, asset_data: dict[str, Any]) -> list[str]:
         raise NotImplementedError
 
-    async def validate_compatibility(self, asset_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def validate_compatibility(self, asset_data: dict[str, Any]) -> dict[str, Any]:
         raise NotImplementedError
 
 
@@ -628,7 +623,7 @@ class VRChatExportEngine(PlatformExportEngine):
             "auto_lod": True,
         }
 
-    async def optimize_asset(self, asset_data: Dict[str, Any], quality_level: str) -> Dict[str, Any]:
+    async def optimize_asset(self, asset_data: dict[str, Any], quality_level: str) -> dict[str, Any]:
         optimized = asset_data.copy()
         poly = asset_data.get("polygon_count", 0)
         mats = asset_data.get("materials", [])
@@ -645,8 +640,8 @@ class VRChatExportEngine(PlatformExportEngine):
         return optimized
 
     async def export_blend_file(
-        self, blend_file: str, out_dir: Path, asset_data: Dict[str, Any], quality_level: str
-    ) -> Tuple[List[str], List[str]]:
+        self, blend_file: str, out_dir: Path, asset_data: dict[str, Any], quality_level: str
+    ) -> tuple[list[str], list[str]]:
         from blender_mcp.utils.blender_executor import get_blender_executor
 
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -685,7 +680,7 @@ print("EXPORT_FBX_OK:" + {json.dumps(str(fbx_path))})
         supporting = [str(materials_json)]
         return primary, supporting
 
-    async def generate_integration_commands(self, asset_data: Dict[str, Any]) -> List[str]:
+    async def generate_integration_commands(self, asset_data: dict[str, Any]) -> list[str]:
         cmds = [
             "vrchat_import_fbx --file asset_vrchat.fbx --auto-setup",
             f"vrchat_apply_optimizations --preset {'avatar' if asset_data.get('is_avatar') else 'prop'}",
@@ -697,7 +692,7 @@ print("EXPORT_FBX_OK:" + {json.dumps(str(fbx_path))})
         cmds.append("vrchat_validate_platform_requirements --strict")
         return cmds
 
-    async def validate_compatibility(self, asset_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def validate_compatibility(self, asset_data: dict[str, Any]) -> dict[str, Any]:
         issues, warnings = [], []
         poly = asset_data.get("polygon_count", 0)
         mats = asset_data.get("materials", [])
@@ -719,7 +714,7 @@ class ResoniteExportEngine(PlatformExportEngine):
             "collision_generation": True,
         }
 
-    async def optimize_asset(self, asset_data: Dict[str, Any], quality_level: str) -> Dict[str, Any]:
+    async def optimize_asset(self, asset_data: dict[str, Any], quality_level: str) -> dict[str, Any]:
         optimized = asset_data.copy()
         optimized["protoflux_components"] = ["grabbable", "collision"]
         if asset_data.get("has_bones"):
@@ -728,8 +723,8 @@ class ResoniteExportEngine(PlatformExportEngine):
         return optimized
 
     async def export_blend_file(
-        self, blend_file: str, out_dir: Path, asset_data: Dict[str, Any], quality_level: str
-    ) -> Tuple[List[str], List[str]]:
+        self, blend_file: str, out_dir: Path, asset_data: dict[str, Any], quality_level: str
+    ) -> tuple[list[str], list[str]]:
         from blender_mcp.utils.blender_executor import get_blender_executor
 
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -760,7 +755,7 @@ print("EXPORT_GLB_OK:" + {json.dumps(str(glb_path))})
         supporting = [str(pf_json)]
         return primary, supporting
 
-    async def generate_integration_commands(self, asset_data: Dict[str, Any]) -> List[str]:
+    async def generate_integration_commands(self, asset_data: dict[str, Any]) -> list[str]:
         cmds = [
             "resonite_import_gltf --file asset_resonite.glb --auto-setup",
             "resonite_add_protoflux_components --auto-detect",
@@ -772,7 +767,7 @@ print("EXPORT_GLB_OK:" + {json.dumps(str(glb_path))})
             cmds.append("resonite_setup_animation_system --auto-configure")
         return cmds
 
-    async def validate_compatibility(self, asset_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def validate_compatibility(self, asset_data: dict[str, Any]) -> dict[str, Any]:
         warnings = []
         poly = asset_data.get("polygon_count", 0)
         if poly > self.optimizations["polygon_limit"]:
@@ -780,7 +775,7 @@ print("EXPORT_GLB_OK:" + {json.dumps(str(glb_path))})
         return {"compatible": True, "issues": [], "warnings": warnings}
 
 
-EXPORT_ENGINES: Dict[str, PlatformExportEngine] = {
+EXPORT_ENGINES: dict[str, PlatformExportEngine] = {
     "vrchat": VRChatExportEngine(),
     "resonite": ResoniteExportEngine(),
 }
@@ -789,6 +784,7 @@ EXPORT_ENGINES: Dict[str, PlatformExportEngine] = {
 # ---------------------------------------------------------------------------
 # Tool registration
 # ---------------------------------------------------------------------------
+
 
 def _register_repository_tools() -> None:
     app = get_app()
@@ -799,21 +795,21 @@ def _register_repository_tools() -> None:
         object_name: str = "",
         object_name_display: str = "",
         description: str = "",
-        tags: List[str] = None,
+        tags: list[str] | None = None,
         category: str = "general",
         object_id: str = "",
-        target_name: Optional[str] = None,
-        position: Tuple[float, float, float] = (0, 0, 0),
-        scale: Tuple[float, float, float] = (1, 1, 1),
-        version: Optional[str] = None,
-        query: Optional[str] = None,
-        author: Optional[str] = None,
-        min_quality: Optional[int] = None,
-        complexity: Optional[str] = None,
+        target_name: str | None = None,
+        position: tuple[float, float, float] = (0, 0, 0),
+        scale: tuple[float, float, float] = (1, 1, 1),
+        version: str | None = None,
+        query: str | None = None,
+        author: str | None = None,
+        min_quality: int | None = None,
+        complexity: str | None = None,
         limit: int = 20,
         quality_rating: int = 5,
         public: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Object repository management: save, load, search, list_objects.
 
@@ -863,7 +859,7 @@ def _register_repository_tools() -> None:
                 }
         except Exception as e:
             logger.exception(f"Repository operation '{operation}' failed: {e}")
-            return {"success": False, "message": f"Repository operation failed: {str(e)}", "operation": operation}
+            return {"success": False, "message": f"Repository operation failed: {e!s}", "operation": operation}
 
     @app.tool
     async def manage_object_construction(
@@ -873,13 +869,13 @@ def _register_repository_tools() -> None:
         description: str = "",
         name: str = "ConstructedObject",
         complexity: str = "standard",
-        style_preset: Optional[str] = None,
-        reference_objects: Optional[List[str]] = None,
+        style_preset: str | None = None,
+        reference_objects: list[str] | None = None,
         allow_modifications: bool = True,
         modification_description: str = "",
         max_iterations: int = 3,
         preserve_original: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         AI-powered object construction and modification via sampling.
 
@@ -948,7 +944,7 @@ def _register_repository_tools() -> None:
                 }
         except Exception as e:
             logger.exception(f"Construction operation '{operation}' failed: {e}")
-            return {"success": False, "message": f"Construction operation failed: {str(e)}", "operation": operation}
+            return {"success": False, "message": f"Construction operation failed: {e!s}", "operation": operation}
 
     @app.tool
     async def export_for_mcp_handoff(
@@ -958,7 +954,7 @@ def _register_repository_tools() -> None:
         optimization_preset: str = "automatic",
         quality_level: str = "high",
         include_metadata: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Export a repository asset with platform-specific optimisations for cross-MCP handoff.
 
@@ -1005,7 +1001,7 @@ def _register_repository_tools() -> None:
                 "platform_requirements_met": validation_results["compatible"],
             }
 
-            metadata: Dict[str, Any] = {}
+            metadata: dict[str, Any] = {}
             if include_metadata:
                 metadata = {
                     "source_mcp": "blender-mcp",
@@ -1033,9 +1029,15 @@ def _register_repository_tools() -> None:
         except Exception as e:
             logger.exception(f"export_for_mcp_handoff failed: {e}")
             return MCPExportResult(
-                success=False, asset_id=asset_id, target_mcp=target_mcp,
-                primary_files=[], supporting_files=[], integration_commands=[],
-                metadata={}, optimization_report={}, validation_results={},
+                success=False,
+                asset_id=asset_id,
+                target_mcp=target_mcp,
+                primary_files=[],
+                supporting_files=[],
+                integration_commands=[],
+                metadata={},
+                optimization_report={},
+                validation_results={},
                 error_message=str(e),
             ).model_dump()
 
@@ -1050,11 +1052,11 @@ async def _construct_object(
     description: str,
     name: str,
     complexity: str,
-    style_preset: Optional[str],
-    reference_objects: Optional[List[str]],
+    style_preset: str | None,
+    reference_objects: list[str] | None,
     allow_modifications: bool,
     max_iterations: int,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     from .construct_tools import _execute_construction_script
 
     if not description.strip():
@@ -1095,7 +1097,9 @@ async def _construct_object(
         "next_steps": [
             f"manage_object_repo('save', object_name='{name}') to persist to repository",
             f"manage_object_construction('modify', object_name='{name}') to refine",
-        ] if execution_result["success"] else [
+        ]
+        if execution_result["success"]
+        else [
             "Try a simpler description",
             "Break complex objects into smaller components",
         ],
@@ -1108,7 +1112,7 @@ async def _modify_object(
     modification_description: str,
     max_iterations: int,
     preserve_original: bool,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     if not object_name or not modification_description:
         return {"success": False, "message": "object_name and modification_description are required"}
 

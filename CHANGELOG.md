@@ -5,9 +5,29 @@ All notable changes to **Blender MCP** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.6.0] - 2026-04-14
 
-## [0.4.1] - 2026-03-29
+### Added
+- **FastMCP 3.2.0 Parity**: Full integration of native **Prompts** and formalized **Skills**.
+- **Native Prompts**: Introduced `optimize-3d-scene` and `agentic-robot-creation` templates for standard 3D workflows.
+- **Formalized Skills**: Migrated agentic workflows to the industry-standard **Claude Skills (`SKILL.md`)** format.
+- **Enhanced Sampling Logic**: Refined autonomous creation loops within `agentic.py` for more robust multi-step reasoning.
+
+## [0.5.0] - 2026-04-14
+
+### Added
+- **Industrial Quality Stack**: Integrated **Biome** (frontend) and **Ruff** (core) for high-performance, Rust-native linting and formatting.
+- **Protocol Hardening**: Purged all protocol-breaking `print` and `console.log` statements from main processes to ensury strict JSON-RPC compliance for stdio transport.
+- **FastMCP 3.2.0**: Official support and alignment with the latest fleet-wide SOTA standards.
+- **Unified Justfile**: Refactored root recipes for single-pass linting and fixing across the entire Python + TypeScript repository.
+
+### Changed
+- `pyproject.toml`: Hardened Ruff `T201` checks with surgical `per-file-ignores` for CLI and test runners.
+- `webapp/frontend`: Set Biome `noConsoleLog` to `"error"` for automated compliance monitoring.
+
+## [0.4.3] - 2026-04-10
+
+### Added
 
 ### Fixed
 - `compat.py`: removed `Tool = None` pre-assignment footgun; FastMCP 3.x imports are now direct eager imports that fail loudly with a clear `pip install 'fastmcp>=3.1.1'` message

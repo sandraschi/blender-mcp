@@ -23,7 +23,7 @@ def _register_help_tools():
 
     @app.tool
     async def blender_help(
-        function_name: str = None, category: str = None, detail_level: str = "normal"
+        function_name: str | None = None, category: str | None = None, detail_level: str = "normal"
     ) -> str:
         """
         Get comprehensive help for Blender MCP tools and functions.
@@ -45,15 +45,13 @@ def _register_help_tools():
             - blender_help(category="Mesh Creation") - All mesh tools
             - blender_help(detail_level="brief") - Brief overview
         """
-        logger.info(
-            f"Getting help - function: {function_name}, category: {category}, detail_level: {detail_level}"
-        )
+        logger.info(f"Getting help - function: {function_name}, category: {category}, detail_level: {detail_level}")
         from blender_mcp.help import get_help as _get_help
 
         return _get_help(function_name, category, detail_level)
 
     @app.tool
-    async def blender_list_tools(category: str = None) -> str:
+    async def blender_list_tools(category: str | None = None) -> str:
         """
         List all available Blender MCP tools with descriptions.
 

@@ -48,14 +48,14 @@ bpy.context.scene.frame_end = 60
 # Animate rotation
 for frame in range(1, 61):
     bpy.context.scene.frame_set(frame)
-    
+
     # Rotate the cube
     rotation_z = (frame / 60) * 2 * math.pi
     cube.rotation_euler.z = rotation_z
-    
+
     # Move up and down
     cube.location.z = 1 + math.sin(rotation_z) * 0.5
-    
+
     # Insert keyframes
     cube.keyframe_insert(data_path="rotation_euler", index=2)
     cube.keyframe_insert(data_path="location", index=2)

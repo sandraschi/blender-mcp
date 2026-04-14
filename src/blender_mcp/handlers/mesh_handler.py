@@ -5,7 +5,6 @@ Provides functions for creating basic mesh primitives and manipulating mesh obje
 """
 
 import logging
-from typing import Tuple
 
 from ..compat import *
 
@@ -19,8 +18,8 @@ _executor = get_blender_executor()
 @blender_operation("create_cube")
 async def create_cube(
     name: str = "Cube",
-    location: Tuple[float, float, float] = (0, 0, 0),
-    scale: Tuple[float, float, float] = (1, 1, 1),
+    location: tuple[float, float, float] = (0, 0, 0),
+    scale: tuple[float, float, float] = (1, 1, 1),
 ) -> str:
     """
     Create a cube primitive.
@@ -51,8 +50,8 @@ obj.name = {name!r}
 @blender_operation("create_sphere")
 async def create_sphere(
     name: str = "Sphere",
-    location: Tuple[float, float, float] = (0, 0, 0),
-    scale: Tuple[float, float, float] = (1, 1, 1),
+    location: tuple[float, float, float] = (0, 0, 0),
+    scale: tuple[float, float, float] = (1, 1, 1),
     radius: float = 1.0,
     segments: int = 32,
     rings: int = 16,
@@ -95,8 +94,8 @@ obj.name = {name!r}
 @blender_operation("create_cylinder")
 async def create_cylinder(
     name: str = "Cylinder",
-    location: Tuple[float, float, float] = (0, 0, 0),
-    scale: Tuple[float, float, float] = (1, 1, 1),
+    location: tuple[float, float, float] = (0, 0, 0),
+    scale: tuple[float, float, float] = (1, 1, 1),
     radius: float = 1.0,
     depth: float = 2.0,
     vertices: int = 32,
@@ -139,8 +138,8 @@ obj.name = {name!r}
 @blender_operation("create_cone")
 async def create_cone(
     name: str = "Cone",
-    location: Tuple[float, float, float] = (0, 0, 0),
-    scale: Tuple[float, float, float] = (1, 1, 1),
+    location: tuple[float, float, float] = (0, 0, 0),
+    scale: tuple[float, float, float] = (1, 1, 1),
     radius1: float = 1.0,
     depth: float = 2.0,
     vertices: int = 32,
@@ -183,8 +182,8 @@ obj.name = {name!r}
 @blender_operation("create_plane")
 async def create_plane(
     name: str = "Plane",
-    location: Tuple[float, float, float] = (0, 0, 0),
-    scale: Tuple[float, float, float] = (1, 1, 1),
+    location: tuple[float, float, float] = (0, 0, 0),
+    scale: tuple[float, float, float] = (1, 1, 1),
 ) -> str:
     """
     Create a plane primitive.
@@ -215,7 +214,7 @@ obj.name = {name!r}
 @blender_operation("create_torus")
 async def create_torus(
     name: str = "Torus",
-    location: Tuple[float, float, float] = (0, 0, 0),
+    location: tuple[float, float, float] = (0, 0, 0),
     major_radius: float = 1.0,
     minor_radius: float = 0.25,
 ) -> str:
@@ -231,9 +230,7 @@ async def create_torus(
     Returns:
         Success message
     """
-    logger.info(
-        f"Creating torus '{name}' at {location} with major radius {major_radius}, minor radius {minor_radius}"
-    )
+    logger.info(f"Creating torus '{name}' at {location} with major radius {major_radius}, minor radius {minor_radius}")
 
     script = f"""
 import bpy
@@ -255,8 +252,8 @@ obj.name = {name!r}
 @blender_operation("create_monkey")
 async def create_monkey(
     name: str = "Suzanne",
-    location: Tuple[float, float, float] = (0, 0, 0),
-    scale: Tuple[float, float, float] = (1, 1, 1),
+    location: tuple[float, float, float] = (0, 0, 0),
+    scale: tuple[float, float, float] = (1, 1, 1),
 ) -> str:
     """
     Create Suzanne (monkey) primitive.

@@ -5,7 +5,7 @@ Provides a single comprehensive tool for scene, collection, view layer,
 lighting, camera, and render settings management.
 """
 
-from typing import List, Literal
+from typing import Literal
 
 from blender_mcp.compat import *
 
@@ -41,8 +41,8 @@ def _register_scene_tools():
         collection_name: str = "",
         layer_name: str = "",
         light_type: str = "SUN",
-        location: List[float] = None,
-        rotation: List[float] = None,
+        location: list[float] | None = None,
+        rotation: list[float] | None = None,
         resolution_x: int = 1920,
         resolution_y: int = 1080,
     ) -> str:
@@ -157,7 +157,7 @@ def _register_scene_tools():
             else:
                 return f"Unknown operation: {operation}"
         except Exception as e:
-            return f"Error in blender_scene({operation}): {str(e)}"
+            return f"Error in blender_scene({operation}): {e!s}"
 
 
 # Register tools when module is imported

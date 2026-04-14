@@ -23,6 +23,7 @@ if str(_SRC) not in sys.path:
 # Event loop — single session-scoped loop for all async tests
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(scope="session")
 def event_loop():
     """Session-scoped event loop so async fixtures can be shared."""
@@ -36,6 +37,7 @@ def event_loop():
 # Environment setup
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(scope="session", autouse=True)
 def test_environment():
     """Set test-mode env vars before any test runs."""
@@ -47,6 +49,7 @@ def test_environment():
 # ---------------------------------------------------------------------------
 # Mock executor factory
 # ---------------------------------------------------------------------------
+
 
 def make_mock_executor(output: str = "") -> MagicMock:
     """Return a mock BlenderExecutor whose execute_script returns *output*."""
@@ -65,6 +68,7 @@ def mock_executor():
 # Mock FastMCP Context (for sampling tests)
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture
 def mock_ctx():
     """Mock FastMCP Context that returns an empty sampling result."""
@@ -78,6 +82,7 @@ def mock_ctx():
 # ---------------------------------------------------------------------------
 # Temp repository directory
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture
 def repo_dir(tmp_path: Path) -> Path:
@@ -96,6 +101,7 @@ def patch_repo_paths(repo_dir: Path, monkeypatch):
     """
     try:
         import blender_mcp.tools.repository_tools as rt
+
         monkeypatch.setattr(rt, "REPO_BASE", repo_dir)
         monkeypatch.setattr(rt, "INDEX_FILE", repo_dir / "repository_index.json")
     except ImportError:
@@ -105,6 +111,7 @@ def patch_repo_paths(repo_dir: Path, monkeypatch):
 # ---------------------------------------------------------------------------
 # pytest markers
 # ---------------------------------------------------------------------------
+
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "integration: requires live Blender")

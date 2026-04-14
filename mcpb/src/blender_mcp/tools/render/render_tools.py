@@ -87,7 +87,7 @@ def _register_render_tools():
                 return f"Unknown render operation: {operation}. Available: render_preview, render_turntable, render_animation, render_current_frame"
 
         except Exception as e:
-            return f"Error in render operation '{operation}': {str(e)}"
+            return f"Error in render operation '{operation}': {e!s}"
 
 
 _register_render_tools()

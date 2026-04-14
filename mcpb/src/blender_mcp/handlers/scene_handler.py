@@ -183,11 +183,11 @@ elif "{collection_name}" not in bpy.data.collections:
 else:
     obj = bpy.data.objects["{object_name}"]
     collection = bpy.data.collections["{collection_name}"]
-    
+
     # Unlink from current collections
     for col in obj.users_collection:
         col.objects.unlink(obj)
-    
+
     # Link to target collection
     collection.objects.link(obj)
     print(f"Added '{object_name}' to collection '{collection_name}'")
@@ -285,9 +285,7 @@ print(f"Added {{light_type}} light to scene")
 
 # @app.tool  # Will be registered manually
 @blender_operation("setup_camera")
-async def setup_camera(
-    location: tuple = (0, -5, 2), rotation: tuple = (1.0, 0, 0), lens: float = 50.0
-) -> str:
+async def setup_camera(location: tuple = (0, -5, 2), rotation: tuple = (1.0, 0, 0), lens: float = 50.0) -> str:
     """Set up a camera in the scene.
 
     Args:

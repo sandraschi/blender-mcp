@@ -7,29 +7,25 @@ Handles differences between Python versions and FastMCP implementations.
 All FastMCP imports are done eagerly at module load with a clear error message.
 """
 
+from collections.abc import Awaitable, Callable, Mapping, Sequence
 from typing import (  # noqa: E402
     Any,
-    Awaitable,
-    Callable,
     Dict,
     List,
-    Mapping,
     Optional,
-    Sequence,
     Tuple,
     Type,
     TypeAlias,
     TypeVar,
     Union,
 )
-from typing import Set as TypingSet  # noqa: E402
 
 # JSON-compatible types
 JSONPrimitive = Union[str, int, float, bool, None]
-JSONType = Union[JSONPrimitive, Dict[str, Any], List[Any]]
+JSONType = Union[JSONPrimitive, dict[str, Any], list[Any]]
 
 # Re-export Set for compatibility
-Set = TypingSet
+Set = set
 
 # FastMCP 3.x component imports — fail loudly if unavailable so the problem is obvious
 try:
@@ -38,14 +34,27 @@ try:
     from fastmcp.tools.tool import Tool
 except ImportError as _fmcp_err:
     raise ImportError(
-        "FastMCP 3.1.1+ is required. Install with: pip install 'fastmcp>=3.1.1'\n"
-        f"Original error: {_fmcp_err}"
+        f"FastMCP 3.1.1+ is required. Install with: pip install 'fastmcp>=3.1.1'\nOriginal error: {_fmcp_err}"
     ) from _fmcp_err
 
 __all__ = [
-    "Dict", "List", "Tuple", "Set", "Sequence", "Mapping",
-    "Any", "Type", "Callable", "Awaitable", "TypeVar", "TypeAlias",
-    "Optional", "Union",
-    "JSONType", "JSONPrimitive",
-    "Tool", "FunctionTool", "LowLevelServer",
+    "Any",
+    "Awaitable",
+    "Callable",
+    "Dict",
+    "FunctionTool",
+    "JSONPrimitive",
+    "JSONType",
+    "List",
+    "LowLevelServer",
+    "Mapping",
+    "Optional",
+    "Sequence",
+    "Set",
+    "Tool",
+    "Tuple",
+    "Type",
+    "TypeAlias",
+    "TypeVar",
+    "Union",
 ]

@@ -5,7 +5,7 @@ Single tool: view logs or log buffer statistics.
 """
 
 import logging
-from typing import Literal, Optional
+from typing import Literal
 
 from ..app import app
 from ..compat import *
@@ -17,10 +17,10 @@ logger = logging.getLogger(__name__)
 @app.tool
 async def blender_logs(
     operation: Literal["view", "stats"] = "view",
-    level_filter: Optional[str] = None,
-    module_filter: Optional[str] = None,
+    level_filter: str | None = None,
+    module_filter: str | None = None,
     limit: int = 20,
-    since_minutes: Optional[int] = None,
+    since_minutes: int | None = None,
     include_details: bool = False,
 ) -> str:
     """
@@ -75,8 +75,8 @@ async def blender_logs(
                 result_lines.append(f"  {module}: {count}")
             return "\n".join(result_lines)
         except Exception as e:
-            logger.error(f"Error getting log stats: {str(e)}")
-            return f"Error retrieving log statistics: {str(e)}"
+            logger.error(f"Error getting log stats: {e!s}")
+            return f"Error retrieving log statistics: {e!s}"
 
     # operation == "view"
     logger.info(
@@ -94,9 +94,7 @@ async def blender_logs(
             "ERROR",
             "CRITICAL",
         ]:
-            raise MCPError(
-                f"level_filter must be DEBUG, INFO, WARNING, ERROR, or CRITICAL, got '{level_filter}'"
-            )
+            raise MCPError(f"level_filter must be DEBUG, INFO, WARNING, ERROR, or CRITICAL, got '{level_filter}'")
 
         logs = get_recent_logs(
             level_filter=level_filter,
@@ -121,9 +119,7 @@ async def blender_logs(
             timestamp = log["timestamp"].strftime("%H:%M:%S")
             if include_details:
                 location = f"{log['name']}:{log['function']}:{log['line']}"
-                result_lines.append(
-                    f"{timestamp} | {log['level']:<8} | {location} | {log['message']}"
-                )
+                result_lines.append(f"{timestamp} | {log['level']:<8} | {location} | {log['message']}")
             else:
                 result_lines.append(f"{timestamp} | {log['level']:<8} | {log['message']}")
 
@@ -138,5 +134,5 @@ async def blender_logs(
         return "\n".join(result_lines)
 
     except Exception as e:
-        logger.error(f"Error viewing logs: {str(e)}")
-        return f"Error retrieving logs: {str(e)}"
+        logger.error(f"Error viewing logs: {e!s}")
+        return f"Error retrieving logs: {e!s}"

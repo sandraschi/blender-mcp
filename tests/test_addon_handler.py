@@ -6,8 +6,6 @@ No Blender installation required — executor is mocked.
 
 from __future__ import annotations
 
-import os
-import tempfile
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -15,8 +13,8 @@ import pytest
 
 from blender_mcp.handlers.addon_handler import (
     KNOWN_ADDONS,
-    addon_search,
     _blender_addons_dir,
+    addon_search,
 )
 
 
@@ -60,14 +58,15 @@ class TestBlenderAddonsDir:
 class TestInstallFromUrl:
     @pytest.mark.asyncio
     async def test_zip_install(self, tmp_path: Path):
-        import zipfile, io
+        import io
+        import zipfile
+
         # Create a minimal zip
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w") as z:
             z.writestr("addon/__init__.py", "bl_info = {}")
         zip_bytes = buf.getvalue()
 
-        import httpx
         mock_response = MagicMock()
         mock_response.raise_for_status = MagicMock()
         mock_response.content = zip_bytes
@@ -76,9 +75,12 @@ class TestInstallFromUrl:
         mock_client.__aexit__ = AsyncMock(return_value=False)
         mock_client.get = AsyncMock(return_value=mock_response)
 
-        with patch("blender_mcp.handlers.addon_handler._blender_addons_dir", return_value=tmp_path), \
-             patch("httpx.AsyncClient", return_value=mock_client):
+        with (
+            patch("blender_mcp.handlers.addon_handler._blender_addons_dir", return_value=tmp_path),
+            patch("httpx.AsyncClient", return_value=mock_client),
+        ):
             from blender_mcp.handlers.addon_handler import install_addon_from_url
+
             result = await install_addon_from_url("https://example.com/addon.zip")
 
         assert result["status"] == "SUCCESS"
@@ -87,6 +89,7 @@ class TestInstallFromUrl:
     async def test_no_addons_dir(self):
         with patch("blender_mcp.handlers.addon_handler._blender_addons_dir", return_value=None):
             from blender_mcp.handlers.addon_handler import install_addon_from_url
+
             result = await install_addon_from_url("https://example.com/addon.zip")
         assert result["status"] == "ERROR"
         assert "BLENDER_ADDONS_PATH" in result["error"]
@@ -94,14 +97,18 @@ class TestInstallFromUrl:
     @pytest.mark.asyncio
     async def test_download_failure(self, tmp_path: Path):
         import httpx
+
         mock_client = AsyncMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
         mock_client.get = AsyncMock(side_effect=httpx.ConnectError("refused"))
 
-        with patch("blender_mcp.handlers.addon_handler._blender_addons_dir", return_value=tmp_path), \
-             patch("httpx.AsyncClient", return_value=mock_client):
+        with (
+            patch("blender_mcp.handlers.addon_handler._blender_addons_dir", return_value=tmp_path),
+            patch("httpx.AsyncClient", return_value=mock_client),
+        ):
             from blender_mcp.handlers.addon_handler import install_addon_from_url
+
             result = await install_addon_from_url("https://example.com/addon.zip")
         assert result["status"] == "ERROR"
 
@@ -111,11 +118,11 @@ class TestManageBlenderAddonsTool:
 
     @pytest.mark.asyncio
     async def test_search_operation(self):
-        from blender_mcp.tools.addon_tools import _register_addon_tools  # ensure registered
         from blender_mcp.app import get_app
+
         app = get_app()
         # Tool should be discoverable
-        tool_names = [t.name for t in await app.get_tools()]
+        tool_names = [t.name for t in await app.list_tools()]
         assert "manage_blender_addons" in tool_names
 
     @pytest.mark.asyncio
@@ -123,10 +130,12 @@ class TestManageBlenderAddonsTool:
         """Direct helper test: unknown operation returns error."""
         # Import the inner logic by calling manage_blender_addons directly
         from blender_mcp.app import get_app
+
         app = get_app()
         result = await app.call_tool("manage_blender_addons", {"operation": "nonexistent_op_xyz"})
         # Result should contain success: False
         import json as _json
+
         content = result.content[0].text if hasattr(result, "content") else str(result)
         try:
             data = _json.loads(content) if isinstance(content, str) else content

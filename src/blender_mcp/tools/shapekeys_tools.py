@@ -6,7 +6,7 @@ for VRM avatars and character models.
 """
 
 import logging
-from typing import Dict, List, Literal, Optional
+from typing import Literal
 
 logger = logging.getLogger(__name__)
 
@@ -31,22 +31,22 @@ def _register_shapekeys_tools():
             "analyze_shapekeys",
         ] = "create_viseme_shapekeys",
         # Common params
-        target_mesh: Optional[str] = None,
+        target_mesh: str | None = None,
         # Viseme creation params
         viseme_type: str = "vrm",
         auto_generate: bool = True,
-        base_expression: Optional[str] = None,
+        base_expression: str | None = None,
         # Blink creation params
         blink_intensity: float = 1.0,
-        eyelid_vertices: Optional[List[int]] = None,
+        eyelid_vertices: list[int] | None = None,
         # Viseme weights params
-        viseme_weights: Optional[Dict[str, float]] = None,
+        viseme_weights: dict[str, float] | None = None,
         frame: int = 1,
         # Facial expression params
         expression_name: str = "expression",
-        base_visemes: Optional[Dict[str, float]] = None,
+        base_visemes: dict[str, float] | None = None,
         blink_weight: float = 0.0,
-        additional_modifiers: Optional[Dict[str, float]] = None,
+        additional_modifiers: dict[str, float] | None = None,
         # Analysis params
         include_statistics: bool = True,
     ) -> str:
@@ -109,9 +109,7 @@ def _register_shapekeys_tools():
                 )
 
             elif operation == "set_viseme_weights":
-                result = await set_viseme_weights(
-                    target_mesh=target_mesh, viseme_weights=viseme_weights, frame=frame
-                )
+                result = await set_viseme_weights(target_mesh=target_mesh, viseme_weights=viseme_weights, frame=frame)
 
             elif operation == "create_facial_expression":
                 result = await create_facial_expression(
@@ -123,9 +121,7 @@ def _register_shapekeys_tools():
                 )
 
             elif operation == "analyze_shapekeys":
-                result = await analyze_shapekeys(
-                    target_mesh=target_mesh, include_statistics=include_statistics
-                )
+                result = await analyze_shapekeys(target_mesh=target_mesh, include_statistics=include_statistics)
 
             else:
                 return f"Unknown shape keys operation: {operation}"
@@ -135,7 +131,7 @@ def _register_shapekeys_tools():
 
         except Exception as e:
             logger.error(f"Shape keys operation '{operation}' failed: {e}")
-            return f"Shape keys operation failed: {str(e)}"
+            return f"Shape keys operation failed: {e!s}"
 
 
 def _format_shapekeys_result(result: dict) -> str:
@@ -176,33 +172,33 @@ def _format_shapekeys_result(result: dict) -> str:
         report += f"  • Compliance Score: {score_percent}%\n"
 
     # Viseme status
-    if "existing_visemes" in result and result["existing_visemes"]:
+    if result.get("existing_visemes"):
         report += f"**Existing Visemes:** {', '.join(result['existing_visemes'])}\n"
 
-    if "missing_visemes" in result and result["missing_visemes"]:
+    if result.get("missing_visemes"):
         report += f"**Missing Visemes:** {', '.join(result['missing_visemes'])}\n"
 
-    if "created_visemes" in result and result["created_visemes"]:
+    if result.get("created_visemes"):
         report += f"**Created Visemes:** {', '.join(result['created_visemes'])}\n"
 
     # Blink status
     if "blink_created" in result:
         report += f"**Blink Created:** {'Yes' if result['blink_created'] else 'No'}\n"
 
-    if "blink_exists" in result and result["blink_exists"]:
+    if result.get("blink_exists"):
         report += f"**Blink Shape Key:** {result['blink_exists']}\n"
 
     if "blink_intensity" in result:
         report += f"**Blink Intensity:** {result['blink_intensity']:.1f}\n"
 
     # Applied weights
-    if "applied_weights" in result and result["applied_weights"]:
+    if result.get("applied_weights"):
         report += "**Applied Weights:**\n"
         for viseme, weight in result["applied_weights"].items():
             report += f"  • {viseme}: {weight:.2f}\n"
 
     # Expression components
-    if "base_visemes" in result and result["base_visemes"]:
+    if result.get("base_visemes"):
         non_zero = {k: v for k, v in result["base_visemes"].items() if v > 0}
         if non_zero:
             report += "**Base Visemes:**\n"
@@ -212,7 +208,7 @@ def _format_shapekeys_result(result: dict) -> str:
     if "blink_weight" in result and result["blink_weight"] > 0:
         report += f"**Blink Weight:** {result['blink_weight']:.2f}\n"
 
-    if "additional_modifiers" in result and result["additional_modifiers"]:
+    if result.get("additional_modifiers"):
         non_zero = {k: v for k, v in result["additional_modifiers"].items() if v > 0}
         if non_zero:
             report += "**Additional Modifiers:**\n"
@@ -220,7 +216,7 @@ def _format_shapekeys_result(result: dict) -> str:
                 report += f"  • {mod}: {weight:.2f}\n"
 
     # Shape key info summary
-    if "shape_key_info" in result and result["shape_key_info"]:
+    if result.get("shape_key_info"):
         info = result["shape_key_info"]
         report += f"**Shape Key Details:** {len(info)} keys\n"
         # Show first few keys
@@ -236,7 +232,7 @@ def _format_shapekeys_result(result: dict) -> str:
 
     # Recommendations
     if status == "success":
-        if "missing_visemes" in result and result["missing_visemes"]:
+        if result.get("missing_visemes"):
             report += "\n💡 **Next Steps:**\n"
             report += "  • Create missing viseme shape keys\n"
             report += "  • Sculpt mouth shapes for each viseme\n"

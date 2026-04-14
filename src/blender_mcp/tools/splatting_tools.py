@@ -6,7 +6,7 @@ for hybrid environments combining real-world captures with 3D models.
 """
 
 import logging
-from typing import Literal, Optional, Tuple
+from typing import Literal
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +32,7 @@ def _register_splatting_tools():
         target_format: str = "ply",
         crop_type: str = "sphere",
         radius: float = 5.0,
-        center_point: Optional[Tuple[float, float, float]] = None,
+        center_point: tuple[float, float, float] | None = None,
         invert_crop: bool = False,
         density_threshold: float = 0.1,
         decimation_ratio: float = 0.1,
@@ -80,7 +80,6 @@ def _register_splatting_tools():
 
         from blender_mcp.handlers.addon_handler import (
             KNOWN_ADDONS,
-            _blender_addons_dir,
             install_addon_from_url,
         )
         from blender_mcp.handlers.splatting_handler import (
@@ -98,6 +97,7 @@ def _register_splatting_tools():
 
                 # Check if a GS addon is likely installed by probing the addons dir
                 from blender_mcp.utils.blender_executor import get_blender_executor
+
                 executor = get_blender_executor()
                 probe = """
 import bpy, json
@@ -110,7 +110,8 @@ print("GS_PROBE:" + json.dumps({"has_gs_addon": has_gs, "ops": [o for o in ops i
                 for line in probe_out.splitlines():
                     if line.startswith("GS_PROBE:"):
                         import json as _json
-                        probe_data = _json.loads(line[len("GS_PROBE:"):])
+
+                        probe_data = _json.loads(line[len("GS_PROBE:") :])
                         has_addon = probe_data.get("has_gs_addon", False)
 
                 if not has_addon:
@@ -125,16 +126,12 @@ print("GS_PROBE:" + json.dumps({"has_gs_addon": has_gs, "ops": [o for o in ops i
                             f"Then enable it in Blender Preferences > Add-ons."
                         )
 
-                result = await import_gaussian_splat(
-                    file_path=file_path, sh_degree=sh_degree, setup_proxy=setup_proxy
-                )
+                result = await import_gaussian_splat(file_path=file_path, sh_degree=sh_degree, setup_proxy=setup_proxy)
 
             elif operation == "import_gs":
                 if not file_path:
                     return "Error: file_path required for import_gs operation"
-                result = await import_gaussian_splat(
-                    file_path=file_path, sh_degree=sh_degree, setup_proxy=setup_proxy
-                )
+                result = await import_gaussian_splat(file_path=file_path, sh_degree=sh_degree, setup_proxy=setup_proxy)
 
             elif operation == "crop_and_clean":
                 result = await crop_splat(
@@ -172,7 +169,7 @@ print("GS_PROBE:" + json.dumps({"has_gs_addon": has_gs, "ops": [o for o in ops i
 
         except Exception as e:
             logger.error(f"Splatting operation '{operation}' failed: {e}")
-            return f"Splatting operation failed: {str(e)}"
+            return f"Splatting operation failed: {e!s}"
 
 
 def _format_splatting_result(result: dict) -> str:
@@ -205,7 +202,7 @@ def _format_splatting_result(result: dict) -> str:
         report += f"**Proxy:** {result['proxy_name']}\n"
 
     # Statistics
-    if "stats" in result and result["stats"]:
+    if result.get("stats"):
         report += "\n**Statistics:**\n"
         for key, value in result["stats"].items():
             if isinstance(value, int) and value > 1000:
@@ -215,7 +212,7 @@ def _format_splatting_result(result: dict) -> str:
             report += f"  • {key}: {formatted_value}\n"
 
     # Issues or messages
-    if "issues" in result and result["issues"]:
+    if result.get("issues"):
         report += "\n**Issues:**\n"
         for issue in result["issues"]:
             report += f"  • {issue}\n"

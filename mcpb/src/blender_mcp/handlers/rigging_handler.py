@@ -1,7 +1,7 @@
 """Rigging and armature operations handler for Blender MCP."""
 
 from enum import Enum
-from typing import Any, Dict, Tuple
+from typing import Any
 
 from loguru import logger
 
@@ -22,8 +22,8 @@ class BoneAxis(str, Enum):
 
 @blender_operation("create_armature", log_args=True)
 async def create_armature(
-    name: str = "Armature", location: Tuple[float, float, float] = (0.0, 0.0, 0.0), **kwargs: Any
-) -> Dict[str, Any]:
+    name: str = "Armature", location: tuple[float, float, float] = (0.0, 0.0, 0.0), **kwargs: Any
+) -> dict[str, Any]:
     """Create a new armature object."""
     script = f"""
 def create_armature():
@@ -52,7 +52,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to create armature: {str(e)}")
+        logger.error(f"Failed to create armature: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -60,12 +60,12 @@ print(str(result))
 async def add_bone(
     armature_name: str,
     bone_name: str,
-    head: Tuple[float, float, float],
-    tail: Tuple[float, float, float],
-    parent: str = None,
+    head: tuple[float, float, float],
+    tail: tuple[float, float, float],
+    parent: str | None = None,
     connected: bool = False,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Add a bone to an armature."""
     script = f"""
 
@@ -73,29 +73,29 @@ def add_bone():
     armature = bpy.data.objects.get('{armature_name}')
     if not armature or armature.type != 'ARMATURE':
         return {{'status': 'ERROR', 'error': 'Armature not found'}}
-    
+
     # Store current mode and select armature
     current_mode = bpy.context.mode
     bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
     bpy.context.view_layer.objects.active = armature
     bpy.ops.object.mode_set(mode='EDIT')
-    
+
     # Create new bone
     bone = armature.data.edit_bones.new('{bone_name}')
     bone.head = {list(head)}
     bone.tail = {list(tail)}
-    
+
     # Set parent if specified
     if '{parent}':
         parent_bone = armature.data.edit_bones.get('{parent}')
         if parent_bone:
             bone.parent = parent_bone
             bone.use_connect = {str(connected).lower()}
-    
+
     # Return to original mode
     bpy.ops.object.mode_set(mode=current_mode)
-    
+
     return {{
         'status': 'SUCCESS',
         'bone_name': bone.name,
@@ -114,14 +114,14 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to add bone: {str(e)}")
+        logger.error(f"Failed to add bone: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("create_bone_ik", log_args=True)
 async def create_bone_ik(
     armature_name: str, bone_name: str, target_name: str, chain_length: int = 2, **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create an IK constraint for a bone."""
     script = f"""
 
@@ -129,26 +129,26 @@ def create_ik():
     armature = bpy.data.objects.get('{armature_name}')
     if not armature or armature.type != 'ARMATURE':
         return {{'status': 'ERROR', 'error': 'Armature not found'}}
-    
+
     # Switch to pose mode
     bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
     bpy.context.view_layer.objects.active = armature
     bpy.ops.object.mode_set(mode='POSE')
-    
+
     # Get the bone and create IK constraint
     bone = armature.pose.bones.get('{bone_name}')
     if not bone:
         return {{'status': 'ERROR', 'error': 'Bone not found'}}
-    
+
     # Create IK constraint
     ik = bone.constraints.new('IK')
     ik.target = bpy.data.objects.get('{target_name}')
     if not ik.target:
         return {{'status': 'ERROR', 'error': 'Target object not found'}}
-    
+
     ik.chain_count = {chain_length}
-    
+
     return {{
         'status': 'SUCCESS',
         'bone': bone.name,
@@ -167,19 +167,19 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to create IK: {str(e)}")
+        logger.error(f"Failed to create IK: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("list_bones", log_args=True)
-async def list_bones(armature_name: str, **kwargs: Any) -> Dict[str, Any]:
+async def list_bones(armature_name: str, **kwargs: Any) -> dict[str, Any]:
     """List all bones in an armature (useful for VRM/humanoid models)."""
     script = f"""
 def list_bones():
     armature = bpy.data.objects.get('{armature_name}')
     if not armature or armature.type != 'ARMATURE':
         return {{'status': 'ERROR', 'error': 'Armature not found: {armature_name}'}}
-    
+
     bones = []
     for bone in armature.data.bones:
         bones.append({{
@@ -189,7 +189,7 @@ def list_bones():
             'tail': list(bone.tail_local),
             'length': bone.length
         }})
-    
+
     return {{
         'status': 'SUCCESS',
         'armature': armature.name,
@@ -208,7 +208,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to list bones: {str(e)}")
+        logger.error(f"Failed to list bones: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -216,11 +216,11 @@ print(str(result))
 async def pose_bone(
     armature_name: str,
     bone_name: str,
-    rotation: Tuple[float, float, float] = (0, 0, 0),
-    location: Tuple[float, float, float] = None,
+    rotation: tuple[float, float, float] = (0, 0, 0),
+    location: tuple[float, float, float] | None = None,
     rotation_mode: str = "XYZ",
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Set bone rotation/location in pose mode (for VRM posing)."""
     import math
 
@@ -234,29 +234,29 @@ def pose_bone():
     armature = bpy.data.objects.get('{armature_name}')
     if not armature or armature.type != 'ARMATURE':
         return {{'status': 'ERROR', 'error': 'Armature not found: {armature_name}'}}
-    
+
     # Enter pose mode
     bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
     armature.select_set(True)
     bpy.context.view_layer.objects.active = armature
     bpy.ops.object.mode_set(mode='POSE')
-    
+
     # Get the pose bone
     pbone = armature.pose.bones.get('{bone_name}')
     if not pbone:
         available = [b.name for b in armature.pose.bones]
         return {{'status': 'ERROR', 'error': f'Bone not found: {bone_name}. Available: {{available[:10]}}'}}
-    
+
     # Set rotation mode and rotation
     pbone.rotation_mode = '{rotation_mode}'
     pbone.rotation_euler = {rot_rad}
-    
+
     # Set location offset if provided
     loc = {loc_str}
     if loc:
         pbone.location = loc
-    
+
     return {{
         'status': 'SUCCESS',
         'armature': armature.name,
@@ -276,7 +276,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to pose bone: {str(e)}")
+        logger.error(f"Failed to pose bone: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -286,33 +286,33 @@ async def set_bone_keyframe(
     bone_name: str,
     frame: int = 1,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Insert keyframe for bone pose at specified frame."""
     script = f"""
 def set_bone_keyframe():
     armature = bpy.data.objects.get('{armature_name}')
     if not armature or armature.type != 'ARMATURE':
         return {{'status': 'ERROR', 'error': 'Armature not found: {armature_name}'}}
-    
+
     # Enter pose mode
     bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
     armature.select_set(True)
     bpy.context.view_layer.objects.active = armature
     bpy.ops.object.mode_set(mode='POSE')
-    
+
     # Get the pose bone
     pbone = armature.pose.bones.get('{bone_name}')
     if not pbone:
         return {{'status': 'ERROR', 'error': 'Bone not found: {bone_name}'}}
-    
+
     # Set frame
     bpy.context.scene.frame_set({frame})
-    
+
     # Insert keyframes for rotation and location
     pbone.keyframe_insert(data_path='rotation_euler', frame={frame})
     pbone.keyframe_insert(data_path='location', frame={frame})
-    
+
     return {{
         'status': 'SUCCESS',
         'armature': armature.name,
@@ -331,30 +331,30 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to set bone keyframe: {str(e)}")
+        logger.error(f"Failed to set bone keyframe: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("reset_pose", log_args=True)
-async def reset_pose(armature_name: str, **kwargs: Any) -> Dict[str, Any]:
+async def reset_pose(armature_name: str, **kwargs: Any) -> dict[str, Any]:
     """Reset armature to rest position."""
     script = f"""
 def reset_pose():
     armature = bpy.data.objects.get('{armature_name}')
     if not armature or armature.type != 'ARMATURE':
         return {{'status': 'ERROR', 'error': 'Armature not found: {armature_name}'}}
-    
+
     # Enter pose mode
     bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
     armature.select_set(True)
     bpy.context.view_layer.objects.active = armature
     bpy.ops.object.mode_set(mode='POSE')
-    
+
     # Select all bones and reset
     bpy.ops.pose.select_all(action='SELECT')
     bpy.ops.pose.transforms_clear()
-    
+
     return {{
         'status': 'SUCCESS',
         'armature': armature.name,
@@ -372,5 +372,5 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to reset pose: {str(e)}")
+        logger.error(f"Failed to reset pose: {e!s}")
         return {"status": "ERROR", "error": str(e)}

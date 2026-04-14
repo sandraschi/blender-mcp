@@ -95,9 +95,7 @@ class ClothSimulationParams(BaseModel):
     """Parameters for cloth simulation."""
 
     object_name: str = Field(..., description="Name of the object to apply cloth simulation to")
-    quality_preset: ClothQualityPreset = Field(
-        ClothQualityPreset.MEDIUM, description="Quality preset"
-    )
+    quality_preset: ClothQualityPreset = Field(ClothQualityPreset.MEDIUM, description="Quality preset")
     mass: float = Field(1.0, gt=0.0, description="Cloth mass")
     structural_stiffness: float = Field(1.0, ge=0.0, le=1.0, description="Structural stiffness")
     bending_stiffness: float = Field(0.1, ge=0.0, le=1.0, description="Bending stiffness")

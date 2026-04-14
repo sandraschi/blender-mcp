@@ -5,7 +5,6 @@ Provides tools for creating various types of lights and managing lighting setups
 """
 
 import logging
-from typing import Tuple
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
@@ -22,10 +21,10 @@ def _register_lighting_tools():
         operation: str = "create_sun",
         light_name: str = "Light",
         light_type: str = "SUN",
-        location: Tuple[float, float, float] = (5, 5, 5),
-        rotation: Tuple[float, float, float] = (0, 0, 0),
+        location: tuple[float, float, float] = (5, 5, 5),
+        rotation: tuple[float, float, float] = (0, 0, 0),
         energy: float = 1.0,
-        color: Tuple[float, float, float] = (1, 1, 1),
+        color: tuple[float, float, float] = (1, 1, 1),
         shadow_soft_size: float = 0.1,
         size: float = 1.0,
         spot_size: float = 45.0,
@@ -126,9 +125,7 @@ def _register_lighting_tools():
                 else rotation
             )
             color_tuple = (
-                tuple(float(x) for x in color)
-                if hasattr(color, "__iter__") and not isinstance(color, str)
-                else color
+                tuple(float(x) for x in color) if hasattr(color, "__iter__") and not isinstance(color, str) else color
             )
 
             # Validate 3-element vectors
@@ -137,9 +134,7 @@ def _register_lighting_tools():
             if len(rotation_tuple) != 3:
                 return f"Error: rotation must be a 3-element array/tuple, got {len(rotation_tuple)} elements"
             if len(color_tuple) != 3:
-                return (
-                    f"Error: color must be a 3-element array/tuple, got {len(color_tuple)} elements"
-                )
+                return f"Error: color must be a 3-element array/tuple, got {len(color_tuple)} elements"
 
             # Validate color values are in 0-1 range
             if not all(0 <= c <= 1 for c in color_tuple):
@@ -200,8 +195,8 @@ def _register_lighting_tools():
                 return f"Unknown operation: {operation}"
 
         except Exception as e:
-            logger.error(f"ERROR: Error in lighting operation '{operation}': {str(e)}")
-            return f"Error in lighting operation '{operation}': {str(e)}"
+            logger.error(f"ERROR: Error in lighting operation '{operation}': {e!s}")
+            return f"Error in lighting operation '{operation}': {e!s}"
 
 
 _register_lighting_tools()

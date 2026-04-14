@@ -2,7 +2,7 @@
 
 import logging
 from enum import Enum
-from typing import Any, Dict, Tuple
+from typing import Any
 
 from ..decorators import blender_operation
 
@@ -23,8 +23,8 @@ class BoneAxis(str, Enum):
 
 @blender_operation("create_armature", log_args=True)
 async def create_armature(
-    name: str = "Armature", location: Tuple[float, float, float] = (0.0, 0.0, 0.0), **kwargs: Any
-) -> Dict[str, Any]:
+    name: str = "Armature", location: tuple[float, float, float] = (0.0, 0.0, 0.0), **kwargs: Any
+) -> dict[str, Any]:
     """Create a new armature object."""
     script = f"""
 def create_armature():
@@ -53,7 +53,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to create armature: {str(e)}")
+        logger.error(f"Failed to create armature: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -61,12 +61,12 @@ print(str(result))
 async def add_bone(
     armature_name: str,
     bone_name: str,
-    head: Tuple[float, float, float],
-    tail: Tuple[float, float, float],
-    parent: str = None,
+    head: tuple[float, float, float],
+    tail: tuple[float, float, float],
+    parent: str | None = None,
     connected: bool = False,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Add a bone to an armature."""
     script = f"""
 
@@ -115,14 +115,14 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to add bone: {str(e)}")
+        logger.error(f"Failed to add bone: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("create_bone_ik", log_args=True)
 async def create_bone_ik(
     armature_name: str, bone_name: str, target_name: str, chain_length: int = 2, **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create an IK constraint for a bone."""
     script = f"""
 
@@ -168,12 +168,12 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to create IK: {str(e)}")
+        logger.error(f"Failed to create IK: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("list_bones", log_args=True)
-async def list_bones(armature_name: str, **kwargs: Any) -> Dict[str, Any]:
+async def list_bones(armature_name: str, **kwargs: Any) -> dict[str, Any]:
     """List all bones in an armature (useful for VRM/humanoid models)."""
     script = f"""
 def list_bones():
@@ -209,7 +209,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to list bones: {str(e)}")
+        logger.error(f"Failed to list bones: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -217,11 +217,11 @@ print(str(result))
 async def pose_bone(
     armature_name: str,
     bone_name: str,
-    rotation: Tuple[float, float, float] = (0, 0, 0),
-    location: Tuple[float, float, float] = None,
+    rotation: tuple[float, float, float] = (0, 0, 0),
+    location: tuple[float, float, float] | None = None,
     rotation_mode: str = "XYZ",
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Set bone rotation/location in pose mode (for VRM posing)."""
     import math
 
@@ -277,7 +277,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to pose bone: {str(e)}")
+        logger.error(f"Failed to pose bone: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -287,7 +287,7 @@ async def set_bone_keyframe(
     bone_name: str,
     frame: int = 1,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Insert keyframe for bone pose at specified frame."""
     script = f"""
 def set_bone_keyframe():
@@ -332,12 +332,12 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to set bone keyframe: {str(e)}")
+        logger.error(f"Failed to set bone keyframe: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("reset_pose", log_args=True)
-async def reset_pose(armature_name: str, **kwargs: Any) -> Dict[str, Any]:
+async def reset_pose(armature_name: str, **kwargs: Any) -> dict[str, Any]:
     """Reset armature to rest position."""
     script = f"""
 def reset_pose():
@@ -373,7 +373,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to reset pose: {str(e)}")
+        logger.error(f"Failed to reset pose: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -385,7 +385,7 @@ async def transfer_weights(
     method: str = "NEAREST_FACE",
     max_distance: float = 0.1,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Transfer vertex weights from source mesh to target mesh.
 
@@ -509,19 +509,19 @@ print("SUCCESS: Weight transfer completed")
 
     except Exception as e:
         logger.error(f"Weight transfer failed: {e}")
-        raise Exception(f"Failed to transfer weights: {str(e)}") from e
+        raise Exception(f"Failed to transfer weights: {e!s}") from e
 
 
 @blender_operation("manage_vertex_groups")
 async def manage_vertex_groups(
     target_mesh: str,
     operation: str,
-    group_name: str = None,
-    source_group: str = None,
-    new_name: str = None,
-    vertex_indices: list = None,
+    group_name: str | None = None,
+    source_group: str | None = None,
+    new_name: str | None = None,
+    vertex_indices: list | None = None,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Manage vertex groups on a mesh object.
 
@@ -674,13 +674,13 @@ print("SUCCESS: Vertex group operation completed")
 
     except Exception as e:
         logger.error(f"Vertex group management failed: {e}")
-        raise Exception(f"Failed to manage vertex groups: {str(e)}") from e
+        raise Exception(f"Failed to manage vertex groups: {e!s}") from e
 
 
 @blender_operation("humanoid_mapping")
 async def humanoid_mapping(
     armature_name: str, mapping_preset: str = "VRCHAT", auto_rename: bool = True, **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Apply humanoid bone mapping for VR platforms.
 
@@ -815,4 +815,4 @@ print("SUCCESS: Humanoid mapping applied")
 
     except Exception as e:
         logger.error(f"Humanoid mapping failed: {e}")
-        raise Exception(f"Failed to apply humanoid mapping: {str(e)}") from e
+        raise Exception(f"Failed to apply humanoid mapping: {e!s}") from e

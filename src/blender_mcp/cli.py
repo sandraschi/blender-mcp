@@ -42,29 +42,19 @@ For more information, visit: https://github.com/sandraschi/blender-mcp
         """,
     )
 
-    parser.add_argument(
-        "--stdio", action="store_true", help="Run in stdio mode for MCP clients (default)"
-    )
+    parser.add_argument("--stdio", action="store_true", help="Run in stdio mode for MCP clients (default)")
 
     parser.add_argument("--http", action="store_true", help="Run in HTTP mode for web clients")
 
-    parser.add_argument(
-        "--host", default="127.0.0.1", help="Host to bind HTTP server to (default: 127.0.0.1)"
-    )
+    parser.add_argument("--host", default="127.0.0.1", help="Host to bind HTTP server to (default: 127.0.0.1)")
 
-    parser.add_argument(
-        "--port", type=int, default=8000, help="Port to bind HTTP server to (default: 8000)"
-    )
+    parser.add_argument("--port", type=int, default=8000, help="Port to bind HTTP server to (default: 8000)")
 
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
-    parser.add_argument(
-        "--install-config", action="store_true", help="Install Claude Desktop configuration"
-    )
+    parser.add_argument("--install-config", action="store_true", help="Install Claude Desktop configuration")
 
-    parser.add_argument(
-        "--check-blender", action="store_true", help="Check Blender installation and compatibility"
-    )
+    parser.add_argument("--check-blender", action="store_true", help="Check Blender installation and compatibility")
 
     parser.add_argument(
         "--list-tools",
@@ -84,9 +74,7 @@ For more information, visit: https://github.com/sandraschi/blender-mcp
 
     # Configure logging
     log_level = logging.DEBUG if args.debug else logging.INFO
-    logging.basicConfig(
-        level=log_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    logging.basicConfig(level=log_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     logger = logging.getLogger(__name__)
 
@@ -114,9 +102,7 @@ For more information, visit: https://github.com/sandraschi/blender-mcp
 
             from blender_mcp.server import app
 
-            uvicorn.run(
-                app, host=args.host, port=args.port, log_level="debug" if args.debug else "info"
-            )
+            uvicorn.run(app, host=args.host, port=args.port, log_level="debug" if args.debug else "info")
         else:
             # Run stdio mode (default for MCP clients)
             logger.info("Starting MCP server in stdio mode")
@@ -205,9 +191,7 @@ def check_blender_installation():
 
         # Try to get version
         try:
-            result = subprocess.run(
-                [blender_path, "--version"], capture_output=True, text=True, timeout=10
-            )
+            result = subprocess.run([blender_path, "--version"], capture_output=True, text=True, timeout=10)
 
             if result.returncode == 0:
                 # Extract version from first line
@@ -282,9 +266,7 @@ def show_configuration():
     print("Blender Executable:")
     print(f"   Configured: {BLENDER_EXECUTABLE}")
     print(f"   Default:    {DEFAULT_BLENDER_EXECUTABLE}")
-    print(
-        f"   From env:   {'BLENDER_EXECUTABLE' if os.environ.get('BLENDER_EXECUTABLE') else 'auto-detected'}"
-    )
+    print(f"   From env:   {'BLENDER_EXECUTABLE' if os.environ.get('BLENDER_EXECUTABLE') else 'auto-detected'}")
 
     print("\nEnvironment Variables:")
     relevant_env_vars = ["BLENDER_EXECUTABLE", "BLENDER_PATH", "PYTHONPATH"]
@@ -305,9 +287,7 @@ def show_configuration():
         app = get_app()
         if app:
             print("   Server: Ready")
-            print(
-                f"   Tools registered: {len(app.list_tools()) if hasattr(app, 'list_tools') else 'Unknown'}"
-            )
+            print(f"   Tools registered: {len(app.list_tools()) if hasattr(app, 'list_tools') else 'Unknown'}")
         else:
             print("   Server: Not initialized")
     except Exception as e:

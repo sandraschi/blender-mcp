@@ -145,9 +145,7 @@ async def _run_sep1577_loop(
         stop_reason = getattr(result, "stop_reason", None)
 
         # 'end_turn' or 'stop_sequence' means the LLM is done
-        if stop_reason in ("end_turn", "stop_sequence") or (
-            final_text and not getattr(result, "tool_calls", None)
-        ):
+        if stop_reason in ("end_turn", "stop_sequence") or (final_text and not getattr(result, "tool_calls", None)):
             return {
                 "output": final_text,
                 "steps": step,
@@ -160,9 +158,7 @@ async def _run_sep1577_loop(
             messages.append({"role": "assistant", "content": final_text})
         # Inject tool results back as user context for next iteration
         if all_tool_calls:
-            tool_summary = "\n".join(
-                f"[{tc['tool']}]: {tc['result']}" for tc in all_tool_calls[-5:]
-            )
+            tool_summary = "\n".join(f"[{tc['tool']}]: {tc['result']}" for tc in all_tool_calls[-5:])
             messages.append({"role": "user", "content": f"Tool results so far:\n{tool_summary}"})
 
     # Max steps reached — return whatever we have

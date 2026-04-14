@@ -7,20 +7,20 @@ No live Blender required — process launch is mocked.
 from __future__ import annotations
 
 import json
-import subprocess
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _reset_session_state():
     """Reset the module-level session state between tests."""
     import blender_mcp.tools.session_tools as st
+
     st._blender_process = None
     st._blender_pid = None
 
@@ -36,14 +36,17 @@ def reset_session(monkeypatch):
 # status operation
 # ---------------------------------------------------------------------------
 
+
 class TestSessionStatus:
     @pytest.mark.asyncio
     async def test_status_not_running(self):
         from blender_mcp.app import get_app
+
         app = get_app()
         result = await app.call_tool("blender_session", {"operation": "status"})
         # Parse the text content
         import json as _j
+
         text = result.content[0].text if hasattr(result, "content") else str(result)
         try:
             data = _j.loads(text)
@@ -54,6 +57,7 @@ class TestSessionStatus:
     @pytest.mark.asyncio
     async def test_status_running(self):
         import blender_mcp.tools.session_tools as st
+
         mock_proc = MagicMock()
         mock_proc.poll.return_value = None  # still running
         mock_proc.pid = 12345
@@ -61,6 +65,7 @@ class TestSessionStatus:
         st._blender_pid = 12345
 
         from blender_mcp.app import get_app
+
         app = get_app()
         result = await app.call_tool("blender_session", {"operation": "status"})
         text = result.content[0].text if hasattr(result, "content") else str(result)
@@ -76,6 +81,7 @@ class TestSessionStatus:
 # start operation
 # ---------------------------------------------------------------------------
 
+
 class TestSessionStart:
     @pytest.mark.asyncio
     async def test_start_launches_process(self, tmp_path):
@@ -86,10 +92,13 @@ class TestSessionStart:
         mock_proc.poll.return_value = None
         mock_proc.pid = 99999
 
-        with patch("blender_mcp.tools.session_tools._get_blender_exe", return_value=str(fake_exe)), \
-             patch("subprocess.Popen", return_value=mock_proc), \
-             patch("asyncio.sleep", AsyncMock()):
+        with (
+            patch("blender_mcp.tools.session_tools._get_blender_exe", return_value=str(fake_exe)),
+            patch("subprocess.Popen", return_value=mock_proc),
+            patch("asyncio.sleep", AsyncMock()),
+        ):
             from blender_mcp.app import get_app
+
             app = get_app()
             result = await app.call_tool("blender_session", {"operation": "start"})
             text = result.content[0].text if hasattr(result, "content") else str(result)
@@ -103,6 +112,7 @@ class TestSessionStart:
     @pytest.mark.asyncio
     async def test_start_already_running(self):
         import blender_mcp.tools.session_tools as st
+
         mock_proc = MagicMock()
         mock_proc.poll.return_value = None
         mock_proc.pid = 55555
@@ -110,6 +120,7 @@ class TestSessionStart:
         st._blender_pid = 55555
 
         from blender_mcp.app import get_app
+
         app = get_app()
         result = await app.call_tool("blender_session", {"operation": "start"})
         text = result.content[0].text if hasattr(result, "content") else str(result)
@@ -121,9 +132,9 @@ class TestSessionStart:
 
     @pytest.mark.asyncio
     async def test_start_exe_not_found(self):
-        with patch("blender_mcp.tools.session_tools._get_blender_exe",
-                   return_value="/nonexistent/blender"):
+        with patch("blender_mcp.tools.session_tools._get_blender_exe", return_value="/nonexistent/blender"):
             from blender_mcp.app import get_app
+
             app = get_app()
             result = await app.call_tool("blender_session", {"operation": "start"})
             text = result.content[0].text if hasattr(result, "content") else str(result)
@@ -138,10 +149,12 @@ class TestSessionStart:
 # stop operation
 # ---------------------------------------------------------------------------
 
+
 class TestSessionStop:
     @pytest.mark.asyncio
     async def test_stop_when_running(self):
         import blender_mcp.tools.session_tools as st
+
         mock_proc = MagicMock()
         mock_proc.poll.return_value = None
         mock_proc.pid = 77777
@@ -149,6 +162,7 @@ class TestSessionStop:
         st._blender_pid = 77777
 
         from blender_mcp.app import get_app
+
         app = get_app()
         result = await app.call_tool("blender_session", {"operation": "stop"})
         text = result.content[0].text if hasattr(result, "content") else str(result)
@@ -164,6 +178,7 @@ class TestSessionStop:
     @pytest.mark.asyncio
     async def test_stop_when_not_running(self):
         from blender_mcp.app import get_app
+
         app = get_app()
         result = await app.call_tool("blender_session", {"operation": "stop"})
         text = result.content[0].text if hasattr(result, "content") else str(result)
@@ -178,18 +193,25 @@ class TestSessionStop:
 # run_script / demo — bridge path
 # ---------------------------------------------------------------------------
 
+
 class TestSessionRunScript:
     @pytest.mark.asyncio
     async def test_run_script_no_bridge(self):
         """Without bridge, should return session_used=False with helpful message."""
-        with patch("blender_mcp.app._exec_in_blender_session",
-                   AsyncMock(return_value={"session_used": False, "output": "", "error": None, "success": False})):
+        with patch(
+            "blender_mcp.app._exec_in_blender_session",
+            AsyncMock(return_value={"session_used": False, "output": "", "error": None, "success": False}),
+        ):
             from blender_mcp.app import get_app
+
             app = get_app()
-            result = await app.call_tool("blender_session", {
-                "operation": "run_script",
-                "script": "import bpy; print('hello')",
-            })
+            result = await app.call_tool(
+                "blender_session",
+                {
+                    "operation": "run_script",
+                    "script": "import bpy; print('hello')",
+                },
+            )
             text = result.content[0].text if hasattr(result, "content") else str(result)
             try:
                 data = json.loads(text)
@@ -201,19 +223,27 @@ class TestSessionRunScript:
     @pytest.mark.asyncio
     async def test_run_script_via_bridge(self):
         """With bridge, script output returned."""
-        with patch("blender_mcp.app._exec_in_blender_session",
-                   AsyncMock(return_value={
-                       "session_used": True,
-                       "success": True,
-                       "output": "SCRIPT_DONE: test",
-                       "error": None,
-                   })):
+        with patch(
+            "blender_mcp.app._exec_in_blender_session",
+            AsyncMock(
+                return_value={
+                    "session_used": True,
+                    "success": True,
+                    "output": "SCRIPT_DONE: test",
+                    "error": None,
+                }
+            ),
+        ):
             from blender_mcp.app import get_app
+
             app = get_app()
-            result = await app.call_tool("blender_session", {
-                "operation": "run_script",
-                "script": "print('test')",
-            })
+            result = await app.call_tool(
+                "blender_session",
+                {
+                    "operation": "run_script",
+                    "script": "print('test')",
+                },
+            )
             text = result.content[0].text if hasattr(result, "content") else str(result)
             try:
                 data = json.loads(text)
@@ -225,11 +255,15 @@ class TestSessionRunScript:
     @pytest.mark.asyncio
     async def test_demo_unknown(self):
         from blender_mcp.app import get_app
+
         app = get_app()
-        result = await app.call_tool("blender_session", {
-            "operation": "demo",
-            "demo_name": "nonexistent_xyz",
-        })
+        result = await app.call_tool(
+            "blender_session",
+            {
+                "operation": "demo",
+                "demo_name": "nonexistent_xyz",
+            },
+        )
         text = result.content[0].text if hasattr(result, "content") else str(result)
         try:
             data = json.loads(text)
@@ -242,6 +276,7 @@ class TestSessionRunScript:
     async def test_demo_living_room_with_car(self, tmp_path, monkeypatch):
         """Demo script should be loadable from data/scripts/demos.json."""
         import blender_mcp.tools.session_tools as st
+
         # Point the demo loader at the real data/scripts dir
         real_data = Path(__file__).parent.parent / "data" / "scripts"
         if not (real_data / "demos.json").exists():
@@ -257,10 +292,12 @@ class TestSessionRunScript:
 # Unknown operation
 # ---------------------------------------------------------------------------
 
+
 class TestSessionUnknown:
     @pytest.mark.asyncio
     async def test_unknown_op(self):
         from blender_mcp.app import get_app
+
         app = get_app()
         result = await app.call_tool("blender_session", {"operation": "explode"})
         text = result.content[0].text if hasattr(result, "content") else str(result)

@@ -2,7 +2,7 @@
 
 import logging
 from enum import Enum
-from typing import Any, Dict, List, Union
+from typing import Any
 
 from ..decorators import blender_operation
 
@@ -48,8 +48,8 @@ class SelectableType(str, Enum):
 
 @blender_operation("select_objects", log_args=True)
 async def select_objects(
-    object_names: List[str], mode: Union[SelectMode, str] = SelectMode.REPLACE, **kwargs: Any
-) -> Dict[str, Any]:
+    object_names: list[str], mode: SelectMode | str = SelectMode.REPLACE, **kwargs: Any
+) -> dict[str, Any]:
     """Select objects in the scene.
 
     Args:
@@ -119,16 +119,16 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to select objects: {str(e)}")
+        logger.error(f"Failed to select objects: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("select_by_type", log_args=True)
 async def select_by_type(
-    type: Union[SelectableType, str],
-    mode: Union[SelectMode, str] = SelectMode.REPLACE,
+    type: SelectableType | str,
+    mode: SelectMode | str = SelectMode.REPLACE,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Select objects by type.
 
     Args:
@@ -209,14 +209,14 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to select by type: {str(e)}")
+        logger.error(f"Failed to select by type: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("select_by_material", log_args=True)
 async def select_by_material(
-    material_name: str, mode: Union[SelectMode, str] = SelectMode.REPLACE, **kwargs: Any
-) -> Dict[str, Any]:
+    material_name: str, mode: SelectMode | str = SelectMode.REPLACE, **kwargs: Any
+) -> dict[str, Any]:
     """Select objects using a specific material.
 
     Args:
@@ -292,5 +292,5 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to select by material: {str(e)}")
+        logger.error(f"Failed to select by material: {e!s}")
         return {"status": "ERROR", "error": str(e)}

@@ -4,8 +4,6 @@ Animation and motion handler for Blender MCP.
 Provides functions for creating keyframes and basic animations.
 """
 
-from typing import Optional, Tuple
-
 from ..compat import *
 from ..decorators import blender_operation
 from ..utils.blender_executor import get_blender_executor
@@ -17,9 +15,9 @@ _executor = get_blender_executor()
 async def set_keyframe(
     object_name: str,
     frame: int = 1,
-    location: Optional[Tuple[float, float, float]] = None,
-    rotation: Optional[Tuple[float, float, float]] = None,
-    scale: Optional[Tuple[float, float, float]] = None,
+    location: tuple[float, float, float] | None = None,
+    rotation: tuple[float, float, float] | None = None,
+    scale: tuple[float, float, float] | None = None,
 ) -> str:
     """
     Set keyframe for object properties.
@@ -74,8 +72,8 @@ async def animate_location(
     object_name: str,
     start_frame: int = 1,
     end_frame: int = 60,
-    start_location: Tuple[float, float, float] = (0, 0, 0),
-    end_location: Tuple[float, float, float] = (5, 0, 0),
+    start_location: tuple[float, float, float] = (0, 0, 0),
+    end_location: tuple[float, float, float] = (5, 0, 0),
 ) -> str:
     """
     Animate object location over time.
@@ -119,8 +117,8 @@ async def animate_rotation(
     object_name: str,
     start_frame: int = 1,
     end_frame: int = 60,
-    start_rotation: Tuple[float, float, float] = (0, 0, 0),
-    end_rotation: Tuple[float, float, float] = (360, 0, 0),
+    start_rotation: tuple[float, float, float] = (0, 0, 0),
+    end_rotation: tuple[float, float, float] = (360, 0, 0),
 ) -> str:
     """
     Animate object rotation over time.
@@ -168,8 +166,8 @@ async def animate_scale(
     object_name: str,
     start_frame: int = 1,
     end_frame: int = 60,
-    start_scale: Tuple[float, float, float] = (1, 1, 1),
-    end_scale: Tuple[float, float, float] = (2, 2, 2),
+    start_scale: tuple[float, float, float] = (1, 1, 1),
+    end_scale: tuple[float, float, float] = (2, 2, 2),
 ) -> str:
     """
     Animate object scale over time.
@@ -339,9 +337,7 @@ print(f"Set shape key '{shape_key_name}' to {value}")
 
 
 @blender_operation("keyframe_shape_key")
-async def keyframe_shape_key(
-    object_name: str, shape_key_name: str, frame: int = 1, value: float = None
-) -> str:
+async def keyframe_shape_key(object_name: str, shape_key_name: str, frame: int = 1, value: float | None = None) -> str:
     """Insert keyframe for shape key at specified frame."""
     value_str = f"key.value = {value}" if value is not None else ""
     script = f"""
@@ -389,7 +385,7 @@ if not obj.data.shape_keys:
     obj.data.shape_keys.key_blocks[0].name = "Basis"
 
 # Create new shape key
-bpy.ops.object.shape_key_add(from_mix={str(from_mix)})
+bpy.ops.object.shape_key_add(from_mix={from_mix!s})
 new_key = obj.data.shape_keys.key_blocks[-1]
 new_key.name = "{shape_key_name}"
 
@@ -426,7 +422,7 @@ print(str(result))
 
 
 @blender_operation("create_action")
-async def create_action(action_name: str, object_name: str = None) -> str:
+async def create_action(action_name: str, object_name: str | None = None) -> str:
     """Create a new action and optionally assign to object."""
     assign_str = ""
     if object_name:
@@ -477,7 +473,7 @@ print(f"Set action '{action_name}' as active for '{object_name}'")
 
 
 @blender_operation("push_action_to_nla")
-async def push_action_to_nla(object_name: str, track_name: str = None) -> str:
+async def push_action_to_nla(object_name: str, track_name: str | None = None) -> str:
     """Push current action to NLA track (non-destructive animation layering)."""
     track_str = f'"{track_name}"' if track_name else "None"
     script = f"""
@@ -514,9 +510,7 @@ print(f"Pushed action to NLA track '{track_name}'")
 
 
 @blender_operation("set_interpolation")
-async def set_interpolation(
-    object_name: str, interpolation: str = "BEZIER", data_path: str = None
-) -> str:
+async def set_interpolation(object_name: str, interpolation: str = "BEZIER", data_path: str | None = None) -> str:
     """Set keyframe interpolation type (CONSTANT, LINEAR, BEZIER, BOUNCE, ELASTIC, etc.)."""
     data_path_filter = f'and fc.data_path == "{data_path}"' if data_path else ""
     script = f"""
@@ -571,9 +565,7 @@ print(f"Set {{count}} keyframes to {easing} easing")
 
 
 @blender_operation("add_constraint")
-async def add_constraint(
-    object_name: str, constraint_type: str, target_name: str = None, **kwargs
-) -> str:
+async def add_constraint(object_name: str, constraint_type: str, target_name: str | None = None, **kwargs) -> str:
     """Add constraint to object (COPY_ROTATION, TRACK_TO, DAMPED_TRACK, COPY_LOCATION, etc.)."""
     target_str = ""
     if target_name:
@@ -603,8 +595,8 @@ async def add_bone_constraint(
     armature_name: str,
     bone_name: str,
     constraint_type: str,
-    target_armature: str = None,
-    target_bone: str = None,
+    target_armature: str | None = None,
+    target_bone: str | None = None,
     influence: float = 1.0,
 ) -> str:
     """Add constraint to pose bone (for VRM/character rigs)."""

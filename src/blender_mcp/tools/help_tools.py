@@ -5,7 +5,7 @@ Single tool for help, list_tools, search, tool_info, and categories.
 """
 
 import logging
-from typing import Literal, Optional
+from typing import Literal
 
 from ..compat import *
 
@@ -25,11 +25,11 @@ def _register_help_tools():
     @app.tool
     async def blender_help(
         operation: Literal["help", "list_tools", "search", "tool_info", "categories"] = "help",
-        function_name: Optional[str] = None,
-        category: Optional[str] = None,
+        function_name: str | None = None,
+        category: str | None = None,
         detail_level: str = "normal",
-        query: Optional[str] = None,
-        tool_name: Optional[str] = None,
+        query: str | None = None,
+        tool_name: str | None = None,
     ) -> str:
         """
         Get help, list tools, search, tool info, or categories (portmanteau).
@@ -62,9 +62,7 @@ def _register_help_tools():
         )
 
         if operation == "help":
-            logger.info(
-                f"Getting help - function: {function_name}, category: {category}, detail_level: {detail_level}"
-            )
+            logger.info(f"Getting help - function: {function_name}, category: {category}, detail_level: {detail_level}")
             return _get_help(function_name, category, detail_level)
 
         if operation == "list_tools":
@@ -132,9 +130,7 @@ def _register_help_tools():
             total = len(exact_matches) + len(name_matches) + len(description_matches)
             result += f"Total matches: {total}"
             if total == 0:
-                result += (
-                    "\n\nNo tools found. Try blender_help(operation='list_tools') to see all tools."
-                )
+                result += "\n\nNo tools found. Try blender_help(operation='list_tools') to see all tools."
             return result
 
         if operation == "tool_info":
@@ -177,9 +173,7 @@ def _register_help_tools():
                 result += "\n"
             return result
 
-        return (
-            f"Unknown operation: {operation}. Use: help, list_tools, search, tool_info, categories"
-        )
+        return f"Unknown operation: {operation}. Use: help, list_tools, search, tool_info, categories"
 
 
 _register_help_tools()

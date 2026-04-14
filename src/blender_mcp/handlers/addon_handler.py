@@ -6,7 +6,7 @@ import os
 import zipfile
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 from urllib.parse import urlparse
 
 import httpx
@@ -72,7 +72,7 @@ class AddonInstallType(str, Enum):
 @blender_operation("install_addon", log_args=True)
 async def install_addon(
     source: str, install_type: AddonInstallType = AddonInstallType.FILE, **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Install a Blender addon.
 
     Args:
@@ -101,7 +101,7 @@ except Exception as e:
         output = await _get_executor().execute_script(script)
         return json.loads(output)
     except Exception as e:
-        logger.error(f"Failed to install addon: {str(e)}")
+        logger.error(f"Failed to install addon: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -131,7 +131,7 @@ def _blender_addons_dir() -> Path | None:
     return None
 
 
-async def install_addon_from_url(addon_url: str, enable_after: bool = True) -> Dict[str, Any]:
+async def install_addon_from_url(addon_url: str, enable_after: bool = True) -> dict[str, Any]:
     """Download addon from URL (ZIP or single .py) and copy to Blender addons dir. No bpy required."""
     addons_dir = _blender_addons_dir()
     if not addons_dir:
@@ -175,10 +175,10 @@ async def install_addon_from_url(addon_url: str, enable_after: bool = True) -> D
         return {"status": "ERROR", "error": str(e)}
 
 
-def addon_search(query: str) -> Dict[str, Any]:
+def addon_search(query: str) -> dict[str, Any]:
     """Return recommended add-ons and known URLs for a query (e.g. gaussian splat). No web crawl."""
     q = (query or "").strip().lower()
-    results: List[Dict[str, Any]] = []
+    results: list[dict[str, Any]] = []
     for key, (url, desc) in KNOWN_ADDONS.items():
         if not q or q in key or q in desc.lower():
             results.append({"name": key, "url": url, "description": desc})
@@ -191,7 +191,7 @@ def addon_search(query: str) -> Dict[str, Any]:
 
 
 @blender_operation("uninstall_addon", log_args=True)
-async def uninstall_addon(name: str, **kwargs: Any) -> Dict[str, Any]:
+async def uninstall_addon(name: str, **kwargs: Any) -> dict[str, Any]:
     """Uninstall a Blender addon.
 
     Args:
@@ -216,12 +216,12 @@ except Exception as e:
         output = await _get_executor().execute_script(script)
         return json.loads(output)
     except Exception as e:
-        logger.error(f"Failed to uninstall addon: {str(e)}")
+        logger.error(f"Failed to uninstall addon: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("list_addons", log_args=True)
-async def list_addons(enabled_only: bool = False, **kwargs: Any) -> Dict[str, Any]:
+async def list_addons(enabled_only: bool = False, **kwargs: Any) -> dict[str, Any]:
     """List installed Blender addons.
 
     Args:
@@ -253,5 +253,5 @@ except Exception as e:
         output = await _get_executor().execute_script(script)
         return json.loads(output)
     except Exception as e:
-        logger.error(f"Failed to list addons: {str(e)}")
+        logger.error(f"Failed to list addons: {e!s}")
         return {"status": "ERROR", "error": str(e)}

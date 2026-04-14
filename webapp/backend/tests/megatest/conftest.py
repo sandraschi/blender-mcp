@@ -30,9 +30,10 @@ USAGE:
 import os
 import shutil
 import tempfile
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, Generator
+from typing import Any
 
 import pytest
 
@@ -295,7 +296,7 @@ def megatest_isolation():
 # ===============================================
 
 
-def create_test_blender_scene(name: str = "test_scene") -> Dict[str, Any]:
+def create_test_blender_scene(name: str = "test_scene") -> dict[str, Any]:
     """Create test Blender scene data."""
     return {
         "name": name,
@@ -307,7 +308,7 @@ def create_test_blender_scene(name: str = "test_scene") -> Dict[str, Any]:
     }
 
 
-def create_test_blender_object(name: str, obj_type: str = "MESH") -> Dict[str, Any]:
+def create_test_blender_object(name: str, obj_type: str = "MESH") -> dict[str, Any]:
     """Create test Blender object data."""
     return {
         "name": name,
@@ -319,7 +320,7 @@ def create_test_blender_object(name: str, obj_type: str = "MESH") -> Dict[str, A
     }
 
 
-def create_test_material(name: str, material_type: str = "PRINCIPLED") -> Dict[str, Any]:
+def create_test_material(name: str, material_type: str = "PRINCIPLED") -> dict[str, Any]:
     """Create test material data."""
     return {
         "name": name,

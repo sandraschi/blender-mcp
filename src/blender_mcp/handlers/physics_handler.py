@@ -5,7 +5,7 @@ This module provides physics simulation and rigid body functions that can be reg
 
 import logging
 from enum import Enum
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any
 
 from ..compat import *
 
@@ -64,13 +64,13 @@ class CollisionShapeType(str, Enum):
 @blender_operation("enable_physics", log_args=True)
 async def enable_physics(
     object_name: str,
-    physics_type: Union[PhysicsType, str] = PhysicsType.RIGID_BODY,
-    rigid_body_type: Union[RigidBodyType, str] = RigidBodyType.ACTIVE,
+    physics_type: PhysicsType | str = PhysicsType.RIGID_BODY,
+    rigid_body_type: RigidBodyType | str = RigidBodyType.ACTIVE,
     mass: float = 1.0,
     friction: float = 0.5,
     bounciness: float = 0.5,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Enable physics simulation for an object.
 
     Args:
@@ -187,14 +187,14 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to enable physics: {str(e)}")
+        logger.error(f"Failed to enable physics: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("bake_physics_simulation", log_args=True)
 async def bake_physics_simulation(
     frame_start: int = 1, frame_end: int = 250, step: int = 1, **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Bake physics simulation to keyframes.
 
     Args:
@@ -259,18 +259,18 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to bake physics simulation: {str(e)}")
+        logger.error(f"Failed to bake physics simulation: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("add_force_field", log_args=True)
 async def add_force_field(
     field_type: str = "FORCE",
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
     strength: float = 1.0,
     falloff: float = 2.0,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Add a force field to the scene.
 
     Args:
@@ -347,7 +347,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to add force field: {str(e)}")
+        logger.error(f"Failed to add force field: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -369,7 +369,7 @@ async def configure_cloth_simulation(
     pin_group: str = "",
     pin_stiffness: float = 0.5,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Configure cloth simulation settings for an object.
 
     Args:
@@ -480,7 +480,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to configure cloth simulation: {str(e)}")
+        logger.error(f"Failed to configure cloth simulation: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -492,7 +492,7 @@ async def bake_cloth_simulation(
     step: int = 1,
     clear_previous: bool = True,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Bake cloth simulation to keyframes.
 
     Args:
@@ -606,7 +606,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to bake cloth simulation: {str(e)}")
+        logger.error(f"Failed to bake cloth simulation: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -614,14 +614,14 @@ print(str(result))
 async def add_rigid_body_constraint(
     object_a: str,
     object_b: str,
-    constraint_type: Union[RigidBodyConstraintType, str],
-    pivot_a: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    pivot_b: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+    constraint_type: RigidBodyConstraintType | str,
+    pivot_a: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    pivot_b: tuple[float, float, float] = (0.0, 0.0, 0.0),
     use_spring: bool = False,
     spring_stiffness: float = 10.0,
     spring_damping: float = 0.5,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Add a constraint between two rigid bodies.
 
     Args:
@@ -734,20 +734,20 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to add rigid body constraint: {str(e)}")
+        logger.error(f"Failed to add rigid body constraint: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("configure_rigid_body_world", log_args=True)
 async def configure_rigid_body_world(
-    gravity: Tuple[float, float, float] = (0.0, 0.0, -9.81),
+    gravity: tuple[float, float, float] = (0.0, 0.0, -9.81),
     time_scale: float = 1.0,
     substeps_per_frame: int = 10,
     solver_iterations: int = 10,
     use_split_impulse: bool = True,
     split_impulse_threshold: float = 0.01,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Configure the rigid body world simulation settings.
 
     Args:
@@ -838,19 +838,19 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to configure rigid body world: {str(e)}")
+        logger.error(f"Failed to configure rigid body world: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("set_rigid_body_collision_shape", log_args=True)
 async def set_rigid_body_collision_shape(
     object_name: str,
-    shape_type: Union[CollisionShapeType, str],
-    source_object: Optional[str] = None,
+    shape_type: CollisionShapeType | str,
+    source_object: str | None = None,
     use_deform: bool = False,
     use_mesh: bool = False,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Set the collision shape for a rigid body.
 
     Args:
@@ -1001,7 +1001,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to set rigid body collision shape: {str(e)}")
+        logger.error(f"Failed to set rigid body collision shape: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -1017,7 +1017,7 @@ async def create_particle_system(
     emit_from: str = "FACE",
     physics_type: str = "NEWTONIAN",
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create and configure a particle system on an object.
 
     Args:
@@ -1151,14 +1151,14 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to configure particle physics: {str(e)}")
+        logger.error(f"Failed to configure particle physics: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("control_particle_emission", log_args=True)
 async def control_particle_emission(
     object_name: str, system_name: str = "ParticleSystem", action: str = "PAUSE", **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Control particle emission and caching.
 
     Args:
@@ -1288,5 +1288,5 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to control particle emission: {str(e)}")
+        logger.error(f"Failed to control particle emission: {e!s}")
         return {"status": "ERROR", "error": str(e)}

@@ -18,10 +18,8 @@ from blender_mcp.app import app
 asgi_app = app.http_app()
 
 # Import from our compatibility module
-from blender_mcp.compat import *
-
 # Import all handlers to ensure tool registration is handled in app.py
-from blender_mcp import handlers
+from blender_mcp.compat import *
 
 
 def parse_args():
@@ -91,9 +89,7 @@ def setup_logging(log_level: str = "INFO") -> None:
     for h in root.handlers[:]:
         root.removeHandler(h)
 
-    fmt = logging.Formatter(
-        "%(asctime)s | %(levelname)-8s | %(name)s:%(funcName)s:%(lineno)d - %(message)s"
-    )
+    fmt = logging.Formatter("%(asctime)s | %(levelname)-8s | %(name)s:%(funcName)s:%(lineno)d - %(message)s")
     stderr = logging.StreamHandler(sys.stderr)
     stderr.setLevel(getattr(logging, log_level.upper(), logging.INFO))
     stderr.setFormatter(fmt)

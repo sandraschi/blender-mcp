@@ -6,8 +6,9 @@ across the Blender-MCP application.
 """
 
 import logging
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, Optional, Type, TypeVar
+from typing import Any, TypeVar
 
 from pydantic import BaseModel, ValidationError
 
@@ -21,7 +22,7 @@ T = TypeVar("T")
 class MCPError(Exception):
     """Base exception for all MCP-related errors."""
 
-    def __init__(self, message: str, details: Optional[dict] = None):
+    def __init__(self, message: str, details: dict | None = None):
         self.message = message
         self.details = details or {}
         super().__init__(self.message)
@@ -30,18 +31,18 @@ class MCPError(Exception):
 class MCPValidationError(MCPError):
     """Raised when input validation fails."""
 
-    def __init__(self, message: str, details: Optional[dict] = None):
+    def __init__(self, message: str, details: dict | None = None):
         super().__init__(f"Validation error: {message}", details)
 
 
 class BlenderOperationError(MCPError):
     """Raised when a Blender operation fails."""
 
-    def __init__(self, message: str, details: Optional[dict] = None):
+    def __init__(self, message: str, details: dict | None = None):
         super().__init__(f"Blender operation failed: {message}", details)
 
 
-def handle_errors(func: Callable[..., T]) -> Callable[..., dict[str, Any]]:
+def handle_errors[T](func: Callable[..., T]) -> Callable[..., dict[str, Any]]:
     """
     Decorator to handle errors and return a consistent error response.
 
@@ -75,7 +76,7 @@ def handle_errors(func: Callable[..., T]) -> Callable[..., dict[str, Any]]:
                 "success": False,
                 "error": {
                     "type": "internal_error",
-                    "message": f"An unexpected error occurred: {str(e)}",
+                    "message": f"An unexpected error occurred: {e!s}",
                     "details": {},
                 },
             }
@@ -83,7 +84,7 @@ def handle_errors(func: Callable[..., T]) -> Callable[..., dict[str, Any]]:
     return wrapper
 
 
-def validate_with(model: Type[BaseModel]) -> Callable:
+def validate_with(model: type[BaseModel]) -> Callable:
     """Decorator to validate function parameters with a Pydantic model.
 
     This decorator should be used on tool functions to validate their parameters.

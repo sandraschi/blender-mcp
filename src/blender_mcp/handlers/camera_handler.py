@@ -5,7 +5,7 @@ This module provides camera creation and manipulation functions that can be regi
 
 import logging
 from enum import Enum
-from typing import Any, Dict, Tuple, Union
+from typing import Any
 
 from ..compat import *
 
@@ -28,16 +28,16 @@ class CameraType(str, Enum):
 @blender_operation("create_camera", log_args=True)
 async def create_camera(
     name: str = "Camera",
-    camera_type: Union[CameraType, str] = CameraType.PERSP,
-    location: Tuple[float, float, float] = (0.0, 0.0, 0.0),
-    rotation: Tuple[float, float, float] = (0.0, 0.0, 0.0),
+    camera_type: CameraType | str = CameraType.PERSP,
+    location: tuple[float, float, float] = (0.0, 0.0, 0.0),
+    rotation: tuple[float, float, float] = (0.0, 0.0, 0.0),
     lens: float = 50.0,
     sensor_width: float = 36.0,
     clip_start: float = 0.1,
     clip_end: float = 100.0,
     sensor_fit: str = "AUTO",
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a camera in the scene.
 
     Args:
@@ -111,12 +111,12 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to create camera: {str(e)}")
+        logger.error(f"Failed to create camera: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("set_active_camera", log_args=True)
-async def set_active_camera(camera_name: str, **kwargs: Any) -> Dict[str, Any]:
+async def set_active_camera(camera_name: str, **kwargs: Any) -> dict[str, Any]:
     """Set the active camera for the scene.
 
     Args:
@@ -139,12 +139,12 @@ else:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to set active camera: {str(e)}")
+        logger.error(f"Failed to set active camera: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("set_camera_lens", log_args=True)
-async def set_camera_lens(camera_name: str, lens: float, **kwargs: Any) -> Dict[str, Any]:
+async def set_camera_lens(camera_name: str, lens: float, **kwargs: Any) -> dict[str, Any]:
     """Set the lens/focal length of a camera.
 
     Args:
@@ -168,5 +168,5 @@ else:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to set camera lens: {str(e)}")
+        logger.error(f"Failed to set camera lens: {e!s}")
         return {"status": "ERROR", "error": str(e)}

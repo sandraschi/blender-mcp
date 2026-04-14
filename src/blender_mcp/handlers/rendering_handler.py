@@ -7,7 +7,7 @@ render layer management, and output configuration.
 """
 
 import logging
-from typing import Any, Dict, Union
+from typing import Any
 
 from blender_mcp.utils.blender_executor import BlenderExecutor
 
@@ -36,12 +36,12 @@ class RenderEngineType:
 
 @blender_operation("set_render_engine", log_args=True)
 async def set_render_engine(
-    engine: Union[RenderEngineType, str] = RENDER_ENGINE_EEVEE,
+    engine: RenderEngineType | str = RENDER_ENGINE_EEVEE,
     device: str = "GPU",
     use_denoising: bool = True,
     samples: int = 64,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Set the active render engine and its basic configuration.
 
     Args:
@@ -139,7 +139,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to set render engine: {str(e)}")
+        logger.error(f"Failed to set render engine: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -168,7 +168,7 @@ async def configure_render_layers(
     use_pass_cryptomatte_asset: bool = False,
     use_pass_shadow_catcher: bool = False,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Configure render layers and passes for advanced rendering.
 
     Args:
@@ -321,7 +321,7 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to configure render layers: {str(e)}")
+        logger.error(f"Failed to configure render layers: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -332,7 +332,7 @@ async def setup_post_processing(
     use_motion_blur: bool = False,
     use_dof: bool = False,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Configure post-processing effects for the render.
 
     Args:
@@ -482,7 +482,7 @@ async def setup_post_processing(
     }
 
     # Convert settings to strings for the script
-    settings_str = "\n".join(f"    {k} = {repr(v)}" for k, v in settings.items())
+    settings_str = "\n".join(f"    {k} = {v!r}" for k, v in settings.items())
 
     script = f"""
 
@@ -582,5 +582,5 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to setup post-processing: {str(e)}")
+        logger.error(f"Failed to setup post-processing: {e!s}")
         return {"status": "ERROR", "error": str(e)}

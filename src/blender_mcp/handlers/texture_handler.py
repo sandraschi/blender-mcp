@@ -2,7 +2,7 @@
 
 import logging
 from enum import Enum
-from typing import Any, Dict, Union
+from typing import Any
 
 from ..decorators import blender_operation
 
@@ -45,9 +45,7 @@ class ImageSourceType(str, Enum):
 
 
 @blender_operation("create_texture", log_args=True)
-async def create_texture(
-    name: str, texture_type: Union[TextureType, str], **kwargs: Any
-) -> Dict[str, Any]:
+async def create_texture(name: str, texture_type: TextureType | str, **kwargs: Any) -> dict[str, Any]:
     """Create a new texture.
 
     Args:
@@ -141,14 +139,14 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to create texture: {str(e)}")
+        logger.error(f"Failed to create texture: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("assign_texture_to_material", log_args=True)
 async def assign_texture_to_material(
     material_name: str, texture_name: str, texture_slot: str = "Base Color", **kwargs: Any
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Assign a texture to a material slot.
 
     Args:
@@ -264,7 +262,7 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to assign texture to material: {str(e)}")
+        logger.error(f"Failed to assign texture to material: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
@@ -277,7 +275,7 @@ async def bake_texture(
     use_selected_to_active: bool = False,
     cage_extrusion: float = 0.1,
     filepath: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Bake textures for selected objects.
 
     Args:
@@ -401,5 +399,5 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to bake texture: {str(e)}")
+        logger.error(f"Failed to bake texture: {e!s}")
         return {"status": "ERROR", "error": str(e)}

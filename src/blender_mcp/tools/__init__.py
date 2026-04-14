@@ -132,7 +132,7 @@ def register_tool(
                 raise
             except Exception as e:
                 # Wrap other exceptions
-                raise MCPError(f"Tool execution failed: {str(e)}")
+                raise MCPError(f"Tool execution failed: {e!s}")
 
         # Create the tool
         tool = FunctionTool(
@@ -219,9 +219,7 @@ def discover_tools(package: str = "blender_mcp.tools") -> None:
     """
     try:
         package_mod = importlib.import_module(package)
-        package_path = (
-            Path(package_mod.__file__).parent if hasattr(package_mod, "__file__") else None
-        )
+        package_path = Path(package_mod.__file__).parent if hasattr(package_mod, "__file__") else None
 
         if not package_path:
             raise ToolRegistrationError(f"Could not find package path for {package}")
@@ -254,16 +252,16 @@ def discover_tools(package: str = "blender_mcp.tools") -> None:
 
 # Re-export commonly used types and functions
 __all__ = [
-    "register_tool",
-    "validate_with",
-    "get_tool",
-    "get_toolset",
-    "register_tools",
-    "discover_tools",
+    "BlenderOperationError",
     "MCPError",
     "MCPValidationError",
-    "BlenderOperationError",
     "ToolFunction",
+    "discover_tools",
+    "get_tool",
+    "get_toolset",
+    "register_tool",
+    "register_tools",
+    "validate_with",
 ]
 
 # Import all tool modules when this package is imported

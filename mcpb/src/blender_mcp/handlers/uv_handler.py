@@ -1,7 +1,7 @@
 """UV mapping operations handler for Blender MCP."""
 
 from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 from loguru import logger
 
@@ -33,13 +33,13 @@ class UVProjectionMethod(str, Enum):
 @blender_operation("unwrap", log_args=True)
 async def unwrap(
     object_name: str,
-    method: Union[UVUnwrapMethod, str] = UVUnwrapMethod.SMART,
+    method: UVUnwrapMethod | str = UVUnwrapMethod.SMART,
     seam_margin: float = 66.0,
     fill_holes: bool = True,
     correct_aspect: bool = True,
     use_subsurf_data: bool = False,
     margin: float = 0.001,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Unwrap the mesh for UV mapping.
 
     Args:
@@ -60,14 +60,14 @@ def unwrap_mesh():
     obj = bpy.data.objects.get('{object_name}')
     if not obj or obj.type != 'MESH':
         return {{"status": "ERROR", "error": "Mesh object not found"}}
-    
+
     # Make the object active and in edit mode
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.mode_set(mode='EDIT')
-    
+
     # Select all faces for unwrapping
     bpy.ops.mesh.select_all(action='SELECT')
-    
+
     # Perform the unwrap
     try:
         if '{method}' == 'SMART':
@@ -93,15 +93,15 @@ def unwrap_mesh():
             )
         else:
             return {{"status": "ERROR", "error": f"Unsupported unwrap method: {method}"}}
-        
+
         # Fill holes if requested
         if {str(fill_holes).lower()} and '{method}' != 'SMART':
             bpy.ops.uv.select_all(action='SELECT')
             bpy.ops.uv.pack_islands(margin={margin})
-        
+
         # Return to object mode
         bpy.ops.object.mode_set(mode='OBJECT')
-        
+
         return {{
             "status": "SUCCESS",
             "method": '{method}',
@@ -127,17 +127,17 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to unwrap UVs: {str(e)}")
+        logger.error(f"Failed to unwrap UVs: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("project_from_view", log_args=True)
 async def project_from_view(
     object_name: str,
-    camera_name: Optional[str] = None,
+    camera_name: str | None = None,
     orthographic: bool = False,
     margin: float = 0.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Project UVs from the current view or camera.
 
     Args:
@@ -155,29 +155,29 @@ def project_uvs():
     obj = bpy.data.objects.get('{object_name}')
     if not obj or obj.type != 'MESH':
         return {{"status": "ERROR", "error": "Mesh object not found"}}
-    
+
     # Store current active object and mode
     prev_active = bpy.context.view_layer.objects.active
     prev_mode = obj.mode if obj.mode else 'OBJECT'
-    
+
     # Make the object active and in edit mode
     bpy.context.view_layer.objects.active = obj
     bpy.ops.object.mode_set(mode='EDIT')
-    
+
     # Select all faces for projection
     bpy.ops.mesh.select_all(action='SELECT')
-    
+
     # Set the camera if specified
     camera = None
     if '{camera_name}':
         camera = bpy.data.objects.get('{camera_name}')
         if not camera or camera.type != 'CAMERA':
             return {{"status": "ERROR", "error": "Camera not found"}}
-        
+
         # Store current camera
         prev_camera = bpy.context.scene.camera
         bpy.context.scene.camera = camera
-    
+
     try:
         # Project from view or camera
         bpy.ops.uv.project_from_view(
@@ -187,18 +187,18 @@ def project_uvs():
             scale_to_bounds=True,
             margin={margin}
         )
-        
+
         # Return to object mode
         bpy.ops.object.mode_set(mode=prev_mode)
-        
+
         # Restore previous camera if changed
         if '{camera_name}' and camera:
             bpy.context.scene.camera = prev_camera
-        
+
         # Restore previous active object
         if prev_active:
             bpy.context.view_layer.objects.active = prev_active
-        
+
         return {{
             "status": "SUCCESS",
             "object": obj.name,
@@ -226,12 +226,12 @@ except Exception as e:
         result = await _executor.execute_script(script)
         return result
     except Exception as e:
-        logger.error(f"Failed to project UVs: {str(e)}")
+        logger.error(f"Failed to project UVs: {e!s}")
         return {{"status": "ERROR", "error": str(e)}}
 
 
 @blender_operation("reset_uvs", log_args=True)
-async def reset_uvs(object_name: str) -> Dict[str, Any]:
+async def reset_uvs(object_name: str) -> dict[str, Any]:
     """Reset UV coordinates to default.
 
     Args:
@@ -246,27 +246,27 @@ def reset_uvs():
     obj = bpy.data.objects.get('{object_name}')
     if not obj or obj.type != 'MESH':
         return {{"status": "ERROR", "error": "Mesh object not found"}}
-    
+
     # Store current mode
     current_mode = obj.mode
-    
+
     try:
         # Make sure we're in object mode
         bpy.ops.object.mode_set(mode='OBJECT')
-        
+
         # Get the mesh data
         mesh = obj.data
-        
+
         # Ensure UV layer exists
         if not mesh.uv_layers:
             mesh.uv_layers.new()
-        
+
         # Reset UVs to default (0-1 range)
         bpy.ops.object.mode_set(mode='EDIT')
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.uv.reset()
         bpy.ops.object.mode_set(mode=current_mode)
-        
+
         return {{
             "status": "SUCCESS",
             "object": obj.name,
@@ -289,12 +289,12 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to reset UVs: {str(e)}")
+        logger.error(f"Failed to reset UVs: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("get_uv_info", log_args=True)
-async def get_uv_info(object_name: str) -> Dict[str, Any]:
+async def get_uv_info(object_name: str) -> dict[str, Any]:
     """Get information about UV mapping for an object.
 
     Args:
@@ -309,18 +309,18 @@ def get_uv_data():
     obj = bpy.data.objects.get('{object_name}')
     if not obj or obj.type != 'MESH':
         return {{"status": "ERROR", "error": "Mesh object not found"}}
-    
+
     # Store current active object and mode
     prev_active = bpy.context.view_layer.objects.active
     prev_mode = obj.mode if obj.mode else 'OBJECT'
-    
+
     result = {{
         "status": "SUCCESS",
         "object": obj.name,
         "uv_layers": [],
         "active_uv_layer": obj.data.uv_layers.active.name if obj.data.uv_layers.active else None
     }}
-    
+
     # Get UV layer information
     for uv_layer in obj.data.uv_layers:
         result["uv_layers"].append({{
@@ -329,11 +329,11 @@ def get_uv_data():
             "active_clone": uv_layer.active_clone,
             "active": uv_layer == obj.data.uv_layers.active
         }})
-    
+
     # Restore previous state
     if prev_active:
         bpy.context.view_layer.objects.active = prev_active
-    
+
     return result
 
 try:
@@ -347,5 +347,5 @@ except Exception as e:
         result = await _executor.execute_script(script)
         return result
     except Exception as e:
-        logger.error(f"Failed to get UV info: {str(e)}")
+        logger.error(f"Failed to get UV info: {e!s}")
         return {{"status": "ERROR", "error": str(e)}}

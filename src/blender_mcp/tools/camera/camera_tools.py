@@ -5,7 +5,6 @@ Provides tools for creating and controlling cameras in Blender scenes.
 """
 
 import logging
-from typing import Optional, Tuple
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
@@ -21,12 +20,12 @@ def _register_camera_tools():
     async def blender_camera(
         operation: str = "create_camera",
         camera_name: str = "Camera",
-        location: Tuple[float, float, float] = (0, 10, 0),
-        rotation: Tuple[float, float, float] = (0, 0, 0),
-        target_location: Optional[Tuple[float, float, float]] = None,
+        location: tuple[float, float, float] = (0, 10, 0),
+        rotation: tuple[float, float, float] = (0, 0, 0),
+        target_location: tuple[float, float, float] | None = None,
         lens: float = 50.0,
         sensor_width: float = 36.0,
-        fov: Optional[float] = None,
+        fov: float | None = None,
         clip_start: float = 0.1,
         clip_end: float = 1000.0,
     ) -> str:
@@ -77,9 +76,7 @@ def _register_camera_tools():
             )
             target_tuple = (
                 tuple(float(x) for x in target_location)
-                if target_location
-                and hasattr(target_location, "__iter__")
-                and not isinstance(target_location, str)
+                if target_location and hasattr(target_location, "__iter__") and not isinstance(target_location, str)
                 else target_location
             )
 
@@ -117,8 +114,8 @@ def _register_camera_tools():
                 return f"Unknown camera operation: {operation}. Available: create_camera, set_active_camera, set_camera_lens"
 
         except Exception as e:
-            logger.error(f"❌ Error in camera operation '{operation}': {str(e)}")
-            return f"Error in camera operation '{operation}': {str(e)}"
+            logger.error(f"❌ Error in camera operation '{operation}': {e!s}")
+            return f"Error in camera operation '{operation}': {e!s}"
 
 
 _register_camera_tools()

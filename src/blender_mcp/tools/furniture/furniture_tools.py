@@ -4,8 +4,6 @@ Furniture and complex object creation tools for Blender MCP.
 Provides tools for creating complex objects like furniture, buildings, and structures.
 """
 
-from typing import Tuple
-
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
 
@@ -19,8 +17,8 @@ def _register_furniture_tools():
         operation: str = "create_chair",
         name: str = "Furniture",
         style: str = "modern",
-        dimensions: Tuple[float, float, float] = (1, 1, 1),
-        location: Tuple[float, float, float] = (0, 0, 0),
+        dimensions: tuple[float, float, float] = (1, 1, 1),
+        location: tuple[float, float, float] = (0, 0, 0),
         material: str = "wood",
         chair_type: str = "dining",
         table_type: str = "dining",
@@ -201,8 +199,8 @@ def _register_furniture_tools():
                 return f"Unknown furniture operation: {operation}"
 
         except Exception as e:
-            logger.error(f"❌ Error in furniture operation '{operation}': {str(e)}")
-            return f"Error in furniture operation '{operation}': {str(e)}"
+            logger.error(f"❌ Error in furniture operation '{operation}': {e!s}")
+            return f"Error in furniture operation '{operation}': {e!s}"
 
 
 _register_furniture_tools()

@@ -5,7 +5,6 @@ Provides tools for selecting objects and elements in Blender scenes.
 """
 
 import logging
-from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +19,7 @@ def _register_selection_tools():
     @app.tool
     async def blender_selection(
         operation: str = "select_objects",
-        object_names: List[str] = None,
+        object_names: list[str] | None = None,
         object_type: str = "MESH",
         material_name: str = "",
         mode: str = "REPLACE",
@@ -85,9 +84,7 @@ selected_count = len([obj for obj in bpy.context.selected_objects])
 
                 executor = get_blender_executor()
                 result = await executor.execute_script(script)
-                len(
-                    [obj for obj in result.split() if obj.isdigit()]
-                )  # Extract count from result if needed
+                len([obj for obj in result.split() if obj.isdigit()])  # Extract count from result if needed
                 logger.info("🎯 Selected all objects in scene")
                 return "Selected all objects in scene"
 
@@ -123,7 +120,7 @@ selected_count = len([obj for obj in bpy.context.selected_objects])
                 return f"Unknown selection operation: {operation}. Available: select_objects, select_by_type, select_by_material, select_all, select_none, invert_selection"
 
         except Exception as e:
-            return f"Error in selection operation '{operation}': {str(e)}"
+            return f"Error in selection operation '{operation}': {e!s}"
 
 
 _register_selection_tools()

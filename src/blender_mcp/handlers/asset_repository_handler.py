@@ -14,7 +14,7 @@ import urllib.request
 import zipfile
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 
 from fastmcp import FastMCP
 
@@ -88,10 +88,10 @@ class RepositoryManager:
             return str(local_path)
 
         except Exception as e:
-            logger.error(f"Failed to download {url}: {str(e)}")
-            raise Exception(f"Download failed: {str(e)}") from e
+            logger.error(f"Failed to download {url}: {e!s}")
+            raise Exception(f"Download failed: {e!s}") from e
 
-    def _extract_archive(self, archive_path: str, extract_to: str) -> List[str]:
+    def _extract_archive(self, archive_path: str, extract_to: str) -> list[str]:
         """Extract archive and return list of extracted files."""
         extracted_files = []
 
@@ -104,18 +104,16 @@ class RepositoryManager:
             elif archive_path.endswith((".tar.gz", ".tar.bz2", ".tar.xz")):
                 with tarfile.open(archive_path, "r:*") as tar_ref:
                     tar_ref.extractall(extract_to)
-                    extracted_files = [
-                        os.path.join(extract_to, m.name) for m in tar_ref.getmembers()
-                    ]
+                    extracted_files = [os.path.join(extract_to, m.name) for m in tar_ref.getmembers()]
 
             logger.info(f"Extracted {len(extracted_files)} files from {archive_path}")
             return extracted_files
 
         except Exception as e:
-            logger.error(f"Failed to extract {archive_path}: {str(e)}")
-            raise Exception(f"Extraction failed: {str(e)}") from e
+            logger.error(f"Failed to extract {archive_path}: {e!s}")
+            raise Exception(f"Extraction failed: {e!s}") from e
 
-    def get_kenney_asset(self, asset_name: str, asset_type: str = "3d") -> Tuple[str, List[str]]:
+    def get_kenney_asset(self, asset_name: str, asset_type: str = "3d") -> tuple[str, list[str]]:
         """Download an asset from Kenney.nl."""
         # Kenney assets follow a predictable URL pattern
         base_url = f"https://kenney.nl/assets/{asset_name}"
@@ -145,9 +143,9 @@ class RepositoryManager:
                 raise Exception(f"No supported 3D files found in {asset_name}")
 
         except Exception as e:
-            raise Exception(f"Failed to get Kenney asset {asset_name}: {str(e)}") from e
+            raise Exception(f"Failed to get Kenney asset {asset_name}: {e!s}") from e
 
-    def get_quaternius_asset(self, asset_name: str) -> Tuple[str, List[str]]:
+    def get_quaternius_asset(self, asset_name: str) -> tuple[str, list[str]]:
         """Download an asset from Quaternius.com."""
         # Quaternius assets are typically in zip files
         base_url = f"https://quaternius.com/packs/{asset_name}"
@@ -171,9 +169,9 @@ class RepositoryManager:
             raise Exception(f"No supported files found in {asset_name}")
 
         except Exception as e:
-            raise Exception(f"Failed to get Quaternius asset {asset_name}: {str(e)}") from e
+            raise Exception(f"Failed to get Quaternius asset {asset_name}: {e!s}") from e
 
-    def get_opengameart_asset(self, asset_url: str) -> Tuple[str, List[str]]:
+    def get_opengameart_asset(self, asset_url: str) -> tuple[str, list[str]]:
         """Download an asset from OpenGameArt.org."""
         try:
             # Extract filename from URL
@@ -192,11 +190,9 @@ class RepositoryManager:
                 return local_file, [local_file]
 
         except Exception as e:
-            raise Exception(f"Failed to get OpenGameArt asset from {asset_url}: {str(e)}") from e
+            raise Exception(f"Failed to get OpenGameArt asset from {asset_url}: {e!s}") from e
 
-    def get_polyhaven_asset(
-        self, asset_name: str, asset_type: str = "hdris"
-    ) -> Tuple[str, List[str]]:
+    def get_polyhaven_asset(self, asset_name: str, asset_type: str = "hdris") -> tuple[str, list[str]]:
         """Download an asset from Poly Haven."""
         base_url = f"https://dl.polyhaven.org/file/ph-assets/{asset_type}/{asset_name}"
 
@@ -219,7 +215,7 @@ class RepositoryManager:
                 raise Exception(f"Unsupported Poly Haven asset type: {asset_type}")
 
         except Exception as e:
-            raise Exception(f"Failed to get Poly Haven asset {asset_name}: {str(e)}") from e
+            raise Exception(f"Failed to get Poly Haven asset {asset_name}: {e!s}") from e
 
 
 # Global repository manager instance
@@ -228,11 +224,11 @@ repo_manager = RepositoryManager()
 
 @blender_operation("download_and_import_asset", log_args=True)
 async def download_and_import_asset(
-    repository: Union[AssetRepository, str],
+    repository: AssetRepository | str,
     asset_name: str,
-    repository_specific_params: Optional[Dict[str, Any]] = None,
-    import_options: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    repository_specific_params: dict[str, Any] | None = None,
+    import_options: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Download and import an asset from a free repository.
 
@@ -323,7 +319,7 @@ async def download_and_import_asset(
         return import_result
 
     except Exception as e:
-        logger.error(f"Failed to download and import asset: {str(e)}")
+        logger.error(f"Failed to download and import asset: {e!s}")
         return {
             "status": "ERROR",
             "error": str(e),
@@ -332,7 +328,7 @@ async def download_and_import_asset(
         }
 
 
-async def import_blend_asset(asset_file: str, import_options: Dict[str, Any]) -> Dict[str, Any]:
+async def import_blend_asset(asset_file: str, import_options: dict[str, Any]) -> dict[str, Any]:
     """Import a .blend file using append/link."""
     from .import_handler import link_asset
 
@@ -349,9 +345,7 @@ async def import_blend_asset(asset_file: str, import_options: Dict[str, Any]) ->
     )
 
 
-async def import_scene_asset(
-    asset_file: str, file_format: str, import_options: Dict[str, Any]
-) -> Dict[str, Any]:
+async def import_scene_asset(asset_file: str, file_format: str, import_options: dict[str, Any]) -> dict[str, Any]:
     """Import a scene asset using import_scene operators."""
     from .import_handler import import_file
 
@@ -381,7 +375,7 @@ async def import_scene_asset(
 
 
 @blender_operation("list_available_assets", log_args=True)
-async def list_available_assets(repository: Union[AssetRepository, str]) -> Dict[str, Any]:
+async def list_available_assets(repository: AssetRepository | str) -> dict[str, Any]:
     """
     List available assets from a repository.
 
@@ -479,10 +473,10 @@ async def list_available_assets(repository: Union[AssetRepository, str]) -> Dict
 @blender_operation("search_assets", log_args=True)
 async def search_assets(
     query: str,
-    repository: Optional[Union[AssetRepository, str]] = None,
-    asset_type: Optional[Union[AssetType, str]] = None,
+    repository: AssetRepository | str | None = None,
+    asset_type: AssetType | str | None = None,
     limit: int = 10,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Search for assets across repositories.
 
@@ -509,9 +503,7 @@ async def search_assets(
             AssetRepository.POLY_HAVEN,
         ]
     else:
-        repos_to_search = [
-            AssetRepository(repository) if isinstance(repository, str) else repository
-        ]
+        repos_to_search = [AssetRepository(repository) if isinstance(repository, str) else repository]
 
     query_lower = query.lower()
 

@@ -4,8 +4,6 @@ Export tools for Blender MCP.
 Provides tools for exporting scenes and objects in various formats.
 """
 
-from typing import List, Optional
-
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
 
@@ -18,7 +16,7 @@ def _register_export_tools():
     async def blender_export(
         operation: str = "export_fbx",
         output_path: str = "",
-        object_names: Optional[List[str]] = None,
+        object_names: list[str] | None = None,
         include_materials: bool = True,
         include_animations: bool = True,
         apply_transforms: bool = True,
@@ -62,12 +60,10 @@ def _register_export_tools():
                 return await export_for_vrchat(output_path=output_path)
 
             else:
-                return (
-                    f"Unknown export operation: {operation}. Available: export_unity, export_vrchat"
-                )
+                return f"Unknown export operation: {operation}. Available: export_unity, export_vrchat"
 
         except Exception as e:
-            return f"Error in export operation '{operation}': {str(e)}"
+            return f"Error in export operation '{operation}': {e!s}"
 
 
 _register_export_tools()

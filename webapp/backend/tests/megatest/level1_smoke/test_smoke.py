@@ -61,9 +61,7 @@ class TestSmokeLevel:
         # Ensure we're not in production paths
         from tests.megatest.conftest import is_production_path
 
-        assert not is_production_path(megatest_base_path), (
-            f"Test path {megatest_base_path} is in production area!"
-        )
+        assert not is_production_path(megatest_base_path), f"Test path {megatest_base_path} is in production area!"
 
         assert megatest_results_path.exists(), f"Results path {megatest_results_path} not created"
 

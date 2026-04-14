@@ -6,7 +6,7 @@ action management, constraints, and animation baking for export.
 """
 
 import logging
-from typing import Literal, Optional, Tuple
+from typing import Literal
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
@@ -58,15 +58,15 @@ def _register_animation_tools():
         start_frame: int = 1,
         end_frame: int = 60,
         # Transform parameters
-        location: Optional[Tuple[float, float, float]] = None,
-        rotation: Optional[Tuple[float, float, float]] = None,
-        scale: Optional[Tuple[float, float, float]] = None,
-        start_location: Tuple[float, float, float] = (0, 0, 0),
-        end_location: Tuple[float, float, float] = (5, 0, 0),
-        start_rotation: Tuple[float, float, float] = (0, 0, 0),
-        end_rotation: Tuple[float, float, float] = (360, 0, 0),
-        start_scale: Tuple[float, float, float] = (1, 1, 1),
-        end_scale: Tuple[float, float, float] = (2, 2, 2),
+        location: tuple[float, float, float] | None = None,
+        rotation: tuple[float, float, float] | None = None,
+        scale: tuple[float, float, float] | None = None,
+        start_location: tuple[float, float, float] = (0, 0, 0),
+        end_location: tuple[float, float, float] = (5, 0, 0),
+        start_rotation: tuple[float, float, float] = (0, 0, 0),
+        end_rotation: tuple[float, float, float] = (360, 0, 0),
+        start_scale: tuple[float, float, float] = (1, 1, 1),
+        end_scale: tuple[float, float, float] = (2, 2, 2),
         # Shape key parameters
         shape_key_name: str = "",
         value: float = 1.0,
@@ -292,9 +292,7 @@ def _register_animation_tools():
             elif operation == "list_shape_keys":
                 return await list_shape_keys(object_name=object_name)
             elif operation == "set_shape_key":
-                return await set_shape_key(
-                    object_name=object_name, shape_key_name=shape_key_name, value=value
-                )
+                return await set_shape_key(object_name=object_name, shape_key_name=shape_key_name, value=value)
             elif operation == "keyframe_shape_key":
                 return await keyframe_shape_key(
                     object_name=object_name,
@@ -303,23 +301,17 @@ def _register_animation_tools():
                     value=value if value != 1.0 else None,
                 )
             elif operation == "create_shape_key":
-                return await create_shape_key(
-                    object_name=object_name, shape_key_name=shape_key_name, from_mix=from_mix
-                )
+                return await create_shape_key(object_name=object_name, shape_key_name=shape_key_name, from_mix=from_mix)
 
             # ACTION MANAGEMENT
             elif operation == "list_actions":
                 return await list_actions()
             elif operation == "create_action":
-                return await create_action(
-                    action_name=action_name, object_name=object_name if object_name else None
-                )
+                return await create_action(action_name=action_name, object_name=object_name if object_name else None)
             elif operation == "set_active_action":
                 return await set_active_action(object_name=object_name, action_name=action_name)
             elif operation == "push_to_nla":
-                return await push_action_to_nla(
-                    object_name=object_name, track_name=track_name if track_name else None
-                )
+                return await push_action_to_nla(object_name=object_name, track_name=track_name if track_name else None)
 
             # INTERPOLATION
             elif operation == "set_interpolation":
@@ -359,16 +351,14 @@ def _register_animation_tools():
                     bake_types=bake_types,
                 )
             elif operation == "bake_all_actions":
-                return await bake_all_actions(
-                    armature_name=armature_name, frame_start=start_frame, frame_end=end_frame
-                )
+                return await bake_all_actions(armature_name=armature_name, frame_start=start_frame, frame_end=end_frame)
 
             else:
                 return f"Unknown operation: {operation}"
 
         except Exception as e:
-            logger.error(f"❌ Animation error ({operation}): {str(e)}")
-            return f"Error in {operation}: {str(e)}"
+            logger.error(f"❌ Animation error ({operation}): {e!s}")
+            return f"Error in {operation}: {e!s}"
 
 
 _register_animation_tools()

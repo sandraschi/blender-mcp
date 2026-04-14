@@ -10,7 +10,7 @@ Exposes addon_handler functionality as FastMCP tools:
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from blender_mcp.app import get_app
 from blender_mcp.handlers.addon_handler import (
@@ -35,7 +35,7 @@ def _register_addon_tools() -> None:
         url: str = "",
         enable_after: bool = True,
         enabled_only: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Blender addon management: search known addons, install, enable, disable, list.
 
@@ -72,10 +72,7 @@ def _register_addon_tools() -> None:
                 return {
                     "success": True,
                     "addons_directory": str(addons_dir) if addons_dir else "not found",
-                    "known_addons": [
-                        {"name": k, "url": v[0], "description": v[1]}
-                        for k, v in KNOWN_ADDONS.items()
-                    ],
+                    "known_addons": [{"name": k, "url": v[0], "description": v[1]} for k, v in KNOWN_ADDONS.items()],
                     "hint": "Use operation='install_known' with addon_name to install.",
                 }
 
@@ -97,8 +94,7 @@ def _register_addon_tools() -> None:
                 if result.get("status") == "SUCCESS":
                     result["success"] = True
                     result["message"] = (
-                        f"Installed '{addon_name}' from GitHub. "
-                        "Restart Blender or use enable operation to activate."
+                        f"Installed '{addon_name}' from GitHub. Restart Blender or use enable operation to activate."
                     )
                     if addon_name in ("gaussian_splat", "3dgs_blender"):
                         result["splat_note"] = (
@@ -119,9 +115,10 @@ def _register_addon_tools() -> None:
             elif operation == "list_installed":
                 executor = _get_executor()
                 import json as _json
+
                 script = f"""
 import bpy, json
-enabled_only = {str(enabled_only)}
+enabled_only = {enabled_only!s}
 addons = []
 for mod_name in bpy.context.preferences.addons.keys():
     if not enabled_only or mod_name:  # all enabled addons are already in preferences.addons
@@ -132,7 +129,7 @@ print("ADDONS:" + json.dumps(addons))
                 addons = []
                 for line in output.splitlines():
                     if line.startswith("ADDONS:"):
-                        addons = _json.loads(line[len("ADDONS:"):])
+                        addons = _json.loads(line[len("ADDONS:") :])
                 return {"success": True, "addons": addons, "count": len(addons)}
 
             elif operation == "enable":
@@ -140,6 +137,7 @@ print("ADDONS:" + json.dumps(addons))
                     return {"success": False, "error": "addon_name required for enable"}
                 executor = _get_executor()
                 import json as _json2
+
                 en_script = f"""
 import bpy
 try:
@@ -152,7 +150,9 @@ except Exception as e:
                 output = await executor.execute_script(en_script, script_name="enable_addon")
                 if "ENABLE_OK" in output:
                     return {"success": True, "message": f"Addon '{addon_name}' enabled"}
-                err = next((l[len("ENABLE_ERR:"):] for l in output.splitlines() if l.startswith("ENABLE_ERR:")), output[-200:])
+                err = next(
+                    (l[len("ENABLE_ERR:") :] for l in output.splitlines() if l.startswith("ENABLE_ERR:")), output[-200:]
+                )
                 return {"success": False, "error": err}
 
             elif operation == "disable":
@@ -160,6 +160,7 @@ except Exception as e:
                     return {"success": False, "error": "addon_name required for disable"}
                 executor = _get_executor()
                 import json as _json3
+
                 dis_script = f"""
 import bpy
 try:
@@ -172,14 +173,25 @@ except Exception as e:
                 output = await executor.execute_script(dis_script, script_name="disable_addon")
                 if "DISABLE_OK" in output:
                     return {"success": True, "message": f"Addon '{addon_name}' disabled"}
-                err = next((l[len("DISABLE_ERR:"):] for l in output.splitlines() if l.startswith("DISABLE_ERR:")), output[-200:])
+                err = next(
+                    (l[len("DISABLE_ERR:") :] for l in output.splitlines() if l.startswith("DISABLE_ERR:")),
+                    output[-200:],
+                )
                 return {"success": False, "error": err}
 
             else:
                 return {
                     "success": False,
                     "error": f"Unknown operation '{operation}'",
-                    "available_operations": ["search", "info", "install_known", "install_url", "list_installed", "enable", "disable"],
+                    "available_operations": [
+                        "search",
+                        "info",
+                        "install_known",
+                        "install_url",
+                        "list_installed",
+                        "enable",
+                        "disable",
+                    ],
                 }
 
         except Exception as e:

@@ -3,13 +3,13 @@ Config get/set for webapp (Settings page). In-memory store; no persistence acros
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from blender_mcp.app import get_app
 
 logger = logging.getLogger(__name__)
 
-_config_store: Dict[str, Any] = {}
+_config_store: dict[str, Any] = {}
 
 
 def _register_config_tools():
@@ -25,12 +25,12 @@ def _register_config_tools():
 
     @app.tool
     async def config_set(
-        server_host: Optional[str] = None,
-        server_port: Optional[int] = None,
-        theme: Optional[str] = None,
-        auto_sync: Optional[bool] = None,
-        notifications: Optional[bool] = None,
-        llm: Optional[Dict[str, Any]] = None,
+        server_host: str | None = None,
+        server_port: int | None = None,
+        theme: str | None = None,
+        auto_sync: bool | None = None,
+        notifications: bool | None = None,
+        llm: dict[str, Any] | None = None,
     ) -> str:
         """Update webapp config. Pass keys: server_host, server_port, theme, auto_sync, notifications, llm."""
         import json

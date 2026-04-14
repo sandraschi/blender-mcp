@@ -6,7 +6,7 @@ VRChat, Resonite, and Unity with appropriate scale, format, and settings.
 """
 
 import logging
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ def _register_export_presets_tools():
             "create_custom_preset",
         ] = "export_with_preset",
         # Common params
-        target_objects: Optional[List[str]] = None,
+        target_objects: list[str] | None = None,
         platform: str = "VRCHAT",
         # Export params
         output_path: str = "//export",
@@ -44,7 +44,7 @@ def _register_export_presets_tools():
         # Custom preset params
         preset_name: str = "",
         base_platform: str = "VRCHAT",
-        custom_settings: Optional[Dict[str, Any]] = None,
+        custom_settings: dict[str, Any] | None = None,
     ) -> str:
         """
         Platform-specific export presets for VR avatar deployment.
@@ -76,9 +76,7 @@ def _register_export_presets_tools():
             - blender_export_presets("get_platform_presets") - List available platforms
             - blender_export_presets("create_custom_preset", preset_name="MyCustom", base_platform="VRCHAT") - Create custom preset
         """
-        logger.info(
-            f"blender_export_presets called with operation='{operation}', platform='{platform}'"
-        )
+        logger.info(f"blender_export_presets called with operation='{operation}', platform='{platform}'")
 
         from blender_mcp.handlers.export_presets_handler import (
             create_custom_preset,
@@ -131,7 +129,7 @@ def _register_export_presets_tools():
 
         except Exception as e:
             logger.error(f"Export presets operation '{operation}' failed: {e}")
-            return f"Export presets operation failed: {str(e)}"
+            return f"Export presets operation failed: {e!s}"
 
 
 def _format_export_presets_result(result: dict) -> str:
@@ -228,7 +226,7 @@ def _format_export_presets_result(result: dict) -> str:
                 report += f"  • {key}: {value}\n"
 
     # Warnings from export
-    if "warnings" in result and result["warnings"]:
+    if result.get("warnings"):
         report += "\n**Export Warnings:**\n"
         for warning in result["warnings"]:
             report += f"  • ⚠️ {warning}\n"

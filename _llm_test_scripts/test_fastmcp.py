@@ -26,7 +26,7 @@ def test_app_creation():
     try:
         from fastmcp import FastMCP
 
-        app = FastMCP("TestApp", instructions="Test instructions")
+        FastMCP("TestApp", instructions="Test instructions")
         print("PASS: FastMCP app created successfully")
         return True
     except Exception as e:
@@ -39,7 +39,7 @@ async def test_server_and_agentic_tools():
     try:
         from src.blender_mcp.app import get_app
 
-        app = get_app()
+        get_app()
         print("PASS: Server module and MCP app imported successfully")
 
         # Check if agentic tools are registered by checking tool count

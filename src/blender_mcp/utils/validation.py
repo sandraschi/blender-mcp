@@ -4,7 +4,7 @@ Validation utilities for Blender MCP.
 This module provides common validation functions for MCP tools.
 """
 
-from typing import Any, Dict, Type, TypeVar
+from typing import Any, TypeVar
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
@@ -78,7 +78,7 @@ class BaseValidator(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def check_extra_fields(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+    def check_extra_fields(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Check for extra fields in the input."""
         if isinstance(values, dict):
             extra_fields = set(values.keys()) - set(cls.model_fields.keys())
@@ -122,7 +122,7 @@ class FrameRangeValidator(BaseValidator):
         return self
 
 
-def validate_with_model(model: Type[BaseModel]) -> callable:
+def validate_with_model(model: type[BaseModel]) -> callable:
     """Decorator to validate function parameters with a Pydantic model."""
 
     def decorator(func: callable) -> callable:

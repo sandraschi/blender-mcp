@@ -23,15 +23,18 @@ def get_app():
     if app is None:
         from fastmcp import FastMCP
 
-        from blender_mcp import __version__  # noqa: E402 (inside function to avoid circular)
+        from blender_mcp import __version__
+
         app = FastMCP(
             name="blender-mcp",
             version=__version__,
             instructions="""You are Blender MCP, a comprehensive FastMCP 3.1.1 server for 3D creation and animation using Blender.
 
-FASTMCP 3.1.1 FEATURES:
+FASTMCP 3.2.0 FEATURES:
 - Conversational tool returns for natural AI interaction
 - Sampling with tools (SEP-1577) for agentic workflows and complex 3D operations
+- Native Prompts for standard 3D optimization and creation templates
+- Formalized Skills for autonomous modeling and pipeline automation
 - Portmanteau design preventing tool explosion while maintaining full functionality
 - CodeMode (BM25 tool discovery) for large tool sets
 
@@ -68,14 +71,18 @@ Each portmanteau tool handles multiple related operations through an 'operation'
         # Handlers are registered via discover_tools() and specific registration
         # logic within tool modules.
         from blender_mcp.tools import scene_tools
+
         scene_tools.register(app)
-
-
 
         # Register agentic workflow tools
         from blender_mcp.agentic import register_agentic_tools
 
         register_agentic_tools()
+
+        # Register Prompts
+        from blender_mcp.prompts import register_prompts
+
+        register_prompts()
 
         # Register resources
         _register_resources(app)
@@ -137,10 +144,11 @@ async def _exec_in_blender_session(script: str, script_name: str = "exec", timeo
 
 def _register_fleet_api(app):
     """Register the fleet launch API and the Blender session bridge."""
-    from blender_mcp import __version__
     from pydantic import BaseModel
     from starlette.requests import Request
     from starlette.responses import JSONResponse
+
+    from blender_mcp import __version__
 
     class LaunchRequest(BaseModel):
         repo_path: str
@@ -156,9 +164,7 @@ def _register_fleet_api(app):
 
             launch_script = os.path.join(req.repo_path, "start.ps1")
             if not os.path.exists(launch_script):
-                return JSONResponse(
-                    {"error": f"Launch script not found: {launch_script}"}, status_code=404
-                )
+                return JSONResponse({"error": f"Launch script not found: {launch_script}"}, status_code=404)
 
             cmd = f'conhost --pwsh -c "powershell -ExecutionPolicy Bypass -File {launch_script}"'
             subprocess.Popen(cmd, shell=True, cwd=req.repo_path, env={**os.environ, **req.env})
@@ -199,9 +205,7 @@ def _register_fleet_api(app):
             params = body.get("params", {})
 
             if not tool_name:
-                return JSONResponse(
-                    {"success": False, "error": "Missing 'tool' in request"}, status_code=400
-                )
+                return JSONResponse({"success": False, "error": "Missing 'tool' in request"}, status_code=400)
 
             try:
                 result = await app.call_tool(tool_name, params)
@@ -211,7 +215,7 @@ def _register_fleet_api(app):
                     {
                         "success": False,
                         "data": None,
-                        "message": f"Tool execution error: {str(tool_e)}",
+                        "message": f"Tool execution error: {tool_e!s}",
                         "error": str(tool_e),
                     },
                     status_code=500,
@@ -262,6 +266,7 @@ def _register_fleet_api(app):
         Returns: {"success": bool, "id": str, "queued": bool}
         """
         import uuid
+
         try:
             body = await request.json()
             script = body.get("script", "").strip()
@@ -291,8 +296,7 @@ def _register_fleet_api(app):
         """
         for task_id, task in _session_tasks.items():
             if not task["done"] and task["result"] is None:
-                return JSONResponse({"id": task_id, "script": task["script"],
-                                     "script_name": task["script_name"]})
+                return JSONResponse({"id": task_id, "script": task["script"], "script_name": task["script_name"]})
         return JSONResponse({})
 
     @app.custom_route("/api/v1/blender/result", methods=["POST"])
@@ -343,9 +347,7 @@ def _register_resources(app):
             script_data = _load_specific_script(category, script_name)
             return json.dumps(script_data, indent=2)
         except Exception as e:
-            return json.dumps(
-                {"error": f"Failed to load script {script_name} from {category}", "message": str(e)}
-            )
+            return json.dumps({"error": f"Failed to load script {script_name} from {category}", "message": str(e)})
 
 
 def _load_script_collection(category: str) -> List[Dict[str, Any]]:

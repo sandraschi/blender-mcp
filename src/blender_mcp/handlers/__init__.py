@@ -41,6 +41,13 @@ from blender_mcp.handlers.lighting_handler import (
     setup_three_point_lighting,
 )
 
+# Material handlers
+from blender_mcp.handlers.material_handler import (
+    create_fabric_material,
+    create_metal_material,
+    create_wood_material,
+)
+
 # Mesh handlers
 from blender_mcp.handlers.mesh_handler import (
     create_cone,
@@ -83,7 +90,13 @@ from blender_mcp.handlers.render_handler import render_preview, render_turntable
 from blender_mcp.handlers.rigging_handler import add_bone, create_armature, create_bone_ik
 
 # Scene handlers
-from blender_mcp.handlers.scene_handler import clear_scene, create_scene, list_scenes
+# Scene handlers
+from blender_mcp.handlers.scene_handler import (
+    clear_scene,
+    create_scene,
+    list_scenes,
+    scene_get_hierarchy,
+)
 
 # Selection handlers
 from blender_mcp.handlers.selection_handler import (
@@ -107,25 +120,6 @@ from blender_mcp.handlers.uv_handler import get_uv_info, project_from_view, rese
 
 from ..compat import *
 
-# Material handlers
-from blender_mcp.handlers.material_handler import (
-    create_fabric_material,
-    create_metal_material,
-    create_wood_material,
-)
-
-
-# Scene handlers
-from blender_mcp.handlers.scene_handler import (
-    clear_scene,
-    create_scene,
-    list_scenes,
-    scene_get_hierarchy,
-)
-
-
-
-
 # Other handlers - check what exists
 # try:
 #     from blender_mcp.handlers.shader_handler import (
@@ -148,88 +142,88 @@ from blender_mcp.handlers.scene_handler import (
 #     pass
 
 __all__ = [
-    # Scene operations
-    "create_scene",
-    "list_scenes",
-    "clear_scene",
-    # Mesh operations
-    "create_cube",
-    "create_sphere",
-    "create_cylinder",
-    "create_cone",
-    "create_plane",
-    "create_torus",
-    "create_monkey",
-    "duplicate_object",
-    "delete_object",
-    # Animation operations
-    "set_keyframe",
+    "add_bone",
+    "add_force_field",
+    # Modifier operations
+    "add_modifier",
+    "add_rigid_body_constraint",
+    "adjust_light",
     "animate_location",
     "animate_rotation",
     "animate_scale",
-    "play_animation",
-    "set_frame_range",
+    "apply_modifier",
+    "apply_transform",
+    "assign_texture_to_material",
+    "bake_particles",
+    "bake_physics_simulation",
+    "bake_texture",
     "clear_animation",
+    "clear_scene",
+    "configure_cloth_simulation",
+    "configure_rigid_body_world",
+    "create_area_light",
+    # Rigging operations
+    "create_armature",
+    "create_bone_ik",
+    # Camera operations
+    "create_camera",
+    "create_cone",
+    # Mesh operations
+    "create_cube",
+    "create_cylinder",
+    "create_monkey",
+    # Particle operations
+    "create_particle_system",
+    "create_plane",
+    "create_point_light",
+    # Scene operations
+    "create_scene",
+    "create_sphere",
+    "create_spot_light",
     # Lighting operations
     "create_sun_light",
-    "create_point_light",
-    "create_spot_light",
-    "create_area_light",
-    "setup_three_point_lighting",
-    "setup_hdri_environment",
-    "adjust_light",
+    # Texture operations
+    "create_texture",
+    "create_torus",
+    "delete_object",
+    "duplicate_object",
+    # Physics operations
+    "enable_physics",
     # Export operations
     "export_for_unity",
     "export_for_vrchat",
+    "get_modifiers",
+    "get_uv_info",
     # Import operations
     "import_file",
-    "link_asset",
-    # Texture operations
-    "create_texture",
-    "assign_texture_to_material",
-    "bake_texture",
-    # Camera operations
-    "create_camera",
-    "set_active_camera",
-    "set_camera_lens",
     # Addon operations
     "install_addon",
-    "uninstall_addon",
+    "link_asset",
     "list_addons",
-    # Modifier operations
-    "add_modifier",
+    "list_scenes",
+    "play_animation",
+    "project_from_view",
     "remove_modifier",
-    "get_modifiers",
-    "apply_modifier",
+    "render_preview",
     # Render operations
     "render_turntable",
-    "render_preview",
-    # Transform operations
-    "set_transform",
-    "apply_transform",
+    "reset_uvs",
+    "select_by_material",
+    "select_by_type",
     # Selection operations
     "select_objects",
-    "select_by_type",
-    "select_by_material",
-    # Rigging operations
-    "create_armature",
-    "add_bone",
-    "create_bone_ik",
-    # Physics operations
-    "enable_physics",
-    "bake_physics_simulation",
-    "add_force_field",
-    "add_rigid_body_constraint",
-    "configure_rigid_body_world",
+    "set_active_camera",
+    "set_camera_lens",
+    "set_frame_range",
+    # Animation operations
+    "set_keyframe",
     "set_rigid_body_collision_shape",
-    "configure_cloth_simulation",
-    # Particle operations
-    "create_particle_system",
-    "bake_particles",
+    # Transform operations
+    "set_transform",
+    "setup_hdri_environment",
+    "setup_three_point_lighting",
+    "uninstall_addon",
     # UV operations
     "unwrap",
-    "project_from_view",
-    "reset_uvs",
-    "get_uv_info",
     # Material and other operations temporarily disabled
 ]

@@ -5,7 +5,6 @@ Provides tools for creating armatures and character rigging systems.
 """
 
 import logging
-from typing import Tuple
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
@@ -22,10 +21,10 @@ def _register_rigging_tools():
         operation: str = "create_armature",
         armature_name: str = "Armature",
         bone_name: str = "Bone",
-        location: Tuple[float, float, float] = (0, 0, 0),
-        rotation: Tuple[float, float, float] = (0, 0, 0),
-        head: Tuple[float, float, float] = (0, 0, 0),
-        tail: Tuple[float, float, float] = (0, 1, 0),
+        location: tuple[float, float, float] = (0, 0, 0),
+        rotation: tuple[float, float, float] = (0, 0, 0),
+        head: tuple[float, float, float] = (0, 0, 0),
+        tail: tuple[float, float, float] = (0, 1, 0),
         parent_bone: str = "",
         connected: bool = False,
         target_bone: str = "",
@@ -43,7 +42,7 @@ def _register_rigging_tools():
         group_name: str = "",
         source_group: str = "",
         new_group_name: str = "",
-        vertex_indices: list = None,
+        vertex_indices: list | None = None,
         # Humanoid mapping params
         mapping_preset: str = "VRCHAT",
         auto_rename: bool = True,
@@ -165,9 +164,7 @@ def _register_rigging_tools():
             transfer_weights,
         )
 
-        logger.info(
-            f"blender_rigging called with operation='{operation}', armature_name='{armature_name}'"
-        )
+        logger.info(f"blender_rigging called with operation='{operation}', armature_name='{armature_name}'")
 
         try:
             # Convert tuple parameters to proper formats
@@ -177,27 +174,19 @@ def _register_rigging_tools():
                 else location
             )
             head_tuple = (
-                tuple(float(x) for x in head)
-                if hasattr(head, "__iter__") and not isinstance(head, str)
-                else head
+                tuple(float(x) for x in head) if hasattr(head, "__iter__") and not isinstance(head, str) else head
             )
             tail_tuple = (
-                tuple(float(x) for x in tail)
-                if hasattr(tail, "__iter__") and not isinstance(tail, str)
-                else tail
+                tuple(float(x) for x in tail) if hasattr(tail, "__iter__") and not isinstance(tail, str) else tail
             )
 
             # Validate 3-element vectors
             if len(location_tuple) != 3:
                 return f"Error: location must be a 3-element array/tuple, got {len(location_tuple)} elements"
             if len(head_tuple) != 3:
-                return (
-                    f"Error: head must be a 3-element array/tuple, got {len(head_tuple)} elements"
-                )
+                return f"Error: head must be a 3-element array/tuple, got {len(head_tuple)} elements"
             if len(tail_tuple) != 3:
-                return (
-                    f"Error: tail must be a 3-element array/tuple, got {len(tail_tuple)} elements"
-                )
+                return f"Error: tail must be a 3-element array/tuple, got {len(tail_tuple)} elements"
 
             if operation == "create_armature":
                 return await create_armature(name=armature_name, location=location_tuple)
@@ -335,8 +324,8 @@ def _register_rigging_tools():
                 return f"Unknown rigging operation: {operation}. Available: create_armature, add_bone, create_bone_ik, create_basic_rig, list_bones, pose_bone, set_bone_keyframe, reset_pose, transfer_weights, manage_vertex_groups, humanoid_mapping"
 
         except Exception as e:
-            logger.error(f"ERROR: Error in rigging operation '{operation}': {str(e)}")
-            return f"Error in rigging operation '{operation}': {str(e)}"
+            logger.error(f"ERROR: Error in rigging operation '{operation}': {e!s}")
+            return f"Error in rigging operation '{operation}': {e!s}"
 
 
 def _format_weight_transfer_result(result: dict) -> str:
@@ -349,7 +338,9 @@ def _format_weight_transfer_result(result: dict) -> str:
         report += f"**Source Mesh:** {result.get('source_mesh', 'Unknown')}\n"
         report += f"**Target Mesh:** {result.get('target_mesh', 'Unknown')}\n"
         report += f"**Armature:** {result.get('armature', 'Unknown')}\n"
-        report += f"**Vertex Groups:** {result.get('vertex_groups_before', 0)} → {result.get('vertex_groups_after', 0)}\n"
+        report += (
+            f"**Vertex Groups:** {result.get('vertex_groups_before', 0)} → {result.get('vertex_groups_after', 0)}\n"
+        )
         report += f"**Transfer Method:** {result.get('transfer_method', 'Unknown')}\n"
         report += f"**Max Distance:** {result.get('max_distance', 0):.3f}\n\n"
         report += f"{result.get('message', '')}\n"

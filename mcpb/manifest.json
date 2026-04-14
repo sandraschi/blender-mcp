@@ -1,8 +1,8 @@
 {
   "manifest_version": "0.2",
   "name": "blender-mcp",
-  "version": "0.1.0",
-  "description": "MCP server for Blender 3D creation and manipulation",
+  "version": "0.5.0",
+  "description": "Industrial MCP server for Blender 3D automation and scene management",
   "author": {
     "name": "Sandra Schi",
     "email": "sandra@example.com"

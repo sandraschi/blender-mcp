@@ -4,8 +4,6 @@ Lighting creation and management handler for Blender MCP.
 Provides functions for creating and managing lights in Blender scenes.
 """
 
-from typing import Optional, Tuple
-
 from loguru import logger
 
 from ..compat import *
@@ -18,10 +16,10 @@ _executor = get_blender_executor()
 @blender_operation("create_sun_light")
 async def create_sun_light(
     name: str = "Sun",
-    location: Tuple[float, float, float] = (0, 0, 10),
-    rotation: Tuple[float, float, float] = (0, 0, 0),
+    location: tuple[float, float, float] = (0, 0, 10),
+    rotation: tuple[float, float, float] = (0, 0, 0),
     energy: float = 5.0,
-    color: Tuple[float, float, float] = (1, 1, 1),
+    color: tuple[float, float, float] = (1, 1, 1),
     shadow_soft_size: float = 0.1,
 ) -> str:
     """
@@ -67,9 +65,9 @@ logger.info(f"Created sun light: {name}")
 @blender_operation("create_point_light")
 async def create_point_light(
     name: str = "Point",
-    location: Tuple[float, float, float] = (0, 0, 5),
+    location: tuple[float, float, float] = (0, 0, 5),
     energy: float = 1000.0,
-    color: Tuple[float, float, float] = (1, 1, 1),
+    color: tuple[float, float, float] = (1, 1, 1),
 ) -> str:
     """
     Create a point (omnidirectional) light.
@@ -108,10 +106,10 @@ logger.info(f"Created point light: {name}")
 @blender_operation("create_spot_light")
 async def create_spot_light(
     name: str = "Spot",
-    location: Tuple[float, float, float] = (0, 0, 5),
-    rotation: Tuple[float, float, float] = (0, 0, 0),
+    location: tuple[float, float, float] = (0, 0, 5),
+    rotation: tuple[float, float, float] = (0, 0, 0),
     energy: float = 1000.0,
-    color: Tuple[float, float, float] = (1, 1, 1),
+    color: tuple[float, float, float] = (1, 1, 1),
     spot_size: float = 45.0,
     spot_blend: float = 0.15,
 ) -> str:
@@ -160,10 +158,10 @@ logger.info(f"Created spot light: {name}")
 @blender_operation("create_area_light")
 async def create_area_light(
     name: str = "Area",
-    location: Tuple[float, float, float] = (0, 0, 5),
-    rotation: Tuple[float, float, float] = (0, 0, 0),
+    location: tuple[float, float, float] = (0, 0, 5),
+    rotation: tuple[float, float, float] = (0, 0, 0),
     energy: float = 100.0,
-    color: Tuple[float, float, float] = (1, 1, 1),
+    color: tuple[float, float, float] = (1, 1, 1),
     size: float = 1.0,
 ) -> str:
     """
@@ -297,10 +295,10 @@ print("Set up HDRI environment lighting (add HDRI texture file to Environment Te
 @blender_operation("adjust_light")
 async def adjust_light(
     name: str,
-    location: Optional[Tuple[float, float, float]] = None,
-    rotation: Optional[Tuple[float, float, float]] = None,
-    energy: Optional[float] = None,
-    color: Optional[Tuple[float, float, float]] = None,
+    location: tuple[float, float, float] | None = None,
+    rotation: tuple[float, float, float] | None = None,
+    energy: float | None = None,
+    color: tuple[float, float, float] | None = None,
 ) -> str:
     """
     Adjust properties of existing light.

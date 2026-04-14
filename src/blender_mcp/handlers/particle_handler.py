@@ -2,7 +2,7 @@
 
 import logging
 from enum import Enum
-from typing import Any, Dict, Union
+from typing import Any
 
 from ..decorators import blender_operation
 
@@ -29,14 +29,14 @@ class ParticleEmitFrom(str, Enum):
 async def create_particle_system(
     object_name: str,
     system_name: str = "ParticleSystem",
-    particle_type: Union[ParticleType, str] = ParticleType.EMITTER,
+    particle_type: ParticleType | str = ParticleType.EMITTER,
     count: int = 1000,
     frame_start: int = 1,
     frame_end: int = 200,
     lifetime: float = 50.0,
-    emit_from: Union[ParticleEmitFrom, str] = ParticleEmitFrom.FACE,
+    emit_from: ParticleEmitFrom | str = ParticleEmitFrom.FACE,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Create a particle system on an object."""
     script = f"""
 
@@ -77,18 +77,18 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to create particle system: {str(e)}")
+        logger.error(f"Failed to create particle system: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("bake_particles", log_args=True)
 async def bake_particles(
     object_name: str,
-    system_name: str = None,
+    system_name: str | None = None,
     frame_start: int = 1,
     frame_end: int = 250,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Bake particle simulation."""
     script = f"""
 
@@ -141,5 +141,5 @@ print(str(result))
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to bake particles: {str(e)}")
+        logger.error(f"Failed to bake particles: {e!s}")
         return {"status": "ERROR", "error": str(e)}

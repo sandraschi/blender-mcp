@@ -8,7 +8,7 @@ leveraging SOTA LLMs to generate Blender Python scripts for complex object const
 import json
 import logging
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -32,18 +32,16 @@ class ConstructObjectParams(BaseModel):
         ...,
         description="Natural language description of the object to create (e.g., 'a robot like Robbie from Forbidden Planet')",
     )
-    name: str = Field(
-        "ConstructedObject", description="Name for the created object in Blender scene"
-    )
+    name: str = Field("ConstructedObject", description="Name for the created object in Blender scene")
     complexity: str = Field(
         "standard",
         description="Complexity level affecting script generation detail. One of: 'simple', 'standard', 'complex'",
     )
-    style_preset: Optional[str] = Field(
+    style_preset: str | None = Field(
         None,
         description="Optional style preset to guide generation (e.g., 'realistic', 'stylized', 'lowpoly', 'scifi')",
     )
-    reference_objects: Optional[List[str]] = Field(
+    reference_objects: list[str] | None = Field(
         None,
         description="Names of existing Blender objects to use as reference for style/consistency",
     )
@@ -56,8 +54,8 @@ class ScriptValidationResult(BaseModel):
     """Result of validating generated Blender Python script."""
 
     is_valid: bool
-    errors: List[str]
-    warnings: List[str]
+    errors: list[str]
+    warnings: list[str]
     security_score: int  # 0-100, higher is safer
     complexity_score: int  # Estimated complexity of operations
 
@@ -72,11 +70,11 @@ def _register_construct_tools():
         description: str = "a simple cube",
         name: str = "ConstructedObject",
         complexity: str = "standard",
-        style_preset: Optional[str] = None,
-        reference_objects: Optional[List[str]] = None,
+        style_preset: str | None = None,
+        reference_objects: list[str] | None = None,
         allow_modifications: bool = True,
         max_iterations: int = 3,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         PORTMANTEAU PATTERN RATIONALE:
         Consolidates natural language 3D construction into single agentic interface. Prevents tool explosion while enabling
@@ -159,23 +157,15 @@ def _register_construct_tools():
                 raise ValueError("Description cannot be empty")
 
             if complexity not in ["simple", "standard", "complex"]:
-                raise ValueError(
-                    f"Invalid complexity '{complexity}'. Must be: simple, standard, complex"
-                )
+                raise ValueError(f"Invalid complexity '{complexity}'. Must be: simple, standard, complex")
 
             if style_preset and style_preset not in ["realistic", "stylized", "lowpoly", "scifi"]:
-                raise ValueError(
-                    f"Invalid style_preset '{style_preset}'. Must be: realistic, stylized, lowpoly, scifi"
-                )
+                raise ValueError(f"Invalid style_preset '{style_preset}'. Must be: realistic, stylized, lowpoly, scifi")
 
-            logger.info(
-                f"🎨 Starting universal construction for: '{description}' (complexity: {complexity})"
-            )
+            logger.info(f"🎨 Starting universal construction for: '{description}' (complexity: {complexity})")
 
             # Build context for LLM
-            context_info = await _gather_construction_context(
-                ctx, reference_objects, allow_modifications
-            )
+            context_info = await _gather_construction_context(ctx, reference_objects, allow_modifications)
 
             # Generate construction script via sampling
             script_result = await _generate_construction_script(
@@ -212,9 +202,7 @@ def _register_construct_tools():
                 }
 
             # Execute script in Blender
-            execution_result = await _execute_construction_script(
-                script_result["script"], name, validation
-            )
+            execution_result = await _execute_construction_script(script_result["script"], name, validation)
 
             if not execution_result["success"]:
                 # Try one more iteration if we haven't reached max_iterations
@@ -267,10 +255,10 @@ def _register_construct_tools():
             return response
 
         except Exception as e:
-            logger.exception(f"❌ Universal construction failed: {str(e)}")
+            logger.exception(f"❌ Universal construction failed: {e!s}")
             return {
                 "success": False,
-                "message": f"Universal construction failed: {str(e)}",
+                "message": f"Universal construction failed: {e!s}",
                 "script_generated": False,
                 "iterations_used": 0,
                 "next_steps": [
@@ -283,10 +271,10 @@ def _register_construct_tools():
 
 
 async def _gather_construction_context(
-    ctx: Context, reference_objects: Optional[List[str]], allow_modifications: bool
-) -> Dict[str, Any]:
+    ctx: Context, reference_objects: list[str] | None, allow_modifications: bool
+) -> dict[str, Any]:
     """Gather scene context and reference information for construction via executor."""
-    context: Dict[str, Any] = {
+    context: dict[str, Any] = {
         "scene_info": {},
         "reference_objects": [],
         "available_materials": [],
@@ -295,6 +283,7 @@ async def _gather_construction_context(
 
     try:
         from blender_mcp.utils.blender_executor import get_blender_executor
+
         executor = get_blender_executor()
         scene_script = """
 import bpy, json
@@ -307,7 +296,7 @@ print("SCENE_CTX:" + json.dumps({"objects": objs, "materials": mats, "collection
         output = await executor.execute_script(scene_script, script_name="gather_scene_ctx")
         for line in output.splitlines():
             if line.startswith("SCENE_CTX:"):
-                scene_data = json.loads(line[len("SCENE_CTX:"):])
+                scene_data = json.loads(line[len("SCENE_CTX:") :])
                 context["scene_info"] = {
                     "objects_count": len(scene_data.get("objects", [])),
                     "materials_count": len(scene_data.get("materials", [])),
@@ -327,10 +316,11 @@ print("SCENE_CTX:" + json.dumps({"objects": objs, "materials": mats, "collection
     return context
 
 
-async def _analyze_reference_object(object_name: str) -> Optional[Dict[str, Any]]:
+async def _analyze_reference_object(object_name: str) -> dict[str, Any] | None:
     """Analyze a reference object for style info via executor."""
     try:
         from blender_mcp.utils.blender_executor import get_blender_executor
+
         executor = get_blender_executor()
         script = f"""
 import bpy, json
@@ -353,7 +343,7 @@ else:
         output = await executor.execute_script(script, script_name="analyze_ref_obj")
         for line in output.splitlines():
             if line.startswith("REF_OBJ:"):
-                payload = line[len("REF_OBJ:"):]
+                payload = line[len("REF_OBJ:") :]
                 return None if payload == "null" else json.loads(payload)
         return None
     except Exception as e:
@@ -366,10 +356,10 @@ async def _generate_construction_script(
     description: str,
     name: str,
     complexity: str,
-    style_preset: Optional[str],
-    context_info: Dict[str, Any],
+    style_preset: str | None,
+    context_info: dict[str, Any],
     max_iterations: int,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Generate Blender Python script using FastMCP sampling."""
 
     style_line = f"- Style preset: {style_preset}" if style_preset else ""
@@ -381,7 +371,8 @@ async def _generate_construction_script(
     }.get(complexity, "")
     style_guidance = (
         f"STYLE GUIDANCE: {style_preset} aesthetic — adapt proportions, materials, and details accordingly."
-        if style_preset else ""
+        if style_preset
+        else ""
     )
 
     prompt = f"""You are a master Blender Python developer and 3D artist. Generate production-ready Blender Python code to create: "{description}"
@@ -453,12 +444,12 @@ Return ONLY the Python code block, no explanations."""
 
     except Exception as e:
         logger.exception(f"Script generation failed: {e}")
-        return {"success": False, "error": f"Script generation failed: {str(e)}", "iterations": 1}
+        return {"success": False, "error": f"Script generation failed: {e!s}", "iterations": 1}
 
 
 async def _refine_construction_script(
-    ctx: Context, previous_result: Dict[str, Any], error_message: str, context_info: Dict[str, Any]
-) -> Dict[str, Any]:
+    ctx: Context, previous_result: dict[str, Any], error_message: str, context_info: dict[str, Any]
+) -> dict[str, Any]:
     """Refine a failed construction script based on execution errors."""
 
     refinement_prompt = f"""
@@ -576,7 +567,7 @@ async def _validate_construction_script(script: str) -> ScriptValidationResult:
 
 async def _execute_construction_script(
     script: str, object_name: str, validation: ScriptValidationResult
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Execute validated construction script in Blender."""
     try:
         from blender_mcp.utils.blender_executor import get_blender_executor
@@ -584,7 +575,9 @@ async def _execute_construction_script(
         executor = get_blender_executor()
 
         # Wrap script to report created objects — ensure bpy is imported
-        detection_script = script + """
+        detection_script = (
+            script
+            + """
 # Object detection post-construction
 try:
     import bpy as _bpy
@@ -595,6 +588,7 @@ except Exception as _det_err:
     print("CREATED_OBJECTS:[]")
     print("DETECTION_ERROR:" + str(_det_err))
 """
+        )
         output = await executor.execute_script(
             detection_script,
             timeout=120,
@@ -606,7 +600,7 @@ except Exception as _det_err:
         for line in output.splitlines():
             if line.startswith("CREATED_OBJECTS:"):
                 try:
-                    created_objects = json.loads(line[len("CREATED_OBJECTS:"):])
+                    created_objects = json.loads(line[len("CREATED_OBJECTS:") :])
                 except Exception:
                     pass
 
@@ -618,10 +612,10 @@ except Exception as _det_err:
 
     except Exception as e:
         logger.exception(f"Script execution failed: {e}")
-        return {"success": False, "error": f"Execution failed: {str(e)}"}
+        return {"success": False, "error": f"Execution failed: {e!s}"}
 
 
-def _extract_python_code(content: str) -> Optional[str]:
+def _extract_python_code(content: str) -> str | None:
     """Extract Python code from LLM response."""
 
     # Look for code blocks
@@ -653,7 +647,7 @@ def _extract_python_code(content: str) -> Optional[str]:
 
 def _generate_construction_summary(
     description: str,
-    execution_result: Dict[str, Any],
+    execution_result: dict[str, Any],
     iterations: int,
     validation: ScriptValidationResult,
 ) -> str:
@@ -663,7 +657,9 @@ def _generate_construction_summary(
         objects_created = execution_result.get("objects_created", [])
         obj_count = len(objects_created)
 
-        summary = f"🎨 Successfully constructed '{description}' using {iterations} iteration{'s' if iterations > 1 else ''}! "
+        summary = (
+            f"🎨 Successfully constructed '{description}' using {iterations} iteration{'s' if iterations > 1 else ''}! "
+        )
 
         if obj_count == 1:
             summary += f"Created object: {objects_created[0]}"

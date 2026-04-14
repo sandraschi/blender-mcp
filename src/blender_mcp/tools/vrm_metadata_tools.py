@@ -6,7 +6,7 @@ blink/viseme mappings, spring bone parameters, and VRM avatar configuration.
 """
 
 import logging
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Literal
 
 logger = logging.getLogger(__name__)
 
@@ -35,19 +35,19 @@ def _register_vrm_metadata_tools():
         offset_y: float = 0.0,
         offset_z: float = 0.1,
         # Facial mappings params
-        viseme_mappings: Optional[Dict[str, str]] = None,
+        viseme_mappings: dict[str, str] | None = None,
         blink_shape_key: str = "blink",
         # Spring bones params
-        spring_bone_settings: Optional[Dict[str, Any]] = None,
+        spring_bone_settings: dict[str, Any] | None = None,
         # Look at params
-        look_at_settings: Optional[Dict[str, Any]] = None,
+        look_at_settings: dict[str, Any] | None = None,
         # Export params
         output_path: str = "//vrm_metadata.json",
         include_spring_bones: bool = True,
         include_look_at: bool = True,
         # Common params
-        target_armature: Optional[str] = None,
-        target_mesh: Optional[str] = None,
+        target_armature: str | None = None,
+        target_mesh: str | None = None,
     ) -> str:
         """
         Comprehensive VRM metadata management for avatar configuration.
@@ -111,9 +111,7 @@ def _register_vrm_metadata_tools():
                 )
 
             elif operation == "set_vrm_look_at":
-                result = await set_vrm_look_at(
-                    look_at_settings=look_at_settings, target_armature=target_armature
-                )
+                result = await set_vrm_look_at(look_at_settings=look_at_settings, target_armature=target_armature)
 
             elif operation == "export_vrm_metadata":
                 result = await export_vrm_metadata(
@@ -131,7 +129,7 @@ def _register_vrm_metadata_tools():
 
         except Exception as e:
             logger.error(f"VRM metadata operation '{operation}' failed: {e}")
-            return f"VRM metadata operation failed: {str(e)}"
+            return f"VRM metadata operation failed: {e!s}"
 
 
 def _format_vrm_metadata_result(result: dict) -> str:
@@ -174,10 +172,10 @@ def _format_vrm_metadata_result(result: dict) -> str:
         report += f"**Blink Shape Key:** {result['blink_shape_key']}\n"
 
     # Shape key status
-    if "found_visemes" in result and result["found_visemes"]:
+    if result.get("found_visemes"):
         report += f"**Found Visemes:** {', '.join(result['found_visemes'])}\n"
 
-    if "missing_visemes" in result and result["missing_visemes"]:
+    if result.get("missing_visemes"):
         report += f"**Missing Visemes:** {', '.join(result['missing_visemes'])}\n"
 
     if "blink_available" in result:
@@ -200,7 +198,7 @@ def _format_vrm_metadata_result(result: dict) -> str:
         report += f"**Look At Type:** {settings.get('type', 'unknown')}\n"
 
     # Warnings
-    if "warnings" in result and result["warnings"]:
+    if result.get("warnings"):
         report += "\n**Warnings:**\n"
         for warning in result["warnings"]:
             report += f"  • {warning}\n"
@@ -212,7 +210,7 @@ def _format_vrm_metadata_result(result: dict) -> str:
     # Recommendations
     if status == "success":
         if operation == "setup_blink_viseme_mappings":
-            if "missing_visemes" in result and result["missing_visemes"]:
+            if result.get("missing_visemes"):
                 report += "\n💡 **Next Steps:**\n"
                 report += "  • Create missing viseme shape keys using blender_shapekeys\n"
                 report += "  • Test facial animations in pose mode\n"

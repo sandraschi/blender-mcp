@@ -5,7 +5,6 @@ This module provides rendering functions that can be registered as FastMCP tools
 
 import os
 from pathlib import Path
-from typing import Optional
 
 from ..compat import *
 from ..decorators import blender_operation
@@ -120,7 +119,7 @@ except Exception as e:
         return f"Rendered {frames}-frame turntable animation to {output_dir}"
 
     except Exception as e:
-        raise BlenderRenderError("turntable_animation", f"Failed to render turntable: {str(e)}")
+        raise BlenderRenderError("turntable_animation", f"Failed to render turntable: {e!s}")
 
 
 @blender_operation("render_preview", log_args=True)
@@ -133,7 +132,7 @@ async def render_preview(
     use_adaptive_sampling: bool = True,
     format: str = "PNG",
     quality: int = 90,
-    camera_name: Optional[str] = None,
+    camera_name: str | None = None,
     use_environment: bool = True,
     use_film_transparent: bool = False,
 ) -> str:
@@ -268,4 +267,4 @@ except Exception as e:
         return f"Rendered preview to {output_path}"
 
     except Exception as e:
-        raise BlenderRenderError("preview_render", f"Failed to render preview: {str(e)}")
+        raise BlenderRenderError("preview_render", f"Failed to render preview: {e!s}")

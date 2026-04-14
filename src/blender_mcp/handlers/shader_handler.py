@@ -34,14 +34,12 @@ class ShaderOperationResult(BaseModel):
     error: str | None = None
 
     @classmethod
-    def success(cls, message: str = None, **data: Any) -> ShaderOperationResult:
+    def success(cls, message: str | None = None, **data: Any) -> ShaderOperationResult:
         """Create a success response."""
-        return cls(
-            status="SUCCESS", message=message or "Operation completed successfully", data=data or {}
-        )
+        return cls(status="SUCCESS", message=message or "Operation completed successfully", data=data or {})
 
     @classmethod
-    def error_result(cls, message: str, error: Exception = None) -> ShaderOperationResult:
+    def error_result(cls, message: str, error: Exception | None = None) -> ShaderOperationResult:
         """Create an error response."""
         return cls(
             status="ERROR",
@@ -182,9 +180,7 @@ except Exception as e:
 print(json.dumps(result))
 """
     try:
-        logger.debug(
-            f"Creating shader node of type '{node_type_str}' in material '{material_name}'"
-        )
+        logger.debug(f"Creating shader node of type '{node_type_str}' in material '{material_name}'")
         logger.trace(f"Node properties: {properties}")
 
         # Execute the script in Blender
@@ -207,7 +203,7 @@ print(json.dumps(result))
         return result
 
     except Exception as e:
-        error_msg = f"Unexpected error creating shader node: {str(e)}"
+        error_msg = f"Unexpected error creating shader node: {e!s}"
         logger.opt(exception=e).error(error_msg, material=material_name, node_type=node_type_str)
         return ShaderOperationResult.error(error_msg, e)
 
@@ -240,9 +236,7 @@ async def connect_shader_nodes(
     Returns:
         ShaderOperationResult with status and connection details
     """
-    connection = NodeConnection(
-        from_node=from_node, from_socket=from_socket, to_node=to_node, to_socket=to_socket
-    )
+    connection = NodeConnection(from_node=from_node, from_socket=from_socket, to_node=to_node, to_socket=to_socket)
 
     script = f"""
 import json
@@ -378,7 +372,7 @@ print(json.dumps(result))
         return result
 
     except Exception as e:
-        error_msg = f"Unexpected error connecting shader nodes: {str(e)}"
+        error_msg = f"Unexpected error connecting shader nodes: {e!s}"
         logger.opt(exception=e).error(error_msg, material=material_name, connection=str(connection))
         return ShaderOperationResult.error(error_msg, e)
 
@@ -572,6 +566,6 @@ print(json.dumps(result))
         return result
 
     except Exception as e:
-        error_msg = f"Unexpected error creating shader material: {str(e)}"
+        error_msg = f"Unexpected error creating shader material: {e!s}"
         logger.opt(exception=e).error(error_msg, material=name, shader_type=shader_type_str)
         return ShaderOperationResult.error(error_msg, e)

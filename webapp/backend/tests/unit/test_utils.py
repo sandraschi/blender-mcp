@@ -45,9 +45,7 @@ class TestObjectValidation:
     @pytest.mark.unit
     def test_validate_frame_range_invalid_end(self):
         """Test frame range validation with end before start."""
-        with pytest.raises(
-            ValueError, match="End frame must be greater than or equal to start frame"
-        ):
+        with pytest.raises(ValueError, match="End frame must be greater than or equal to start frame"):
             validate_frame_range(10, 5)
 
     @pytest.mark.unit

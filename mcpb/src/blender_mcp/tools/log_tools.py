@@ -4,8 +4,6 @@ Log viewing tools for Blender MCP.
 Provides tools to view and filter recent logs for debugging purposes.
 """
 
-from typing import Optional
-
 from loguru import logger
 
 from ..app import app
@@ -15,10 +13,10 @@ from ..utils.error_handling import MCPError
 
 @app.tool
 async def blender_view_logs(
-    level_filter: Optional[str] = None,
-    module_filter: Optional[str] = None,
+    level_filter: str | None = None,
+    module_filter: str | None = None,
     limit: int = 20,
-    since_minutes: Optional[int] = None,
+    since_minutes: int | None = None,
     include_details: bool = False,
 ) -> str:
     """
@@ -65,9 +63,7 @@ async def blender_view_logs(
             "ERROR",
             "CRITICAL",
         ]:
-            raise MCPError(
-                f"level_filter must be DEBUG, INFO, WARNING, ERROR, or CRITICAL, got '{level_filter}'"
-            )
+            raise MCPError(f"level_filter must be DEBUG, INFO, WARNING, ERROR, or CRITICAL, got '{level_filter}'")
 
         # Get filtered logs
         logs = get_recent_logs(
@@ -120,8 +116,8 @@ async def blender_view_logs(
         return "\n".join(result_lines)
 
     except Exception as e:
-        logger.error(f"Error viewing logs: {str(e)}")
-        return f"Error retrieving logs: {str(e)}"
+        logger.error(f"Error viewing logs: {e!s}")
+        return f"Error retrieving logs: {e!s}"
 
 
 @app.tool
@@ -181,5 +177,5 @@ async def blender_log_stats() -> str:
         return "\n".join(result_lines)
 
     except Exception as e:
-        logger.error(f"Error getting log stats: {str(e)}")
-        return f"Error retrieving log statistics: {str(e)}"
+        logger.error(f"Error getting log stats: {e!s}")
+        return f"Error retrieving log statistics: {e!s}"

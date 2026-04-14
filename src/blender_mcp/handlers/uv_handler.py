@@ -2,7 +2,7 @@
 
 import logging
 from enum import Enum
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 from ..compat import *
 
@@ -34,13 +34,13 @@ class UVProjectionMethod(str, Enum):
 @blender_operation("unwrap", log_args=True)
 async def unwrap(
     object_name: str,
-    method: Union[UVUnwrapMethod, str] = UVUnwrapMethod.SMART,
+    method: UVUnwrapMethod | str = UVUnwrapMethod.SMART,
     seam_margin: float = 66.0,
     fill_holes: bool = True,
     correct_aspect: bool = True,
     use_subsurf_data: bool = False,
     margin: float = 0.001,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Unwrap the mesh for UV mapping.
 
     Args:
@@ -128,17 +128,17 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to unwrap UVs: {str(e)}")
+        logger.error(f"Failed to unwrap UVs: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("project_from_view", log_args=True)
 async def project_from_view(
     object_name: str,
-    camera_name: Optional[str] = None,
+    camera_name: str | None = None,
     orthographic: bool = False,
     margin: float = 0.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Project UVs from the current view or camera.
 
     Args:
@@ -227,12 +227,12 @@ except Exception as e:
         result = await _executor.execute_script(script)
         return result
     except Exception as e:
-        logger.error(f"Failed to project UVs: {str(e)}")
+        logger.error(f"Failed to project UVs: {e!s}")
         return {{"status": "ERROR", "error": str(e)}}
 
 
 @blender_operation("reset_uvs", log_args=True)
-async def reset_uvs(object_name: str) -> Dict[str, Any]:
+async def reset_uvs(object_name: str) -> dict[str, Any]:
     """Reset UV coordinates to default.
 
     Args:
@@ -290,12 +290,12 @@ except Exception as e:
         output = await _executor.execute_script(script)
         return {"status": "SUCCESS", "output": output}
     except Exception as e:
-        logger.error(f"Failed to reset UVs: {str(e)}")
+        logger.error(f"Failed to reset UVs: {e!s}")
         return {"status": "ERROR", "error": str(e)}
 
 
 @blender_operation("get_uv_info", log_args=True)
-async def get_uv_info(object_name: str) -> Dict[str, Any]:
+async def get_uv_info(object_name: str) -> dict[str, Any]:
     """Get information about UV mapping for an object.
 
     Args:
@@ -348,5 +348,5 @@ except Exception as e:
         result = await _executor.execute_script(script)
         return result
     except Exception as e:
-        logger.error(f"Failed to get UV info: {str(e)}")
+        logger.error(f"Failed to get UV info: {e!s}")
         return {{"status": "ERROR", "error": str(e)}}

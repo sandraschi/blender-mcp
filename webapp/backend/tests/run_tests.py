@@ -101,9 +101,7 @@ def main():
         extra_args.append("--tb=short")
 
     if args.coverage:
-        extra_args.extend(
-            ["--cov=src/blender_mcp", "--cov-report=html:htmlcov", "--cov-report=term-missing"]
-        )
+        extra_args.extend(["--cov=src/blender_mcp", "--cov-report=html:htmlcov", "--cov-report=term-missing"])
 
     # CI mode optimizations
     if args.ci:
@@ -132,9 +130,7 @@ def main():
                 success = False
             else:
                 print("🔗 Running integration tests...")
-                result = run_pytest(
-                    args, "tests/integration/", "integration and requires_blender", extra_args
-                )
+                result = run_pytest(args, "tests/integration/", "integration and requires_blender", extra_args)
                 if result != 0:
                     success = False
 
@@ -159,9 +155,7 @@ def main():
                 # Then integration tests
                 if success:
                     print("  🔗 Running integration tests...")
-                    result = run_pytest(
-                        args, "tests/integration/", "integration and requires_blender", extra_args
-                    )
+                    result = run_pytest(args, "tests/integration/", "integration and requires_blender", extra_args)
                     if result != 0:
                         success = False
 

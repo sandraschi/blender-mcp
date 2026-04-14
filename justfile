@@ -1,11 +1,14 @@
 set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
 
+__version__ := "0.6.0"
+__name__ := "blender-mcp"
+
 # ── Dashboard ─────────────────────────────────────────────────────────────────
 
 # Display the SOTA Industrial Dashboard
 default:
     @$lines = Get-Content '{{justfile()}}'; \
-    Write-Host ' [SOTA] Industrial Operations Dashboard v1.3.2' -ForegroundColor White -BackgroundColor Cyan; \
+    Write-Host ' [SOTA] Industrial Operations Dashboard v1.4.1' -ForegroundColor White -BackgroundColor Cyan; \
     Write-Host '' ; \
     $currentCategory = ''; \
     foreach ($line in $lines) { \
@@ -27,21 +30,23 @@ default:
             } \
         } \
     } \
-    Write-Host "`n  [System State: PROD/HARDENED]" -ForegroundColor DarkGray; \
+    Write-Host "`n  [System State: TS-NATIVE/HARDENING]" -ForegroundColor DarkGray; \
     Write-Host ''
 
 # ── Quality ───────────────────────────────────────────────────────────────────
 
-# Execute Ruff SOTA v13.1 linting
+# Execute repo-wide quality checks (Ruff + Biome)
 lint:
     Set-Location '{{justfile_directory()}}'
     uv run ruff check .
+    cd webapp/frontend && npm run lint
 
-# Execute Ruff SOTA v13.1 fix and formatting
+# Execute repo-wide auto-fixes and formatting (Ruff + Biome)
 fix:
     Set-Location '{{justfile_directory()}}'
     uv run ruff check . --fix --unsafe-fixes
     uv run ruff format .
+    cd webapp/frontend && npm run format
 
 # ── Hardening ─────────────────────────────────────────────────────────────────
 
@@ -54,3 +59,14 @@ check-sec:
 audit-deps:
     Set-Location '{{justfile_directory()}}'
     uv run safety check
+# ── Packaging & Distribution ──────────────────────────────────────────────────
+
+# Bundle for Claude Desktop (MCPB)
+mcpb-pack:
+    Set-Location '{{justfile_directory()}}'
+    mcpb pack . dist/blender-mcp-v{{__version__}}.mcpb
+
+# Serve for local stdio testing
+serve:
+    Set-Location '{{justfile_directory()}}'
+    uv run blender-mcp-server

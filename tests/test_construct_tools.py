@@ -28,22 +28,21 @@ from blender_mcp.tools.construct_tools import (
     _validate_construction_script,
 )
 
-
 # ---------------------------------------------------------------------------
 # _model_dump compat
 # ---------------------------------------------------------------------------
 
+
 class TestModelDump:
     def test_pydantic_v2_model_dump(self):
-        result = ScriptValidationResult(
-            is_valid=True, errors=[], warnings=[], security_score=100, complexity_score=10
-        )
+        result = ScriptValidationResult(is_valid=True, errors=[], warnings=[], security_score=100, complexity_score=10)
         d = _model_dump(result)
         assert d["is_valid"] is True
         assert d["security_score"] == 100
 
     def test_falls_back_to_dict(self):
         """Simulate a pydantic v1 model that only has .dict()"""
+
         class FakeModel:
             def dict(self):
                 return {"fake": True}
@@ -55,6 +54,7 @@ class TestModelDump:
 # ---------------------------------------------------------------------------
 # _validate_construction_script
 # ---------------------------------------------------------------------------
+
 
 class TestValidateConstructionScript:
     @pytest.mark.asyncio
@@ -112,9 +112,10 @@ except Exception:
 # _extract_python_code
 # ---------------------------------------------------------------------------
 
+
 class TestExtractPythonCode:
     def test_fenced_code_block(self):
-        content = '```python\nimport bpy\nbpy.ops.mesh.primitive_cube_add()\n```'
+        content = "```python\nimport bpy\nbpy.ops.mesh.primitive_cube_add()\n```"
         code = _extract_python_code(content)
         assert code is not None
         assert "primitive_cube_add" in code
@@ -139,6 +140,7 @@ class TestExtractPythonCode:
 # _gather_construction_context
 # ---------------------------------------------------------------------------
 
+
 class TestGatherConstructionContext:
     @pytest.mark.asyncio
     async def test_success_with_scene_data(self):
@@ -151,8 +153,9 @@ class TestGatherConstructionContext:
         executor = MagicMock()
         executor.execute_script = AsyncMock(return_value=output)
 
-        with patch("blender_mcp.tools.construct_tools.get_blender_executor", return_value=executor):
+        with patch("blender_mcp.utils.blender_executor.get_blender_executor", return_value=executor):
             from blender_mcp.tools.construct_tools import _gather_construction_context
+
             result = await _gather_construction_context(None, None, True)
 
         assert result["scene_info"]["objects_count"] == 2
@@ -164,8 +167,9 @@ class TestGatherConstructionContext:
         executor = MagicMock()
         executor.execute_script = AsyncMock(side_effect=RuntimeError("Blender not found"))
 
-        with patch("blender_mcp.tools.construct_tools.get_blender_executor", return_value=executor):
+        with patch("blender_mcp.utils.blender_executor.get_blender_executor", return_value=executor):
             from blender_mcp.tools.construct_tools import _gather_construction_context
+
             result = await _gather_construction_context(None, None, False)
 
         # Should return empty context without raising
@@ -175,17 +179,24 @@ class TestGatherConstructionContext:
     @pytest.mark.asyncio
     async def test_with_reference_objects(self):
         scene_output = f"SCENE_CTX:{json.dumps({'objects': [], 'materials': [], 'collections': []})}"
-        ref_output = json.dumps({
-            "name": "RefObj", "type": "MESH", "vertex_count": 200,
-            "materials": ["M1"], "modifiers": ["SUBSURF"], "dimensions": [1, 1, 1]
-        })
+        ref_output = json.dumps(
+            {
+                "name": "RefObj",
+                "type": "MESH",
+                "vertex_count": 200,
+                "materials": ["M1"],
+                "modifiers": ["SUBSURF"],
+                "dimensions": [1, 1, 1],
+            }
+        )
         ref_output_line = f"REF_OBJ:{ref_output}"
 
         executor = MagicMock()
         executor.execute_script = AsyncMock(side_effect=[scene_output, ref_output_line])
 
-        with patch("blender_mcp.tools.construct_tools.get_blender_executor", return_value=executor):
+        with patch("blender_mcp.utils.blender_executor.get_blender_executor", return_value=executor):
             from blender_mcp.tools.construct_tools import _gather_construction_context
+
             result = await _gather_construction_context(None, ["RefObj"], True)
 
         assert len(result["reference_objects"]) == 1
@@ -196,18 +207,24 @@ class TestGatherConstructionContext:
 # _analyze_reference_object
 # ---------------------------------------------------------------------------
 
+
 class TestAnalyzeReferenceObject:
     @pytest.mark.asyncio
     async def test_found(self):
         info = {
-            "name": "MyObj", "type": "MESH", "vertex_count": 100,
-            "materials": ["Mat"], "modifiers": [], "dimensions": [1, 2, 3]
+            "name": "MyObj",
+            "type": "MESH",
+            "vertex_count": 100,
+            "materials": ["Mat"],
+            "modifiers": [],
+            "dimensions": [1, 2, 3],
         }
         executor = MagicMock()
         executor.execute_script = AsyncMock(return_value=f"REF_OBJ:{json.dumps(info)}")
 
-        with patch("blender_mcp.tools.construct_tools.get_blender_executor", return_value=executor):
+        with patch("blender_mcp.utils.blender_executor.get_blender_executor", return_value=executor):
             from blender_mcp.tools.construct_tools import _analyze_reference_object
+
             result = await _analyze_reference_object("MyObj")
 
         assert result is not None
@@ -218,8 +235,9 @@ class TestAnalyzeReferenceObject:
         executor = MagicMock()
         executor.execute_script = AsyncMock(return_value="REF_OBJ:null")
 
-        with patch("blender_mcp.tools.construct_tools.get_blender_executor", return_value=executor):
+        with patch("blender_mcp.utils.blender_executor.get_blender_executor", return_value=executor):
             from blender_mcp.tools.construct_tools import _analyze_reference_object
+
             result = await _analyze_reference_object("Ghost")
 
         assert result is None
@@ -229,8 +247,9 @@ class TestAnalyzeReferenceObject:
         executor = MagicMock()
         executor.execute_script = AsyncMock(side_effect=RuntimeError("boom"))
 
-        with patch("blender_mcp.tools.construct_tools.get_blender_executor", return_value=executor):
+        with patch("blender_mcp.utils.blender_executor.get_blender_executor", return_value=executor):
             from blender_mcp.tools.construct_tools import _analyze_reference_object
+
             result = await _analyze_reference_object("AnyObj")
 
         assert result is None
@@ -239,6 +258,7 @@ class TestAnalyzeReferenceObject:
 # ---------------------------------------------------------------------------
 # _generate_construction_script
 # ---------------------------------------------------------------------------
+
 
 class TestGenerateConstructionScript:
     @pytest.mark.asyncio
@@ -249,9 +269,8 @@ class TestGenerateConstructionScript:
         mock_ctx.sample = AsyncMock(return_value=sampling_result)
 
         from blender_mcp.tools.construct_tools import _generate_construction_script
-        result = await _generate_construction_script(
-            mock_ctx, "a red cube", "RedCube", "simple", None, {}, 3
-        )
+
+        result = await _generate_construction_script(mock_ctx, "a red cube", "RedCube", "simple", None, {}, 3)
 
         assert result["success"] is True
         assert "primitive_cube_add" in result["script"]
@@ -270,9 +289,8 @@ class TestGenerateConstructionScript:
         mock_ctx.sample = AsyncMock(return_value=sampling_result)
 
         from blender_mcp.tools.construct_tools import _generate_construction_script
-        result = await _generate_construction_script(
-            mock_ctx, "a cube", "Cube", "simple", None, {}, 1
-        )
+
+        result = await _generate_construction_script(mock_ctx, "a cube", "Cube", "simple", None, {}, 1)
 
         assert result["success"] is False
         assert "No valid Python code" in result["error"]
@@ -283,9 +301,8 @@ class TestGenerateConstructionScript:
         mock_ctx.sample = AsyncMock(side_effect=RuntimeError("Client disconnected"))
 
         from blender_mcp.tools.construct_tools import _generate_construction_script
-        result = await _generate_construction_script(
-            mock_ctx, "a cube", "Cube", "simple", None, {}, 1
-        )
+
+        result = await _generate_construction_script(mock_ctx, "a cube", "Cube", "simple", None, {}, 1)
 
         assert result["success"] is False
         assert "failed" in result["error"].lower()
@@ -298,9 +315,8 @@ class TestGenerateConstructionScript:
         mock_ctx.sample = AsyncMock(return_value=sampling_result)
 
         from blender_mcp.tools.construct_tools import _generate_construction_script
-        await _generate_construction_script(
-            mock_ctx, "a sphere", "MySphere", "standard", "scifi", {}, 3
-        )
+
+        await _generate_construction_script(mock_ctx, "a sphere", "MySphere", "standard", "scifi", {}, 3)
 
         call_args = mock_ctx.sample.call_args
         prompt = call_args[1].get("content") or call_args[0][0]
@@ -310,6 +326,7 @@ class TestGenerateConstructionScript:
 # ---------------------------------------------------------------------------
 # _execute_construction_script
 # ---------------------------------------------------------------------------
+
 
 class TestExecuteConstructionScript:
     @pytest.mark.asyncio
@@ -323,8 +340,9 @@ class TestExecuteConstructionScript:
             is_valid=True, errors=[], warnings=[], security_score=95, complexity_score=20
         )
 
-        with patch("blender_mcp.tools.construct_tools.get_blender_executor", return_value=executor):
+        with patch("blender_mcp.utils.blender_executor.get_blender_executor", return_value=executor):
             from blender_mcp.tools.construct_tools import _execute_construction_script
+
             result = await _execute_construction_script("import bpy", "TestObj", validation)
 
         assert result["success"] is True
@@ -341,8 +359,9 @@ class TestExecuteConstructionScript:
             is_valid=True, errors=[], warnings=[], security_score=90, complexity_score=5
         )
 
-        with patch("blender_mcp.tools.construct_tools.get_blender_executor", return_value=executor):
+        with patch("blender_mcp.utils.blender_executor.get_blender_executor", return_value=executor):
             from blender_mcp.tools.construct_tools import _execute_construction_script
+
             result = await _execute_construction_script("import bpy", "Obj", validation)
 
         assert result["success"] is True
@@ -357,8 +376,9 @@ class TestExecuteConstructionScript:
             is_valid=True, errors=[], warnings=[], security_score=90, complexity_score=5
         )
 
-        with patch("blender_mcp.tools.construct_tools.get_blender_executor", return_value=executor):
+        with patch("blender_mcp.utils.blender_executor.get_blender_executor", return_value=executor):
             from blender_mcp.tools.construct_tools import _execute_construction_script
+
             result = await _execute_construction_script("import bpy", "Obj", validation)
 
         assert result["success"] is False
@@ -368,6 +388,7 @@ class TestExecuteConstructionScript:
 # ---------------------------------------------------------------------------
 # _generate_construction_summary
 # ---------------------------------------------------------------------------
+
 
 class TestGenerateConstructionSummary:
     def test_success_single_object(self):
