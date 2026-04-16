@@ -39,14 +39,22 @@ default:
 lint:
     Set-Location '{{justfile_directory()}}'
     uv run ruff check .
-    cd webapp/frontend && npm run lint
+    cd webapp/frontend && npx @biomejs/biome check .
 
 # Execute repo-wide auto-fixes and formatting (Ruff + Biome)
 fix:
     Set-Location '{{justfile_directory()}}'
     uv run ruff check . --fix --unsafe-fixes
     uv run ruff format .
-    cd webapp/frontend && npm run format
+    cd webapp/frontend && npx @biomejs/biome check --apply .
+    cd webapp/frontend && npx @biomejs/biome format --write .
+
+# ── Testing ───────────────────────────────────────────────────────────────────
+
+# Run all Python tests with pytest
+test:
+    Set-Location '{{justfile_directory()}}'
+    uv run pytest tests/ -v
 
 # ── Hardening ─────────────────────────────────────────────────────────────────
 
