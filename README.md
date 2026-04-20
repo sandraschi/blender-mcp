@@ -1,5 +1,7 @@
 # Blender MCP - AI-Powered 3D Creation
 
+[![FastMCP Version](https://img.shields.io/badge/FastMCP-3.2.0-blue?style=flat-square&logo=python&logoColor=white)](https://github.com/sandraschi/fastmcp) [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff) [![Linted with Biome](https://img.shields.io/badge/Linted_with-Biome-60a5fa?style=flat-square&logo=biome&logoColor=white)](https://biomejs.dev/) [![Built with Just](https://img.shields.io/badge/Built_with-Just-000000?style=flat-square&logo=gnu-bash&logoColor=white)](https://github.com/casey/just)
+
 <p align="center">
   <img src="https://img.shields.io/badge/Made%20with-AI%20%26%20Blender-FF6B35?style=for-the-badge&logo=blender&logoColor=white" alt="Made with AI & Blender"/>
   <img src="https://img.shields.io/badge/Claude-Desktop-orange?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude Desktop"/>
@@ -17,7 +19,7 @@
 
 ###  **AI Construction System**
 - **Conversational 3D Creation**: Natural language to professional 3D objects
-- **FastMCP 2.14.3 Integration**: Advanced AI sampling and security validation
+- **FastMCP 3.2.0 Integration**: Advanced AI sampling and security validation
 - **Object Repository**: Versioned asset management with intelligent search
 - **Cross-Platform Export**: Seamless handoff to VR platforms (VRChat, Resonite, Unity)
 

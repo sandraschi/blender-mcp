@@ -1,63 +1,31 @@
-# Central Documentation Rules
+# SOTA 2026 Unified Context Rules
 
 ## Rule #1: Read Central Docs First
-
 **BEFORE making any changes or starting work, ALWAYS:**
-
-1. **Read the Central Documentation README:**
-   - Location: `D:\Dev\repos\mcp-central-docs\README.md`
-   - This shows all important documentation "branches" (folder trees)
-   - Navigate from there to find specific information
-
-2. **Follow Documentation Branches:**
-   - Central docs are organized by topic (Anthropic ecosystem, Google ecosystem, patterns, projects, etc.)
-   - Each branch has its own README explaining what's inside
-   - Use the branch structure to find relevant docs
-
-3. **Check for Existing Patterns:**
-   - Look in `docs/patterns/` for design patterns
-   - Check `templates/` for reusable templates
-   - Review `docs/projects/` for similar project examples
-
-4. **Avoid Duplication:**
-   - Search existing docs before creating new ones
-   - Update existing docs rather than creating duplicates
-   - Reference central docs instead of copying content
+1. **Navigate to Central Documentation:** `D:\Dev\repos\mcp-central-docs\README.md`
+2. **Follow Branches:** Topic-specific folders (Anthropic, Google, Patterns, etc.).
+3. **Reference, Don't Duplicate:** Update existing docs rather than creating duplicates.
 
 ---
 
-## Documentation Branches (from Central README)
+## Rule #2: Triad Context Alignment (Claude/Cursor/Gemini)
+This repository follows the **Unified Context Standard**. Adhere to the following modules for all agentic work:
 
-### Core Standards
-- `STANDARDS.md` - Documentation quality standards
-- `STRUCTURE.md` - Directory layout guide
-- `CONTRIBUTING.md` - How to contribute
+- **Terminal Guardrails**: [powershell_sota.md](file:///D:/Dev/repos/mcp-central-docs/standards/rules/powershell_sota.md) (Mandatory native PS syntax).
+- **Agentic Workflow**: [workflow_2026.md](file:///D:/Dev/repos/mcp-central-docs/standards/rules/workflow_2026.md) (Explore → Plan → Implement → Commit).
+- **MCP Registration**: [mcp_registration.md](file:///D:/Dev/repos/mcp-central-docs/standards/rules/mcp_registration.md) (FastMCP 3.2+ patterns).
+- **Project Context**: [CLAUDE.md](file:///D:/Dev/repos/blender-mcp/CLAUDE.md) (Build/Test/Lint commands).
 
-### Anthropic Ecosystem (`docs/anthropic-ecosystem/`)
-- MCP Protocol, FastMCP, MCPB, Claude Desktop, Glama
-
-### Google Ecosystem (`docs/google-ecosystem/`)
-- Gemini 3, Antigravity IDE, Nano Banana Pro, DeepMind, TPU infrastructure
-
-### Patterns (`docs/patterns/`)
-- Design patterns for MCP servers and development
-
-### Projects (`docs/projects/`)
-- myai, veogen, mywienerlinien, autohotkey
-
-### Monitoring (`monitoring/`)
-- Prometheus/Grafana/Loki stack
-
-### Templates (`templates/`)
-- Reusable templates and scripts
+## Rule #3: Multi-Workspace Shell Context
+When switching to work on a different repo in a multi-workspace setup:
+1. Start a fresh shell (don't reuse existing terminals from other repos).
+2. Always `cd` to the target repo root as the first command.
+3. Verify `Get-Location` shows correct directory before running other commands.
 
 ---
 
 ## Quick Reference
+- **Central Docs**: `D:\Dev\repos\mcp-central-docs\README.md`
+- **When in doubt**: Read the central README and navigate from there.
 
-**Central Docs Location:** `D:\Dev\repos\mcp-central-docs\`
-
-**Start Here:** `D:\Dev\repos\mcp-central-docs\README.md`
-
-**When in doubt:** Read the central README and navigate from there.
 
