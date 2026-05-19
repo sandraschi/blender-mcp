@@ -1,6 +1,7 @@
 import {
   Activity,
   Box,
+  Clapperboard,
   Database,
   Layers,
   LayoutGrid,
@@ -26,6 +27,7 @@ import SceneExplorer from "./pages/scene-explorer";
 import ScriptConsole from "./pages/script-console";
 import SettingsPage from "./pages/settings";
 import StatusLogs from "./pages/status";
+import VideoEditor from "./pages/video-editor";
 import VRPipeline from "./pages/vr-pipeline";
 
 function NavItem({
@@ -86,6 +88,7 @@ function Layout() {
           </div>
           <NavItem to="/vr" icon={Play} label="VR Pipeline" />
           <NavItem to="/scripts" icon={Terminal} label="Script Console" />
+          <NavItem to="/video" icon={Clapperboard} label="Video Editor" />
 
           <div className="mt-6 px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             System
@@ -136,6 +139,7 @@ function Layout() {
             <Route path="/chat" element={<Chat />} />
             <Route path="/vr" element={<VRPipeline />} />
             <Route path="/scripts" element={<ScriptConsole />} />
+            <Route path="/video" element={<VideoEditor />} />
             <Route path="/status" element={<StatusLogs />} />
             <Route path="/apps" element={<Apps />} />
             <Route path="/settings" element={<SettingsPage />} />

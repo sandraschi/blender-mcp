@@ -49,6 +49,7 @@ docs/
 ├── blender/                    📝 Complete Blender reference (NEW!)
 │   ├── README.md              → Blender documentation hub
 │   ├── TOOL_REFERENCE.md      → Complete tool API reference
+│   ├── VSE_GUIDE.md            → Video Sequence Editor guide
 │   ├── BLENDER_MCP_FUNCTIONALITY_PLAN.md → Tool inventory & status
 │   ├── GUI_MODE.md            → Interactive Blender integration
 │   ├── BLENDERKIT_GUIDE.md    → Asset platform guide
@@ -226,14 +227,24 @@ Complete reference documentation for Blender MCP - tools, workflows, assets, and
 #### **1. Blender MCP Tool Reference** ⭐
 📄 [TOOL_REFERENCE.md](blender/TOOL_REFERENCE.md)
 
-**Complete API reference** for all 50+ Blender MCP tools covering:
+**Complete API reference** for all Blender MCP tools covering:
 - Tool signatures and parameters
 - Return value specifications
 - Usage examples and error handling
 - Performance characteristics
 - Integration patterns
 
-#### **2. Blender MCP Functionality Plan**
+#### **2. Video Sequence Editor (VSE) Guide** 🎬
+📄 [VSE_GUIDE.md](blender/VSE_GUIDE.md)
+
+**Complete video editing guide** for the `blender_vse` tool covering:
+- Strip creation (movie, sound, image sequence, scene, color, text, effects)
+- Strip editing (delete, cut, trim, move, mute, lock)
+- Properties (speed, blend mode, transform)
+- Video rendering (H264/MPEG4 with configurable resolution, FPS, codec)
+- Cross-MCP pipeline integration examples
+
+#### **3. Blender MCP Functionality Plan**
 📄 [BLENDER_MCP_FUNCTIONALITY_PLAN.md](blender/BLENDER_MCP_FUNCTIONALITY_PLAN.md)
 
 **Complete tool inventory** covering:

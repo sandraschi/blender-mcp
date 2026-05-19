@@ -1,6 +1,6 @@
 # Blender-MCP Tool Reference
 
-This document provides detailed documentation for all **40 portmanteau tools** available in the Blender-MCP server. Each tool supports multiple operations via the `operation` parameter.
+This document provides detailed documentation for all **41 portmanteau tools** available in the Blender-MCP server. Each tool supports multiple operations via the `operation` parameter.
 
 **🎯 Project AG Integration**: This reference now includes 8 advanced VR tools specifically designed for professional avatar workflows in VRChat, Resonite, and Unity.
 
@@ -21,6 +21,7 @@ This document provides detailed documentation for all **40 portmanteau tools** a
 - [Render](#render)
 - [Import & Export](#import--export)
 - [Furniture](#furniture)
+- [Video Editing (VSE)](#video-editing-vse)
 - [Utility Tools](#utility-tools)
 
 ---
@@ -597,6 +598,80 @@ Complex object creation.
 | `create_desk` | Office workstations |
 | `create_shelf` | Bookshelves |
 | `create_stool` | Stools and bar stools |
+
+---
+
+## Video Editing (VSE)
+
+### `blender_vse` (20 operations)
+
+Blender's built-in Video Sequence Editor: add video/audio/image strips, apply effects, edit timeline, and render to video files.
+
+#### Strip Creation
+| Operation | Description |
+|-----------|-------------|
+| `add_movie` | Add a video/MP4 file as a movie strip |
+| `add_sound` | Add an audio file (WAV, MP3, etc.) as a sound strip |
+| `add_image_sequence` | Add a folder of images as an image sequence strip |
+| `add_scene` | Add a 3D scene as a strip |
+| `add_color` | Add a solid color matte strip |
+| `add_text` | Add a text overlay strip |
+| `add_effect` | Add a transition/filter effect between strips |
+
+#### Strip Editing
+| Operation | Description |
+|-----------|-------------|
+| `delete_strip` | Remove a strip by name |
+| `cut_strip` | Cut a strip at a specific frame |
+| `trim_strip` | Set strip start/end frames |
+| `move_strip` | Move a strip to a different channel/frame |
+| `mute_strip` | Mute or unmute a strip |
+| `lock_strip` | Lock or unlock a strip |
+
+#### Properties
+| Operation | Description |
+|-----------|-------------|
+| `set_speed` | Change playback speed (creates speed effect) |
+| `set_blend` | Set blend mode and opacity |
+| `set_transform` | Set position, scale, rotation |
+
+#### Information
+| Operation | Description |
+|-----------|-------------|
+| `list_strips` | List all strips with properties |
+| `get_timeline_info` | Get timeline frame range, FPS, strip count |
+
+#### Output
+| Operation | Description |
+|-----------|-------------|
+| `render_video` | Render VSE timeline to H264/MPEG4 video |
+| `clear_vse` | Remove all strips from timeline |
+
+**Example - Video Editing Workflow:**
+```python
+# Add video clips
+blender_vse(operation="add_movie", filepath="C:/footage/clip1.mp4", channel=1, frame=1)
+blender_vse(operation="add_movie", filepath="C:/footage/clip2.mp4", channel=2, frame=90)
+
+# Add crossfade transition
+blender_vse(operation="add_effect", effect_type="CROSS", strip1_name="clip1", strip2_name="clip2", frame=85, length=15)
+
+# Add background music
+blender_vse(operation="add_sound", filepath="C:/audio/bgm.wav", channel=5, frame=1)
+
+# Trim and move
+blender_vse(operation="trim_strip", strip_name="clip1", frame_start=5, frame_end=90)
+blender_vse(operation="mute_strip", strip_name="bgm", mute=False)
+
+# Check timeline
+blender_vse(operation="list_strips")
+blender_vse(operation="get_timeline_info")
+
+# Render final video
+blender_vse(operation="render_video", output_path="C:/output/final.mp4",
+            frame_start=1, frame_end=180, resolution_x=1920, resolution_y=1080,
+            codec="H264", fps=30)
+```
 
 ---
 

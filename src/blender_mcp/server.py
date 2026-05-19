@@ -7,37 +7,16 @@ various Blender operations as FastMCP tools using the decorator pattern.
 import argparse
 import datetime
 import logging
+import os
+from pathlib import Path
 import sys
+from logging.handlers import RotatingFileHandler
 
 logger = logging.getLogger(__name__)
 
-# Import the app instance (FastMCP)
-from blender_mcp.app import app
-
-# ASGI app for uvicorn (webapp/start.ps1): uvicorn blender_mcp.server:asgi_app
-asgi_app = app.http_app()
-
-# Import from our compatibility module
-# Import all handlers to ensure tool registration is handled in app.py
-from blender_mcp.compat import *
-
-
-def parse_args():
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Blender MCP Server")
-
-    # Server configuration
-    parser.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind the server to")
-    parser.add_argument("--port", type=int, default=8000, help="Port to run the server on")
-    parser.add_argument("--http", action="store_true", help="Run as HTTP server instead of stdio")
-    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
-
-    return parser.parse_args()
-
-
 # Global memory buffer for log viewing
 _memory_logs = []
-_MAX_MEMORY_LOGS = 1000  # Keep last 1000 log entries
+_MAX_MEMORY_LOGS = 1000
 
 
 class _MemoryLogHandler(logging.Handler):
@@ -63,6 +42,87 @@ class _MemoryLogHandler(logging.Handler):
             self.handleError(record)
 
 
+def setup_logging(log_level: str = "INFO") -> None:
+    """Configure stdlib logging with stderr, rotating file, and in-memory buffer."""
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+    for h in root.handlers[:]:
+        root.removeHandler(h)
+
+    fmt = logging.Formatter("%(asctime)s | %(levelname)-8s | %(name)s:%(funcName)s:%(lineno)d - %(message)s")
+
+    stderr = logging.StreamHandler(sys.stderr)
+    stderr.setLevel(getattr(logging, log_level.upper(), logging.INFO))
+    stderr.setFormatter(fmt)
+    root.addHandler(stderr)
+
+    log_dir = Path(__file__).resolve().parent.parent.parent / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    fh = RotatingFileHandler(
+        log_dir / "blender-mcp.log",
+        maxBytes=10 * 1024 * 1024,
+        backupCount=3,
+        encoding="utf-8",
+    )
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(fmt)
+    root.addHandler(fh)
+
+    memory_handler = _MemoryLogHandler()
+    memory_handler.setLevel(logging.DEBUG)
+    root.addHandler(memory_handler)
+
+    logger.info("Logging initialized: stderr=%s file=%s", log_level, log_dir / "blender-mcp.log")
+
+
+# Initialize file logging before any app imports
+setup_logging(os.getenv("BLENDER_MCP_LOG_LEVEL", "INFO"))
+
+# Import the app instance (FastMCP)
+from blender_mcp.app import app
+
+# ASGI app for uvicorn (webapp/start.ps1): uvicorn blender_mcp.server:asgi_app
+asgi_app = app.http_app()
+
+from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
+
+asgi_app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@asgi_app.route("/health", methods=["GET"])
+async def health(request):
+    return JSONResponse({"status": "ok", "service": "blender-mcp"})
+
+@asgi_app.route("/api/health", methods=["GET"])
+@asgi_app.route("/api/status", methods=["GET"])
+@asgi_app.route("/", methods=["GET"])
+async def fleet_health(request):
+    return JSONResponse({"status": "ok", "service": "blender-mcp"})
+
+# Import from our compatibility module
+# Import all handlers to ensure tool registration is handled in app.py
+from blender_mcp.compat import *
+
+
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Blender MCP Server")
+
+    # Server configuration
+    parser.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind the server to")
+    parser.add_argument("--port", type=int, default=8000, help="Port to run the server on")
+    parser.add_argument("--http", action="store_true", help="Run as HTTP server instead of stdio")
+    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+
+    return parser.parse_args()
+
+
 def get_recent_logs(level_filter=None, module_filter=None, limit=50, since_minutes=None):
     """Get recent logs with optional filtering."""
     global _memory_logs
@@ -80,24 +140,6 @@ def get_recent_logs(level_filter=None, module_filter=None, limit=50, since_minut
         logs = [log for log in logs if module_filter.lower() in log["name"].lower()]
 
     return logs[-limit:] if limit else logs
-
-
-def setup_logging(log_level: str = "INFO") -> None:
-    """Configure stdlib logging with stderr and in-memory buffer."""
-    root = logging.getLogger()
-    root.setLevel(logging.DEBUG)
-    for h in root.handlers[:]:
-        root.removeHandler(h)
-
-    fmt = logging.Formatter("%(asctime)s | %(levelname)-8s | %(name)s:%(funcName)s:%(lineno)d - %(message)s")
-    stderr = logging.StreamHandler(sys.stderr)
-    stderr.setLevel(getattr(logging, log_level.upper(), logging.INFO))
-    stderr.setFormatter(fmt)
-    root.addHandler(stderr)
-
-    memory_handler = _MemoryLogHandler()
-    memory_handler.setLevel(logging.DEBUG)
-    root.addHandler(memory_handler)
 
 
 def main():

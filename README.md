@@ -30,8 +30,8 @@
 - **AI-Powered**: State-of-the-art LLM integration for creative workflows
 
 ###  **Impact Statistics**
-- **40+ Professional Tools**: Comprehensive Blender API coverage
-- **150+ Operations**: Complete 3D creation workflow support
+- **41+ Professional Tools**: Comprehensive Blender API coverage
+- **170+ Operations**: Complete 3D creation + video editing workflow support
 - **<30 Minutes Learning Curve**: Create first object quickly
 - **99.9% Success Rate**: Reliable AI-generated 3D content
 
@@ -102,6 +102,7 @@ AI: "I'll generate a detailed spaceship model with animated neon lighting..."
 ##  **Documentation**
 
 - **[Addons, Mesh, Splat](docs/ADDONS_MESH_SPLAT.md)**  Install addons from URL, search packs, download/import meshes, Gaussian splat import; webapp `/mesh` page.
+- **[Video Editing (VSE)](docs/blender/VSE_GUIDE.md)**  Blender's built-in video editor: add clips, transitions, text, audio; render to MP4. `blender_vse` tool with 20 operations.
 - **[Development](docs/DEVELOPMENT.md)**  Ruff (lint/format), code quality, server entry points.
 
 ##  Installation
@@ -207,7 +208,15 @@ This MCP server includes a free, premium web interface for monitoring and contro
 By default, the web dashboard runs on port **10848**.
 *(Assigned ports: **10848** (Web dashboard frontend), **10849** (Web dashboard backend (API)))*
 
-To start the webapp:
-1. Navigate to the `webapp` (or `web`, `frontend`) directory.
-2. Run `start.bat` (Windows) or `./start.ps1` (PowerShell).
-3. Open `http://localhost:10848` in your browser.
+To start the webapp dashboard and backend:
+```powershell
+.\start.ps1
+```
+
+### Advanced Startup Flags
+- `-Headless`: Runs everything in the background (hidden windows).
+- `-BackendOnly`: Starts only the Python API server (no Vite frontend).
+- `-NoBrowser`: Prevents the automatic browser opening.
+- `-NoRelaunch`: Internal flag to prevent recursive relaunching.
+
+Access the dashboard at `http://localhost:10848`.

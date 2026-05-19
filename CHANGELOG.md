@@ -5,7 +5,29 @@ All notable changes to **Blender MCP** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.6.0] - 2026-04-14
+## [0.7.0] - 2026-05-19
+
+### Added
+- **Video Sequence Editor (VSE)**: Full Blender built-in video editor exposed as a `blender_vse` portmanteau tool with 20 operations.
+  - **Strip Creation**: `add_movie`, `add_sound`, `add_image_sequence`, `add_scene`, `add_color`, `add_text`, `add_effect`
+  - **Strip Editing**: `delete_strip`, `cut_strip`, `trim_strip`, `move_strip`, `mute_strip`, `lock_strip`
+  - **Properties**: `set_speed`, `set_blend`, `set_transform`
+  - **Information**: `list_strips`, `get_timeline_info`
+  - **Output**: `render_video` — render VSE timeline to H264/MPEG4 with configurable resolution, FPS, codec, quality
+  - **Cleanup**: `clear_vse`
+- **VSE Handler** (`handlers/vse_handler.py`): 20 bpy script generators for headless Blender VSE operations
+- **VSE Exception** (`BlenderVSEError`): dedicated error type for video editing failures
+- **VSE Help**: new "Video Editing" category in the help system
+- **VSE Documentation**: `docs/blender/VSE_GUIDE.md` — complete usage guide
+- **Webapp — Video Editor Page** (`/video`): new sidebar tab for VSE strip management and rendering
+
+## [0.6.1] - 2026-04-27
+
+### Added
+- **Industrial Startup Script**: New root `start.ps1` with `-Headless`, `-BackendOnly`, and `-NoBrowser` support.
+- **Port Management**: Automatic port clearing and backend polling for robust dev starts.
+
+## [0.6.0] - 2026-04-24
 
 ### Added
 - **FastMCP 3.2.0 Parity**: Full integration of native **Prompts** and formalized **Skills**.

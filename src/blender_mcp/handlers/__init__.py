@@ -118,6 +118,32 @@ from blender_mcp.handlers.transform_handler import apply_transform, set_transfor
 # UV handlers
 from blender_mcp.handlers.uv_handler import get_uv_info, project_from_view, reset_uvs, unwrap
 
+# VSE handlers
+from blender_mcp.handlers.vse_handler import (
+    add_color,
+    add_effect,
+    add_image_sequence,
+    add_movie,
+    add_scene,
+    add_sound,
+    add_text,
+    clear_vse,
+    cut_strip,
+    delete_strip,
+    get_timeline_info,
+    list_strips,
+    lock_strip,
+    move_strip,
+    mute_strip,
+    render_video,
+    set_blend,
+    set_speed,
+    trim_strip,
+)
+from blender_mcp.handlers.vse_handler import (
+    set_transform as set_strip_transform,
+)
+
 from ..compat import *
 
 # Other handlers - check what exists
@@ -143,10 +169,16 @@ from ..compat import *
 
 __all__ = [
     "add_bone",
+    "add_color",
+    "add_effect",
     "add_force_field",
-    # Modifier operations
+    "add_image_sequence",
     "add_modifier",
+    "add_movie",
     "add_rigid_body_constraint",
+    "add_scene",
+    "add_sound",
+    "add_text",
     "adjust_light",
     "animate_location",
     "animate_rotation",
@@ -159,6 +191,7 @@ __all__ = [
     "bake_texture",
     "clear_animation",
     "clear_scene",
+    "clear_vse",
     "configure_cloth_simulation",
     "configure_rigid_body_world",
     "create_area_light",
@@ -185,7 +218,9 @@ __all__ = [
     # Texture operations
     "create_texture",
     "create_torus",
+    "cut_strip",
     "delete_object",
+    "delete_strip",
     "duplicate_object",
     # Physics operations
     "enable_physics",
@@ -193,6 +228,7 @@ __all__ = [
     "export_for_unity",
     "export_for_vrchat",
     "get_modifiers",
+    "get_timeline_info",
     "get_uv_info",
     # Import operations
     "import_file",
@@ -201,27 +237,36 @@ __all__ = [
     "link_asset",
     "list_addons",
     "list_scenes",
+    "list_strips",
+    "lock_strip",
+    "move_strip",
+    "mute_strip",
     "play_animation",
     "project_from_view",
     "remove_modifier",
     "render_preview",
     # Render operations
     "render_turntable",
+    "render_video",
     "reset_uvs",
     "select_by_material",
     "select_by_type",
     # Selection operations
     "select_objects",
     "set_active_camera",
+    "set_blend",
     "set_camera_lens",
     "set_frame_range",
     # Animation operations
     "set_keyframe",
     "set_rigid_body_collision_shape",
+    "set_speed",
+    "set_strip_transform",
     # Transform operations
     "set_transform",
     "setup_hdri_environment",
     "setup_three_point_lighting",
+    "trim_strip",
     "uninstall_addon",
     # UV operations
     "unwrap",

@@ -5,23 +5,43 @@ description: Use this skill to autonomously design and model complex 3D objects 
 
 # Autonomous Modeling Skill
 
-You are an expert Blender 3D modeler capable of autonomous orchestration. This skill empowers you to use the `agentic_blender_workflow` tool to plan and execute multi-step modeling tasks.
+**Description:** Expert Blender 3D modeler for autonomous procedural generation, parametric modeling, topology optimization, and script-based creation. Covers multi-step modeling workflows, procedural generation pipelines, and geometry node-based asset creation.
 
-## Instructions
+## Trigger Phrases
 
-1. **Discovery**: Always start by calling the `blender_status` or `blender_list_tools` if you are unsure of the current scene state.
-2. **Planning**: Use `agentic_blender_workflow` to create a high-level plan.
-3. **Refinement**: If the initial model is too simple, use the `intelligent_3d_processing` tool to refine materials or add modifiers.
-4. **Validation**: Check for mesh integrity before finalization.
+- "Model a [object] with [features]"
+- "Generate a procedural [part/asset]"
+- "Create a parametric [object] with adjustable parameters"
+- "Design a [style] [object] with detailed [elements]"
+- "Optimize topology on this mesh"
+- "Generate a low-poly version of [object]"
+- "Create a modular kit of [theme] parts"
+
+## Tools
+
+- `agentic_blender_workflow(workflow_prompt="...")` — Autonomous multi-step modeling via natural language. Plans and executes: create, modify, texture, validate.
+- `intelligent_3d_processing(prompt="...", context="...")` — Refine existing models: add modifiers, adjust materials, fix geometry issues.
+- `blender_status()` — Current scene state: object count, active object, render engine, viewport mode.
+- `blender_list_tools()` — Available Blender MCP capabilities and their parameters.
+- `add_mesh(type="...", location=[...], size=...)` — Add primitive mesh objects.
+- `apply_modifier(modifier_type="...", ...)` — Apply modifiers (subdivision, mirror, boolean, bevel, solidify).
+- `set_material(object_name="...", material="...", color=[...])` — Assign or create materials.
+
+## Workflow
+
+1. **Discovery**: Call `blender_status()` to assess current scene state. Use `blender_list_tools()` if unsure of available operations.
+2. **Planning**: Use `agentic_blender_workflow(workflow_prompt="...")` to generate a high-level modeling plan with step breakdown.
+3. **Execution**: Create base geometry with `add_mesh()`, refine with `apply_modifier()`, texture with `set_material()`.
+4. **Refinement**: If the initial model is too simple, use `intelligent_3d_processing(prompt="...")` for detail pass — add edge loops, bevels, or extruded details.
+5. **Validation**: Check for mesh integrity (non-manifold edges, zero-area faces, ngons) before finalization. Use Blender's 3D print toolbox if available.
 
 ## Examples
 
 ### Creating a Sci-Fi Robot
-"I need a steampunk robot with exposed gears and Copper plates."
--> Load `autonomous-modeling` skill.
--> Invoke `agentic_blender_workflow(workflow_prompt="steampunk robot with gears and copper plates")`.
+"I need a steampunk robot with exposed gears and copper plates." → `agentic_blender_workflow(workflow_prompt="steampunk robot with gears and copper plates")` → `intelligent_3d_processing(prompt="Add gear details to joints and copper material finish")`
 
-### Environment Props
-"Create a modular scifi wall panel with indented vents."
--> Load `autonomous-modeling` skill.
--> Invoke `agentic_blender_workflow(workflow_prompt="scifi wall panel with vents")`.
+### Modular Environment Kit
+"Create a modular sci-fi wall panel with indented vents, 4 units wide." → `agentic_blender_workflow(workflow_prompt="modular scifi wall panel 4u with vents")` → verify repeatability via array modifier
+
+### Parametric Object
+"Generate a parametric gear with adjustable teeth count and radius." → `add_mesh(type="cylinder")` → `apply_modifier("geometry_nodes", node_group="parametric_gear")`

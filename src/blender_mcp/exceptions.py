@@ -84,3 +84,11 @@ class BlenderLightingError(BlenderMCPError):
     def __init__(self, operation: str, error: str):
         super().__init__(f"Lighting operation '{operation}' failed: {error}", "LIGHTING_ERROR")
         self.operation = operation
+
+
+class BlenderVSEError(BlenderMCPError):
+    """Raised when Video Sequence Editor operations fail."""
+
+    def __init__(self, operation: str, error: str):
+        super().__init__(f"VSE operation '{operation}' failed: {error}", "VSE_ERROR")
+        self.operation = operation

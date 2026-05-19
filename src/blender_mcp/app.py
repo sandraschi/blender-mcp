@@ -238,7 +238,7 @@ def _register_fleet_api(app):
                 try:
                     data = json.loads(text)
                 except Exception:
-                    data = text
+                    data = {"output": text}
 
             tool_succeeded = not is_error and data is not None
             return JSONResponse(

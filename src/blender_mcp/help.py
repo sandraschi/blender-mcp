@@ -554,6 +554,38 @@ class HelpSystem:
             )
         )
 
+        # Video Editing (VSE) Tools
+        self._add_function(
+            FunctionInfo(
+                name="blender_vse",
+                category="Video Editing",
+                description="Full Video Sequence Editor: add/edit video/audio/image strips, apply effects, render video files.",
+                parameters=[
+                    ParameterInfo(
+                        "operation",
+                        "str",
+                        "'list_strips'",
+                        "add_movie | add_sound | add_image_sequence | add_scene | add_color | add_text | add_effect | delete_strip | cut_strip | trim_strip | move_strip | mute_strip | lock_strip | set_speed | set_blend | set_transform | list_strips | render_video | clear_vse | get_timeline_info",
+                    ),
+                    ParameterInfo("filepath", "str", "", "Path to video/audio file"),
+                    ParameterInfo("strip_name", "str", "", "Target strip name"),
+                    ParameterInfo("channel", "int", "1", "VSE channel (higher = on top)"),
+                    ParameterInfo("frame", "int", "1", "Frame number"),
+                    ParameterInfo("length", "int", "120", "Duration in frames"),
+                    ParameterInfo("effect_type", "str", "'CROSS'", "CROSS | WIPE | GLOW | TRANSFORM | SPEED | ADJUSTMENT"),
+                    ParameterInfo("blend_type", "str", "'ALPHA_OVER'", "ALPHA_OVER | CROSS | ADD | MULTIPLY | SCREEN"),
+                    ParameterInfo("speed_factor", "float", "1.0", "Playback speed (2.0 = double)"),
+                    ParameterInfo("output_path", "str", "", "Output .mp4 path for render_video"),
+                    ParameterInfo("resolution_x", "int", "1920", "Output width"),
+                    ParameterInfo("resolution_y", "int", "1080", "Output height"),
+                    ParameterInfo("codec", "str", "'H264'", "H264 | H265 | THEORA | AV1"),
+                    ParameterInfo("fps", "int", "30", "Frames per second"),
+                ],
+                returns="str: Operation result with details",
+                example="blender_vse(operation='add_movie', filepath='C:/video/clip.mp4', channel=1, frame=1)",
+            )
+        )
+
         # Cross-MCP Export Tools
         self._add_function(
             FunctionInfo(
