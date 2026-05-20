@@ -1,13 +1,26 @@
 # Blender MCP - AI-Powered 3D Creation
 
-[![FastMCP Version](https://img.shields.io/badge/FastMCP-3.2.0-blue?style=flat-square&logo=python&logoColor=white)](https://github.com/sandraschi/fastmcp) [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff) [![Linted with Biome](https://img.shields.io/badge/Linted_with-Biome-60a5fa?style=flat-square&logo=biome&logoColor=white)](https://biomejs.dev/) [![Built with Just](https://img.shields.io/badge/Built_with-Just-000000?style=flat-square&logo=gnu-bash&logoColor=white)](https://github.com/casey/just)
-
 <p align="center">
-  <img src="https://img.shields.io/badge/Made%20with-AI%20%26%20Blender-FF6B35?style=for-the-badge&logo=blender&logoColor=white" alt="Made with AI & Blender"/>
-  <img src="https://img.shields.io/badge/Claude-Desktop-orange?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude Desktop"/>
-  <img src="https://img.shields.io/badge/3D%20Modeling-Automated-blue?style=for-the-badge&logo=blender&logoColor=white" alt="3D Modeling Automated"/>
-  <img src="https://img.shields.io/badge/VRM-Avatars-green?style=for-the-badge&logo=virtual-reality&logoColor=white" alt="VRM Avatars"/>
+  <a href="https://github.com/casey/just"><img src="https://img.shields.io/badge/just-ready_to_go-7c5cfc?style=flat-square&logo=just&logoColor=white" alt="Just"></a>
+  <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff"></a>
+  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.13+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"></a>
+  <a href="https://biomejs.dev"><img src="https://img.shields.io/badge/Linted_with-Biome-60a5fa?style=flat-square&logo=biome&logoColor=white" alt="Biome"></a>
+  <a href="https://github.com/PrefectHQ/fastmcp"><img src="https://img.shields.io/badge/FastMCP-3.2-7c5cfc?style=flat-square" alt="FastMCP"></a>
 </p>
+
+## Quick Start
+
+```powershell
+git clone https://github.com/sandraschi/blender-mcp
+cd blender-mcp
+just
+```
+
+This opens an interactive dashboard showing all available commands. Run `just bootstrap` to install dependencies, then `just serve` or `just dev` to start.
+
+### Manual Setup
+
+If you don't have `just` installed:
 
 ##  **"Create 3D Scenes with Chat"**
 
