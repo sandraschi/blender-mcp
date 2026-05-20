@@ -8,6 +8,9 @@
   <a href="https://github.com/PrefectHQ/fastmcp"><img src="https://img.shields.io/badge/FastMCP-3.2-7c5cfc?style=flat-square" alt="FastMCP"></a>
 </p>
 
+
+> 📖 **[Installation Guide](INSTALL.md)** — quick start, manual setup, and troubleshooting
+
 ## Quick Start
 
 ```powershell
@@ -204,6 +207,9 @@ Licensed under MIT - Free for personal and commercial use
   <em>Transform how the world creates 3D content</em>
 </p>
 
+
+
+> 📖 **[Installation Guide](INSTALL.md)** — quick start, manual setup, and troubleshooting
 
 ## 🛡️ Industrial Quality Stack
 
