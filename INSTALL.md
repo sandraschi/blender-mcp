@@ -7,6 +7,8 @@
 winget install Casey.Just    # Windows
 # scoop install just          # Windows (alternative)
 # brew install just           # macOS
+# sudo apt install just       # Debian/Ubuntu
+# cargo install just          # Linux (Rust)
 
 git clone https://github.com/sandraschi/blender-mcp
 cd blender-mcp
