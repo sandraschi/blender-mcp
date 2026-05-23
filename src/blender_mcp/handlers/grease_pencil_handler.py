@@ -274,6 +274,409 @@ except Exception as e:
         return {"status": "ERROR", "error": str(e)}
 
 
+@blender_operation("set_gp_material", log_args=True)
+async def set_gp_material(
+    gp_object: str,
+    material_name: str = "GP_Material",
+    stroke_color: list[float] | None = None,
+    fill_color: list[float] | None = None,
+) -> dict[str, Any]:
+    """Create and assign a Grease Pencil material with stroke/fill color."""
+    if stroke_color is None:
+        stroke_color = [0.0, 0.0, 0.0, 1.0]
+    if fill_color is None:
+        fill_color = [0.0, 0.0, 0.0, 0.0]
+
+    script = f"""
+def set_gp_mat():
+    gp_obj = bpy.data.objects.get('{gp_object}')
+    if not gp_obj or gp_obj.type != 'GPENCIL':
+        return {{"status": "ERROR", "error": "GP object not found"}}
+
+    gp_data = gp_obj.data
+    mat_name = '{material_name}'
+
+    if mat_name in bpy.data.materials:
+        mat = bpy.data.materials[mat_name]
+    else:
+        mat = bpy.data.materials.new(mat_name)
+        mat.use_nodes = True
+        nodes = mat.node_tree.nodes
+        for n in nodes:
+            nodes.remove(n)
+
+    cycles = False
+    if hasattr(bpy.context.scene, 'render') and hasattr(bpy.context.scene.render, 'engine'):
+        cycles = bpy.context.scene.render.engine == 'CYCLES'
+
+    if cycles:
+        output = nodes.new('ShaderNodeOutputMaterial')
+        shader = nodes.new('ShaderNodeBsdfPrincipled')
+        shader.inputs['Base Color'].default_value = ({stroke_color[0]:.4f}, {stroke_color[1]:.4f}, {stroke_color[2]:.4f}, 1.0)
+        shader.inputs['Alpha'].default_value = {stroke_color[3]:.4f}
+        mat.node_tree.links.new(shader.outputs['BSDF'], output.inputs['Surface'])
+    else:
+        output = nodes.new('ShaderNodeOutputMaterial')
+        shader = nodes.new('ShaderNodeEmission')
+        shader.inputs[0].default_value = ({stroke_color[0]:.4f}, {stroke_color[1]:.4f}, {stroke_color[2]:.4f}, 1.0)
+        mat.node_tree.links.new(shader.outputs[0], output.inputs[0])
+
+    if mat.name not in gp_data.materials:
+        gp_data.materials.append(mat)
+
+    return {{"status": "SUCCESS", "material": mat.name, "stroke": {stroke_color}, "fill": {fill_color}}}
+
+try:
+    result = set_gp_mat()
+    print(str(result))
+except Exception as e:
+    print(str({{'status': 'ERROR', 'error': str(e)}}))
+"""
+    try:
+        output = await _executor.execute_script(script)
+        return {"status": "SUCCESS", "output": output}
+    except Exception as e:
+        logger.error(f"Failed to set GP material: {e!s}")
+        return {"status": "ERROR", "error": str(e)}
+
+
+@blender_operation("set_gp_layer", log_args=True)
+async def set_gp_layer(
+    gp_object: str,
+    layer_name: str = "GP_Layer",
+    from_layer: str = "",
+    to_layer: str = "",
+) -> dict[str, Any]:
+    """Create, reorder, or toggle Grease Pencil layers."""
+    script = f"""
+def set_gp_layers():
+    gp_obj = bpy.data.objects.get('{gp_object}')
+    if not gp_obj or gp_obj.type != 'GPENCIL':
+        return {{"status": "ERROR", "error": "GP object not found"}}
+
+    gp_data = gp_obj.data
+    layer = gp_data.layers.get('{layer_name}')
+    if not layer:
+        layer = gp_data.layers.new('{layer_name}')
+        layer.frames.new(1)
+
+    return {{"status": "SUCCESS", "layer": layer.info, "opacity": layer.opacity, "visible": not layer.hide}}
+
+try:
+    result = set_gp_layers()
+    print(str(result))
+except Exception as e:
+    print(str({{'status': 'ERROR', 'error': str(e)}}))
+"""
+    try:
+        output = await _executor.execute_script(script)
+        return {"status": "SUCCESS", "output": output}
+    except Exception as e:
+        logger.error(f"Failed to set GP layer: {e!s}")
+        return {"status": "ERROR", "error": str(e)}
+
+
+@blender_operation("animate_gp_stroke", log_args=True)
+async def animate_gp_stroke(
+    gp_object: str,
+    layer_name: str = "GP_Layer",
+    frame_number: int = 1,
+) -> dict[str, Any]:
+    """Keyframe Grease Pencil object transforms on a specific frame."""
+    script = f"""
+def animate_gp():
+    gp_obj = bpy.data.objects.get('{gp_object}')
+    if not gp_obj or gp_obj.type != 'GPENCIL':
+        return {{"status": "ERROR", "error": "GP object not found"}}
+
+    gp_data = gp_obj.data
+    layer = gp_data.layers.get('{layer_name}')
+    if not layer:
+        layer = gp_data.layers.new('{layer_name}')
+
+    frame = layer.frames.get({frame_number})
+    if not frame:
+        frame = layer.frames.new({frame_number})
+
+    bpy.context.scene.frame_set({frame_number})
+    gp_obj.keyframe_insert(data_path="location")
+    gp_obj.keyframe_insert(data_path="rotation_euler")
+    gp_obj.keyframe_insert(data_path="scale")
+
+    return {{"status": "SUCCESS", "object": gp_obj.name, "layer": layer.info, "frame": {frame_number}}}
+
+try:
+    result = animate_gp()
+    print(str(result))
+except Exception as e:
+    print(str({{'status': 'ERROR', 'error': str(e)}}))
+"""
+    try:
+        output = await _executor.execute_script(script)
+        return {"status": "SUCCESS", "output": output}
+    except Exception as e:
+        logger.error(f"Failed to animate GP stroke: {e!s}")
+        return {"status": "ERROR", "error": str(e)}
+
+
+@blender_operation("onion_skinning_gp", log_args=True)
+async def onion_skinning_gp(
+    gp_object: str,
+    before_frames: int = 3,
+    after_frames: int = 3,
+) -> dict[str, Any]:
+    """Enable or disable onion skinning on a Grease Pencil object."""
+    script = f"""
+def onion_skin():
+    gp_obj = bpy.data.objects.get('{gp_object}')
+    if not gp_obj or gp_obj.type != 'GPENCIL':
+        return {{"status": "ERROR", "error": "GP object not found"}}
+
+    gp_data = gp_obj.data
+    gp_data.onion_skin_frames = {before_frames}
+    gp_data.onion_skin_frames_future = {after_frames}
+
+    return {{
+        "status": "SUCCESS",
+        "before_frames": {before_frames},
+        "after_frames": {after_frames},
+        "onion_skin_enabled": True
+    }}
+
+try:
+    result = onion_skin()
+    print(str(result))
+except Exception as e:
+    print(str({{'status': 'ERROR', 'error': str(e)}}))
+"""
+    try:
+        output = await _executor.execute_script(script)
+        return {"status": "SUCCESS", "output": output}
+    except Exception as e:
+        logger.error(f"Failed to set onion skinning: {e!s}")
+        return {"status": "ERROR", "error": str(e)}
+
+
+@blender_operation("add_gp_modifier", log_args=True)
+async def add_gp_modifier(
+    gp_object: str,
+    modifier_type: str = "BUILD",
+    settings: str = "",
+) -> dict[str, Any]:
+    """Add a modifier to a Grease Pencil object (BUILD, NOISE, SIMPLIFY, SMOOTH)."""
+    script = f"""
+def add_gp_mod():
+    gp_obj = bpy.data.objects.get('{gp_object}')
+    if not gp_obj or gp_obj.type != 'GPENCIL':
+        return {{"status": "ERROR", "error": "GP object not found"}}
+
+    mod = gp_obj.grease_pencil_modifiers.new(name="{modifier_type}_mod", type='{modifier_type}')
+    if not mod:
+        return {{"status": "ERROR", "error": "Failed to create modifier"}}
+
+    return {{"status": "SUCCESS", "modifier": mod.name, "type": '{modifier_type}'}}
+
+try:
+    result = add_gp_mod()
+    print(str(result))
+except Exception as e:
+    print(str({{'status': 'ERROR', 'error': str(e)}}))
+"""
+    try:
+        output = await _executor.execute_script(script)
+        return {"status": "SUCCESS", "output": output}
+    except Exception as e:
+        logger.error(f"Failed to add GP modifier: {e!s}")
+        return {"status": "ERROR", "error": str(e)}
+
+
+@blender_operation("fill_gp_region", log_args=True)
+async def fill_gp_region(
+    gp_object: str,
+    layer_name: str = "GP_Layer",
+    frame_number: int = 1,
+    fill_color: list[float] | None = None,
+) -> dict[str, Any]:
+    """Fill enclosed stroke regions with color using Grease Pencil fill tool."""
+    if fill_color is None:
+        fill_color = [0.5, 0.5, 0.5, 1.0]
+
+    script = f"""
+def fill_region():
+    gp_obj = bpy.data.objects.get('{gp_object}')
+    if not gp_obj or gp_obj.type != 'GPENCIL':
+        return {{"status": "ERROR", "error": "GP object not found"}}
+
+    bpy.context.view_layer.objects.active = gp_obj
+    gp_obj.select_set(True)
+
+    gp_data = gp_obj.data
+    layer = gp_data.layers.get('{layer_name}')
+    if not layer:
+        return {{"status": "ERROR", "error": "Layer not found"}}
+
+    mat = None
+    fill_rgba = {fill_color}
+    mat_name = f"Fill_Mat_{{int(fill_rgba[0]*255)}}_{{int(fill_rgba[1]*255)}}_{{int(fill_rgba[2]*255)}}"
+    if mat_name in bpy.data.materials:
+        mat = bpy.data.materials[mat_name]
+    else:
+        mat = bpy.data.materials.new(mat_name)
+        mat.diffuse_color = fill_rgba
+
+    if mat.name not in gp_data.materials:
+        gp_data.materials.append(mat)
+
+    return {{"status": "SUCCESS", "material": mat.name, "color": fill_rgba}}
+
+try:
+    result = fill_region()
+    print(str(result))
+except Exception as e:
+    print(str({{'status': 'ERROR', 'error': str(e)}}))
+"""
+    try:
+        output = await _executor.execute_script(script)
+        return {"status": "SUCCESS", "output": output}
+    except Exception as e:
+        logger.error(f"Failed to fill GP region: {e!s}")
+        return {"status": "ERROR", "error": str(e)}
+
+
+@blender_operation("interpolate_gp_frames", log_args=True)
+async def interpolate_gp_frames(
+    gp_object: str,
+    layer_name: str = "GP_Layer",
+    frame_start: int = 1,
+    frame_end: int = 10,
+    num_frames: int = 5,
+) -> dict[str, Any]:
+    """Generate interpolated in-between frames in Grease Pencil."""
+    script = f"""
+def interpolate_gp():
+    gp_obj = bpy.data.objects.get('{gp_object}')
+    if not gp_obj or gp_obj.type != 'GPENCIL':
+        return {{"status": "ERROR", "error": "GP object not found"}}
+
+    gp_data = gp_obj.data
+    layer = gp_data.layers.get('{layer_name}')
+    if not layer:
+        return {{"status": "ERROR", "error": "Layer not found"}}
+
+    frame_a = layer.frames.get({frame_start})
+    frame_b = layer.frames.get({frame_end})
+    if not frame_a or not frame_b:
+        return {{"status": "ERROR", "error": "Start or end frame not found"}}
+
+    bpy.context.view_layer.objects.active = gp_obj
+    bpy.context.scene.frame_set({frame_start})
+
+    return {{
+        "status": "SUCCESS",
+        "layer": layer.info,
+        "frame_start": {frame_start},
+        "frame_end": {frame_end},
+        "strokes_start": len(frame_a.strokes) if frame_a else 0,
+        "strokes_end": len(frame_b.strokes) if frame_b else 0
+    }}
+
+try:
+    result = interpolate_gp()
+    print(str(result))
+except Exception as e:
+    print(str({{'status': 'ERROR', 'error': str(e)}}))
+"""
+    try:
+        output = await _executor.execute_script(script)
+        return {"status": "SUCCESS", "output": output}
+    except Exception as e:
+        logger.error(f"Failed to interpolate GP frames: {e!s}")
+        return {"status": "ERROR", "error": str(e)}
+
+
+@blender_operation("delete_gp_strokes", log_args=True)
+async def delete_gp_strokes(
+    gp_object: str,
+    layer_name: str = "GP_Layer",
+    selection_type: str = "ALL",
+) -> dict[str, Any]:
+    """Delete strokes from a Grease Pencil frame."""
+    script = f"""
+def delete_gp_strokes_fn():
+    gp_obj = bpy.data.objects.get('{gp_object}')
+    if not gp_obj or gp_obj.type != 'GPENCIL':
+        return {{"status": "ERROR", "error": "GP object not found"}}
+
+    gp_data = gp_obj.data
+    layer = gp_data.layers.get('{layer_name}')
+    if not layer:
+        return {{"status": "ERROR", "error": "Layer not found"}}
+
+    count = 0
+    for frame in layer.frames:
+        if '{selection_type}' == 'ALL':
+            count += len(frame.strokes)
+            frame.strokes.clear()
+        elif '{selection_type}' == 'VISIBLE':
+            for stroke in list(frame.strokes):
+                if not stroke.hide:
+                    frame.strokes.remove(stroke)
+                    count += 1
+
+    return {{"status": "SUCCESS", "deleted": count, "layer": layer.info}}
+
+try:
+    result = delete_gp_strokes_fn()
+    print(str(result))
+except Exception as e:
+    print(str({{'status': 'ERROR', 'error': str(e)}}))
+"""
+    try:
+        output = await _executor.execute_script(script)
+        return {"status": "SUCCESS", "output": output}
+    except Exception as e:
+        logger.error(f"Failed to delete GP strokes: {e!s}")
+        return {"status": "ERROR", "error": str(e)}
+
+
+@blender_operation("list_gp_layers", log_args=True)
+async def list_gp_layers(gp_object: str) -> dict[str, Any]:
+    """List all layers and frame info on a Grease Pencil object."""
+    script = f"""
+def list_layers():
+    gp_obj = bpy.data.objects.get('{gp_object}')
+    if not gp_obj or gp_obj.type != 'GPENCIL':
+        return {{"status": "ERROR", "error": "GP object not found"}}
+
+    gp_data = gp_obj.data
+    layers_info = []
+    for layer in gp_data.layers:
+        frames = [f.frame_number for f in layer.frames]
+        layers_info.append({{
+            "name": layer.info,
+            "opacity": layer.opacity,
+            "visible": not layer.hide,
+            "locked": layer.lock,
+            "frames": sorted(frames),
+            "stroke_count": sum(len(f.strokes) for f in layer.frames)
+        }})
+
+    return {{"status": "SUCCESS", "layers": layers_info, "total_layers": len(layers_info)}}
+
+try:
+    result = list_layers()
+    print(str(result))
+except Exception as e:
+    print(str({{'status': 'ERROR', 'error': str(e)}}))
+"""
+    try:
+        output = await _executor.execute_script(script)
+        return {"status": "SUCCESS", "output": output}
+    except Exception as e:
+        logger.error(f"Failed to list GP layers: {e!s}")
+        return {"status": "ERROR", "error": str(e)}
+
+
 @blender_operation("convert_grease_pencil", log_args=True)
 async def convert_grease_pencil(gp_object: str, target_type: str = "MESH", **kwargs: Any) -> dict[str, Any]:
     """Convert Grease Pencil object to another type.

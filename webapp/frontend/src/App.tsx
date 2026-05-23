@@ -8,6 +8,8 @@ import {
   MessageSquare,
   Monitor,
   Package,
+  Palette,
+  Pen,
   Play,
   Puzzle,
   Settings,
@@ -20,6 +22,9 @@ import AIConstructor from "./pages/ai-constructor";
 import Apps from "./pages/apps";
 import Chat from "./pages/chat";
 import Construct from "./pages/construct";
+import GreasePencilPage from "./pages/grease-pencil";
+import Animation2DPage from "./pages/animation-2d";
+import StoryboardPage from "./pages/storyboard";
 import MaterialStore from "./pages/material-store";
 import MeshColliderSplat from "./pages/mesh-collider-splat";
 import RepositoryPage from "./pages/repository";
@@ -84,6 +89,13 @@ function Layout() {
           <NavItem to="/chat" icon={MessageSquare} label="Chat" />
 
           <div className="mt-6 px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            2D Animation
+          </div>
+          <NavItem to="/grease-pencil" icon={Pen} label="Grease Pencil" />
+          <NavItem to="/animation-2d" icon={Palette} label="2D Animation" />
+          <NavItem to="/storyboard" icon={Clapperboard} label="Storyboard" />
+
+          <div className="mt-6 px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Pipeline
           </div>
           <NavItem to="/vr" icon={Play} label="VR Pipeline" />
@@ -137,6 +149,9 @@ function Layout() {
             <Route path="/repository" element={<RepositoryPage />} />
             <Route path="/addons" element={<AddonManagerPage />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/grease-pencil" element={<GreasePencilPage />} />
+            <Route path="/animation-2d" element={<Animation2DPage />} />
+            <Route path="/storyboard" element={<StoryboardPage />} />
             <Route path="/vr" element={<VRPipeline />} />
             <Route path="/scripts" element={<ScriptConsole />} />
             <Route path="/video" element={<VideoEditor />} />
