@@ -1,11 +1,18 @@
 # Blender MCP - AI-Powered 3D Creation
 
 <p align="center">
+  <a href="https://github.com/sandraschi/blender-mcp"><img src="https://img.shields.io/github/stars/sandraschi/blender-mcp?style=flat-square" alt="Stars"></a>
+  <a href="https://github.com/sandraschi/blender-mcp/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License"></a>
+  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.13+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"></a>
+  <a href="https://github.com/PrefectHQ/fastmcp"><img src="https://img.shields.io/badge/FastMCP-3.2-7c5cfc?style=flat-square" alt="FastMCP"></a>
   <a href="https://github.com/casey/just"><img src="https://img.shields.io/badge/just-ready_to_go-7c5cfc?style=flat-square&logo=just&logoColor=white" alt="Just"></a>
   <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff"></a>
-  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.13+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python"></a>
-  <a href="https://biomejs.dev"><img src="https://img.shields.io/badge/Linted_with-Biome-60a5fa?style=flat-square&logo=biome&logoColor=white" alt="Biome"></a>
-  <a href="https://github.com/PrefectHQ/fastmcp"><img src="https://img.shields.io/badge/FastMCP-3.2-7c5cfc?style=flat-square" alt="FastMCP"></a>
+  <a href=""><img src="https://img.shields.io/badge/VRM-avatars-FF6B6B?style=flat-square" alt="VRM"></a>
+  <a href=""><img src="https://img.shields.io/badge/splatting-3DGS-00C853?style=flat-square" alt="3D Gaussian Splatting"></a>
+  <a href=""><img src="https://img.shields.io/badge/Grease_Pencil-2D-FFD54F?style=flat-square" alt="Grease Pencil"></a>
+  <a href=""><img src="https://img.shields.io/badge/VSE-video-29B6F6?style=flat-square" alt="VSE"></a>
+  <a href=""><img src="https://img.shields.io/badge/Tauri-2.0-FFC107?style=flat-square&logo=tauri&logoColor=white" alt="Tauri"></a>
+  <a href=""><img src="https://img.shields.io/badge/fleet-SOTA-6366f1?style=flat-square" alt="Fleet SOTA"></a>
 </p>
 
 
