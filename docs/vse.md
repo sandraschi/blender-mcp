@@ -59,6 +59,27 @@ blender_vse(operation="render_video", output_path="C:/output.mp4", fps=30)
 | PNG | Sequence | Lossless |
 | JPEG | Sequence | Quality 1-100 |
 
+## Blender VSE vs DaVinci Resolve (resolveops-mcp)
+
+Blender VSE is **not** a competitor to dedicated NLEs (DaVinci Resolve, Premiere Pro).
+Use VSE for quick edits, automated pipelines, and headless batch rendering.
+Use resolveops-mcp for color grading, multi-track audio (Fairlight), and finishing.
+
+| Criterion | Blender VSE (`blender_vse`) | DaVinci Resolve (`resolveops-mcp`) |
+|-----------|------------------------------|-------------------------------------|
+| **Best for** | Quick cuts, automated pipelines, headless rendering | Professional color grading, final finishing |
+| **Color grading** | Basic COLOR_BALANCE only | Full color wheels, curves, LUTs, HDR grading |
+| **Audio** | Basic sound strips, mute/volume | Fairlight DAW: EQ, compressors, buses, automation |
+| **Multi-track** | Yes, numbered channels | Yes, unlimited tracks with routing |
+| **Transitions** | Cross, gamma-cross, wipe | Hundreds: dissolves, wipes, DVE, custom |
+| **Titles** | Basic text strips | Fusion text+, custom graphics, templates |
+| **Performance** | Fast for short clips, degrades with many strips | Optimized for long-form, proxy workflows |
+| **Headless** | ✅ Native Blender CLI rendering | ❌ Requires GUI session |
+| **MCP tool count** | 16 operations (growing) | 50+ Fairlight operations alone |
+| **Output** | H264, H265, DNxHD, ProRes, PNG sequence | Any broadcast/cinema format, IMF, DCP |
+
+**Rule of thumb:** VSE for the rough cut and automated assembly. Round-trip to resolveops-mcp for color grade, Fairlight audio, and final mastering.
+
 ## Webapp Page
 
 Route `/video` — Strip list, add movie/sound/text controls, render settings, live output.
