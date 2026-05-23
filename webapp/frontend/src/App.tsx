@@ -1,6 +1,7 @@
 import {
   Activity,
   Box,
+  BookOpen,
   Clapperboard,
   Database,
   Layers,
@@ -25,6 +26,7 @@ import Construct from "./pages/construct";
 import GreasePencilPage from "./pages/grease-pencil";
 import Animation2DPage from "./pages/animation-2d";
 import StoryboardPage from "./pages/storyboard";
+import HelpPage from "./pages/help";
 import MaterialStore from "./pages/material-store";
 import MeshColliderSplat from "./pages/mesh-collider-splat";
 import RepositoryPage from "./pages/repository";
@@ -105,6 +107,7 @@ function Layout() {
           <div className="mt-6 px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             System
           </div>
+          <NavItem to="/help" icon={BookOpen} label="Help & Reference" />
           <NavItem to="/status" icon={Activity} label="Status & Logs" />
           <NavItem to="/apps" icon={LayoutGrid} label="App Hub" />
           <NavItem to="/settings" icon={Settings} label="Settings" />
@@ -156,6 +159,7 @@ function Layout() {
             <Route path="/scripts" element={<ScriptConsole />} />
             <Route path="/video" element={<VideoEditor />} />
             <Route path="/status" element={<StatusLogs />} />
+            <Route path="/help" element={<HelpPage />} />
             <Route path="/apps" element={<Apps />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<div className="p-6">Select a tool from the sidebar</div>} />
