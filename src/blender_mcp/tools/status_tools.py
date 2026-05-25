@@ -47,7 +47,7 @@ def _register_status_tools():
             include_blender_info: For status — include Blender section
             include_system_info: For status — include system section
             include_performance: For status — include performance section
-            duration_seconds: For performance_monitor — sampling duration (1–60)
+            duration_seconds: For performance_monitor — sampling duration (1-60)
             format: "json" for webapp dict (status only); "text" for report string
         """
 

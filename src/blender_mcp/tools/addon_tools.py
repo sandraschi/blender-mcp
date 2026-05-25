@@ -151,7 +151,7 @@ except Exception as e:
                 if "ENABLE_OK" in output:
                     return {"success": True, "message": f"Addon '{addon_name}' enabled"}
                 err = next(
-                    (l[len("ENABLE_ERR:") :] for l in output.splitlines() if l.startswith("ENABLE_ERR:")), output[-200:]
+                    (_line[len("ENABLE_ERR:") :] for _line in output.splitlines() if _line.startswith("ENABLE_ERR:")), output[-200:]
                 )
                 return {"success": False, "error": err}
 
@@ -174,7 +174,7 @@ except Exception as e:
                 if "DISABLE_OK" in output:
                     return {"success": True, "message": f"Addon '{addon_name}' disabled"}
                 err = next(
-                    (l[len("DISABLE_ERR:") :] for l in output.splitlines() if l.startswith("DISABLE_ERR:")),
+                    (_line[len("DISABLE_ERR:") :] for _line in output.splitlines() if _line.startswith("DISABLE_ERR:")),
                     output[-200:],
                 )
                 return {"success": False, "error": err}

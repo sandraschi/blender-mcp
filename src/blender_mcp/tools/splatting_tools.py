@@ -177,7 +177,7 @@ def _format_splatting_result(result: dict) -> str:
     status = result.get("status", "unknown")
 
     # Status indicator
-    status_icons = {"success": "✅", "warning": "⚠️", "error": "❌", "info": "ℹ️"}
+    status_icons = {"success": "✅", "warning": "⚠️", "error": "❌", "info": "(i)"}
     status_icon = status_icons.get(status, "❓")
 
     report = f"{status_icon} **Splatting Operation Result**\n"

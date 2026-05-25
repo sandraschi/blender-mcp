@@ -208,7 +208,7 @@ def _register_workflow_tools():
                                         else variables[var_name_ref]
                                     )
                                     value = var_data.get(field, value)
-                                except:
+                                except Exception:
                                     pass
                         elif var_ref in variables:
                             value = variables[var_ref]

@@ -42,7 +42,7 @@ from blender_mcp.handlers.lighting_handler import (
 )
 
 # Material handlers
-from blender_mcp.handlers.material_handler import (
+from blender_mcp.handlers.material_handler import (  # noqa: F401
     create_fabric_material,
     create_metal_material,
     create_wood_material,
@@ -91,10 +91,7 @@ from blender_mcp.handlers.rigging_handler import add_bone, create_armature, crea
 
 # Scene handlers
 # Scene handlers
-from blender_mcp.handlers.scene_handler import (
-    clear_scene,
-    create_scene,
-    list_scenes,
+from blender_mcp.handlers.scene_handler import (  # noqa: F401
     scene_get_hierarchy,
 )
 

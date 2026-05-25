@@ -115,7 +115,7 @@ class MCPExportResult(BaseModel):
 
 def _generate_object_id(display_name: str, object_name: str) -> str:
     content = f"{display_name}:{object_name}:{datetime.now().isoformat()}"
-    return hashlib.md5(content.encode()).hexdigest()[:16]
+    return hashlib.md5(content.encode()).hexdigest()[:16]  # noqa: S324
 
 
 def _get_next_version(model_dir: Path) -> str:
@@ -671,7 +671,7 @@ print("EXPORT_FBX_OK:" + {json.dumps(str(fbx_path))})
         executor = get_blender_executor()
         output = await executor.execute_script(script, script_name="vrchat_export_fbx")
         primary = []
-        if any("EXPORT_FBX_OK:" in l for l in output.splitlines()):
+        if any("EXPORT_FBX_OK:" in _line for _line in output.splitlines()):
             primary = [str(fbx_path)]
 
         materials_json = out_dir / "asset_vrchat_materials.json"
@@ -746,7 +746,7 @@ print("EXPORT_GLB_OK:" + {json.dumps(str(glb_path))})
         executor = get_blender_executor()
         output = await executor.execute_script(script, script_name="resonite_export_glb")
         primary = []
-        if any("EXPORT_GLB_OK:" in l for l in output.splitlines()):
+        if any("EXPORT_GLB_OK:" in _line for _line in output.splitlines()):
             primary = [str(glb_path)]
 
         pf_json = out_dir / "protoflux_components.json"

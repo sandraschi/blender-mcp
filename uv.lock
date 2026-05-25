@@ -134,6 +134,11 @@ docs = [
     { name = "sphinx-rtd-theme" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "ruff" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "bandit", marker = "extra == 'dev'", specifier = ">=1.7.0" },
@@ -160,6 +165,9 @@ requires-dist = [
     { name = "typing-extensions", specifier = ">=4.8.0" },
 ]
 provides-extras = ["dev", "docs"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "ruff", specifier = ">=0.14.0" }]
 
 [[package]]
 name = "build"

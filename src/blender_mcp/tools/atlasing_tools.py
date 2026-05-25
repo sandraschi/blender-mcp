@@ -128,7 +128,7 @@ def _format_atlasing_result(result: dict) -> str:
     status = result.get("status", "unknown")
 
     # Status indicator
-    status_icons = {"success": "✅", "warning": "⚠️", "error": "❌", "info": "ℹ️"}
+    status_icons = {"success": "✅", "warning": "⚠️", "error": "❌", "info": "(i)"}
     status_icon = status_icons.get(status, "❓")
 
     report = f"{status_icon} **Atlasing Operation Result**\n"

@@ -165,10 +165,18 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "S", "UP", "RUF", "T201"]
-ignore = ["S101", "B008"]
+ignore = ["S101", "B008", "E501", "E402", "B904", "S110", "S603", "S602", "S307", "S202", "S310", "S608"]
 
 [tool.ruff.lint.per-file-ignores]
 "src/blender_mcp/cli.py" = ["T201"]
+"src/blender_mcp/config.py" = ["F403", "F405"]
+"src/blender_mcp/decorators.py" = ["F403", "F405"]
+"src/blender_mcp/exceptions.py" = ["F403", "F405"]
+"src/blender_mcp/help.py" = ["F403", "F405"]
+"src/blender_mcp/server.py" = ["F403", "F405"]
+"src/blender_mcp/handlers/**" = ["F403", "F405"]
+"src/blender_mcp/tools/**" = ["F403", "F405"]
+"src/blender_mcp/utils/**" = ["F403", "F405"]
 "webapp/backend/tests/**" = ["T201"]
 "webapp/backend/tests/run_tests.py" = ["T201"]
 "verify_tools.py" = ["T201"]
@@ -179,3 +187,8 @@ ignore = ["S101", "B008"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.0",
+]

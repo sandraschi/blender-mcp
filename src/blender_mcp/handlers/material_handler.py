@@ -788,7 +788,7 @@ group_outputs = group.nodes.new('NodeGroupOutput')
 try:
     links.new(bsdf.outputs['BSDF'], dispersion_group.inputs[0])
     links.new(dispersion_group.outputs[0], output.inputs['Surface'])
-except:
+except Exception:
     pass  # Fallback if dispersion setup fails
 """
         script += f"""

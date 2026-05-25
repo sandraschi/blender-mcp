@@ -108,7 +108,7 @@ def _register_asset_library_tools() -> None:
             query: Sketchfab search query.
             sketchfab_uid: Model UID for sketchfab_import.
             sketchfab_token: Optional; defaults to SKETCHFAB_API_TOKEN env.
-            search_limit: Max Sketchfab results (1–100).
+            search_limit: Max Sketchfab results (1-100).
             downloadable_only: Sketchfab search filter.
 
         Returns:

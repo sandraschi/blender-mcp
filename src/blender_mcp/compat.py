@@ -8,7 +8,7 @@ All FastMCP imports are done eagerly at module load with a clear error message.
 """
 
 from collections.abc import Awaitable, Callable, Mapping, Sequence
-from typing import (  # noqa: E402
+from typing import (  # noqa: UP035
     Any,
     Dict,
     List,
@@ -21,8 +21,8 @@ from typing import (  # noqa: E402
 )
 
 # JSON-compatible types
-JSONPrimitive = Union[str, int, float, bool, None]
-JSONType = Union[JSONPrimitive, dict[str, Any], list[Any]]
+JSONPrimitive = str | int | float | bool | None
+JSONType = JSONPrimitive | dict[str, Any] | list[Any]
 
 # Re-export Set for compatibility
 Set = set

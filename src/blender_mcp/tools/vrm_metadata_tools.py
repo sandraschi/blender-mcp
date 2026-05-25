@@ -138,7 +138,7 @@ def _format_vrm_metadata_result(result: dict) -> str:
     operation = result.get("operation", "vrm_metadata")
 
     # Status indicator
-    status_icons = {"success": "✅", "warning": "⚠️", "error": "❌", "info": "ℹ️"}
+    status_icons = {"success": "✅", "warning": "⚠️", "error": "❌", "info": "(i)"}
     status_icon = status_icons.get(status, "❓")
 
     report = f"{status_icon} **VRM Metadata Operation Result**\n"

@@ -166,7 +166,7 @@ def _register_import_tools():
             try:
                 os.remove(converted_file)
                 os.rmdir(temp_dir)
-            except:
+            except Exception:
                 pass  # Ignore cleanup errors
 
             return f"CAD import successful: {result}"
@@ -183,7 +183,7 @@ async def _try_robotics_cad_conversion(
         # This would integrate with mounted robotics-mcp server
         # For now, return False to use fallback
         return False
-    except:
+    except Exception:
         return False
 
 

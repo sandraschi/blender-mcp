@@ -4,7 +4,7 @@ Validation utilities for Blender MCP.
 This module provides common validation functions for MCP tools.
 """
 
-from typing import Any, TypeVar
+from typing import Any, ClassVar, TypeVar
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
@@ -21,7 +21,7 @@ except ImportError:
     # Create a mock bpy module for type checking
     class MockBpy:
         class data:
-            objects = {}
+            objects: ClassVar[dict] = {}
 
     bpy = MockBpy()
 

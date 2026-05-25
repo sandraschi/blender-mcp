@@ -482,14 +482,14 @@ if "vrm_first_person_offset" in armature:
 if {include_spring_bones!r} and "vrm_spring_bones" in armature:
     try:
         metadata["spring_bones"] = eval(armature["vrm_spring_bones"])
-    except:
+    except Exception:
         metadata["spring_bones"] = armature["vrm_spring_bones"]
 
 # Look at
 if {include_look_at!r} and "vrm_look_at" in armature:
     try:
         metadata["look_at"] = eval(armature["vrm_look_at"])
-    except:
+    except Exception:
         metadata["look_at"] = armature["vrm_look_at"]
 
 # Save metadata

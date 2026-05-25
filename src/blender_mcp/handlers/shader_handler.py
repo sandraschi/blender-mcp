@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import Any, Literal, TypeVar
+from typing import Any, ClassVar, Literal, TypeVar
 
 from pydantic import BaseModel
 
@@ -388,7 +388,7 @@ class MaterialProperties(BaseModel):
     is_grease_pencil: bool = False
 
     class Config:
-        json_encoders = {ShaderType: lambda v: v.value}
+        json_encoders: ClassVar = {ShaderType: lambda v: v.value}
 
 
 @blender_operation("create_shader_material", log_args=True, log_result=True)
@@ -432,7 +432,7 @@ def create_material():
         material = bpy.data.materials.new(name='{name}')
         print(f"✨ Created new material: {{material.name}}")
     else:
-        print(f"ℹ️ Using existing material: {{material.name}}")
+        print(f"(i) Using existing material: {{material.name}}")
 
     # Configure material settings
     material.use_nodes = True
@@ -451,7 +451,7 @@ def create_material():
     if not output_node:
         output_node = nodes.new(type='ShaderNodeOutputMaterial')
         output_node.location = (400, 0)
-        print(f"➕ Created output node: {{output_node.name}}")
+        print(f"(+) Created output node: {{output_node.name}}")
 
     # Create shader node
     shader_node = None

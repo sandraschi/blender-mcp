@@ -137,7 +137,7 @@ try:
             # Clean up the temporary file
             try:
                 os.unlink(temp_path)
-            except:
+            except Exception:
                 pass
     else:
         # Execute as a code block

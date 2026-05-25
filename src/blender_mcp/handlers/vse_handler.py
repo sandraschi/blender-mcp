@@ -6,7 +6,7 @@ Provides VSE strip management, timeline editing, and video rendering via bpy scr
 import os
 from pathlib import Path
 
-from ..compat import *  # noqa: F403
+from ..compat import *
 from ..decorators import blender_operation
 from ..exceptions import BlenderVSEError
 from ..utils.blender_executor import get_blender_executor

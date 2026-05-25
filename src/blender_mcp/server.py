@@ -8,9 +8,9 @@ import argparse
 import datetime
 import logging
 import os
-from pathlib import Path
 import sys
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 

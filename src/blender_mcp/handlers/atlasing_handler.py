@@ -334,7 +334,7 @@ for i, mat in enumerate(materials):
             if color_key not in color_groups:
                 color_groups[color_key] = []
             color_groups[color_key].append(i)
-    except:
+    except Exception:
         # If analysis fails, treat as unique
         pass
 
@@ -459,7 +459,7 @@ if "material_atlas" in mesh:
     try:
         atlas_info = eval(mesh["material_atlas"])
         print(f"ATLAS_FOUND: {atlas_info}")
-    except:
+    except Exception:
         print("WARNING: Could not parse atlas information")
 
 if not atlas_info:
