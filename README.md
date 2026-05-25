@@ -17,6 +17,7 @@ with glowing red eyes" and watch it build your vision in Blender automatically.
 
 - [Quick Start](#quick-start)
 - [Webapp Dashboard](#webapp-dashboard)
+- [Native Desktop App (Tauri 2.0)](#native-desktop-app-tauri-20)
 - [Available Tools](#available-tools-41-tools-170-operations)
 - [Documentation](#documentation)
   - [Installation Guide](INSTALL.md)
@@ -115,6 +116,17 @@ Access the dashboard at **http://localhost:10848**.
 - **[Features Overview](docs/FEATURES.md)** — complete tool catalog, AI construction details, VR platform integration
 - **[Architecture](docs/ARCHITECTURE.md)** — system design, security, performance, scalability
 - **[Troubleshooting](docs/TROUBLESHOOTING.md)** — common issues, debug info, platform-specific problems
+
+## Native Desktop App (Tauri 2.0)
+
+A ~15 MB installer bundles the full app — no Python, no Node.js, no git clone needed.
+
+```powershell
+just build-native        # Full pipeline: webapp → PyInstaller → Tauri installer
+just build-native-debug  # Debug build (skips PyInstaller)
+```
+
+The installer lands at `native/target/release/bundle/nsis/Blender MCP_0.1.0_x64-setup.exe`.
 
 ## Industrial Quality Stack
 

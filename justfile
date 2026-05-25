@@ -32,6 +32,9 @@ test:
     Set-Location '{{justfile_directory()}}'
     uv run pytest tests/ -v
 
+e2e:
+    pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File "D:\Dev\repos\mcp-central-docs\scripts\playwright-audit.ps1" -RepoPath "{{justfile_directory()}}"
+
 # ── Hardening ─────────────────────────────────────────────────────────────────
 
 # Execute Bandit security audit
@@ -54,3 +57,17 @@ mcpb-pack:
 serve:
     Set-Location '{{justfile_directory()}}'
     uv run blender-mcp-server
+
+# ── Native App (Tauri 2.0) ──────────────────────────────────────────────────
+
+# Build Tauri native desktop app (release — full pipeline)
+build-native:
+    Set-Location '{{justfile_directory()}}\native'
+    $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
+    .\build.ps1
+
+# Build Tauri native app (debug, skip PyInstaller)
+build-native-debug:
+    Set-Location '{{justfile_directory()}}\native'
+    $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
+    npx @tauri-apps/cli build --debug
