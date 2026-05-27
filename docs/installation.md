@@ -30,7 +30,21 @@ python -m blender_mcp.cli --help
 
 ## Claude Desktop Integration
 
-Add this to your `claude_desktop_config.json`
+### Option A — mcpb (one-command install, recommended)
+
+Requires the [mcpb CLI](https://github.com/anthropics/mcpb) to be installed first.
+`mcpb` is **not** on PyPI — `uvx mcpb` will not work. Install it per the mcpb docs, then:
+
+```bash
+mcpb install sandraschi/blender-mcp
+```
+
+This registers the server in your Claude Desktop config automatically.
+
+### Option B — Manual config
+
+Clone the repo first (see Quick Start above), then add this to your
+`claude_desktop_config.json`
 (`%APPDATA%\Claude\claude_desktop_config.json` on Windows,
 `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
 
@@ -75,18 +89,6 @@ Use the same `python -m blender_mcp.cli --stdio` invocation in your MCP client s
 
 ```bash
 python -m blender_mcp.cli --http --host 0.0.0.0 --port 8001
-```
-
----
-
-## Docker
-
-```bash
-# Quick start
-docker run -p 8000:8000 ghcr.io/sandraschi/blender-mcp:latest
-
-# With Docker Compose
-docker-compose up blender-mcp
 ```
 
 ---
