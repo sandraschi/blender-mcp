@@ -30,7 +30,14 @@ python -m blender_mcp.cli --help
 
 ## Claude Desktop Integration
 
-### Option A — mcpb (one-command install, recommended)
+### Option A — Drag and drop (easiest)
+
+1. Download **[blender-mcp-v0.5.0.mcpb](https://github.com/sandraschi/blender-mcp/releases/download/v0.5.0/blender-mcp-v0.5.0.mcpb)** from the [releases page](https://github.com/sandraschi/blender-mcp/releases)
+2. Drag the `.mcpb` file into Claude Desktop
+
+Done — Claude Desktop registers the server automatically.
+
+### Option B — mcpb CLI
 
 Requires the [mcpb CLI](https://github.com/anthropics/mcpb) to be installed first.
 `mcpb` is **not** on PyPI — `uvx mcpb` will not work. Install it per the mcpb docs, then:
@@ -39,9 +46,7 @@ Requires the [mcpb CLI](https://github.com/anthropics/mcpb) to be installed firs
 mcpb install sandraschi/blender-mcp
 ```
 
-This registers the server in your Claude Desktop config automatically.
-
-### Option B — Manual config
+### Option C — Manual config
 
 Clone the repo first (see Quick Start above), then add this to your
 `claude_desktop_config.json`
