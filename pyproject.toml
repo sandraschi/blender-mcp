@@ -83,8 +83,8 @@ blender-mcp-server = "blender_mcp.server:main_stdio"
 [project.entry-points."mcp.servers"]
 blender-mcp = "blender_mcp.server:create_server"
 
-[tool.setuptools]
-package-dir = { "" = "src" }
+[tool.hatch.build.targets.wheel]
+packages = ["src/blender_mcp"]
 
 # ========================================================================================
 # Tool Configurations for CI/CD
