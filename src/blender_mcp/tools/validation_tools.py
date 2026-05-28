@@ -26,6 +26,8 @@ def _register_validation_tools():
         operation: Literal[
             "validate_avatar",
             "validate_model",
+            "validate_geometry",
+            "check_manifold",
             "check_polycount",
             "check_materials",
             "check_rigging",
@@ -40,6 +42,7 @@ def _register_validation_tools():
         polycount_limit: int | None = None,
         material_limit: int | None = None,
         bone_limit: int | None = None,
+        object_name: str = "",
     ) -> str:
         """
         Comprehensive validation tools for avatars and 3D models.
@@ -73,16 +76,33 @@ def _register_validation_tools():
             f"transforms={check_transforms}, textures={check_textures}"
         )
 
-        from blender_mcp.handlers.validation_handler import (
-            _validate_materials,
-            _validate_polycount,
-            _validate_rigging,
-            _validate_textures,
-            _validate_transforms,
-            validate_avatar,
-        )
-
         try:
+            if operation in ("validate_geometry", "check_manifold"):
+                from blender_mcp.handlers.mesh_validation_handler import (
+                    check_mesh_manifold,
+                    validate_mesh_geometry,
+                )
+
+                if operation == "validate_geometry":
+                    result = await validate_mesh_geometry(object_name=object_name)
+                    if not result.get("success"):
+                        return f"Validation failed: {result.get('error', 'unknown error')}"
+                    return _format_geometry_report(result)
+
+                result = await check_mesh_manifold(object_name=object_name)
+                if not result.get("success"):
+                    return f"Validation failed: {result.get('error', 'unknown error')}"
+                return _format_geometry_report(result)
+
+            from blender_mcp.handlers.validation_handler import (
+                _validate_materials,
+                _validate_polycount,
+                _validate_rigging,
+                _validate_textures,
+                _validate_transforms,
+                validate_avatar,
+            )
+
             if operation == "validate_avatar":
                 # Full avatar validation
                 result = await validate_avatar(
@@ -102,6 +122,7 @@ def _register_validation_tools():
                     check_transforms=check_transforms,
                     check_textures=check_textures,
                 )
+
 
             elif operation == "check_polycount":
                 # Individual checks with custom limits
@@ -192,6 +213,23 @@ def _format_validation_report(result: dict) -> str:
         report += "Unable to complete validation. Check the model and try again.\n"
 
     return report
+
+
+def _format_geometry_report(result: dict) -> str:
+    """Format mesh geometry audit results."""
+    status = result.get("status", "UNKNOWN")
+    obj = result.get("object", "unknown")
+    lines = [f"**Mesh Geometry Audit — {obj}**", f"Status: {status}", ""]
+    for key in ("vertices", "edges", "faces", "triangles", "loose_vertices", "loose_edges", "non_manifold_edges", "degenerate_faces", "is_manifold", "boundary_edges"):
+        if key in result:
+            lines.append(f"  • {key}: {result[key]}")
+    issues = result.get("issues") or []
+    if issues:
+        lines.append("")
+        lines.append("Issues:")
+        for issue in issues:
+            lines.append(f"  • {issue}")
+    return "\n".join(lines)
 
 
 # Register the tools when this module is imported

@@ -27,6 +27,13 @@ def _register_render_tools():
         file_format: str = "PNG",
         render_engine: str = "CYCLES",
         samples: int = 128,
+        device: str = "GPU",
+        use_denoising: bool = True,
+        layer_name: str = "ViewLayer",
+        use_bloom: bool = True,
+        use_ssao: bool = True,
+        use_motion_blur: bool = False,
+        use_dof: bool = False,
         shading_mode: str = "SOLID",
         angles: int = 4,
         elevation_deg: float = 25.0,
@@ -44,12 +51,20 @@ def _register_render_tools():
         - **render_current_frame**: Render only the current timeline frame
         - **screenshot_viewport**: Capture viewport for agent vision (prefers live GUI session)
         - **render_multi_angle**: Render N stills from orbit angles for review loops
+        - **set_engine**: Configure Cycles/EEVEE engine, samples, device
+        - **configure_layers**: Enable render passes on a view layer
+        - **setup_post_processing**: EEVEE bloom, SSAO, motion blur, DOF
         """
         from blender_mcp.handlers.render_handler import (
             render_multi_angle,
             render_preview,
             render_turntable,
             screenshot_viewport,
+        )
+        from blender_mcp.handlers.rendering_handler import (
+            configure_render_layers,
+            set_render_engine,
+            setup_post_processing,
         )
 
         try:
@@ -62,6 +77,30 @@ def _register_render_tools():
                     resolution_y=resolution_y,
                     shading_mode=shading_mode,
                     prefer_session=prefer_session,
+                )
+                return json.dumps(result, indent=2)
+
+            if operation == "set_engine":
+                result = await set_render_engine(
+                    engine=render_engine,
+                    device=device,
+                    use_denoising=use_denoising,
+                    samples=samples,
+                    resolution_x=resolution_x,
+                    resolution_y=resolution_y,
+                )
+                return json.dumps(result, indent=2)
+
+            if operation == "configure_layers":
+                result = await configure_render_layers(layer_name=layer_name)
+                return json.dumps(result, indent=2)
+
+            if operation == "setup_post_processing":
+                result = await setup_post_processing(
+                    use_bloom=use_bloom,
+                    use_ssao=use_ssao,
+                    use_motion_blur=use_motion_blur,
+                    use_dof=use_dof,
                 )
                 return json.dumps(result, indent=2)
 
@@ -111,7 +150,7 @@ def _register_render_tools():
                 return (
                     f"Unknown render operation: {operation}. Available: render_preview, "
                     "render_turntable, render_animation, render_current_frame, "
-                    "screenshot_viewport, render_multi_angle"
+                    "screenshot_viewport, render_multi_angle, set_engine, configure_layers, setup_post_processing"
                 )
 
         except Exception as e:

@@ -105,6 +105,7 @@ Access the dashboard at **http://localhost:10848**.
 | **Textures & UVs** | procedural textures, image textures, UV unwrap, texture baking |
 | **Video Editing (VSE)** | 20 operations: add clips, transitions, text, audio, render to MP4 |
 | **Generative AI** | **`blender_ai_generate`** (Rodin/Tripo/Hunyuan), **`blender_geonodes`**, **`blender_vision_refine`** |
+| **Validation & batch** | **`blender_validation`** geometry audit; **`blender_batch`** resize/convert/export |
 | **Agent utilities** | **`blender_api_docs`**, **`blender_session`**, **`blender_jobs`** async queue |
 
 **Key capabilities:**

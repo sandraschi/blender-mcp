@@ -40,6 +40,8 @@ async def set_render_engine(
     device: str = "GPU",
     use_denoising: bool = True,
     samples: int = 64,
+    resolution_x: int = 1920,
+    resolution_y: int = 1080,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Set the active render engine and its basic configuration.
@@ -86,9 +88,11 @@ def configure_render_engine():
     # Set the render engine
     scene.render.engine = '{engine}'
 
-    # Common settings
-    scene.render.resolution_x = {scene.render.resolution_x}
-    scene.render.resolution_y = {scene.render.resolution_y}
+    # Common settings (preserve resolution unless overridden via kwargs)
+    res_x = {resolution_x}
+    res_y = {resolution_y}
+    scene.render.resolution_x = res_x
+    scene.render.resolution_y = res_y
     scene.render.resolution_percentage = 100
 
     if '{engine}' == '{RENDER_ENGINE_CYCLES}':

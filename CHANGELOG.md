@@ -5,6 +5,22 @@ All notable changes to **Blender MCP** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2026-05-28
+
+### Added
+- **Phase 4 — Measurement & polish** (see [docs/ROADMAP.md](docs/ROADMAP.md))
+  - **`blender_validation`**: `validate_geometry`, `check_manifold` mesh audits (polycount, non-manifold, loose geometry)
+  - **`blender_render`**: `set_engine`, `configure_layers`, `setup_post_processing` wired from `rendering_handler`
+  - **`blender_batch`**: resize, convert, export batch ops
+  - **`blender_addons`**: consolidated enable/disable/install_known/info (canonical addon tool)
+  - **`manage_blender_addons`**: compatibility alias delegating to `blender_addons`
+  - **`scripts/smoke_test.py`**: headless registration + bpy smoke test
+- **Tests**: `tests/test_phase4_tools.py`
+
+### Fixed
+- **`blender_geonodes`**: script indentation (textwrap.dedent) for headless execution
+- **`set_render_engine`**: invalid f-string referencing undefined `scene` at template build time
+
 ## [0.9.0] - 2026-05-28
 
 ### Added

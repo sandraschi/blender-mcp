@@ -57,11 +57,13 @@ uv run python -m blender_mcp.cli --http --port 10849
 | Rodin (Hyper3D) | `RODIN_API_KEY` or `HYPER3D_API_KEY` |
 | Hunyuan3D | `HUNYUAN3D_API_KEY` (+ optional `HUNYUAN3D_API_URL`) |
 
-## Phase 4 — Measurement and polish
+## Phase 4 — Measurement and polish (0.9.1)
 
-| Item | Notes |
-|------|-------|
-| Mesh validation audit | polycount, manifold checks |
-| Wire `rendering_handler` fully | render layers, passes |
-| Dedupe addon tools | `manage_blender_addons` vs `blender_addons` |
-| Implement documented `blender_batch` | batch convert/resize |
+**Status: complete**
+
+| Item | Tool / module |
+|------|----------------|
+| Mesh validation audit | `blender_validation` → `validate_geometry`, `check_manifold` |
+| Wire `rendering_handler` | `blender_render` → `set_engine`, `configure_layers`, `setup_post_processing` |
+| Dedupe addon tools | `blender_addons` canonical; `manage_blender_addons` alias |
+| `blender_batch` | resize, convert, export |

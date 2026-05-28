@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import textwrap
 from typing import Any
 
 from ..decorators import blender_operation
@@ -13,7 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 async def _run_geonodes_script(script_name: str, body: str, *, prefer_session: bool = True) -> dict[str, Any]:
-    indented = "\n".join(f"    {line}" if line.strip() else line for line in body.splitlines())
+    normalized = textwrap.dedent(body).strip("\n")
+    indented = "\n".join(f"    {line}" for line in normalized.splitlines())
     script = f"""
 import bpy
 import json
