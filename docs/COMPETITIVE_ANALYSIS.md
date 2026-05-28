@@ -1,6 +1,6 @@
 # Competitive Analysis — Blender MCP Ecosystem
 
-Last updated: 2026-05-28
+Last updated: 2026-05-28 (Phase 3 complete)
 
 This document compares **sandraschi/blender-mcp** (this repo) with other Blender MCP
 projects on GitHub and records what we adopt, what we skip, and our differentiation.
@@ -38,9 +38,9 @@ See [ROADMAP.md](ROADMAP.md) for phase tracking.
 | `get_python_api_docs` | `blender_api_docs` + `blender://api/{id}` resource | 1 (done) |
 | Async long-running jobs | `blender_jobs` | 2 (done) |
 | Mesh editing (extrude, bevel, …) | `blender_mesh` edit operations | 2 (done) |
-| AI mesh generation (Rodin/Hunyuan) | `blender_ai_generate` | 3 |
-| Vision refine loop | `blender_vision_refine` | 3 |
-| Geometry nodes portmanteau | `blender_geonodes` | 3 |
+| AI mesh generation (Rodin/Hunyuan/Tripo) | `blender_ai_generate` | 3 (done) |
+| Vision refine loop | `blender_vision_refine` | 3 (done) |
+| Geometry nodes portmanteau | `blender_geonodes` | 3 (done) |
 
 ## What we deliberately skip
 

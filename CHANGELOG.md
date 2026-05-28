@@ -5,6 +5,16 @@ All notable changes to **Blender MCP** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-05-28
+
+### Added
+- **Phase 3 — Generative & procedural** (see [docs/ROADMAP.md](docs/ROADMAP.md))
+  - **`blender_ai_generate`**: Rodin (Hyper3D), Tripo, Hunyuan backends; generate + import into Blender
+  - **`blender_geonodes`**: create_group, add_node, connect_nodes, assign_modifier, add_input, list_node_types
+  - **`blender_vision_refine`**: capture, review_bundle (multi-angle + scene summary), apply_script refinement loop
+  - **`utils/ai_mesh_backends.py`**: async submit/poll/download for external AI mesh APIs
+- **Tests**: `tests/test_phase3_tools.py`
+
 ## [0.8.1] - 2026-05-28
 
 ### Added

@@ -86,7 +86,7 @@ Startup flags: `-Headless` (background), `-BackendOnly` (API only), `-NoBrowser`
 
 Access the dashboard at **http://localhost:10848**.
 
-## Available Tools (45+ tools, 180+ operations)
+## Available Tools (48+ tools, 195+ operations)
 
 | Category | Tools |
 |----------|-------|
@@ -104,6 +104,7 @@ Access the dashboard at **http://localhost:10848**.
 | **Modifiers & Effects** | subdivision, bevel, array, boolean, lattice |
 | **Textures & UVs** | procedural textures, image textures, UV unwrap, texture baking |
 | **Video Editing (VSE)** | 20 operations: add clips, transitions, text, audio, render to MP4 |
+| **Generative AI** | **`blender_ai_generate`** (Rodin/Tripo/Hunyuan), **`blender_geonodes`**, **`blender_vision_refine`** |
 | **Agent utilities** | **`blender_api_docs`**, **`blender_session`**, **`blender_jobs`** async queue |
 
 **Key capabilities:**

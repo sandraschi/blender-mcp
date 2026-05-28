@@ -38,14 +38,24 @@ uv run python -m blender_mcp.cli --http --port 10849
 | Async job queue | `blender_jobs` (`submit`, `status`, `list`, `cancel`) |
 | Mesh edit portmanteau | `blender_mesh` → extrude, inset, bevel_modifier, subdivide, merge_vertices, delete_faces, join, separate_loose, triangulate |
 
-## Phase 3 — Generative and procedural (0.9.x)
+## Phase 3 — Generative and procedural (0.9.0)
+
+**Status: complete**
 
 | Item | Tool / module |
 |------|----------------|
 | AI mesh backends (Rodin/Hunyuan/Tripo) | `blender_ai_generate` |
 | Vision refinement loop | `blender_vision_refine` |
 | Geometry nodes | `blender_geonodes` |
-| Optional socket-only addon mode | parity with ahujasid UX |
+| Optional socket-only addon mode | deferred — HTTP + bridge addon cover live GUI |
+
+### AI mesh API keys
+
+| Backend | Environment variable |
+|---------|---------------------|
+| Tripo | `TRIPO_API_KEY` |
+| Rodin (Hyper3D) | `RODIN_API_KEY` or `HYPER3D_API_KEY` |
+| Hunyuan3D | `HUNYUAN3D_API_KEY` (+ optional `HUNYUAN3D_API_URL`) |
 
 ## Phase 4 — Measurement and polish
 
