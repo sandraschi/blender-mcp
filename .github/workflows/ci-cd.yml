@@ -345,7 +345,7 @@ jobs:
 
         **Option 2 - One Command:**
         \`\`\`bash
-        uvx mcpb install sandraschi/blender-mcp
+        npx @anthropic-ai/mcpb install sandraschi/blender-mcp
         \`\`\`
 
         ### 📦 Downloads
