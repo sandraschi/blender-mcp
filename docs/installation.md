@@ -1,4 +1,4 @@
-# Installation Guide
+﻿# Installation Guide
 
 > **Canonical guide:** [INSTALL.md](../INSTALL.md) in the repo root. Content below is kept
 > in sync for docs navigation (`docsviewer`, cross-links).
