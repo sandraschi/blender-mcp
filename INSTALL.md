@@ -1,13 +1,14 @@
 # Installing blender-mcp
 
-Control Blender from Claude Desktop (or Cursor) via MCP. Most users need only Option A.
+Control Blender from Claude Desktop (or Cursor) via MCP. Most users need only drag-and-drop `.mcpb` install (Option A).
 
 ## Prerequisites
 
+### MCP host
+
 | Tool | Required for | Install |
 |------|--------------|---------|
-| **Claude Desktop** | All options | [claude.ai/download](https://claude.ai/download) |
-| **Blender 3.0+** | Running 3D operations | [blender.org/download](https://www.blender.org/download/) |
+| **Claude Desktop** | Options A–C | [claude.ai/download](https://claude.ai/download) |
 | **Git** | Options C, D only | `winget install Git.Git` |
 | **Python + uv** | Options C, D only | `winget install astral-sh.uv` |
 | **Node.js** | Option B only | `winget install OpenJS.NodeJS` |
@@ -16,11 +17,42 @@ Control Blender from Claude Desktop (or Cursor) via MCP. Most users need only Op
 > **macOS:** use `brew install git uv node` equivalents.  
 > After any winget install, **close and reopen PowerShell** so PATH updates apply.
 
-Set Blender path if auto-detection fails (see [docs/CONFIGURATION.md](docs/CONFIGURATION.md)):
+> **Docker:** not required for Options A–C. Optional observability stack: [docs/DOCKER.md](docs/DOCKER.md) and [docs/MONITORING.md](docs/MONITORING.md) (developers / homelab only).
+
+### Host application — Blender (required for 3D tools)
+
+Blender is **never bundled** in `.mcpb`, Tauri installer, or release assets. Install separately:
+
+| Tool | Required for | Install |
+|------|--------------|---------|
+| **Blender 3.0+** | Mesh, materials, render, export | [blender.org/download](https://www.blender.org/download/) |
+
+Set path if auto-detection fails ([docs/CONFIGURATION.md](docs/CONFIGURATION.md)):
 
 ```powershell
 $env:BLENDER_EXECUTABLE = "C:\Program Files\Blender Foundation\Blender 5.1\blender.exe"
 ```
+
+The small **bridge add-on** (`docs/blender_bridge_addon.py`) ships in the repo for live GUI sessions — not the Blender binary.
+
+### LLM / inference (optional — script generation)
+
+Script generation (`generate_blender_script`, Agent Lab) needs **one** inference path. Models are **never** bundled — download separately.
+
+| Path | When | Install |
+|------|------|---------|
+| **Ollama** (local) | Normal PC; beginners | `winget install Ollama.Ollama` then `ollama pull llama3.2` (or another coding model) |
+| **LM Studio** (local) | Prefer GUI model browser | [lmstudio.ai](https://lmstudio.ai/) → load a model from [Hugging Face](https://huggingface.co/models) or built-in search |
+| **Cloud API** | Weak PC / no GPU / no local LLM | Webapp **Settings → LLM → Cloud** — OpenAI-compatible base URL + API key (DeepSeek, OpenRouter, OpenCode gateway, etc.) |
+| **vLLM** (advanced) | Homelab OpenAI-compatible server | Set base URL in Settings — see [docs/CONFIGURATION.md](docs/CONFIGURATION.md) |
+
+**Weak PC:** skip Ollama; use cloud only (e.g. [OpenCode](https://opencode.ai/) + inexpensive model such as DeepSeek V4 Flash).
+
+**Hugging Face:** browse the model page → download GGUF/safetensors, or use `ollama pull` / LM Studio import — we do not ship weights in the installer.
+
+MCP tools work without any LLM (direct mesh/material/scene ops). LLM is only for natural-language **script generation**.
+
+Configure in the webapp dashboard (**Settings → LLM**) or env vars in [docs/CONFIGURATION.md](docs/CONFIGURATION.md).
 
 ---
 
@@ -178,6 +210,8 @@ uv run python -c "import blender_mcp; print('OK')"
 | `command not found: uv` | `winget install astral-sh.uv`; reopen terminal |
 | `uvx mcpb` fails | Expected — use Option A or `npx @anthropic-ai/mcpb` |
 | Blender not found | Set `BLENDER_EXECUTABLE` — [CONFIGURATION.md](docs/CONFIGURATION.md) |
+| Script generation fails | Install Ollama **or** set cloud API in Settings → LLM → Cloud |
+| No local models listed | Start Ollama/LM Studio, or switch to Cloud provider in Settings |
 | Port 10848/10849 in use | Re-run `.\start.ps1` or stop the conflicting process |
 | `just` not found | Dev-only — `winget install Casey.Just` or use Option A |
 

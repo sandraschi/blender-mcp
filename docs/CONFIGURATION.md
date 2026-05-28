@@ -9,6 +9,9 @@ Environment variables and Claude Desktop config for blender-mcp.
 | `BLENDER_EXECUTABLE` | Auto-detected common paths | Path to `blender.exe` or `blender` binary |
 | `BLENDER_PATH` | — | Legacy alias checked by CLI status |
 | `BLENDER_ADDONS_PATH` | User addons folder | Override Blender addons directory |
+| `OLLAMA_HOST` | `http://127.0.0.1:11434` | Ollama API (script generation, model list) |
+| `OPENAI_API_BASE` | — | Cloud or vLLM OpenAI-compatible endpoint (Tier B weak-PC path) |
+| `OPENAI_API_KEY` | — | API key for cloud / vLLM when required |
 | `MCP_TRANSPORT` | `stdio` | `stdio`, `http`, or `sse` |
 | `MCP_HOST` | `127.0.0.1` | HTTP/SSE bind address |
 | `MCP_PORT` | `10849` | HTTP MCP port (fleet range 10700+) |
@@ -69,7 +72,21 @@ export BLENDER_MCP_LOG_FORMAT=json
 
 ## Docker
 
-Container defaults and overrides: [DOCKER.md](DOCKER.md).
+**Not required** for Claude Desktop or Tauri install. Optional for developers and homelab observability (Prometheus/Grafana/Loki).
+
+Container defaults and overrides: [DOCKER.md](DOCKER.md). Fleet rule: [mcp-central-docs — LLM and Install Tiers](https://github.com/sandraschi/mcp-central-docs/blob/master/standards/LLM_AND_INSTALL_TIERS.md).
+
+## LLM settings (webapp)
+
+The dashboard persists provider choice under **Settings → LLM**:
+
+| Provider | Fields |
+|----------|--------|
+| Ollama | `ollama_url` (default `http://localhost:11434`), selected model |
+| LM Studio | `lmstudio_url` (default `http://localhost:1234`), selected model |
+| Cloud | `openai_api_key`, `openai_model`, optional custom base URL via env |
+
+Cloud examples: DeepSeek API, OpenRouter, or an OpenCode `serve` gateway pointing at a cheap model.
 
 ## Related Docs
 

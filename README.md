@@ -63,7 +63,8 @@ Extended guides: [docs/DOCUMENTATION_INDEX.md](docs/DOCUMENTATION_INDEX.md)
 ## Requirements
 
 - **Claude Desktop** (or any MCP client for manual config)
-- **Blender 3.0+** — auto-detected; override with `BLENDER_EXECUTABLE`
+- **Blender 3.0+** — installed separately, never bundled; override with `BLENDER_EXECUTABLE`
+- **LLM (optional)** — Ollama, LM Studio, or cloud API for script generation; see [INSTALL.md](INSTALL.md)
 - **OS:** Windows, macOS, Linux
 - **Python 3.12+** — only for Options C/D (clone-from-source)
 
