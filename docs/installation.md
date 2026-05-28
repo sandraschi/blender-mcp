@@ -149,7 +149,7 @@ Done — Claude Desktop registers the server automatically.
 ### Option B — mcpb CLI
 
 Requires the [mcpb CLI](https://github.com/anthropics/mcpb) to be installed first.
-`mcpb` is **not** on PyPI — `uvx mcpb` will not work. Install it per the mcpb docs, then:
+`mcpb` is **not** on PyPI — `npx @anthropic-ai/mcpb` will not work. Install it per the mcpb docs, then:
 
 ```bash
 mcpb install sandraschi/blender-mcp
