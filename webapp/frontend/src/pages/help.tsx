@@ -1,8 +1,26 @@
 import { useState } from "react";
 
-type TabKey = "vse" | "grease-pencil" | "mesh" | "animation" | "splatting" | "vrm";
+type TabKey =
+  | "vse"
+  | "grease-pencil"
+  | "mesh"
+  | "animation"
+  | "splatting"
+  | "vrm"
+  | "agent-lab"
+  | "vision"
+  | "shaders"
+  | "sculpt-geonodes"
+  | "ai-ops"
+  | "monitoring";
 
 const tabs: { key: TabKey; label: string }[] = [
+  { key: "agent-lab", label: "Agent Lab (v0.10)" },
+  { key: "vision", label: "Vision Loop" },
+  { key: "shaders", label: "Shaders / Comp" },
+  { key: "sculpt-geonodes", label: "Sculpt / GeoNodes" },
+  { key: "ai-ops", label: "AI / Jobs / Batch" },
+  { key: "monitoring", label: "Telemetry" },
   { key: "vse", label: "Video Editor (VSE)" },
   { key: "grease-pencil", label: "Grease Pencil" },
   { key: "mesh", label: "Mesh & Primitives" },
@@ -12,6 +30,138 @@ const tabs: { key: TabKey; label: string }[] = [
 ];
 
 const content: Record<TabKey, { title: string; sections: { heading: string; lines: string[] }[] }> = {
+  "agent-lab": {
+    title: "Agent Lab (Phases 1–5)",
+    sections: [
+      {
+        heading: "Webapp",
+        lines: [
+          "Route /agent-tools — tabbed UI for vision, shaders, mesh edit, sculpt, geonodes, AI generate, jobs, validation, telemetry.",
+          "Live GUI: blender_session start + bridge addon for viewport screenshot and mesh edit.",
+          "Headless: server spawns Blender subprocess automatically.",
+        ],
+      },
+      {
+        heading: "New tools (summary)",
+        lines: [
+          "blender_render: screenshot_viewport, render_multi_angle",
+          "blender_shaders, blender_compositor — node graphs",
+          "blender_mesh: extrude, inset, bevel_modifier, subdivide, triangulate, join, separate",
+          "blender_sculpt — sculpt mode, brushes, dynotopo, remesh",
+          "blender_geonodes — procedural geometry",
+          "blender_ai_generate — Tripo/Rodin/Hunyuan mesh import",
+          "blender_vision_refine — review_bundle for agent feedback",
+          "blender_jobs — async script queue",
+          "blender_validation, blender_batch — geometry audit and folder batch ops",
+          "blender_api_docs — bpy reference lookup",
+        ],
+      },
+    ],
+  },
+  vision: {
+    title: "Vision & review loop",
+    sections: [
+      {
+        heading: "Operations",
+        lines: [
+          "blender_render(operation='screenshot_viewport', output_path=...)",
+          "blender_render(operation='render_multi_angle', output_dir=..., angles=4)",
+          "blender_vision_refine(operation='review_bundle', output_dir=..., goal=...)",
+        ],
+      },
+      {
+        heading: "Notes",
+        lines: [
+          "Prefer live session + bridge for true viewport capture.",
+          "Headless falls back to off-screen still render.",
+        ],
+      },
+    ],
+  },
+  shaders: {
+    title: "Shaders & compositor",
+    sections: [
+      {
+        heading: "blender_shaders",
+        lines: [
+          "blender_shaders(operation='create_material', material_name=...)",
+          "blender_shaders(operation='connect_nodes', material_name=..., from_node=..., to_node=...)",
+        ],
+      },
+      {
+        heading: "blender_compositor",
+        lines: [
+          "blender_compositor(operation='enable')",
+          "blender_compositor(operation='glow')",
+          "blender_compositor(operation='add_node', node_type=...)",
+        ],
+      },
+    ],
+  },
+  "sculpt-geonodes": {
+    title: "Sculpt & Geometry Nodes",
+    sections: [
+      {
+        heading: "blender_sculpt",
+        lines: [
+          "blender_sculpt(operation='enter', object_name=..., prefer_session=True)",
+          "blender_sculpt(operation='set_brush', brush_name='Grab')",
+          "blender_sculpt(operation='dynotopo' | 'symmetrize' | 'voxel_remesh')",
+          "blender_sculpt(operation='list_brushes')",
+        ],
+      },
+      {
+        heading: "blender_geonodes",
+        lines: [
+          "blender_geonodes(operation='create_group', group_name=...)",
+          "blender_geonodes(operation='assign_modifier', group_name=..., object_name=...)",
+          "blender_geonodes(operation='list_node_types')",
+        ],
+      },
+    ],
+  },
+  "ai-ops": {
+    title: "AI generation, jobs, validation, batch",
+    sections: [
+      {
+        heading: "AI mesh",
+        lines: [
+          "Set TRIPO_API_KEY, RODIN_API_KEY, or HUNYUAN3D_API_KEY in server env.",
+          "blender_ai_generate(operation='generate', prompt=..., backend='tripo', object_name=...)",
+          "blender_ai_generate(operation='list_backends')",
+        ],
+      },
+      {
+        heading: "Async & batch",
+        lines: [
+          "blender_jobs(operation='submit', script=..., script_name=...)",
+          "blender_jobs(operation='list' | 'status', job_id=...)",
+          "blender_validation(operation='validate_geometry' | 'check_manifold', object_name=...)",
+          "blender_batch(operation='resize' | 'convert', input_dir=..., pattern='*.png')",
+        ],
+      },
+    ],
+  },
+  monitoring: {
+    title: "Telemetry, Docker, monitoring",
+    sections: [
+      {
+        heading: "Observability",
+        lines: [
+          "Prometheus metrics on MCP HTTP port 10849 (/metrics) and optional sidecar 9091.",
+          "BLENDER_MCP_LOG_FORMAT=json for Loki ingestion.",
+          "docker compose --profile monitoring up -d — Grafana :3000, Prometheus, Loki.",
+          "Image: ghcr.io/sandraschi/blender-mcp:latest — see docs/DOCKER.md, docs/MONITORING.md.",
+        ],
+      },
+      {
+        heading: "Smoke test",
+        lines: [
+          "uv run python scripts/smoke_test.py — headless validation of phase tools.",
+        ],
+      },
+    ],
+  },
   "vse": {
     title: "Video Sequence Editor",
     sections: [
@@ -81,8 +231,9 @@ const content: Record<TabKey, { title: string; sections: { heading: string; line
       {
         heading: "Overview",
         lines: [
-          "The blender_mesh tool creates and manipulates mesh primitives.",
-          "9 operations: cube, sphere, cylinder, cone, plane, torus, monkey, duplicate, delete.",
+          "The blender_mesh tool creates and manipulates mesh primitives and edit-mode ops.",
+          "Create: cube, sphere, cylinder, cone, plane, torus, monkey, duplicate, delete.",
+          "Edit (live session preferred): extrude, inset, bevel_modifier, subdivide, triangulate, join, separate.",
         ],
       },
       {
@@ -159,7 +310,7 @@ const content: Record<TabKey, { title: string; sections: { heading: string; line
 };
 
 export default function Help() {
-  const [activeTab, setActiveTab] = useState<TabKey>("vse");
+  const [activeTab, setActiveTab] = useState<TabKey>("agent-lab");
 
   const tab = content[activeTab];
 

@@ -88,6 +88,22 @@ Startup flags: `-Headless` (background), `-BackendOnly` (API only), `-NoBrowser`
 
 Access the dashboard at **http://localhost:10848**.
 
+### Webapp pages
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Scene Explorer |
+| `/construct`, `/constructor` | CSG construct + AI constructor |
+| `/materials` | Material store |
+| `/mesh` | Mesh, collider, Gaussian splat |
+| **`/agent-tools`** | **Vision, shaders, mesh edit, sculpt, geonodes, AI generate, jobs, validation, telemetry** |
+| `/grease-pencil`, `/animation-2d`, `/storyboard` | 2D animation pipeline |
+| `/vr` | VRChat / Resonite / Unity export |
+| `/scripts` | Script console |
+| `/video` | VSE video editor |
+| `/help` | Tool reference (Agent Lab tabs) |
+| `/status`, `/settings`, `/apps` | Ops and fleet hub |
+
 ## Available Tools (48+ tools, 195+ operations)
 
 | Category | Tools |

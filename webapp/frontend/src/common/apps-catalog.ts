@@ -27,7 +27,8 @@ export const FLEET_REGISTRY: FleetMember[] = [
   {
     id: "blender-mcp",
     name: "Blender Control",
-    description: "3D visualization and geometry orchestration.",
+    description:
+      "Agentic 3D: vision loop, sculpt, geonodes, AI mesh (Tripo/Rodin), jobs, validation, Prometheus.",
     port: 10848,
     repo_path: "D:/Dev/repos/blender-mcp",
     icon: Box,

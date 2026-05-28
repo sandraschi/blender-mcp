@@ -16,8 +16,10 @@ import {
   Settings,
   Terminal,
   Wand2,
+  ScanEye,
 } from "lucide-react";
 import { Link, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
+import AgentToolsPage from "./pages/agent-tools";
 import AddonManagerPage from "./pages/addon-manager";
 import AIConstructor from "./pages/ai-constructor";
 import Apps from "./pages/apps";
@@ -86,6 +88,11 @@ function Layout() {
           <NavItem to="/addons" icon={Puzzle} label="Addon Manager" />
 
           <div className="mt-6 px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Agent Lab
+          </div>
+          <NavItem to="/agent-tools" icon={ScanEye} label="Agent Tools" />
+
+          <div className="mt-6 px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             AI Assistant
           </div>
           <NavItem to="/chat" icon={MessageSquare} label="Chat" />
@@ -117,7 +124,7 @@ function Layout() {
           <div className="flex items-center space-x-3">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             <span className="text-sm font-medium text-muted-foreground">System Online</span>
-            <span className="text-xs text-muted-foreground ml-auto">v1.0.0</span>
+            <span className="text-xs text-muted-foreground ml-auto">v0.10.0</span>
           </div>
         </div>
       </div>
@@ -149,6 +156,7 @@ function Layout() {
             <Route path="/constructor" element={<AIConstructor />} />
             <Route path="/materials" element={<MaterialStore />} />
             <Route path="/mesh" element={<MeshColliderSplat />} />
+            <Route path="/agent-tools" element={<AgentToolsPage />} />
             <Route path="/repository" element={<RepositoryPage />} />
             <Route path="/addons" element={<AddonManagerPage />} />
             <Route path="/chat" element={<Chat />} />
