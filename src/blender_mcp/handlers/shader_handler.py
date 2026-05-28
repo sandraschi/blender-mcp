@@ -6,6 +6,7 @@ and managing materials in Blender through the MCP interface.
 
 from __future__ import annotations
 
+import json
 import logging
 from enum import Enum
 from typing import Any, ClassVar, Literal, TypeVar
@@ -83,6 +84,7 @@ async def create_shader_node(
     node_type: ShaderType | str,
     node_name: str | None = None,
     location: NodeLocation | tuple[float, float] = (0.0, 0.0),
+    node_properties: dict[str, Any] | None = None,
 ) -> ShaderOperationResult:
     """Create a shader node in a material.
 
@@ -101,6 +103,7 @@ async def create_shader_node(
 
     # Convert ShaderType enum to string if needed
     node_type_str = node_type.value if isinstance(node_type, ShaderType) else str(node_type)
+    props_json = json.dumps(node_properties or {})
 
     script = f"""
 import json
@@ -132,7 +135,7 @@ def create_shader_node():
         print(f"🔹 Created node: {{node.name}} ({{node.type}})")
 
         # Set node properties from kwargs
-        properties = {json.dumps(properties) if properties else "{}"}
+        properties = {props_json}
         properties_set = {{}}
 
         for key, value in properties.items():

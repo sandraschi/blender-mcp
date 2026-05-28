@@ -121,6 +121,22 @@ Access the dashboard at **http://localhost:10848**.
 
 ---
 
+## Live Blender session (bridge)
+
+For **interactive GUI** work (user watches the agent build):
+
+1. Start the MCP HTTP server (`.\start.ps1` or `uv run python -m blender_mcp.cli --http --port 10849`)
+2. Use MCP tool **`blender_session`** with `operation=start` to launch Blender GUI
+3. In Blender: **Edit → Preferences → Add-ons → Install** → select **`docs/blender_bridge_addon.py`**
+4. Enable **Blender MCP Session Bridge** → **Properties → Scene → Blender MCP Bridge → Start Bridge**
+5. Agent tools execute in the live scene; **`blender_render`** `screenshot_viewport` returns PNG + base64 for vision loops
+
+Without the bridge, tools fall back to **headless** Blender subprocess execution.
+
+See [COMPETITIVE_ANALYSIS.md](COMPETITIVE_ANALYSIS.md) and [ROADMAP.md](ROADMAP.md).
+
+---
+
 ## Claude Desktop Integration
 
 ### Option A — Drag and drop (easiest)

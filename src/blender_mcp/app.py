@@ -323,6 +323,17 @@ def _register_fleet_api(app):
 def _register_resources(app):
     """Register MCP resources for the Blender server."""
 
+    @app.resource("blender://api/{identifier}")
+    async def get_bpy_api_doc(identifier: str) -> str:
+        """Blender Python API documentation excerpt for an identifier."""
+        from blender_mcp.utils.bpy_api_docs import fetch_api_doc
+
+        try:
+            doc = fetch_api_doc(identifier)
+            return json.dumps(doc, indent=2)
+        except Exception as e:
+            return json.dumps({"error": str(e), "identifier": identifier})
+
     @app.resource("blender://scripts/{category}")
     async def get_script_collection(category: str) -> str:
         """Get a collection of construction scripts for a specific category."""

@@ -262,3 +262,174 @@ else:
     except Exception as e:
         logger.error(f"Failed to export for VRChat: {e!s}")
         raise BlenderExportError("VRM", output_path, str(e)) from e
+
+
+def _selection_script(object_names: list[str] | None) -> str:
+    if not object_names:
+        return """
+mesh_objects = [obj for obj in scene.objects if obj.type == 'MESH']
+bpy.ops.object.select_all(action='DESELECT')
+for obj in mesh_objects:
+    obj.select_set(True)
+"""
+    names_repr = repr(object_names)
+    return f"""
+mesh_objects = [obj for obj in scene.objects if obj.name in {names_repr}]
+bpy.ops.object.select_all(action='DESELECT')
+for obj in mesh_objects:
+    obj.select_set(True)
+"""
+
+
+@blender_operation("export_scene_format", log_args=True)
+async def export_scene_format(
+    output_path: str,
+    file_format: str = "GLB",
+    object_names: list[str] | None = None,
+    apply_modifiers: bool = True,
+    global_scale: float = 1.0,
+) -> dict[str, Any]:
+    """Export the scene to a standard interchange format."""
+    from enum import Enum
+
+    class ExportFormat(str, Enum):
+        GLTF = "GLTF"
+        GLB = "GLB"
+        FBX = "FBX"
+        OBJ = "OBJ"
+        STL = "STL"
+        USD = "USD"
+        VRM = "VRM"
+
+    fmt = file_format.upper()
+    if fmt not in {item.value for item in ExportFormat}:
+        raise BlenderExportError(fmt, output_path, f"Unsupported export format: {file_format}")
+
+    output_path = str(Path(output_path).absolute())
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+
+    selection_block = _selection_script(object_names)
+    export_op = ""
+    if fmt in ("GLTF", "GLB"):
+        export_format = "GLB" if fmt == "GLB" else "GLTF_SEPARATE"
+        export_op = f"""
+    bpy.ops.export_scene.gltf(
+        filepath=r"{output_path}",
+        use_selection=True,
+        export_format='{export_format}',
+        export_apply={str(apply_modifiers).lower()},
+        export_yup=True,
+    )
+"""
+    elif fmt == "FBX":
+        export_op = f"""
+    bpy.ops.export_scene.fbx(
+        filepath=r"{output_path}",
+        use_selection=True,
+        apply_scale_options='FBX_SCALE_ALL',
+        global_scale={global_scale},
+        apply_unit_scale=True,
+        bake_space_transform=True,
+        use_mesh_modifiers={str(apply_modifiers).lower()},
+        add_leaf_bones=False,
+    )
+"""
+    elif fmt == "OBJ":
+        export_op = f"""
+    bpy.ops.export_scene.obj(
+        filepath=r"{output_path}",
+        use_selection=True,
+        use_mesh_modifiers={str(apply_modifiers).lower()},
+        global_scale={global_scale},
+    )
+"""
+    elif fmt == "STL":
+        export_op = f"""
+    bpy.ops.export_mesh.stl(
+        filepath=r"{output_path}",
+        use_selection=True,
+        use_mesh_modifiers={str(apply_modifiers).lower()},
+        global_scale={global_scale},
+    )
+"""
+    elif fmt == "USD":
+        export_op = f"""
+    bpy.ops.wm.usd_export(
+        filepath=r"{output_path}",
+        selected_objects_only=True,
+    )
+"""
+    elif fmt == "VRM":
+        export_op = f"""
+    bpy.ops.export_scene.vrm(
+        filepath=r"{output_path}",
+        export_only_selections=True,
+    )
+"""
+
+    script = _get_export_script_setup(output_path)
+    script += selection_block
+    script += f"""
+try:
+{export_op}
+    print("EXPORT_SUCCESS:" + r"{output_path}")
+except Exception as e:
+    print("EXPORT_ERROR:" + str(e))
+    raise
+"""
+    await _executor.execute_script(script, script_name=f"export_{fmt.lower()}")
+    return {
+        "success": True,
+        "format": fmt,
+        "output_path": output_path,
+        "message": f"Exported scene to {fmt} at {output_path}",
+    }
+
+
+@blender_operation("export_for_unreal", log_args=True)
+async def export_for_unreal(
+    output_path: str,
+    object_names: list[str] | None = None,
+    global_scale: float = 1.0,
+    apply_modifiers: bool = True,
+) -> dict[str, Any]:
+    """Export FBX with settings suited for Unreal Engine import."""
+    if not output_path.lower().endswith(".fbx"):
+        output_path = str(Path(output_path).with_suffix(".fbx"))
+
+    output_path = str(Path(output_path).absolute())
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+    selection_block = _selection_script(object_names)
+
+    script = _get_export_script_setup(output_path)
+    script += selection_block
+    script += f"""
+try:
+    bpy.ops.export_scene.fbx(
+        filepath=r"{output_path}",
+        use_selection=True,
+        apply_scale_options='FBX_SCALE_ALL',
+        global_scale={global_scale},
+        apply_unit_scale=True,
+        bake_space_transform=True,
+        use_mesh_modifiers={str(apply_modifiers).lower()},
+        mesh_smooth_type='FACE',
+        use_tspace=True,
+        add_leaf_bones=False,
+        axis_forward='-Z',
+        axis_up='Y',
+    )
+    print("EXPORT_SUCCESS:" + r"{output_path}")
+except Exception as e:
+    print("EXPORT_ERROR:" + str(e))
+    raise
+"""
+    await _executor.execute_script(script, script_name="export_unreal")
+    return {
+        "success": True,
+        "format": "FBX",
+        "platform": "unreal",
+        "output_path": output_path,
+        "message": f"Exported Unreal-compatible FBX to {output_path}",
+    }
+

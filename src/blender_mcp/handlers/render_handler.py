@@ -268,3 +268,189 @@ except Exception as e:
 
     except Exception as e:
         raise BlenderRenderError("preview_render", f"Failed to render preview: {e!s}")
+
+
+def _parse_script_lines(output: str) -> dict[str, str]:
+    """Parse KEY: value lines printed by generated Blender scripts."""
+    parsed: dict[str, str] = {}
+    for line in (output or "").splitlines():
+        if ":" in line:
+            key, _, value = line.partition(":")
+            parsed[key.strip()] = value.strip()
+    return parsed
+
+
+@blender_operation("screenshot_viewport", log_args=True)
+async def screenshot_viewport(
+    output_path: str,
+    resolution_x: int = 1280,
+    resolution_y: int = 720,
+    shading_mode: str = "SOLID",
+    prefer_session: bool = True,
+) -> dict[str, Any]:
+    """Capture the 3D viewport or a still render for agent vision feedback.
+
+    Prefers a live Blender GUI session (bridge addon) so the user sees the same
+    scene the agent is inspecting. Falls back to headless still render.
+    """
+    import base64
+    from pathlib import Path
+
+    from ..utils.blender_runtime import execute_bpy_script
+
+    output_path = str(Path(output_path).absolute())
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+    script = f"""
+import os
+import bpy
+
+output_path = r"{output_path}"
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
+scene = bpy.context.scene
+scene.render.resolution_x = {resolution_x}
+scene.render.resolution_y = {resolution_y}
+scene.render.filepath = output_path
+scene.render.image_settings.file_format = 'PNG'
+
+captured = False
+if bpy.context.screen:
+    for area in bpy.context.screen.areas:
+        if area.type == 'VIEW_3D':
+            for space in area.spaces:
+                if space.type == 'VIEW_3D':
+                    try:
+                        space.shading.type = '{shading_mode}'
+                    except Exception:
+                        pass
+            for region in area.regions:
+                if region.type == 'WINDOW':
+                    override = bpy.context.copy()
+                    override['area'] = area
+                    override['region'] = region
+                    with bpy.context.temp_override(**override):
+                        bpy.ops.render.opengl(write_still=True)
+                    captured = True
+                    break
+        if captured:
+            break
+
+if not captured or not os.path.exists(output_path):
+    bpy.ops.render.render(write_still=True)
+
+print("SCREENSHOT_PATH:" + output_path)
+print("SCREENSHOT_MODE:" + ("viewport" if captured else "render"))
+"""
+
+    result = await execute_bpy_script(
+        script,
+        script_name="screenshot_viewport",
+        timeout=90,
+        prefer_session=prefer_session,
+        headless_fallback=True,
+    )
+    if not result.get("success"):
+        raise BlenderRenderError("screenshot_viewport", result.get("error") or "Capture failed")
+
+    meta = _parse_script_lines(result.get("output", ""))
+    image_path = meta.get("SCREENSHOT_PATH", output_path)
+    payload: dict[str, Any] = {
+        "success": True,
+        "output_path": image_path,
+        "capture_mode": meta.get("SCREENSHOT_MODE", result.get("mode", "unknown")),
+        "session_used": result.get("session_used", False),
+        "execution_mode": result.get("mode"),
+        "resolution": [resolution_x, resolution_y],
+    }
+    try:
+        image_bytes = Path(image_path).read_bytes()
+        payload["image_base64"] = base64.b64encode(image_bytes).decode("ascii")
+        payload["mime_type"] = "image/png"
+    except OSError as exc:
+        payload["warning"] = f"Image saved but could not read for base64: {exc}"
+    return payload
+
+
+@blender_operation("render_multi_angle", log_args=True)
+async def render_multi_angle(
+    output_dir: str,
+    angles: int = 4,
+    elevation_deg: float = 25.0,
+    radius: float = 5.0,
+    resolution_x: int = 1024,
+    resolution_y: int = 1024,
+    prefer_session: bool = True,
+) -> dict[str, Any]:
+    """Render the scene from multiple camera angles for vision / review loops."""
+    import json
+    from pathlib import Path
+
+    from ..utils.blender_runtime import execute_bpy_script
+
+    output_dir = str(Path(output_dir).absolute())
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    script = f"""
+import json
+import math
+import os
+import bpy
+
+output_dir = r"{output_dir}"
+angles = {angles}
+elevation = math.radians({elevation_deg})
+radius = {radius}
+scene = bpy.context.scene
+scene.render.resolution_x = {resolution_x}
+scene.render.resolution_y = {resolution_y}
+scene.render.image_settings.file_format = 'PNG'
+
+cam = scene.camera
+if not cam:
+    bpy.ops.object.camera_add(location=(radius, -radius, radius * 0.6))
+    cam = bpy.context.active_object
+    scene.camera = cam
+
+paths = []
+for i in range(angles):
+    angle = (i / angles) * 2 * math.pi
+    x = radius * math.cos(angle) * math.cos(elevation)
+    y = radius * math.sin(angle) * math.cos(elevation)
+    z = radius * math.sin(elevation)
+    cam.location = (x, y, z)
+    import mathutils
+    cam.rotation_euler = (mathutils.Vector((0.0, 0.0, 0.0)) - cam.location).to_track_quat('-Z', 'Y').to_euler()
+    frame_path = os.path.join(output_dir, f"angle_{{i:02d}}.png")
+    scene.render.filepath = frame_path
+    bpy.ops.render.render(write_still=True)
+    paths.append(frame_path)
+
+print("MULTI_ANGLE_PATHS:" + json.dumps(paths))
+"""
+
+    result = await execute_bpy_script(
+        script,
+        script_name="render_multi_angle",
+        timeout=max(120, angles * 45),
+        prefer_session=prefer_session,
+        headless_fallback=True,
+    )
+    if not result.get("success"):
+        raise BlenderRenderError("render_multi_angle", result.get("error") or "Multi-angle render failed")
+
+    meta = _parse_script_lines(result.get("output", ""))
+    paths_raw = meta.get("MULTI_ANGLE_PATHS", "[]")
+    try:
+        paths = json.loads(paths_raw)
+    except json.JSONDecodeError:
+        paths = []
+
+    return {
+        "success": True,
+        "output_dir": output_dir,
+        "image_paths": paths,
+        "angle_count": len(paths),
+        "session_used": result.get("session_used", False),
+        "execution_mode": result.get("mode"),
+    }
+

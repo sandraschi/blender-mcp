@@ -21,6 +21,8 @@ with glowing red eyes" and watch it build your vision in Blender automatically.
 - [Available Tools](#available-tools-41-tools-170-operations)
 - [Documentation](#documentation)
   - [Installation Guide](INSTALL.md)
+  - [Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)
+  - [Roadmap](docs/ROADMAP.md)
   - [Addons, Mesh, Splat](docs/ADDONS_MESH_SPLAT.md)
   - [Video Editing (VSE)](docs/blender/VSE_GUIDE.md)
   - [Usage Examples](docs/USAGE.md)
@@ -48,6 +50,17 @@ for stdio MCP testing, or `.\start.ps1` for the webapp dashboard.
 
 See **[INSTALL.md](INSTALL.md)** for Claude Desktop, Cursor, and troubleshooting.
 
+### Live Blender GUI (watch the agent build)
+
+Headless is fine for batch work; for interactive sessions use the **session bridge**:
+
+1. Start HTTP MCP: `.\start.ps1` or `uv run python -m blender_mcp.cli --http --port 10849`
+2. `blender_session` → `start` (opens Blender GUI)
+3. Install **docs/blender_bridge_addon.py** → enable → **Start Bridge**
+4. Agent tools run in the live scene; use `blender_render` → `screenshot_viewport` for vision feedback
+
+Details: [INSTALL.md — Live Blender session](INSTALL.md#live-blender-session-bridge)
+
 ### Manual Setup (without `just`)
 
 ```powershell
@@ -73,36 +86,44 @@ Startup flags: `-Headless` (background), `-BackendOnly` (API only), `-NoBrowser`
 
 Access the dashboard at **http://localhost:10848**.
 
-## Available Tools (41+ tools, 170+ operations)
+## Available Tools (45+ tools, 180+ operations)
 
 | Category | Tools |
 |----------|-------|
 | **Scene Management** | create/clear/list scenes, collections, view layers |
-| **Mesh & Geometry** | cube, sphere, cylinder, plane, torus, monkey, text, curves, NURBS |
-| **Materials & Shaders** | metal, wood, glass, fabric, ceramic, plastic, emissive, presets |
+| **Mesh & Geometry** | primitives, duplicate/delete; **Phase 2:** extrude, bevel, inset, subdivide |
+| **Materials & Shaders** | presets + **`blender_shaders`** node graph (create/connect) |
+| **Compositor** | **`blender_compositor`** enable, nodes, glow |
 | **Furniture** | chair, table, bed, sofa, room, building |
 | **Lighting** | sun, point, spot, area lights, HDRI environments, lighting rigs |
-| **Camera & Viewport** | camera creation, positioning, rigs, viewport config |
+| **Camera & Viewport** | camera rigs; **`screenshot_viewport`**, **`render_multi_angle`** |
 | **Animation & Rigging** | armatures, character rigging, keyframes, walk cycles |
-| **Rendering & Output** | Cycles/EEVEE, render settings, animation rendering, render passes |
-| **Import & Export** | FBX, OBJ, glTF, STL, batch export |
+| **Rendering & Output** | Cycles/EEVEE, turntable, viewport capture for agent vision |
+| **Import & Export** | import broad formats; **export** GLTF, GLB, FBX, OBJ, STL, USD, VRM, Unity, VRChat, Unreal |
 | **Physics & Simulation** | rigid/soft body, cloth, fluid, particle systems |
 | **Modifiers & Effects** | subdivision, bevel, array, boolean, lattice |
 | **Textures & UVs** | procedural textures, image textures, UV unwrap, texture baking |
 | **Video Editing (VSE)** | 20 operations: add clips, transitions, text, audio, render to MP4 |
+| **Agent utilities** | **`blender_api_docs`**, **`blender_session`** live GUI bridge |
 
 **Key capabilities:**
+- **Live GUI bridge**: user sees construction in Blender while agents call MCP tools
+- **HTTP MCP** on port **10849** (FastMCP Streamable) — powers webapp + bridge addon
 - **Conversational 3D Creation**: Natural language to professional 3D objects
 - **FastMCP 3.2 Integration**: Advanced AI sampling and security validation
 - **Object Repository**: Versioned asset management with intelligent search
-- **Cross-Platform Export**: Handoff to VR platforms (VRChat, Resonite, Unity)
+- **Cross-Platform Export**: Handoff to VR platforms (VRChat, Resonite, Unity, Unreal)
 - **VRM Avatars**: Avatar pipeline for VR/AR applications
 - **3D Gaussian Splatting**: Import and render splats
 - **Grease Pencil**: 2D drawing in 3D space
 
+See [docs/COMPETITIVE_ANALYSIS.md](docs/COMPETITIVE_ANALYSIS.md) for how we compare to other Blender MCP repos.
+
 ## Documentation
 
 - **[Installation Guide](INSTALL.md)** — full setup and troubleshooting
+- **[Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)** — vs ahujasid, RFingAdam, zorak1103, others
+- **[Roadmap](docs/ROADMAP.md)** — phased improvements (vision, jobs, mesh edit, AI gen)
 - **[Addons, Mesh, Splat](docs/ADDONS_MESH_SPLAT.md)** — install addons from URL, search packs, download/import meshes, Gaussian splat import; webapp `/mesh` page
 - **[Video Editing (VSE)](docs/blender/VSE_GUIDE.md)** — Blender's built-in video editor: add clips, transitions, text, audio; render to MP4
 - **[Development](docs/DEVELOPMENT.md)** — Ruff (lint/format), code quality, server entry points

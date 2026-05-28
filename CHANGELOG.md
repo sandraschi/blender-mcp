@@ -5,6 +5,25 @@ All notable changes to **Blender MCP** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-05-28
+
+### Added
+- **Phase 1 — Agent vision & tool surface** (see [docs/ROADMAP.md](docs/ROADMAP.md), [docs/COMPETITIVE_ANALYSIS.md](docs/COMPETITIVE_ANALYSIS.md))
+  - **`blender_runtime`**: live Blender session preferred over headless subprocess when bridge is connected
+  - **`blender_render`**: `screenshot_viewport` (PNG path + base64), `render_multi_angle` for review loops
+  - **`blender_shaders`**: create_material, create_node, connect_nodes, list_node_types
+  - **`blender_compositor`**: enable, add_node, connect_nodes, glow
+  - **`blender_export`**: export_gltf, export_glb, export_fbx, export_obj, export_stl, export_usd, export_vrm, export_unreal
+  - **`blender_api_docs`** tool and **`blender://api/{identifier}`** MCP resource
+- **Documentation**: aligned [INSTALL.md](INSTALL.md) + [docs/installation.md](docs/installation.md); competitive analysis and roadmap docs
+- **Tests**: `tests/test_phase1_tools.py`
+
+### Fixed
+- **`create_shader_node`**: undefined `properties` parameter in generated script (now `node_properties`)
+
+### Changed
+- Install docs: corrected `just`/`uv sync` flow; MCPB install options; removed nonexistent Docker image reference
+
 ## [0.7.0] - 2026-05-19
 
 ### Added
