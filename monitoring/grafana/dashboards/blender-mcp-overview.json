@@ -1,0 +1,42 @@
+{
+  "title": "Blender MCP Overview",
+  "uid": "blender-mcp-overview",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Tool calls / min",
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "sum(rate(blender_mcp_tool_calls_total[5m])) * 60",
+          "legendFormat": "calls/min"
+        }
+      ]
+    },
+    {
+      "type": "graph",
+      "title": "Tool p95 latency (s)",
+      "gridPos": {"h": 8, "w": 16, "x": 8, "y": 0},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(blender_mcp_tool_duration_seconds_bucket[5m])) by (le, tool))",
+          "legendFormat": "{{tool}}"
+        }
+      ]
+    },
+    {
+      "type": "logs",
+      "title": "Blender MCP logs",
+      "gridPos": {"h": 10, "w": 24, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "{job=\"blender-mcp\"}",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

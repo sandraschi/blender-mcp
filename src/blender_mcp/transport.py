@@ -207,6 +207,15 @@ async def run_server_async(mcp_app, args: argparse.Namespace | None = None, serv
     logger.info(f"Transport: {transport.upper()}")
 
     try:
+        from blender_mcp.utils.telemetry import init_metrics, start_metrics_server
+
+        init_metrics()
+        if transport == "http" or os.getenv("PROMETHEUS_PORT"):
+            start_metrics_server()
+    except Exception as exc:
+        logger.warning("Metrics server startup skipped: %s", exc)
+
+    try:
         if transport == "stdio":
             logger.info("Running in STDIO mode - Ready for Claude Desktop!")
             await mcp_app.run_stdio_async()

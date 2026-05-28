@@ -1,0 +1,17 @@
+.git
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+node_modules
+webapp/frontend/node_modules
+dist
+logs
+*.md
+!README.md
+tests
+docs
+mcpb
+tauri-app

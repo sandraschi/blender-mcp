@@ -1,138 +1,75 @@
-# Multi-stage Docker build for Blender MCP
-# Supports both development and production deployments
+# Multi-stage Docker build for Blender MCP (GHCR: ghcr.io/sandraschi/blender-mcp)
+#
+# Build:
+#   docker build --target production -t ghcr.io/sandraschi/blender-mcp:local .
+#
+# Run HTTP MCP + metrics:
+#   docker run --rm -p 10849:10849 -p 9091:9091 ghcr.io/sandraschi/blender-mcp:local
 
-# =============================================================================
-# Base stage with Python and Blender
-# =============================================================================
-FROM python:3.11-slim as base
+FROM python:3.12-slim AS base
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     wget \
     bzip2 \
-    libgl1-mesa-glx \
+    libgl1 \
+    libglib2.0-0 \
+    libx11-6 \
     libxi6 \
-    libgconf-2-4 \
-    libxrandr2 \
-    libasound2 \
-    libpangocairo-1.0-0 \
-    libatk1.0-0 \
-    libcairo-gobject2 \
-    libgtk-3-0 \
-    libgdk-pixbuf2.0-0 \
+    libxxf86vm1 \
+    libxfixes3 \
+    libxrender1 \
+    libxkbcommon0 \
+    libsm6 \
+    libice6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Blender
-RUN BLENDER_VERSION=3.6.5 \
-    && wget -O blender.tar.xz "https://download.blender.org/release/Blender${BLENDER_VERSION:0:3}/blender-${BLENDER_VERSION}-linux-x64.tar.xz" \
+RUN BLENDER_VERSION=4.2.3 \
+    && wget -q -O blender.tar.xz "https://download.blender.org/release/Blender4.2/blender-${BLENDER_VERSION}-linux-x64.tar.xz" \
     && tar -xf blender.tar.xz \
     && mv blender-${BLENDER_VERSION}-linux-x64 /opt/blender \
     && rm blender.tar.xz
 
-# Add Blender to PATH
-ENV PATH="/opt/blender:$PATH"
-ENV BLENDER_PATH="/opt/blender/blender"
+ENV PATH="/opt/blender:${PATH}"
+ENV BLENDER_EXECUTABLE="/opt/blender/blender"
+ENV MCP_TRANSPORT=http
+ENV MCP_HOST=0.0.0.0
+ENV MCP_PORT=10849
+ENV PROMETHEUS_PORT=9091
+ENV BLENDER_MCP_METRICS_ENABLED=true
+ENV BLENDER_MCP_LOG_FORMAT=json
 
-# Set working directory
 WORKDIR /app
 
-# =============================================================================
-# Development stage
-# =============================================================================
-FROM base as development
+FROM base AS production
 
-# Copy Python project files
-COPY pyproject.toml uv.lock ./
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -e .[dev]
-
-# Copy source code
+COPY pyproject.toml README.md ./
 COPY src/ ./src/
 
-# Create non-root user
-RUN useradd --create-home --shell /bin/bash mcp
+RUN pip install --no-cache-dir -e ".[monitoring]"
+
+RUN useradd --create-home --shell /bin/bash mcp \
+    && mkdir -p /app/logs \
+    && chown -R mcp:mcp /app
+
 USER mcp
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import blender_mcp; print('OK')" || exit 1
+EXPOSE 10849 9091
 
-# Default command
-CMD ["python", "-m", "blender_mcp.cli", "--stdio"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:10849/api/v1/health', timeout=5)"
 
-# =============================================================================
-# Production stage
-# =============================================================================
-FROM base as production
+CMD ["python", "-m", "blender_mcp.server"]
 
-# Copy Python project files
-COPY pyproject.toml uv.lock ./
-
-# Install only production dependencies
-RUN pip install --no-cache-dir -e .
-
-# Copy source code
-COPY src/ ./src/
-
-# Create non-root user
-RUN useradd --create-home --shell /bin/bash mcp
-USER mcp
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import blender_mcp; print('OK')" || exit 1
-
-# Default command for production
-CMD ["python", "-m", "blender_mcp.cli", "--stdio"]
-
-# =============================================================================
-# Minimal runtime stage (for registry distribution)
-# =============================================================================
-FROM python:3.11-slim as runtime
-
-# Install minimal runtime dependencies
-RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
-    libxi6 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Blender MCP from PyPI (when published)
-# RUN pip install blender-mcp
-
-# For now, copy from production stage
-COPY --from=production /app /app
-WORKDIR /app
-
-# Create non-root user
-RUN useradd --create-home --shell /bin/bash mcp
-USER mcp
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD python -c "import blender_mcp; print('OK')" || exit 1
-
-# Default command
-CMD ["python", "-m", "blender_mcp.cli", "--stdio"]
-
-# =============================================================================
-# Build arguments and labels
-# =============================================================================
 ARG BUILD_DATE
 ARG VERSION
 ARG VCS_REF
 
-LABEL org.opencontainers.image.created="$BUILD_DATE" \
-      org.opencontainers.image.version="$VERSION" \
-      org.opencontainers.image.revision="$VCS_REF" \
+LABEL org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
       org.opencontainers.image.title="Blender MCP" \
       org.opencontainers.image.description="AI-Powered 3D Creation MCP Server" \
       org.opencontainers.image.vendor="FlowEngineer sandraschi" \
       org.opencontainers.image.source="https://github.com/sandraschi/blender-mcp" \
       org.opencontainers.image.licenses="MIT"
-
-
-
-
-

@@ -23,6 +23,8 @@ with glowing red eyes" and watch it build your vision in Blender automatically.
   - [Installation Guide](INSTALL.md)
   - [Competitive Analysis](docs/COMPETITIVE_ANALYSIS.md)
   - [Roadmap](docs/ROADMAP.md)
+  - [Monitoring (Prometheus/Grafana/Loki)](docs/MONITORING.md)
+  - [Docker & GHCR](docs/DOCKER.md)
   - [Addons, Mesh, Splat](docs/ADDONS_MESH_SPLAT.md)
   - [Video Editing (VSE)](docs/blender/VSE_GUIDE.md)
   - [Usage Examples](docs/USAGE.md)
@@ -106,6 +108,9 @@ Access the dashboard at **http://localhost:10848**.
 | **Video Editing (VSE)** | 20 operations: add clips, transitions, text, audio, render to MP4 |
 | **Generative AI** | **`blender_ai_generate`** (Rodin/Tripo/Hunyuan), **`blender_geonodes`**, **`blender_vision_refine`** |
 | **Validation & batch** | **`blender_validation`** geometry audit; **`blender_batch`** resize/convert/export |
+| **Sculpting** | **`blender_sculpt`** enter, brushes, dynotopo, symmetrize, voxel remesh |
+| **Observability** | Prometheus `/metrics`, JSON logs for Loki — [MONITORING.md](docs/MONITORING.md) |
+| **Docker / GHCR** | Optional container — [DOCKER.md](docs/DOCKER.md), `ghcr.io/sandraschi/blender-mcp` |
 | **Agent utilities** | **`blender_api_docs`**, **`blender_session`**, **`blender_jobs`** async queue |
 
 **Key capabilities:**

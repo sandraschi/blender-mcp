@@ -67,3 +67,17 @@ uv run python -m blender_mcp.cli --http --port 10849
 | Wire `rendering_handler` | `blender_render` → `set_engine`, `configure_layers`, `setup_post_processing` |
 | Dedupe addon tools | `blender_addons` canonical; `manage_blender_addons` alias |
 | `blender_batch` | resize, convert, export |
+
+## Phase 5 — Sculpting, telemetry, Docker (0.10.0)
+
+**Status: complete**
+
+| Item | Tool / module |
+|------|----------------|
+| Sculpt mode portmanteau | `blender_sculpt` (enter, brush, dynotopo, symmetrize, remesh, mask) |
+| Prometheus metrics | `utils/telemetry.py`, `/metrics`, `PROMETHEUS_PORT` |
+| Loki-friendly logs | `BLENDER_MCP_LOG_FORMAT=json` |
+| Optional Docker + GHCR | `Dockerfile`, `docker-compose.yml`, CI `build-docker` job |
+| Local monitoring profile | `monitoring/` (Prometheus, Grafana, Loki, Promtail) |
+
+See [docs/MONITORING.md](MONITORING.md) and [docs/DOCKER.md](DOCKER.md).

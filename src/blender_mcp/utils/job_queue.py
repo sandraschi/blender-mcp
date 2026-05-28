@@ -50,6 +50,16 @@ def _prune_old_jobs(max_jobs: int = 100) -> None:
         _jobs.pop(jid, None)
 
 
+def _update_jobs_gauge() -> None:
+    try:
+        from blender_mcp.utils.telemetry import set_jobs_active
+
+        active = sum(1 for job in _jobs.values() if job.status in (JobStatus.PENDING, JobStatus.RUNNING))
+        set_jobs_active(active)
+    except Exception:
+        pass
+
+
 async def submit_blender_job(
     script: str,
     *,
@@ -94,8 +104,10 @@ async def submit_blender_job(
             logger.exception("Blender job %s failed: %s", job_id, exc)
         finally:
             job.finished_at = time.time()
+            _update_jobs_gauge()
 
     job._task = asyncio.create_task(_runner())
+    _update_jobs_gauge()
     return job_id
 
 

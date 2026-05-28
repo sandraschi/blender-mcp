@@ -74,6 +74,12 @@ def setup_logging(log_level: str = "INFO") -> None:
 
     logger.info("Logging initialized: stderr=%s file=%s", log_level, log_dir / "blender-mcp.log")
 
+    if os.getenv("BLENDER_MCP_LOG_FORMAT", "").strip().lower() == "json":
+        from blender_mcp.utils.structured_logging import configure_json_logging
+
+        configure_json_logging(root)
+        logger.info("JSON log format enabled for Loki ingestion")
+
 
 # Initialize file logging before any app imports
 setup_logging(os.getenv("BLENDER_MCP_LOG_LEVEL", "INFO"))

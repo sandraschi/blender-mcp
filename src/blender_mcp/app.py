@@ -90,6 +90,15 @@ Each portmanteau tool handles multiple related operations through an 'operation'
         # Fleet Discovery API + Blender session bridge
         _register_fleet_api(app)
 
+        # Optional Prometheus tool-call metrics
+        try:
+            from blender_mcp.utils.telemetry import init_metrics, install_tool_call_wrapper
+
+            init_metrics()
+            install_tool_call_wrapper(app)
+        except Exception as exc:
+            logger.warning("Telemetry setup skipped: %s", exc)
+
     return app
 
 
@@ -318,6 +327,14 @@ def _register_fleet_api(app):
     @app.custom_route("/api/v1/health", methods=["GET"])
     async def health_check(request: Request):
         return JSONResponse({"status": "ok", "server": "blender-mcp", "version": __version__})
+
+    @app.custom_route("/metrics", methods=["GET"])
+    async def prometheus_metrics(request: Request):
+        from starlette.responses import Response
+
+        from blender_mcp.utils.telemetry import metrics_content_type, render_metrics
+
+        return Response(content=render_metrics(), media_type=metrics_content_type())
 
 
 def _register_resources(app):

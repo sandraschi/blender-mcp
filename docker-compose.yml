@@ -1,130 +1,109 @@
-# Docker Compose configuration for Blender MCP
-# Supports development, testing, and production deployments
-
-version: '3.8'
+# Optional Docker deployment for blender-mcp + local monitoring stack.
+#
+# MCP server only:
+#   docker compose up blender-mcp
+#
+# MCP + Prometheus/Grafana/Loki (optional profile):
+#   docker compose --profile monitoring up -d
+#
+# Image published to GHCR on main branch pushes:
+#   ghcr.io/sandraschi/blender-mcp:latest
 
 services:
-  # =============================================================================
-  # Development service - with hot reload and debugging
-  # =============================================================================
-  blender-mcp-dev:
-    build:
-      context: .
-      target: development
-      args:
-        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
-        VERSION: ${VERSION:-dev}
-        VCS_REF: ${VCS_REF:-$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")}
-    container_name: blender-mcp-dev
-    volumes:
-      - .:/app
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw  # For GUI access (optional)
-    environment:
-      - PYTHONPATH=/app/src
-      - PYTHONUNBUFFERED=1
-      - MCP_DEBUG=true
-      - BLENDER_PATH=/opt/blender/blender
-      - DISPLAY=${DISPLAY:-:0}  # For GUI access
-    ports:
-      - "8000:8000"  # HTTP mode
-    stdin_open: true
-    tty: true
-    command: ["python", "-m", "blender_mcp.cli", "--http", "--host", "0.0.0.0", "--debug"]
-    healthcheck:
-      test: ["CMD", "python", "-c", "import blender_mcp; print('OK')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    networks:
-      - mcp-network
-    profiles:
-      - dev
-
-  # =============================================================================
-  # Production service - optimized for performance
-  # =============================================================================
   blender-mcp:
     build:
       context: .
       target: production
-      args:
-        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
-        VERSION: ${VERSION:-latest}
-        VCS_REF: ${VCS_REF:-$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")}
+    image: ghcr.io/sandraschi/blender-mcp:latest
     container_name: blender-mcp
-    environment:
-      - MCP_ENV=production
-      - BLENDER_PATH=/opt/blender/blender
     ports:
-      - "8001:8000"  # HTTP mode on different port
+      - "10849:10849"
+      - "9091:9091"
+    environment:
+      MCP_TRANSPORT: http
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: "10849"
+      BLENDER_MCP_METRICS_ENABLED: "true"
+      PROMETHEUS_PORT: "9091"
+      BLENDER_MCP_LOG_FORMAT: json
+      BLENDER_MCP_LOG_LEVEL: INFO
+      BLENDER_EXECUTABLE: /opt/blender/blender
+    volumes:
+      - blender-mcp-logs:/app/logs
+    labels:
+      promtail.job: blender-mcp
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import blender_mcp; print('OK')"]
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:10849/api/v1/health', timeout=5)\""]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
-    networks:
-      - mcp-network
-    profiles:
-      - prod
+      start_period: 20s
 
-  # =============================================================================
-  # Testing service - for CI/CD pipelines
-  # =============================================================================
-  blender-mcp-test:
-    build:
-      context: .
-      target: development
-    container_name: blender-mcp-test
-    environment:
-      - PYTHONPATH=/app/src
-      - MCP_ENV=test
-      - BLENDER_PATH=/opt/blender/blender
-    volumes:
-      - .:/app
-    command: ["python", "-m", "pytest", "tests/", "-v", "--tb=short"]
-    networks:
-      - mcp-network
-    profiles:
-      - test
-
-  # =============================================================================
-  # Minimal runtime service - for registry-style deployments
-  # =============================================================================
-  blender-mcp-runtime:
-    build:
-      context: .
-      target: runtime
-    container_name: blender-mcp-runtime
-    environment:
-      - MCP_ENV=runtime
-      - BLENDER_PATH=/opt/blender/blender
+  prometheus:
+    profiles: ["monitoring"]
+    image: prom/prometheus:v3.11.3
+    container_name: blender-mcp-prometheus
     ports:
-      - "8002:8000"
-    networks:
-      - mcp-network
-    profiles:
-      - runtime
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    restart: unless-stopped
 
-# =============================================================================
-# Networks
-# =============================================================================
-networks:
-  mcp-network:
-    driver: bridge
-    name: blender-mcp-network
+  loki:
+    profiles: ["monitoring"]
+    image: grafana/loki:3.7.1
+    container_name: blender-mcp-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./monitoring/loki/loki.yml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
 
-# =============================================================================
-# Volumes
-# =============================================================================
+  promtail:
+    profiles: ["monitoring"]
+    image: grafana/promtail:3.7.1
+    container_name: blender-mcp-promtail
+    volumes:
+      - ./monitoring/promtail/promtail.yml:/etc/promtail/config.yml:ro
+      - blender-mcp-logs:/app/logs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+  grafana:
+    profiles: ["monitoring"]
+    image: grafana/grafana:13.0.1
+    container_name: blender-mcp-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+      - loki
+    restart: unless-stopped
+
 volumes:
-  blender-cache:
-    driver: local
-    name: blender-mcp-cache
+  blender-mcp-logs:
+  prometheus-data:
+  loki-data:
+  grafana-data:
 
-
-
-
-
+networks:
+  default:
+    name: blender-mcp-net
