@@ -29,7 +29,7 @@ MMD models (PMX) and motions (VMD) are **not** native to avatar-mcp. Typical pat
 3. Export VRM (VRM addon for Blender)
 4. Stage via avatar-mcp `hub_stage_file`
 
-VMD → animation: retarget/bake in Blender; future iOS dance player consumes baked clips or VMD with retarget layer.
+VMD → animation: retarget/bake in Blender; **apple-test** plays **`Resources/Animations/*.json`** (humanoid quaternions). VRMA path: VRMMetalKit later.
 
 Explainer: `mcp-central-docs/docs/avatars/MMD_EXPLAINER.md`
 
