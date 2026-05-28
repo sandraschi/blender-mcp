@@ -29,14 +29,14 @@ uv run python -m blender_mcp.cli --http --port 10849
 # blender_render operation=screenshot_viewport output_path=...
 ```
 
-## Phase 2 — Jobs and modeling depth (0.8.x)
+## Phase 2 — Jobs and modeling depth (0.8.1)
 
-**Status: in progress**
+**Status: complete**
 
 | Item | Tool / module |
 |------|----------------|
-| Async job queue | `blender_jobs` |
-| Mesh edit portmanteau | `blender_mesh` edit ops (extrude, bevel, inset, …) |
+| Async job queue | `blender_jobs` (`submit`, `status`, `list`, `cancel`) |
+| Mesh edit portmanteau | `blender_mesh` → extrude, inset, bevel_modifier, subdivide, merge_vertices, delete_faces, join, separate_loose, triangulate |
 
 ## Phase 3 — Generative and procedural (0.9.x)
 

@@ -5,6 +5,15 @@ All notable changes to **Blender MCP** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2026-05-28
+
+### Added
+- **Phase 2 — Async jobs & mesh editing** (see [docs/ROADMAP.md](docs/ROADMAP.md))
+  - **`blender_jobs`**: submit, status, list, cancel for long-running bpy scripts
+  - **`blender_mesh` edit ops**: extrude, inset, bevel_modifier, subdivide, merge_vertices, delete_faces, join, separate_loose, triangulate
+  - **`handlers/mesh_edit_handler.py`**: edit-mode ops via live session when bridge connected
+- **Tests**: `tests/test_phase2_tools.py`
+
 ## [0.8.0] - 2026-05-28
 
 ### Added

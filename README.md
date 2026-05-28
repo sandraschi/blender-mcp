@@ -91,7 +91,7 @@ Access the dashboard at **http://localhost:10848**.
 | Category | Tools |
 |----------|-------|
 | **Scene Management** | create/clear/list scenes, collections, view layers |
-| **Mesh & Geometry** | primitives, duplicate/delete; **Phase 2:** extrude, bevel, inset, subdivide |
+| **Mesh & Geometry** | primitives, duplicate/delete; **edit:** extrude, inset, bevel, subdivide, join |
 | **Materials & Shaders** | presets + **`blender_shaders`** node graph (create/connect) |
 | **Compositor** | **`blender_compositor`** enable, nodes, glow |
 | **Furniture** | chair, table, bed, sofa, room, building |
@@ -104,7 +104,7 @@ Access the dashboard at **http://localhost:10848**.
 | **Modifiers & Effects** | subdivision, bevel, array, boolean, lattice |
 | **Textures & UVs** | procedural textures, image textures, UV unwrap, texture baking |
 | **Video Editing (VSE)** | 20 operations: add clips, transitions, text, audio, render to MP4 |
-| **Agent utilities** | **`blender_api_docs`**, **`blender_session`** live GUI bridge |
+| **Agent utilities** | **`blender_api_docs`**, **`blender_session`**, **`blender_jobs`** async queue |
 
 **Key capabilities:**
 - **Live GUI bridge**: user sees construction in Blender while agents call MCP tools

@@ -40,6 +40,15 @@ def _register_mesh_tools():
         depth: float = 2.0,
         vertices: int = 32,
         source_name: str = "",
+        distance: float = 0.5,
+        thickness: float = 0.1,
+        inset_depth: float = 0.0,
+        bevel_width: float = 0.1,
+        bevel_segments: int = 2,
+        subdivide_cuts: int = 2,
+        merge_distance: float = 0.001,
+        join_names: list[str] | None = None,
+        prefer_session: bool = True,
     ) -> str:
         """
         PORTMANTEAU PATTERN RATIONALE:
@@ -58,6 +67,15 @@ def _register_mesh_tools():
         - **create_monkey**: Generate Suzanne (monkey) primitive for testing
         - **duplicate_object**: Create copies of existing objects with transforms
         - **delete_object**: Remove objects from scene by name
+        - **extrude**: Extrude mesh region along +Z in edit mode
+        - **inset**: Inset selected faces
+        - **bevel_modifier**: Add bevel modifier to mesh object
+        - **subdivide**: Subdivide mesh edges
+        - **merge_vertices**: Merge by distance (remove doubles)
+        - **delete_faces**: Delete selected faces in edit mode
+        - **join**: Join multiple mesh objects into one
+        - **separate_loose**: Separate loose parts to new objects
+        - **triangulate**: Convert quads to triangles
 
         Args:
             operation (str, required): The mesh operation to perform. Must be one of: "create_cube", "create_sphere",
@@ -101,6 +119,19 @@ def _register_mesh_tools():
             All objects are created with default materials. Use blender_materials tools for texturing.
             Transform operations can be applied immediately after creation using blender_transform.
         """
+        import json
+
+        from blender_mcp.handlers.mesh_edit_handler import (
+            mesh_bevel_modifier,
+            mesh_delete_faces,
+            mesh_extrude,
+            mesh_inset,
+            mesh_join,
+            mesh_merge_vertices,
+            mesh_separate_loose,
+            mesh_subdivide,
+            mesh_triangulate,
+        )
         from blender_mcp.handlers.mesh_handler import (
             create_cone,
             create_cube,
@@ -199,6 +230,51 @@ def _register_mesh_tools():
 
             elif operation == "delete_object":
                 return await delete_object(name=name)
+
+            elif operation == "extrude":
+                result = await mesh_extrude(name, distance=distance, prefer_session=prefer_session)
+                return json.dumps(result, indent=2)
+
+            elif operation == "inset":
+                result = await mesh_inset(
+                    name, thickness=thickness, depth=inset_depth, prefer_session=prefer_session
+                )
+                return json.dumps(result, indent=2)
+
+            elif operation == "bevel_modifier":
+                result = await mesh_bevel_modifier(
+                    name, width=bevel_width, segments=bevel_segments, prefer_session=prefer_session
+                )
+                return json.dumps(result, indent=2)
+
+            elif operation == "subdivide":
+                result = await mesh_subdivide(name, cuts=subdivide_cuts, prefer_session=prefer_session)
+                return json.dumps(result, indent=2)
+
+            elif operation == "merge_vertices":
+                result = await mesh_merge_vertices(
+                    name, merge_distance=merge_distance, prefer_session=prefer_session
+                )
+                return json.dumps(result, indent=2)
+
+            elif operation == "delete_faces":
+                result = await mesh_delete_faces(name, prefer_session=prefer_session)
+                return json.dumps(result, indent=2)
+
+            elif operation == "join":
+                names = join_names or ([source_name, name] if source_name else [])
+                if len(names) < 2:
+                    return "join requires join_names (2+ objects) or source_name + name"
+                result = await mesh_join(names, prefer_session=prefer_session)
+                return json.dumps(result, indent=2)
+
+            elif operation == "separate_loose":
+                result = await mesh_separate_loose(name, prefer_session=prefer_session)
+                return json.dumps(result, indent=2)
+
+            elif operation == "triangulate":
+                result = await mesh_triangulate(name, prefer_session=prefer_session)
+                return json.dumps(result, indent=2)
 
             else:
                 return f"Unknown operation: {operation}"

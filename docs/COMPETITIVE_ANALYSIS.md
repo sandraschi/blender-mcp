@@ -36,8 +36,8 @@ See [ROADMAP.md](ROADMAP.md) for phase tracking.
 | Shader / compositor node tools | `blender_shaders`, `blender_compositor` | 1 (done) |
 | Export glTF/FBX/OBJ/STL/USD/VRM/Unreal | `blender_export` format ops | 1 (done) |
 | `get_python_api_docs` | `blender_api_docs` + `blender://api/{id}` resource | 1 (done) |
-| Async long-running jobs | `blender_jobs` | 2 |
-| Mesh editing (extrude, bevel, …) | `blender_mesh` edit operations | 2 |
+| Async long-running jobs | `blender_jobs` | 2 (done) |
+| Mesh editing (extrude, bevel, …) | `blender_mesh` edit operations | 2 (done) |
 | AI mesh generation (Rodin/Hunyuan) | `blender_ai_generate` | 3 |
 | Vision refine loop | `blender_vision_refine` | 3 |
 | Geometry nodes portmanteau | `blender_geonodes` | 3 |
