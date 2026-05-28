@@ -39,32 +39,26 @@ with glowing red eyes" and watch it build your vision in Blender automatically.
 ```powershell
 git clone https://github.com/sandraschi/blender-mcp
 cd blender-mcp
+uv sync --all-extras
 just
 ```
 
-This opens an interactive dashboard showing all available commands. Run `just bootstrap`
-to install dependencies, then `just serve` or `just dev` to start.
+This opens an interactive dashboard showing all available commands. Run `just serve`
+for stdio MCP testing, or `.\start.ps1` for the webapp dashboard.
+
+See **[INSTALL.md](INSTALL.md)** for Claude Desktop, Cursor, and troubleshooting.
 
 ### Manual Setup (without `just`)
 
 ```powershell
-uv sync
-.venv\Scripts\activate
-python run_server.py
+uv sync --all-extras
+uv run python -m blender_mcp.cli --stdio
 ```
 
 ### Claude Desktop Integration
 
-Add to your `claude_desktop_config.json`:
-
-```json
-"mcpServers": {
-  "blender-mcp": {
-    "command": "uv",
-    "args": ["--directory", "D:/Dev/repos/blender-mcp", "run", "blender-mcp"]
-  }
-}
-```
+Drag-and-drop the `.mcpb` from [releases](https://github.com/sandraschi/blender-mcp/releases),
+or add a manual config — full options in **[INSTALL.md](INSTALL.md#claude-desktop-integration)**.
 
 ## Webapp Dashboard
 

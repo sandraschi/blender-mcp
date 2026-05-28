@@ -1,10 +1,50 @@
 # Installation Guide
 
-## Quick Start (Recommended)
+> **Canonical guide:** [INSTALL.md](../INSTALL.md) in the repo root. Content below is kept
+> in sync for docs navigation (`docsviewer`, cross-links).
 
-Clone the repo and install locally with `uv`:
+---
 
-```bash
+<!-- synced with INSTALL.md -->
+
+Complete setup for blender-mcp: fleet `just` workflow, editable install, Claude Desktop,
+webapp dashboard, and troubleshooting.
+
+## Quick Start (recommended)
+
+```powershell
+# Install just if you don't have it
+winget install Casey.Just    # Windows
+# scoop install just          # Windows (alternative)
+# brew install just           # macOS
+# sudo apt install just       # Debian/Ubuntu
+# cargo install just          # Linux (Rust)
+
+git clone https://github.com/sandraschi/blender-mcp
+cd blender-mcp
+uv sync --all-extras
+just
+```
+
+The interactive recipe dashboard opens in your browser. Common next steps:
+
+```powershell
+just serve      # stdio server (local MCP testing)
+.\start.ps1     # webapp dashboard (ports 10848/10849)
+```
+
+> **Why not `pip install blender-mcp` from PyPI?** MCP servers bundle webapps, configs,
+> project scaffolding, and tooling that a flat Python package cannot deliver. PyPI offers
+> no safety advantage — it does not audit packages either. Clone + `uv sync` gives you
+> the complete, ready-to-run stack.
+
+---
+
+## Editable Install (without `just`)
+
+Clone and install locally with `uv`:
+
+```powershell
 git clone https://github.com/sandraschi/blender-mcp.git
 cd blender-mcp
 uv pip install -e .
@@ -12,19 +52,72 @@ uv pip install -e .
 
 Or with plain pip:
 
-```bash
+```powershell
 pip install -e .
 ```
 
 **Verify:**
 
-```bash
+```powershell
 python -m blender_mcp.cli --help
 ```
 
 > **Windows note:** The `blender-mcp` CLI script is installed to
 > `%APPDATA%\Python\Python3XX\Scripts\` which is often not in PATH.
 > Use `python -m blender_mcp.cli` instead — it always works.
+
+---
+
+## Traditional Setup (`uv sync`)
+
+If you prefer the repo venv workflow without editable pip install:
+
+1. Install [Python 3.12+](https://python.org) (3.13+ recommended) and [uv](https://docs.astral.sh/uv/)
+2. Clone and enter the repo:
+   ```powershell
+   git clone https://github.com/sandraschi/blender-mcp
+   cd blender-mcp
+   ```
+3. Install dependencies:
+   ```powershell
+   uv sync --all-extras
+   ```
+4. Start the server:
+   ```powershell
+   # stdio mode (for MCP clients like Claude Desktop)
+   uv run python -m blender_mcp.cli --stdio
+
+   # Alternative stdio entry point
+   uv run blender-mcp-server
+
+   # Legacy dev entry point
+   uv run python run_server.py
+
+   # HTTP mode (for web dashboard API)
+   uv run uvicorn blender_mcp.server:app --port 10849
+   ```
+5. (optional) Start the frontend:
+   ```powershell
+   cd webapp
+   npm install
+   npm run dev
+   ```
+6. Open `http://localhost:10849` or the frontend URL.
+
+---
+
+## Webapp Dashboard
+
+A premium web interface for monitoring and control runs on port **10848**
+(backed by API on **10849**).
+
+```powershell
+.\start.ps1
+```
+
+Startup flags: `-Headless` (background), `-BackendOnly` (API only), `-NoBrowser` (no auto-open).
+
+Access the dashboard at **http://localhost:10848**.
 
 ---
 
@@ -46,9 +139,11 @@ Requires the [mcpb CLI](https://github.com/anthropics/mcpb) to be installed firs
 mcpb install sandraschi/blender-mcp
 ```
 
+Build a local bundle with `just mcpb-pack` (output: `dist/blender-mcp-v0.6.0.mcpb`).
+
 ### Option C — Manual config
 
-Clone the repo first (see Quick Start above), then add this to your
+Clone the repo first (see Quick Start or Editable Install above), then add this to your
 `claude_desktop_config.json`
 (`%APPDATA%\Claude\claude_desktop_config.json` on Windows,
 `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
@@ -88,12 +183,34 @@ Restart Claude Desktop after editing the config.
 
 Use the same `python -m blender_mcp.cli --stdio` invocation in your MCP client settings.
 
+With `uv`:
+
+```json
+{
+  "mcpServers": {
+    "blender-mcp": {
+      "command": "uv",
+      "args": [
+        "--directory", "C:/path/to/blender-mcp",
+        "run", "python", "-m", "blender_mcp.cli", "--stdio"
+      ]
+    }
+  }
+}
+```
+
 ---
 
 ## HTTP Server Mode
 
 ```bash
 python -m blender_mcp.cli --http --host 0.0.0.0 --port 8001
+```
+
+Or via uvicorn (webapp API on port 10849):
+
+```powershell
+uv run uvicorn blender_mcp.server:app --port 10849
 ```
 
 ---
@@ -121,7 +238,7 @@ export BLENDER_EXECUTABLE=/usr/bin/blender
 
 ## Requirements
 
-- **Python:** 3.12+
+- **Python:** 3.12+ (3.13+ recommended)
 - **Blender:** 3.0+ (auto-detected or set via `BLENDER_EXECUTABLE`)
 - **Platform:** Windows, macOS, Linux
 
@@ -135,9 +252,25 @@ cd blender-mcp
 pip install -e .[dev]
 ```
 
+Or with uv:
+
+```powershell
+uv sync --all-extras
+```
+
 ---
 
 ## Troubleshooting
+
+| Issue | Fix |
+|---|---|
+| `just` not found | Install via `winget install Casey.Just`, `scoop install just`, or `brew install just` |
+| Port conflict (10848/10849) | Re-run `.\start.ps1` (clears stale ports) or stop the conflicting process |
+| Dependencies out of sync | `uv sync --all-extras` |
+| `blender-mcp` command not found (Windows) | Use `python -m blender_mcp.cli` instead (see below) |
+| Blender not found | Set `BLENDER_EXECUTABLE` (see Configuration) |
+| Permission errors | Use a venv: `python -m venv venv` then `venv\Scripts\activate` and `pip install -e .` |
+| Something else | [Open a GitHub issue](https://github.com/sandraschi/blender-mcp/issues) |
 
 ### `blender-mcp` command not found (Windows)
 
@@ -165,17 +298,6 @@ set BLENDER_EXECUTABLE=C:\Program Files\Blender Foundation\Blender 5.1\blender.e
 export BLENDER_EXECUTABLE=/usr/bin/blender
 ```
 
-### Permission errors / conflicting packages
-
-Use a virtual environment:
-
-```bash
-python -m venv venv
-venv\Scripts\activate   # Windows
-# source venv/bin/activate  # Linux/macOS
-pip install -e .
-```
-
 ---
 
 ## Health Checks
@@ -190,3 +312,7 @@ python -m blender_mcp.cli --check-blender
 # Test server startup (stdio mode, exits cleanly)
 python -m blender_mcp.cli --stdio --debug
 ```
+
+---
+
+*See the main [README](../README.md) for feature overview and documentation.*
