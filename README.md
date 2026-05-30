@@ -10,6 +10,43 @@ with glowing eyes and watch it build in Blender.
   <a href="https://github.com/PrefectHQ/fastmcp"><img src="https://img.shields.io/badge/FastMCP-3.2-7c5cfc?style=flat-square" alt="FastMCP"></a>
 </p>
 
+## How it runs
+
+| Mode | Host app | When |
+|------|----------|------|
+| **Headless (default)** | `blender --background` subprocess | Batch export, CI, agents without a display; VSE, geonodes, most mesh ops |
+| **Live GUI (optional)** | Blender + [bridge addon](docs/blender_bridge_addon.py) | Watch the agent build; viewport screenshots; sculpt with live feedback |
+| **Per-tool override** | `prefer_session=False` | Batch jobs force headless even if bridge is connected |
+
+**You do not need to open Blender’s UI** for most MCP tools — the server spawns headless Blender automatically and falls back from live session when no bridge is connected.
+
+Install [Blender](https://www.blender.org/download/) separately; it is never bundled. Override path with `BLENDER_EXECUTABLE`.
+
+> **Watch or batch** — Most tools run headless Blender. Use `blender_session` start + enable the bridge addon only if you want the viewport to update live while the agent works. See [INSTALL.md](INSTALL.md#live-blender-gui-session-bridge).
+
+## Hands-in / Hands-out
+
+| Direction | Artifacts | Notes |
+|-----------|-----------|-------|
+| **Hands-in** | Natural-language scene prompts | Agent instructions; `blender_ai_*` script generation |
+| **Hands-in** | `.blend`, image refs, mesh files | Webapp upload or tool params |
+| **Hands-in** | Rodin / Tripo / Hunyuan mesh URLs | `blender_ai_generate` and related tools |
+| **Hands-in** | Inline `bpy` scripts | `blender_script_execute`, handler-backed tools |
+| **Hands-out** | `.glb`, `.gltf`, `.fbx`, `.obj`, `.usd` | `blender_export` — **headless** |
+| **Hands-out** | `.vrm`, VRChat-ready avatars | Export + validation pipeline — **headless** |
+| **Hands-out** | `.blend` (saved scene) | After agent edit session — headless or live bridge |
+| **Hands-out** | Viewport PNG, MP4 (VSE), Gaussian splats | `blender_render`, `blender_vse`, splat tools — **headless** |
+
+### Fleet pipelines (downstream)
+
+| Downstream MCP | Takes from blender-mcp |
+|----------------|------------------------|
+| [godot-mcp](https://github.com/sandraschi/godot-mcp) | `.glb` / `.gltf` game assets |
+| [vrchat-mcp](https://github.com/sandraschi/vrchat-mcp) | `.vrm` after validation |
+| [tahoma2d-mcp](https://github.com/sandraschi/tahoma2d-mcp) | Rendered image sequences / GP output |
+| [freecad-mcp](https://github.com/sandraschi/freecad-mcp) | `.step` via intermediate export |
+| [unity3d-mcp](https://github.com/sandraschi/unity3d-mcp) | `.fbx` / `.glb` for Unity import |
+
 ## Features
 
 - **Natural-language 3D creation** — scenes, meshes, materials, lighting, animation
