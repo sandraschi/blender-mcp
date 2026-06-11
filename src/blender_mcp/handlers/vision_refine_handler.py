@@ -93,11 +93,12 @@ async def vision_apply_script(
     )
     return {
         "success": result.get("success", False),
+        "message": result.get("message", "Refinement script applied" if result.get("success") else "Refinement script failed"),
+        "next_steps": result.get("next_steps", []),
         "output": result.get("output", ""),
         "error": result.get("error"),
         "session_used": result.get("session_used"),
         "execution_mode": result.get("mode"),
-        "message": "Refinement script applied" if result.get("success") else "Refinement script failed",
     }
 
 

@@ -136,6 +136,8 @@ async def _exec_in_blender_session(script: str, script_name: str = "exec", timeo
             _session_tasks.pop(task_id, None)
             return {
                 "success": result.get("success", False),
+                "message": result.get("message", "Blender operation completed"),
+                "next_steps": result.get("next_steps", []),
                 "output": result.get("output", ""),
                 "error": result.get("error"),
                 "session_used": True,
@@ -145,6 +147,8 @@ async def _exec_in_blender_session(script: str, script_name: str = "exec", timeo
     _session_tasks.pop(task_id, None)
     return {
         "success": False,
+        "message": "Blender session timed out. Is the bridge addon running?",
+        "next_steps": ["Check Blender is running with MCP bridge addon", "Restart Blender"],
         "output": "",
         "error": "Blender session timed out. Is the bridge addon running in Blender?",
         "session_used": False,
