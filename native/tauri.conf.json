@@ -5,10 +5,12 @@
   "build": {
     "frontendDist": "../webapp/frontend/dist",
     "devUrl": "http://localhost:10848",
-    "beforeDevCommand": "npm --prefix ../webapp/frontend run dev"
+    "beforeDevCommand": "npm --prefix ../webapp/frontend run dev",
+    "beforeBuildCommand": "pwsh -NoProfile -File ./scripts/build-desktop.ps1"
   },
   "app": {
     "windows": [{
+      "label": "main",
       "title": "Blender MCP",
       "width": 1200, "height": 800,
       "minWidth": 800, "minHeight": 600
@@ -17,9 +19,20 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["nsis"],
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
-    "externalBin": ["binaries/blender-mcp-backend"]
+    "resources": [
+      "resources/blender-mcp-backend.exe"
+    ],
+    "windows": {
+      "webviewInstallMode": { "type": "skip" },
+      "nsis": {
+        "installMode": "currentUser",
+        "createDesktopShortcut": true,
+        "createStartMenuShortcut": true,
+        "installerHooks": "./windows/hooks.nsh"
+      }
+    }
   },
   "plugins": {
     "shell": { "open": true },
