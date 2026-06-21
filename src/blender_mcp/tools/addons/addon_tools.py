@@ -81,7 +81,13 @@ def _register_addon_tools():
                 if not addon_name:
                     return json.dumps({"status": "ERROR", "error": "addon_name required"})
                 if addon_name not in KNOWN_ADDONS:
-                    return json.dumps({"status": "ERROR", "error": f"Unknown addon '{addon_name}'", "known": list(KNOWN_ADDONS.keys())})
+                    return json.dumps(
+                        {
+                            "status": "ERROR",
+                            "error": f"Unknown addon '{addon_name}'",
+                            "known": list(KNOWN_ADDONS.keys()),
+                        }
+                    )
                 url, desc = KNOWN_ADDONS[addon_name]
                 out = await install_addon_from_url(url, enable_after=enable_on_install)
                 out["addon_name"] = addon_name
@@ -94,7 +100,9 @@ def _register_addon_tools():
                     {
                         "status": "SUCCESS",
                         "addons_directory": str(addons_dir) if addons_dir else "not found",
-                        "known_addons": [{"name": k, "url": v[0], "description": v[1]} for k, v in KNOWN_ADDONS.items()],
+                        "known_addons": [
+                            {"name": k, "url": v[0], "description": v[1]} for k, v in KNOWN_ADDONS.items()
+                        ],
                     }
                 )
 

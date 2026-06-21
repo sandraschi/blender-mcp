@@ -93,17 +93,28 @@ asgi_app = app.http_app()
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 
+_blender_tauri = os.environ.get("BLENDER_TAURI", "").lower() in ("1", "true", "yes")
 asgi_app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://127.0.0.1:10849",
+        "http://localhost:10849",
+        "http://goliath:10849",
+        "http://tauri.localhost",
+        "https://tauri.localhost",
+        "tauri://localhost",
+    ],
+    allow_origin_regex=r"https?://tauri\.localhost(:\d+)?" if _blender_tauri else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+
 @asgi_app.route("/health", methods=["GET"])
 async def health(request):
     return JSONResponse({"status": "ok", "service": "blender-mcp"})
+
 
 @asgi_app.route("/api/health", methods=["GET"])
 @asgi_app.route("/api/status", methods=["GET"])
@@ -111,9 +122,9 @@ async def health(request):
 async def fleet_health(request):
     return JSONResponse({"status": "ok", "service": "blender-mcp"})
 
-# Import from our compatibility module
-# Import all handlers to ensure tool registration is handled in app.py
-from blender_mcp.compat import *
+
+# Ensure tool registration via app.py
+
 
 
 def parse_args():

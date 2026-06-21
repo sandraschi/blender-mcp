@@ -236,9 +236,7 @@ def _register_mesh_tools():
                 return json.dumps(result, indent=2)
 
             elif operation == "inset":
-                result = await mesh_inset(
-                    name, thickness=thickness, depth=inset_depth, prefer_session=prefer_session
-                )
+                result = await mesh_inset(name, thickness=thickness, depth=inset_depth, prefer_session=prefer_session)
                 return json.dumps(result, indent=2)
 
             elif operation == "bevel_modifier":
@@ -252,9 +250,7 @@ def _register_mesh_tools():
                 return json.dumps(result, indent=2)
 
             elif operation == "merge_vertices":
-                result = await mesh_merge_vertices(
-                    name, merge_distance=merge_distance, prefer_session=prefer_session
-                )
+                result = await mesh_merge_vertices(name, merge_distance=merge_distance, prefer_session=prefer_session)
                 return json.dumps(result, indent=2)
 
             elif operation == "delete_faces":

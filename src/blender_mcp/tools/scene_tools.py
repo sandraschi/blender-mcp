@@ -6,7 +6,7 @@ The actual tool functions are defined in the handlers and registered with @app.t
 This module provides parameter models and enums for documentation and validation purposes.
 """
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
@@ -18,7 +18,7 @@ from ..compat import *
 
 
 # Enums for scene settings
-class RenderEngine(str, Enum):
+class RenderEngine(StrEnum):
     """Render engine types."""
 
     EEVEE = "BLENDER_EEVEE"
@@ -26,7 +26,7 @@ class RenderEngine(str, Enum):
     CYCLES = "CYCLES"
 
 
-class DeviceType(str, Enum):
+class DeviceType(StrEnum):
     """Device types for rendering."""
 
     CPU = "CPU"
@@ -34,7 +34,7 @@ class DeviceType(str, Enum):
     OPTIX = "OPTIX"
 
 
-class LightType(str, Enum):
+class LightType(StrEnum):
     """Light types."""
 
     SUN = "SUN"
@@ -43,7 +43,7 @@ class LightType(str, Enum):
     AREA = "AREA"
 
 
-class UnitSystem(str, Enum):
+class UnitSystem(StrEnum):
     """Unit systems."""
 
     NONE = "NONE"
@@ -51,7 +51,7 @@ class UnitSystem(str, Enum):
     IMPERIAL = "IMPERIAL"
 
 
-class UnitLength(str, Enum):
+class UnitLength(StrEnum):
     """Unit length types."""
 
     ADAPTIVE = "ADAPTIVE"
@@ -66,7 +66,7 @@ class UnitLength(str, Enum):
     THOU = "THOU"
 
 
-class UnitMass(str, Enum):
+class UnitMass(StrEnum):
     """Unit mass types."""
 
     ADAPTIVE = "ADAPTIVE"
@@ -77,7 +77,7 @@ class UnitMass(str, Enum):
     OUNCES = "OUNCES"
 
 
-class UnitTime(str, Enum):
+class UnitTime(StrEnum):
     """Unit time types."""
 
     ADAPTIVE = "ADAPTIVE"
@@ -90,7 +90,7 @@ class UnitTime(str, Enum):
     MILLISECONDS = "MILLISECONDS"
 
 
-class UnitTemperature(str, Enum):
+class UnitTemperature(StrEnum):
     """Unit temperature types."""
 
     KELVIN = "KELVIN"
@@ -98,7 +98,7 @@ class UnitTemperature(str, Enum):
     FAHRENHEIT = "FAHRENHEIT"
 
 
-class FileFormat(str, Enum):
+class FileFormat(StrEnum):
     """File formats for rendering."""
 
     PNG = "PNG"
@@ -108,7 +108,7 @@ class FileFormat(str, Enum):
     HDR = "HDR"
 
 
-class ColorMode(str, Enum):
+class ColorMode(StrEnum):
     """Color modes for rendering."""
 
     RGB = "RGB"
@@ -116,7 +116,7 @@ class ColorMode(str, Enum):
     BW = "BW"
 
 
-class ColorDepth(str, Enum):
+class ColorDepth(StrEnum):
     """Color depth for rendering."""
 
     U8 = "8"

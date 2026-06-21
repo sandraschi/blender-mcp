@@ -5,7 +5,7 @@ Supports physically-based rendering (PBR) materials with advanced node setups.
 """
 
 import logging
-from enum import Enum
+from enum import StrEnum
 
 from ..compat import *
 
@@ -26,7 +26,7 @@ def get_app():
 _executor = get_blender_executor()
 
 
-class MaterialType(str, Enum):
+class MaterialType(StrEnum):
     """Supported material types for type hints and validation."""
 
     FABRIC = "fabric"
@@ -39,7 +39,7 @@ class MaterialType(str, Enum):
     EMISSIVE = "emissive"
 
 
-class MaterialPreset(str, Enum):
+class MaterialPreset(StrEnum):
     """Available presets for each material type."""
 
     # Fabric presets

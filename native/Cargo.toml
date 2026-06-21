@@ -1,5 +1,5 @@
 [package]
-name = "blender-mcp-native"
+name = "blender_mcp_native"
 version = "0.1.0"
 description = "Tauri 2.0 desktop app for blender-mcp"
 edition = "2021"
@@ -8,7 +8,7 @@ edition = "2021"
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2", features = ["tray-icon"] }
+tauri = { version = "2", default-features = false, features = ["tray-icon", "wry", "common-controls-v6", "dynamic-acl"] }
 tauri-plugin-shell = "2"
 tauri-plugin-fs = "2"
 tauri-plugin-process = "2"

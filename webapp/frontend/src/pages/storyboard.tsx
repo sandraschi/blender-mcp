@@ -8,8 +8,6 @@ export default function StoryboardPage() {
   const [gpName, setGpName] = useState("Storyboard");
   const [shotCount, setShotCount] = useState(6);
   const [shotName, setShotName] = useState("Shot_01");
-  const [fromLayer, setFromLayer] = useState("");
-  const [toLayer, setToLayer] = useState("");
 
   const runGp = useCallback(async (params: Record<string, unknown>) => {
     setLoading(true);

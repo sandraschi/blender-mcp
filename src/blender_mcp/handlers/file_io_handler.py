@@ -2,7 +2,7 @@
 
 import logging
 import os
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -15,7 +15,7 @@ from ..utils.blender_executor import get_blender_executor
 _executor = get_blender_executor()
 
 
-class FileType(str, Enum):
+class FileType(StrEnum):
     TEXT = "TEXT"
     BINARY = "BINARY"
     IMAGE = "IMAGE"

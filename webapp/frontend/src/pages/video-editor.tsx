@@ -16,7 +16,7 @@ type VseStrip = {
 
 export default function VideoEditor() {
   const [strips, setStrips] = useState<VseStrip[]>([]);
-  const [timelineInfo, setTimelineInfo] = useState<Record<string, unknown>>({});
+  const [, setTimelineInfo] = useState<Record<string, unknown>>({});
   const [output, setOutput] = useState("");
   const [loading, setLoading] = useState(false);
 

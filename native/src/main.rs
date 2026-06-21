@@ -1,21 +1,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::sync::Mutex;
+mod backend;
+use backend::{BackendProcess, spawn_backend};
 use tauri::{Emitter, Manager};
-use tauri_plugin_shell::ShellExt;
-
-struct BackendProcess(Mutex<Option<tauri_plugin_shell::process::CommandChild>>);
 
 #[tauri::command]
 async fn start_backend(app: tauri::AppHandle, state: tauri::State<'_, BackendProcess>) -> Result<String, String> {
-    let cmd = app.shell()
-        .sidecar("blender-mcp-backend")
-        .map_err(|e| format!("Sidecar error: {}", e))?
-        .args(["--http", "--port", "10849"]);
-
-    let (_, child) = cmd.spawn().map_err(|e| format!("Failed: {}", e))?;
-    *state.0.lock().unwrap() = Some(child);
-    Ok("Backend starting".into())
+    spawn_backend(app, &state)
 }
 
 fn main() {
@@ -23,17 +14,13 @@ fn main() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_process::init())
-        .manage(BackendProcess(Mutex::new(None)))
+        .manage(BackendProcess(std::sync::Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![start_backend])
         .setup(|app| {
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
-                match start_backend(handle.clone(), handle.state::<BackendProcess>()).await {
-                    Ok(_) => {}
-                    Err(e) => {
-                        eprintln!("Backend error: {}", e);
-                        let _ = handle.emit("backend-status", format!("error: {}", e));
-                    }
+                if let Err(e) = start_backend(handle.clone(), handle.state::<BackendProcess>()).await {
+                    let _ = handle.emit("backend-status", format!("error: {e}"));
                 }
             });
             #[cfg(debug_assertions)]
@@ -46,7 +33,7 @@ fn main() {
         .expect("error building tauri application")
         .run(|app, event| {
             if let tauri::RunEvent::Exit = event {
-                if let Some(child) = app.state::<BackendProcess>().0.lock().unwrap().take() {
+                if let Some(mut child) = app.state::<BackendProcess>().0.lock().unwrap().take() {
                     let _ = child.kill();
                 }
             }

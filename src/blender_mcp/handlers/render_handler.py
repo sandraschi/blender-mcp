@@ -453,4 +453,3 @@ print("MULTI_ANGLE_PATHS:" + json.dumps(paths))
         "session_used": result.get("session_used", False),
         "execution_mode": result.get("mode"),
     }
-

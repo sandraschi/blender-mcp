@@ -1,7 +1,7 @@
 """Particle system operations handler for Blender MCP."""
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from ..decorators import blender_operation
@@ -12,14 +12,14 @@ from ..utils.blender_executor import get_blender_executor
 _executor = get_blender_executor()
 
 
-class ParticleType(str, Enum):
+class ParticleType(StrEnum):
     EMITTER = "EMITTER"
     HAIR = "HAIR"
     KEYED = "KEYED"
     FLUID_FLOW = "FLUID_FLOW"
 
 
-class ParticleEmitFrom(str, Enum):
+class ParticleEmitFrom(StrEnum):
     VERT = "VERT"
     FACE = "FACE"
     VOLUME = "VOLUME"

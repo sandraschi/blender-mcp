@@ -28,9 +28,7 @@ async def execute_bpy_script(
         try:
             from blender_mcp.app import _exec_in_blender_session
 
-            session_result = await _exec_in_blender_session(
-                script, script_name=script_name, timeout=timeout
-            )
+            session_result = await _exec_in_blender_session(script, script_name=script_name, timeout=timeout)
             if session_result.get("session_used"):
                 return {
                     "success": session_result.get("success", False),

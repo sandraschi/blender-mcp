@@ -42,10 +42,7 @@ def init_metrics() -> None:
     try:
         from prometheus_client import Counter, Gauge, Histogram, Info
     except ImportError:
-        logger.warning(
-            "prometheus_client not installed; metrics disabled. "
-            "Install with: uv sync --extra monitoring"
-        )
+        logger.warning("prometheus_client not installed; metrics disabled. Install with: uv sync --extra monitoring")
         return
 
     try:

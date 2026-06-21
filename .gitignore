@@ -198,3 +198,7 @@ yarn-error.log*
 .env.production.local
 
 _dashboard/
+
+# Tauri native
+native/resources/*.exe
+native/binaries/*.exe

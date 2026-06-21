@@ -1,7 +1,7 @@
 """Simulation operations handler for Blender MCP."""
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from ..compat import *
@@ -13,7 +13,7 @@ from ..utils.blender_executor import get_blender_executor
 _executor = get_blender_executor()
 
 
-class SimulationType(str, Enum):
+class SimulationType(StrEnum):
     """Supported simulation types."""
 
     CLOTH = "CLOTH"

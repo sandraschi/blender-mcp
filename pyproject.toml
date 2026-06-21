@@ -35,7 +35,7 @@ classifiers = [
     "Framework :: AsyncIO",
 ]
 dependencies = [
-    "fastmcp>=3.2.0",
+    "fastmcp>=3.4.2",
     "httpx>=0.25.0",
     "prefab-ui>=0.14.0",
     "psutil>=5.9",
@@ -171,12 +171,12 @@ select = ["E", "F", "W", "I", "B", "S", "UP", "RUF", "T201"]
 ignore = ["S101", "B008", "E501", "E402", "B904", "S110", "S603", "S602", "S307", "S202", "S310", "S608"]
 
 [tool.ruff.lint.per-file-ignores]
+"run_server.py" = ["F401"]
 "src/blender_mcp/cli.py" = ["T201"]
 "src/blender_mcp/config.py" = ["F403", "F405"]
 "src/blender_mcp/decorators.py" = ["F403", "F405"]
 "src/blender_mcp/exceptions.py" = ["F403", "F405"]
 "src/blender_mcp/help.py" = ["F403", "F405"]
-"src/blender_mcp/server.py" = ["F403", "F405"]
 "src/blender_mcp/handlers/**" = ["F403", "F405"]
 "src/blender_mcp/tools/**" = ["F403", "F405"]
 "src/blender_mcp/utils/**" = ["F403", "F405"]

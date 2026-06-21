@@ -64,19 +64,25 @@ bpy.context.view_layer.objects.active = obj
 
 @blender_operation("sculpt_enter", log_args=True)
 async def sculpt_enter(object_name: str, prefer_session: bool = True) -> dict[str, Any]:
-    body = _object_setup(object_name) + """
+    body = (
+        _object_setup(object_name)
+        + """
     bpy.ops.object.mode_set(mode='SCULPT')
     result = {"operation": "enter_sculpt", "object": obj.name, "mode": obj.mode}
 """
+    )
     return await _run_sculpt_script("sculpt_enter", body, prefer_session=prefer_session)
 
 
 @blender_operation("sculpt_exit", log_args=True)
 async def sculpt_exit(object_name: str, target_mode: str = "OBJECT", prefer_session: bool = True) -> dict[str, Any]:
-    body = _object_setup(object_name) + f"""
+    body = (
+        _object_setup(object_name)
+        + f"""
     bpy.ops.object.mode_set(mode={target_mode!r})
     result = {{"operation": "exit_sculpt", "object": obj.name, "mode": obj.mode}}
 """
+    )
     return await _run_sculpt_script("sculpt_exit", body, prefer_session=prefer_session)
 
 
@@ -88,7 +94,9 @@ async def sculpt_set_brush(
     radius: float = 50.0,
     prefer_session: bool = True,
 ) -> dict[str, Any]:
-    body = _object_setup(object_name) + f"""
+    body = (
+        _object_setup(object_name)
+        + f"""
     bpy.ops.object.mode_set(mode='SCULPT')
     brush = bpy.data.brushes.get({brush_name!r})
     if brush is None:
@@ -104,6 +112,7 @@ async def sculpt_set_brush(
         "radius": brush.size,
     }}
 """
+    )
     return await _run_sculpt_script("sculpt_set_brush", body, prefer_session=prefer_session)
 
 
@@ -115,7 +124,9 @@ async def sculpt_dynotopo(
     detail_resolution: float = 6.0,
     prefer_session: bool = True,
 ) -> dict[str, Any]:
-    body = _object_setup(object_name) + f"""
+    body = (
+        _object_setup(object_name)
+        + f"""
     bpy.ops.object.mode_set(mode='SCULPT')
     active = bpy.context.active_object
     if active is None:
@@ -134,6 +145,7 @@ async def sculpt_dynotopo(
         "detail_resolution": active.dynamic_topology_sculpting_detail_resolution,
     }}
 """
+    )
     return await _run_sculpt_script("sculpt_dynotopo", body, prefer_session=prefer_session)
 
 
@@ -143,21 +155,27 @@ async def sculpt_symmetrize(
     direction: str = "NEGATIVE_X",
     prefer_session: bool = True,
 ) -> dict[str, Any]:
-    body = _object_setup(object_name) + f"""
+    body = (
+        _object_setup(object_name)
+        + f"""
     bpy.ops.object.mode_set(mode='SCULPT')
     bpy.ops.sculpt.symmetrize(direction={direction!r})
     result = {{"operation": "symmetrize", "object": obj.name, "direction": {direction!r}}}
 """
+    )
     return await _run_sculpt_script("sculpt_symmetrize", body, prefer_session=prefer_session)
 
 
 @blender_operation("sculpt_mask_clear", log_args=True)
 async def sculpt_mask_clear(object_name: str, prefer_session: bool = True) -> dict[str, Any]:
-    body = _object_setup(object_name) + """
+    body = (
+        _object_setup(object_name)
+        + """
     bpy.ops.object.mode_set(mode='SCULPT')
     bpy.ops.paint.mask_flood_fill(mode='VALUE', value=0.0)
     result = {"operation": "mask_clear", "object": obj.name}
 """
+    )
     return await _run_sculpt_script("sculpt_mask_clear", body, prefer_session=prefer_session)
 
 
@@ -168,7 +186,9 @@ async def sculpt_remesh_voxel(
     adaptivity: float = 0.0,
     prefer_session: bool = True,
 ) -> dict[str, Any]:
-    body = _object_setup(object_name) + f"""
+    body = (
+        _object_setup(object_name)
+        + f"""
     mod = obj.modifiers.get('Remesh') or obj.modifiers.new('Remesh', 'REMESH')
     mod.mode = 'VOXEL'
     mod.voxel_size = {voxel_size}
@@ -181,6 +201,7 @@ async def sculpt_remesh_voxel(
         "adaptivity": {adaptivity},
     }}
 """
+    )
     return await _run_sculpt_script("sculpt_remesh_voxel", body, prefer_session=prefer_session)
 
 

@@ -5,7 +5,7 @@ VRChat, Resonite, and general 3D model requirements.
 """
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from ..decorators import blender_operation
@@ -18,7 +18,7 @@ from ..utils.blender_executor import get_blender_executor
 _executor = get_blender_executor()
 
 
-class ValidationPlatform(str, Enum):
+class ValidationPlatform(StrEnum):
     """Supported validation platforms."""
 
     VRCHAT = "vrchat"

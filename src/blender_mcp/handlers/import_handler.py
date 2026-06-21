@@ -1,7 +1,7 @@
 """Import operations handler for Blender MCP."""
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -14,7 +14,7 @@ from ..utils.blender_executor import get_blender_executor
 _executor = get_blender_executor()
 
 
-class ImportFormat(str, Enum):
+class ImportFormat(StrEnum):
     """Supported import formats."""
 
     # Standard 3D formats

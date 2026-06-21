@@ -12,7 +12,7 @@ import tempfile
 import urllib.parse
 import urllib.request
 import zipfile
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -32,7 +32,7 @@ app = FastMCP("blender-mcp-asset-repositories")
 _executor = get_blender_executor()
 
 
-class AssetRepository(str, Enum):
+class AssetRepository(StrEnum):
     """Supported asset repositories."""
 
     BLENDERKIT = "blenderkit"
@@ -43,7 +43,7 @@ class AssetRepository(str, Enum):
     SKETCHFAB = "sketchfab"
 
 
-class AssetType(str, Enum):
+class AssetType(StrEnum):
     """Types of assets that can be imported."""
 
     MODEL = "model"
@@ -54,7 +54,7 @@ class AssetType(str, Enum):
     HDRI = "hdri"
 
 
-class AssetFormat(str, Enum):
+class AssetFormat(StrEnum):
     """File formats supported for import."""
 
     BLEND = "blend"

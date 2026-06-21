@@ -572,7 +572,9 @@ class HelpSystem:
                     ParameterInfo("channel", "int", "1", "VSE channel (higher = on top)"),
                     ParameterInfo("frame", "int", "1", "Frame number"),
                     ParameterInfo("length", "int", "120", "Duration in frames"),
-                    ParameterInfo("effect_type", "str", "'CROSS'", "CROSS | WIPE | GLOW | TRANSFORM | SPEED | ADJUSTMENT"),
+                    ParameterInfo(
+                        "effect_type", "str", "'CROSS'", "CROSS | WIPE | GLOW | TRANSFORM | SPEED | ADJUSTMENT"
+                    ),
                     ParameterInfo("blend_type", "str", "'ALPHA_OVER'", "ALPHA_OVER | CROSS | ADD | MULTIPLY | SCREEN"),
                     ParameterInfo("speed_factor", "float", "1.0", "Playback speed (2.0 = double)"),
                     ParameterInfo("output_path", "str", "", "Output .mp4 path for render_video"),

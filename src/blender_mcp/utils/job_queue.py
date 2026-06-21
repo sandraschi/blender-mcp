@@ -7,13 +7,13 @@ import logging
 import time
 import uuid
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-class JobStatus(str, Enum):
+class JobStatus(StrEnum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -43,7 +43,11 @@ def _prune_old_jobs(max_jobs: int = 100) -> None:
     if len(_jobs) <= max_jobs:
         return
     finished = sorted(
-        ((jid, job) for jid, job in _jobs.items() if job.status in (JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED)),
+        (
+            (jid, job)
+            for jid, job in _jobs.items()
+            if job.status in (JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED)
+        ),
         key=lambda item: item[1].finished_at or 0,
     )
     for jid, _ in finished[: len(_jobs) - max_jobs]:

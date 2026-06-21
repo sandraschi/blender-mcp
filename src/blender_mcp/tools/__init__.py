@@ -27,8 +27,6 @@ from blender_mcp.utils.error_handling import (
     ValidationError as MCPValidationError,
 )
 
-from ..compat import *
-
 # Import from our compatibility module
 from ..compat import (
     Any,

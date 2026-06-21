@@ -1,7 +1,7 @@
 """Grease Pencil operations handler for Blender MCP."""
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from ..compat import *
@@ -13,7 +13,7 @@ from ..utils.blender_executor import get_blender_executor
 _executor = get_blender_executor()
 
 
-class GPStrokePlacement(str, Enum):
+class GPStrokePlacement(StrEnum):
     """Grease Pencil stroke placement modes."""
 
     ORIGIN = "ORIGIN"  # Draw at origin
@@ -22,7 +22,7 @@ class GPStrokePlacement(str, Enum):
     VIEW = "VIEW"  # Draw on view plane
 
 
-class GPStrokeType(str, Enum):
+class GPStrokeType(StrEnum):
     """Grease Pencil stroke types."""
 
     LINE = "LINE"

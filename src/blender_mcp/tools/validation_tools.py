@@ -123,7 +123,6 @@ def _register_validation_tools():
                     check_textures=check_textures,
                 )
 
-
             elif operation == "check_polycount":
                 # Individual checks with custom limits
                 limit = polycount_limit or 70000  # Default to VRChat PC limit
@@ -220,7 +219,18 @@ def _format_geometry_report(result: dict) -> str:
     status = result.get("status", "UNKNOWN")
     obj = result.get("object", "unknown")
     lines = [f"**Mesh Geometry Audit — {obj}**", f"Status: {status}", ""]
-    for key in ("vertices", "edges", "faces", "triangles", "loose_vertices", "loose_edges", "non_manifold_edges", "degenerate_faces", "is_manifold", "boundary_edges"):
+    for key in (
+        "vertices",
+        "edges",
+        "faces",
+        "triangles",
+        "loose_vertices",
+        "loose_edges",
+        "non_manifold_edges",
+        "degenerate_faces",
+        "is_manifold",
+        "boundary_edges",
+    ):
         if key in result:
             lines.append(f"  • {key}: {result[key]}")
     issues = result.get("issues") or []

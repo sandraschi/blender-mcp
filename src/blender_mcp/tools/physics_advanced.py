@@ -6,7 +6,7 @@ The actual tool functions are defined in the handlers and registered with @app.t
 This module provides parameter models and enums for documentation and validation purposes.
 """
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
@@ -18,7 +18,7 @@ from ..compat import *
 
 
 # Enums for physics types
-class ClothQualityPreset(str, Enum):
+class ClothQualityPreset(StrEnum):
     """Cloth quality presets."""
 
     LOW = "LOW"
@@ -26,14 +26,14 @@ class ClothQualityPreset(str, Enum):
     HIGH = "HIGH"
 
 
-class FluidDomainType(str, Enum):
+class FluidDomainType(StrEnum):
     """Fluid domain types."""
 
     GAS = "GAS"
     LIQUID = "LIQUID"
 
 
-class ParticleSystemType(str, Enum):
+class ParticleSystemType(StrEnum):
     """Particle system types."""
 
     EMITTER = "EMITTER"
@@ -41,7 +41,7 @@ class ParticleSystemType(str, Enum):
     FLUID = "FLUID"
 
 
-class ConstraintType(str, Enum):
+class ConstraintType(StrEnum):
     """Physics constraint types."""
 
     FIXED = "FIXED"
@@ -50,7 +50,7 @@ class ConstraintType(str, Enum):
     SLIDER = "SLIDER"
 
 
-class PhysicsType(str, Enum):
+class PhysicsType(StrEnum):
     """Physics simulation types."""
 
     RIGID_BODY = "RIGID_BODY"
@@ -60,7 +60,7 @@ class PhysicsType(str, Enum):
     PARTICLE = "PARTICLE"
 
 
-class CollisionShape(str, Enum):
+class CollisionShape(StrEnum):
     """Collision shape types."""
 
     CONVEX_HULL = "CONVEX_HULL"
@@ -72,7 +72,7 @@ class CollisionShape(str, Enum):
     CONE = "CONE"
 
 
-class ForceFieldType(str, Enum):
+class ForceFieldType(StrEnum):
     """Force field types."""
 
     FORCE = "FORCE"

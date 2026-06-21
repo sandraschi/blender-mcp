@@ -6,7 +6,7 @@ The actual tool functions are defined in the handlers and registered with @app.t
 This module provides parameter models and enums for documentation and validation purposes.
 """
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
@@ -18,7 +18,7 @@ from ..compat import *
 
 
 # Enums for export settings
-class AxisForward(str, Enum):
+class AxisForward(StrEnum):
     """Forward axis for export."""
 
     X = "X"
@@ -29,7 +29,7 @@ class AxisForward(str, Enum):
     NEG_Z = "-Z"
 
 
-class AxisUp(str, Enum):
+class AxisUp(StrEnum):
     """Up axis for export."""
 
     X = "X"
@@ -40,7 +40,7 @@ class AxisUp(str, Enum):
     NEG_Z = "-Z"
 
 
-class ExportFormat(str, Enum):
+class ExportFormat(StrEnum):
     """Supported export formats."""
 
     FBX = "FBX"
@@ -51,7 +51,7 @@ class ExportFormat(str, Enum):
     ABC = "ABC"
 
 
-class PathMode(str, Enum):
+class PathMode(StrEnum):
     """Path mode for export."""
 
     AUTO = "AUTO"
@@ -61,7 +61,7 @@ class PathMode(str, Enum):
     STRIP_LEADING = "STRIP_LEADING"
 
 
-class ApplyScaleOptions(str, Enum):
+class ApplyScaleOptions(StrEnum):
     """Apply scale options for export."""
 
     NONE = "NONE"
@@ -69,7 +69,7 @@ class ApplyScaleOptions(str, Enum):
     SCALE_CUR = "SCALE_CUR"
 
 
-class ObjectTypes(str, Enum):
+class ObjectTypes(StrEnum):
     """Object types for export."""
 
     MESH = "MESH"
@@ -79,14 +79,14 @@ class ObjectTypes(str, Enum):
     OTHER = "OTHER"
 
 
-class ArmatureNodeType(str, Enum):
+class ArmatureNodeType(StrEnum):
     """Armature node type for export."""
 
     NULL = "NULL"
     ROOT = "ROOT"
 
 
-class QuadMethod(str, Enum):
+class QuadMethod(StrEnum):
     """Quad method for export."""
 
     SHORTEST_DIAGONAL = "SHORTEST_DIAGONAL"
@@ -95,14 +95,14 @@ class QuadMethod(str, Enum):
     FIXED = "FIXED"
 
 
-class NgonMethod(str, Enum):
+class NgonMethod(StrEnum):
     """N-gon method for export."""
 
     BEAUTY = "BEAUTY"
     CLIP = "CLIP"
 
 
-class BatchMode(str, Enum):
+class BatchMode(StrEnum):
     """Batch mode for export."""
 
     OFF = "OFF"

@@ -4,7 +4,7 @@ This module provides physics simulation and rigid body functions that can be reg
 """
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from ..compat import *
@@ -17,7 +17,7 @@ from ..utils.blender_executor import get_blender_executor
 _executor = get_blender_executor()
 
 
-class PhysicsType(str, Enum):
+class PhysicsType(StrEnum):
     """Supported physics types."""
 
     RIGID_BODY = "RIGID_BODY"
@@ -28,14 +28,14 @@ class PhysicsType(str, Enum):
     DYNAMIC_PAINT = "DYNAMIC_PAINT"
 
 
-class RigidBodyType(str, Enum):
+class RigidBodyType(StrEnum):
     """Rigid body types."""
 
     ACTIVE = "ACTIVE"
     PASSIVE = "PASSIVE"
 
 
-class RigidBodyConstraintType(str, Enum):
+class RigidBodyConstraintType(StrEnum):
     """Rigid body constraint types."""
 
     FIXED = "FIXED"
@@ -48,7 +48,7 @@ class RigidBodyConstraintType(str, Enum):
     MOTOR = "MOTOR"
 
 
-class CollisionShapeType(str, Enum):
+class CollisionShapeType(StrEnum):
     """Collision shape types for rigid bodies."""
 
     BOX = "BOX"

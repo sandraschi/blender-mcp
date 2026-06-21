@@ -10,6 +10,8 @@ from pathlib import Path
 from ..compat import *
 
 logger = logging.getLogger(__name__)
+import enum
+
 from ..decorators import blender_operation
 from ..exceptions import BlenderExportError
 from ..utils.blender_executor import get_blender_executor
@@ -290,9 +292,8 @@ async def export_scene_format(
     global_scale: float = 1.0,
 ) -> dict[str, Any]:
     """Export the scene to a standard interchange format."""
-    from enum import Enum
 
-    class ExportFormat(str, Enum):
+    class ExportFormat(enum.StrEnum):
         GLTF = "GLTF"
         GLB = "GLB"
         FBX = "FBX"
@@ -432,4 +433,3 @@ except Exception as e:
         "output_path": output_path,
         "message": f"Exported Unreal-compatible FBX to {output_path}",
     }
-

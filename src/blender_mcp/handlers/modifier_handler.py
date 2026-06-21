@@ -1,7 +1,7 @@
 """Modifier operations handler for Blender MCP."""
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from ..decorators import blender_operation
@@ -15,7 +15,7 @@ _executor = get_blender_executor()
 from ..compat import *
 
 
-class ModifierType(str, Enum):
+class ModifierType(StrEnum):
     """Types of modifiers."""
 
     ARRAY = "ARRAY"

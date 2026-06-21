@@ -1,7 +1,7 @@
 """Texture operations handler for Blender MCP."""
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from ..decorators import blender_operation
@@ -15,7 +15,7 @@ _executor = get_blender_executor()
 from ..compat import *
 
 
-class TextureType(str, Enum):
+class TextureType(StrEnum):
     """Types of textures."""
 
     IMAGE = "IMAGE"
@@ -33,7 +33,7 @@ class TextureType(str, Enum):
     POINT_DENSITY = "POINT_DENSITY"
 
 
-class ImageSourceType(str, Enum):
+class ImageSourceType(StrEnum):
     """Image source types for textures."""
 
     FILE = "FILE"

@@ -3,7 +3,7 @@
 import json
 import logging
 import uuid
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +18,7 @@ _executor = get_blender_executor()
 from ..compat import *
 
 
-class ScriptLanguage(str, Enum):
+class ScriptLanguage(StrEnum):
     """Supported scripting languages."""
 
     PYTHON = "PYTHON"
@@ -27,7 +27,7 @@ class ScriptLanguage(str, Enum):
     EXTERNAL_FILE = "EXTERNAL_FILE"
 
 
-class ScriptScope(str, Enum):
+class ScriptScope(StrEnum):
     """Script execution scopes."""
 
     SCENE = "SCENE"

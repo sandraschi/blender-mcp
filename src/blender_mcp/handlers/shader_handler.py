@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Any, ClassVar, Literal, TypeVar
 
 from pydantic import BaseModel
@@ -54,7 +54,7 @@ class ShaderOperationResult(BaseModel):
         return {k: v for k, v in self.dict().items() if v is not None}
 
 
-class ShaderType(str, Enum):
+class ShaderType(StrEnum):
     """Supported shader types in Blender."""
 
     PRINCIPLED_BSDF = "BSDF_PRINCIPLED"

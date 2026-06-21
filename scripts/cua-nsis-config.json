@@ -1,0 +1,14 @@
+{
+  "product_name": "Blender MCP",
+  "install_dir": "%LOCALAPPDATA%\\Blender MCP",
+  "operator_exe": "blender-mcp-native.exe",
+  "backend_process_names": ["Blender MCP", "blender-mcp-backend"],
+  "backend_port": 10849,
+  "health_path": "/health",
+  "diagnostics_path": "/api/v1/diagnostics",
+  "feature_smoke_path": "/api/health",
+  "window_title_re": "Blender MCP",
+  "nsis_glob": "native/target/release/bundle/nsis/Blender MCP_*_x64-setup.exe",
+  "bridge_ok_text": "ok",
+  "uninstall_registry_filter": "*Blender MCP*"
+}

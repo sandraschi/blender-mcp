@@ -1,7 +1,7 @@
 """Rigging and armature operations handler for Blender MCP."""
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from ..decorators import blender_operation
@@ -12,7 +12,7 @@ from ..utils.blender_executor import get_blender_executor
 _executor = get_blender_executor()
 
 
-class BoneAxis(str, Enum):
+class BoneAxis(StrEnum):
     X = "X"
     Y = "Y"
     Z = "Z"

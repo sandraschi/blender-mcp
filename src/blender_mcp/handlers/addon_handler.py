@@ -4,7 +4,7 @@ import json
 import logging
 import os
 import zipfile
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -60,7 +60,7 @@ KNOWN_ADDONS = {
 }
 
 
-class AddonInstallType(str, Enum):
+class AddonInstallType(StrEnum):
     """Addon installation types."""
 
     FILE = "FILE"

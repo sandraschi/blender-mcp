@@ -6,7 +6,7 @@ All implementations use real Blender API (bmesh, bpy.ops) to generate actual geo
 
 import logging
 import math
-from enum import Enum
+from enum import StrEnum
 from math import radians
 from typing import Any
 
@@ -43,7 +43,7 @@ from ..decorators import blender_operation
 logger = logging.getLogger(__name__)
 
 
-class FurnitureStyle(str, Enum):
+class FurnitureStyle(StrEnum):
     MODERN = "modern"
     CLASSIC = "classic"
     RUSTIC = "rustic"
@@ -100,7 +100,7 @@ class FurnitureStyle(str, Enum):
     MODERN_CONTEMPORARY = "modern_contemporary"
 
 
-class MaterialType(str, Enum):
+class MaterialType(StrEnum):
     WOOD = "wood"
     METAL = "metal"
     GLASS = "glass"
@@ -163,7 +163,7 @@ class MaterialType(str, Enum):
     CARDBOARD = "cardboard"
 
 
-class RoomType(str, Enum):
+class RoomType(StrEnum):
     LIVING = "living"
     BEDROOM = "bedroom"
     KITCHEN = "kitchen"
@@ -329,7 +329,7 @@ class RoomType(str, Enum):
     OUTDOOR_LIVING = "outdoor_living"
 
 
-class HouseStyle(str, Enum):
+class HouseStyle(StrEnum):
     MODERN = "modern"
     CONTEMPORARY = "contemporary"
     TRADITIONAL = "traditional"

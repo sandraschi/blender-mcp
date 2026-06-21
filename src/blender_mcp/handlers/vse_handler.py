@@ -303,10 +303,7 @@ except Exception as e:
     raise e
 """
         await _executor.execute_script(script, script_name="vse_add_text")
-        return (
-            f"Added text strip '{strip_name or text[:20]}' "
-            f"frames {frame}-{frame + length} channel {channel}"
-        )
+        return f"Added text strip '{strip_name or text[:20]}' frames {frame}-{frame + length} channel {channel}"
 
     except Exception as e:
         raise BlenderVSEError("add_text", str(e)) from e
@@ -369,10 +366,7 @@ except Exception as e:
     raise e
 """
         await _executor.execute_script(script, script_name="vse_add_effect")
-        return (
-            f"Added {effect_type} effect strip "
-            f"'{strip_name or effect_type}' frames {frame}-{frame + length}"
-        )
+        return f"Added {effect_type} effect strip '{strip_name or effect_type}' frames {frame}-{frame + length}"
 
     except Exception as e:
         raise BlenderVSEError("add_effect", str(e)) from e
@@ -471,7 +465,7 @@ try:
     if not strip:
         print(f"STRIP_NOT_FOUND: {strip_name}")
     else:
-        {chr(10).join('        ' + op for op in ops)}
+        {chr(10).join("        " + op for op in ops)}
         print(
             f"SUCCESS: Trimmed strip '{{strip.name}}' "
             f"start={{strip.frame_start}} end={{strip.frame_final_end}} "
@@ -515,7 +509,7 @@ try:
     if not strip:
         print(f"STRIP_NOT_FOUND: {strip_name}")
     else:
-        {chr(10).join('        ' + op for op in ops)}
+        {chr(10).join("        " + op for op in ops)}
         print(
             f"SUCCESS: Moved strip '{{strip.name}}' "
             f"to channel {{strip.channel}} frame {{strip.frame_start}}"
@@ -698,7 +692,7 @@ try:
                 "Strip does not support transforms "
                 "(use movie/image/scene strips)"
             )
-{chr(10).join('        ' + op for op in ops)}
+{chr(10).join("        " + op for op in ops)}
         print(
             f"SUCCESS: Transformed strip '{{strip.name}}' "
             f"off=({{strip.transform.offset_x}},"
@@ -826,10 +820,7 @@ except Exception as e:
 """
         await _executor.execute_script(script, script_name="vse_render_video")
         n_frames = frame_end - frame_start + 1
-        return (
-            f"Rendered video to {output_path} "
-            f"({resolution_x}x{resolution_y}, {codec}, {n_frames} frames)"
-        )
+        return f"Rendered video to {output_path} ({resolution_x}x{resolution_y}, {codec}, {n_frames} frames)"
 
     except Exception as e:
         raise BlenderVSEError("render_video", str(e)) from e

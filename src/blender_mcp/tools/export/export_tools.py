@@ -34,8 +34,8 @@ def _register_export_tools():
         - export_unity / export_vrchat / export_unreal (platform presets)
         """
         from blender_mcp.handlers.export_handler import (
-            export_for_unreal,
             export_for_unity,
+            export_for_unreal,
             export_for_vrchat,
             export_scene_format,
         )

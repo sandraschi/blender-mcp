@@ -1,7 +1,7 @@
 """Selection operations handler for Blender MCP."""
 
 import logging
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from ..decorators import blender_operation
@@ -15,7 +15,7 @@ _executor = get_blender_executor()
 from ..compat import *
 
 
-class SelectMode(str, Enum):
+class SelectMode(StrEnum):
     """Selection modes."""
 
     REPLACE = "REPLACE"
@@ -27,7 +27,7 @@ class SelectMode(str, Enum):
     XOR = "XOR"
 
 
-class SelectableType(str, Enum):
+class SelectableType(StrEnum):
     """Types of selectable elements."""
 
     OBJECT = "OBJECT"
