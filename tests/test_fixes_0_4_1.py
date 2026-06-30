@@ -86,7 +86,7 @@ class TestConstructAndSave:
             "message": "Saved",
             "object_id": "abc123",
             "version": "1.0.0",
-            "blend_file": "/tmp/x.blend",
+            "blend_file": "/tmp/x.blend",  # noqa: S108
             "session_required": False,
         }
 

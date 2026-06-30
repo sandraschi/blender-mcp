@@ -45,7 +45,7 @@ class TestTelemetry:
     @pytest.mark.asyncio
     async def test_tool_wrapper_records_calls(self):
         from blender_mcp.app import get_app
-        from blender_mcp.utils.telemetry import _metrics_initialized, install_tool_call_wrapper
+        from blender_mcp.utils.telemetry import _metrics_initialized
 
         get_app()
         if not _metrics_initialized:
@@ -58,6 +58,8 @@ class TestTelemetry:
             async def call_tool(self, name: str, arguments=None, **kwargs):
                 self.calls += 1
                 return {"ok": True}
+
+        from blender_mcp.utils import telemetry
 
         app = FakeApp()
         telemetry.install_tool_call_wrapper(app)
