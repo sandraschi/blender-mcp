@@ -120,7 +120,7 @@ class MCPExportResult(BaseModel):
 
 def _generate_object_id(display_name: str, object_name: str) -> str:
     content = f"{display_name}:{object_name}:{datetime.now().isoformat()}"
-    return hashlib.md5(content.encode()).hexdigest()[:16]  # noqa: S324
+    return hashlib.md5(content.encode()).hexdigest()[:16]
 
 
 def _get_next_version(model_dir: Path) -> str:
