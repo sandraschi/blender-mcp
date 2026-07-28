@@ -1,44 +1,54 @@
+﻿# Fleet: mcp-central-docs/templates/ci.yml.template
 name: CI
 
 on:
   push:
-    branches: ["*"]
-    tags: ["v*"]
+    branches: [main, master]
   pull_request:
-  schedule:
-    - cron: "0 6 * * *"
+    branches: [main, master]
   workflow_dispatch:
 
 jobs:
-  lint:
+  check:
+    name: Lint & Test (Windows)
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-        with: { python-version: "3.12" }
-      - run: uv sync --group dev
-      - run: uv run ruff check src/
 
-  test:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-        with: { python-version: "3.12" }
-      - run: uv sync --group dev
-      - run: uv run pytest tests/ -q
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: latest
+          enable-cache: true
 
-  build-web:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: "20" }
-      - working-directory: webapp/frontend
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: webapp/frontend/package-lock.json
+
+      - name: Install Python dependencies
+        run: uv sync --extra dev --group dev
+
+      - name: Ruff check
+        run: uv run ruff check src tests
+
+      - name: Ruff format check
+        run: uv run ruff format --check src tests
+
+      - name: Pytest
+        run: uv run python -m pytest -q --tb=short
+
+      - name: Install web dependencies
         run: npm ci
-      - name: TypeScript check
         working-directory: webapp/frontend
-        run: npx tsc --noEmit
-      - name: Vite build
+
+      - name: Biome check
+        run: npm run biome:ci
         working-directory: webapp/frontend
-        run: npx vite build

@@ -1,16 +1,23 @@
-set windows-shell := ["pwsh.exe", "-NoLogo", "-Command"]
+﻿set windows-shell := ["powershell.exe", "-NoProfile", "-Command"]
 import 'scripts/just/fleet.just'
 
 __version__ := "0.6.0"
 __name__ := "blender-mcp"
 
-# ── Dashboard ─────────────────────────────────────────────────────────────────
+# â”€â”€ Dashboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 # Open the interactive recipe dashboard in the browser
 default:
     @just --list
 
-# ── Quality ───────────────────────────────────────────────────────────────────
+
+# Synchronize deps, pre-commit hooks, and web frontend
+bootstrap:
+    uv sync --extra dev --group dev
+    uv run pre-commit install
+    Set-Location webapp/frontend; npm ci; if ($LASTEXITCODE -ne 0) { npm install }
+    Write-Host "Pre-commit hooks installed." -ForegroundColor Green
+# â”€â”€ Quality â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 # Execute repo-wide quality checks (Ruff + Biome)
 lint:
@@ -26,7 +33,7 @@ fix:
     cd webapp/frontend && npx @biomejs/biome check --apply .
     cd webapp/frontend && npx @biomejs/biome format --write .
 
-# ── Testing ───────────────────────────────────────────────────────────────────
+# â”€â”€ Testing â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 # Run all Python tests with pytest
 test:
@@ -34,9 +41,9 @@ test:
     uv run pytest tests/ -v
 
 e2e:
-    pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File "D:\Dev\repos\mcp-central-docs\scripts\playwright-audit.ps1" -RepoPath "{{justfile_directory()}}"
+    powershell.exe -NoProfile -NoProfile -ExecutionPolicy Bypass -File "D:\Dev\repos\mcp-central-docs\scripts\playwright-audit.ps1" -RepoPath "{{justfile_directory()}}"
 
-# ── Hardening ─────────────────────────────────────────────────────────────────
+# â”€â”€ Hardening â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 # Execute Bandit security audit
 check-sec:
@@ -47,7 +54,7 @@ check-sec:
 audit-deps:
     Set-Location '{{justfile_directory()}}'
     uv run safety check
-# ── Packaging & Distribution ──────────────────────────────────────────────────
+# â”€â”€ Packaging & Distribution â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 # mcpb-pack and cua-nsis-test are imported from scripts/just/fleet.just
 
@@ -56,9 +63,9 @@ serve:
     Set-Location '{{justfile_directory()}}'
     uv run blender-mcp-server
 
-# ── Native App (Tauri 2.0) ──────────────────────────────────────────────────
+# â”€â”€ Native App (Tauri 2.0) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-# Build Tauri native desktop app (release — full pipeline)
+# Build Tauri native desktop app (release â€” full pipeline)
 build-native:
     Set-Location '{{justfile_directory()}}\native'
     $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
@@ -72,7 +79,7 @@ build-native-debug:
 
 # cua-nsis-test is imported from scripts/just/fleet.just
 
-# ── SOTA Gates ────────────────────────────────────────────────────────────────
+# â”€â”€ SOTA Gates â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 # Format Python and JS/TS code
 fmt:
@@ -87,3 +94,4 @@ certify: lint
     Write-Host "=== Python tests ===" -ForegroundColor Yellow
     uv run pytest tests/ -v
     Write-Host "=== Certification PASSED ===" -ForegroundColor Green
+

@@ -37,7 +37,7 @@ classifiers = [
 urls = {Homepage = "https://github.com/sandraschi/blender-mcp", Repository = "https://github.com/sandraschi/blender-mcp", "Bug Tracker" = "https://github.com/sandraschi/blender-mcp/issues", Documentation = "https://github.com/sandraschi/blender-mcp#readme"}
 
 dependencies = [
-    "fastmcp>=3.4.2,<4",
+    "fastmcp>=3.4.4,<4",
     "httpx>=0.25.0",
     "prefab-ui>=0.14.0",
     "psutil>=5.9",
