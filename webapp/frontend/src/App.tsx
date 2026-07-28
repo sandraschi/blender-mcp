@@ -45,11 +45,7 @@ import VideoEditor from "./pages/video-editor";
 import VRPipeline from "./pages/vr-pipeline";
 import { useConnection } from "./store/connection";
 
-function NavItem({
-  to,
-  icon: Icon,
-  label,
-}: { to: string; icon: React.ElementType; label: string }) {
+function NavItem({ to, icon: Icon, label }: { to: string; icon: React.ElementType; label: string }) {
   const location = useLocation();
   const isActive = location.pathname === to;
 
@@ -57,9 +53,7 @@ function NavItem({
     <Link
       to={to}
       className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-        isActive
-          ? "bg-accent text-accent-foreground"
-          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+        isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
       }`}
     >
       <Icon className="w-5 h-5" />
@@ -71,12 +65,7 @@ function NavItem({
 
 function ConnectionStatus() {
   const { state, lastError } = useConnection();
-  const statusColor =
-    state === "connected"
-      ? "bg-emerald-500"
-      : state === "connecting"
-        ? "bg-amber-500"
-        : "bg-red-500";
+  const statusColor = state === "connected" ? "bg-emerald-500" : state === "connecting" ? "bg-amber-500" : "bg-red-500";
   const statusLabel =
     state === "connected"
       ? "System Online"
@@ -85,23 +74,15 @@ function ConnectionStatus() {
         : `Offline${lastError ? ` (${lastError.slice(0, 60)})` : ""}`;
   return (
     <div className="flex items-center gap-2">
-      <div
-        className={`w-2 h-2 rounded-full ${statusColor} animate-pulse`}
-        data-testid="connection-status"
-      />
-      <span
-        className="text-sm font-medium text-muted-foreground truncate"
-        data-testid="connection-label"
-      >
+      <div className={`w-2 h-2 rounded-full ${statusColor} animate-pulse`} data-testid="connection-status" />
+      <span className="text-sm font-medium text-muted-foreground truncate" data-testid="connection-label">
         {statusLabel}
       </span>
     </div>
   );
 }
 
-const BACKEND_HEALTH_URL = import.meta.env.DEV
-  ? "/api/v1/health"
-  : "http://127.0.0.1:10849/api/v1/health";
+const BACKEND_HEALTH_URL = import.meta.env.DEV ? "/api/v1/health" : "http://127.0.0.1:10849/api/v1/health";
 
 const BACKOFF = [1, 2, 4, 8, 16, 30];
 
@@ -174,9 +155,7 @@ function Layout() {
         </div>
 
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Creation
-          </div>
+          <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Creation</div>
           <NavItem to="/" icon={LayoutGrid} label="Dashboard" />
           <NavItem to="/scene" icon={Layers} label="Scene Explorer" />
           <NavItem to="/construct" icon={Wand2} label="Construct" />

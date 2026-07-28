@@ -29,7 +29,7 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
+    "@biomejs/biome": "^2.4.12",
     "@types/node": "^22.10.1",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",

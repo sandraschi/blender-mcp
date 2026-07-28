@@ -18,8 +18,7 @@ export default function MaterialStore() {
 
   const filteredMaterials = MOCK_MATERIALS.filter(
     (m) =>
-      m.name.toLowerCase().includes(search.toLowerCase()) ||
-      m.category.toLowerCase().includes(search.toLowerCase()),
+      m.name.toLowerCase().includes(search.toLowerCase()) || m.category.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -69,17 +68,15 @@ export default function MaterialStore() {
               <Filter className="w-4 h-4" /> Categories
             </h3>
             <div className="space-y-1">
-              {["All", "Concrete", "Metal", "Wood", "Glass", "Plastic", "Stone", "Fabric"].map(
-                (cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    className="w-full text-left px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded transition-colors"
-                  >
-                    {cat}
-                  </button>
-                ),
-              )}
+              {["All", "Concrete", "Metal", "Wood", "Glass", "Plastic", "Stone", "Fabric"].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  className="w-full text-left px-2 py-1.5 text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded transition-colors"
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -124,10 +121,7 @@ export default function MaterialStore() {
                   key={material.id}
                   className="flex items-center p-3 border border-border rounded-lg bg-card hover:bg-accent/50 transition-colors group"
                 >
-                  <div
-                    className="w-10 h-10 rounded-md shadow-sm mr-4"
-                    style={{ backgroundColor: material.color }}
-                  />
+                  <div className="w-10 h-10 rounded-md shadow-sm mr-4" style={{ backgroundColor: material.color }} />
                   <div className="flex-1">
                     <h3 className="font-medium">{material.name}</h3>
                     <p className="text-xs text-muted-foreground">{material.category}</p>

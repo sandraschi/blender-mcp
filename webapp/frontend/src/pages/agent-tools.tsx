@@ -1,14 +1,4 @@
-import {
-  Activity,
-  Box,
-  type Camera,
-  Cpu,
-  Layers,
-  Palette,
-  ScanEye,
-  Sparkles,
-  Wrench,
-} from "lucide-react";
+import { Activity, Box, type Camera, Cpu, Layers, Palette, ScanEye, Sparkles, Wrench } from "lucide-react";
 import { useState } from "react";
 import { callTool, getBackendHealth } from "../api/mcp";
 
@@ -85,8 +75,8 @@ export default function AgentToolsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Agent Tools</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Phases 1–5: vision loops, shaders, mesh edit, sculpt, geonodes, AI mesh, jobs,
-            validation, batch, and telemetry.
+            Phases 1–5: vision loops, shaders, mesh edit, sculpt, geonodes, AI mesh, jobs, validation, batch, and
+            telemetry.
           </p>
         </div>
         <button
@@ -130,8 +120,7 @@ export default function AgentToolsPage() {
           <>
             <h2 className="font-semibold">Vision &amp; review loop</h2>
             <p className="text-sm text-muted-foreground">
-              Live GUI + bridge addon recommended for viewport capture. Headless falls back to still
-              render.
+              Live GUI + bridge addon recommended for viewport capture. Headless falls back to still render.
             </p>
             <label className="block text-sm">
               Output directory (multi-angle / review bundle)
@@ -247,21 +236,17 @@ export default function AgentToolsPage() {
               onChange={(e) => setObjectName(e.target.value)}
             />
             <div className="flex flex-wrap gap-2">
-              {(["extrude", "inset", "bevel_modifier", "subdivide", "triangulate"] as const).map(
-                (op) => (
-                  <button
-                    key={op}
-                    type="button"
-                    disabled={loading}
-                    className="px-3 py-2 bg-secondary rounded-md text-sm"
-                    onClick={() =>
-                      run("blender_mesh", { operation: op, name: objectName, prefer_session: true })
-                    }
-                  >
-                    {op}
-                  </button>
-                ),
-              )}
+              {(["extrude", "inset", "bevel_modifier", "subdivide", "triangulate"] as const).map((op) => (
+                <button
+                  key={op}
+                  type="button"
+                  disabled={loading}
+                  className="px-3 py-2 bg-secondary rounded-md text-sm"
+                  onClick={() => run("blender_mesh", { operation: op, name: objectName, prefer_session: true })}
+                >
+                  {op}
+                </button>
+              ))}
             </div>
           </>
         )}
@@ -314,9 +299,7 @@ export default function AgentToolsPage() {
                 type="button"
                 disabled={loading}
                 className="px-4 py-2 bg-secondary rounded-md text-sm"
-                onClick={() =>
-                  run("blender_sculpt", { operation: "dynotopo", object_name: objectName })
-                }
+                onClick={() => run("blender_sculpt", { operation: "dynotopo", object_name: objectName })}
               >
                 Dynotopo
               </button>
@@ -351,9 +334,7 @@ export default function AgentToolsPage() {
                 type="button"
                 disabled={loading}
                 className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm"
-                onClick={() =>
-                  run("blender_geonodes", { operation: "create_group", group_name: groupName })
-                }
+                onClick={() => run("blender_geonodes", { operation: "create_group", group_name: groupName })}
               >
                 Create group
               </button>
@@ -556,8 +537,7 @@ export default function AgentToolsPage() {
               </button>
             </div>
             <p className="text-xs text-muted-foreground">
-              Open Grafana at http://localhost:3000 when monitoring profile is running. See
-              docs/MONITORING.md in repo.
+              Open Grafana at http://localhost:3000 when monitoring profile is running. See docs/MONITORING.md in repo.
             </p>
           </>
         )}

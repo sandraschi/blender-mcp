@@ -140,9 +140,7 @@ export default function SceneExplorer() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight mb-1">Scene Explorer</h1>
-          <p className="text-muted-foreground">
-            View and manage the active Blender scene hierarchy.
-          </p>
+          <p className="text-muted-foreground">View and manage the active Blender scene hierarchy.</p>
         </div>
         <button
           type="button"

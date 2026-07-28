@@ -1,13 +1,4 @@
-import {
-  AlertTriangle,
-  Download,
-  Filter,
-  Info,
-  RefreshCw,
-  Search,
-  Terminal,
-  XCircle,
-} from "lucide-react";
+import { AlertTriangle, Download, Filter, Info, RefreshCw, Search, Terminal, XCircle } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getLogsREST } from "../api/mcp";
 
@@ -102,9 +93,7 @@ export default function LogsPage() {
         ? JSON.stringify(logs, null, 2)
         : [
             "timestamp,level,name,message",
-            ...logs.map(
-              (l) => `${l.timestamp},${l.level},"${l.name}","${l.message.replace(/"/g, '""')}"`,
-            ),
+            ...logs.map((l) => `${l.timestamp},${l.level},"${l.name}","${l.message.replace(/"/g, '""')}"`),
           ].join("\n");
     const blob = new Blob([data], { type: format === "json" ? "application/json" : "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -122,10 +111,7 @@ export default function LogsPage() {
   };
 
   return (
-    <div
-      className="p-6 max-w-6xl mx-auto h-[calc(100vh-4rem)] flex flex-col"
-      data-testid="logs-page"
-    >
+    <div className="p-6 max-w-6xl mx-auto h-[calc(100vh-4rem)] flex flex-col" data-testid="logs-page">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight mb-1 flex items-center gap-2">
@@ -264,9 +250,7 @@ export default function LogsPage() {
           </div>
         )}
         {logs.length === 0 && loading && (
-          <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
-            Loading logs...
-          </div>
+          <div className="h-full flex items-center justify-center text-muted-foreground text-sm">Loading logs...</div>
         )}
         <div className="p-3 space-y-0.5">
           {logs.map((log, i) => (
@@ -289,9 +273,7 @@ export default function LogsPage() {
               >
                 {log.name}
               </span>
-              <span className="text-gray-300 leading-5 break-all flex-1 min-w-0">
-                {log.message}
-              </span>
+              <span className="text-gray-300 leading-5 break-all flex-1 min-w-0">{log.message}</span>
             </div>
           ))}
         </div>

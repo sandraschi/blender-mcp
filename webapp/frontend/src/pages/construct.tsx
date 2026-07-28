@@ -1,10 +1,6 @@
 import { AlertCircle, CheckCircle, Code, Copy, Download, Play, Wand2 } from "lucide-react";
 import { useState } from "react";
-import {
-  generateBlenderScript as apiGenerateBlenderScript,
-  executeScript,
-  getConfig,
-} from "../api/mcp";
+import { generateBlenderScript as apiGenerateBlenderScript, executeScript, getConfig } from "../api/mcp";
 
 interface GenerationStep {
   id: string;
@@ -70,9 +66,7 @@ export default function Construct() {
       updateStep("generate", "completed", "Script generated (LLM)");
     } else {
       const err =
-        response.data?.error ??
-        response.error ??
-        "LLM failed. Is Ollama running? Select a model in Settings.";
+        response.data?.error ?? response.error ?? "LLM failed. Is Ollama running? Select a model in Settings.";
       updateStep("generate", "error", err);
       setError(err);
     }
@@ -199,9 +193,7 @@ export default function Construct() {
                   </div>
                   <div className="flex-1">
                     <div className="text-sm font-medium">{step.label}</div>
-                    {step.message && (
-                      <div className="text-xs text-muted-foreground">{step.message}</div>
-                    )}
+                    {step.message && <div className="text-xs text-muted-foreground">{step.message}</div>}
                   </div>
                 </div>
               ))}
@@ -263,9 +255,7 @@ export default function Construct() {
           </div>
           <div className="flex-1 bg-[#1e1e1e] p-4 overflow-auto">
             {generatedScript ? (
-              <pre className="font-mono text-sm text-[#d4d4d4] whitespace-pre-wrap">
-                {generatedScript}
-              </pre>
+              <pre className="font-mono text-sm text-[#d4d4d4] whitespace-pre-wrap">{generatedScript}</pre>
             ) : (
               <div className="h-full flex items-center justify-center text-muted-foreground">
                 <div className="text-center">

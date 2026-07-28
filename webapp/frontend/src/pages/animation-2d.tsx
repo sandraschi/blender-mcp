@@ -183,10 +183,7 @@ export default function Animation2DPage() {
             />
           </div>
           <div className="space-y-2">
-            <label
-              htmlFor="anim-interp-frames"
-              className="text-xs font-medium text-muted-foreground"
-            >
+            <label htmlFor="anim-interp-frames" className="text-xs font-medium text-muted-foreground">
               Interpolation Frames
             </label>
             <input

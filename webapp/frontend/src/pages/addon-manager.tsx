@@ -75,10 +75,11 @@ export default function AddonManagerPage() {
   const installKnown = async (name: string) => {
     setActionLoading(name);
     try {
-      const res = await callTool<{ success: boolean; message?: string; error?: string }>(
-        "manage_blender_addons",
-        { operation: "install_known", addon_name: name, enable_after: true },
-      );
+      const res = await callTool<{ success: boolean; message?: string; error?: string }>("manage_blender_addons", {
+        operation: "install_known",
+        addon_name: name,
+        enable_after: true,
+      });
       if (res.data?.success) {
         msg(res.data.message ?? `Installed ${name}`);
       } else {
@@ -96,10 +97,11 @@ export default function AddonManagerPage() {
     }
     setLoading(true);
     try {
-      const res = await callTool<{ success: boolean; message?: string; error?: string }>(
-        "manage_blender_addons",
-        { operation: "install_url", url: customUrl, enable_after: true },
-      );
+      const res = await callTool<{ success: boolean; message?: string; error?: string }>("manage_blender_addons", {
+        operation: "install_url",
+        url: customUrl,
+        enable_after: true,
+      });
       if (res.data?.success) {
         msg(res.data.message ?? "Installed");
         setCustomUrl("");
@@ -132,15 +134,13 @@ export default function AddonManagerPage() {
   const toggleAddon = async (module: string, enable: boolean) => {
     setActionLoading(module);
     try {
-      const res = await callTool<{ success: boolean; message?: string; error?: string }>(
-        "manage_blender_addons",
-        { operation: enable ? "enable" : "disable", addon_name: module },
-      );
+      const res = await callTool<{ success: boolean; message?: string; error?: string }>("manage_blender_addons", {
+        operation: enable ? "enable" : "disable",
+        addon_name: module,
+      });
       if (res.data?.success) {
         msg(res.data.message ?? `${enable ? "Enabled" : "Disabled"} ${module}`);
-        setInstalled((prev) =>
-          prev.map((a) => (a.module === module ? { ...a, enabled: enable } : a)),
-        );
+        setInstalled((prev) => prev.map((a) => (a.module === module ? { ...a, enabled: enable } : a)));
       } else {
         msg(res.data?.error ?? res.error ?? "Toggle failed", false);
       }
@@ -166,11 +166,7 @@ export default function AddonManagerPage() {
           disabled={loading}
           className="flex items-center gap-2 px-3 py-1.5 text-sm bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors"
         >
-          {loading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <RefreshCw className="w-4 h-4" />
-          )}
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
           Load Registry
         </button>
       </div>
@@ -191,17 +187,11 @@ export default function AddonManagerPage() {
 
       {/* WorldLabs callout */}
       <div className="bg-blue-500/5 border border-blue-500/20 rounded-lg p-4">
-        <h3 className="font-semibold text-blue-400 mb-1 text-sm">
-          WorldLabs / Gaussian Splat Setup
-        </h3>
+        <h3 className="font-semibold text-blue-400 mb-1 text-sm">WorldLabs / Gaussian Splat Setup</h3>
         <p className="text-xs text-muted-foreground mb-3">
-          To import <strong>.ply</strong> files from WorldLabs, you need a 3DGS Blender addon.
-          Install <strong>gaussian_splat</strong> below, then use the Mesh/Collider/Splat page or
-          call{" "}
-          <code className="bg-muted px-1 rounded">
-            blender_splatting(operation='worldlabs', file_path='...')
-          </code>
-          .
+          To import <strong>.ply</strong> files from WorldLabs, you need a 3DGS Blender addon. Install{" "}
+          <strong>gaussian_splat</strong> below, then use the Mesh/Collider/Splat page or call{" "}
+          <code className="bg-muted px-1 rounded">blender_splatting(operation='worldlabs', file_path='...')</code>.
         </p>
         <button
           type="button"
@@ -262,9 +252,7 @@ export default function AddonManagerPage() {
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm font-medium">{addon.name}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 truncate">
-                    {addon.description}
-                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5 truncate">{addon.description}</p>
                   <a
                     href={addon.url}
                     target="_blank"

@@ -23,11 +23,7 @@ export default function StoryboardPage() {
     setLoading(true);
     try {
       const r = await callTool("blender_grease_pencil", { operation: "create", name: gpName });
-      setOutput(
-        r.success
-          ? `Storyboard '${gpName}' created with ${shotCount} shots`
-          : String(r.error ?? "Failed"),
-      );
+      setOutput(r.success ? `Storyboard '${gpName}' created with ${shotCount} shots` : String(r.error ?? "Failed"));
     } finally {
       setLoading(false);
     }
@@ -118,11 +114,7 @@ export default function StoryboardPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <OpButton
-          label="List Layers"
-          icon={Square}
-          params={{ operation: "list_layers", gp_object: gpName }}
-        />
+        <OpButton label="List Layers" icon={Square} params={{ operation: "list_layers", gp_object: gpName }} />
         <OpButton
           label="Onion Skin"
           icon={Image}

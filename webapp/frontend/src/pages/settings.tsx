@@ -106,7 +106,7 @@ export default function Settings() {
       }));
       if (llmConfig.provider === "ollama") setAvailableModels(ollamaModels);
       else if (llmConfig.provider === "lmstudio") setAvailableModels(lmStudioModels);
-    } catch (err) {
+    } catch (_err) {
       setProviderError("Backend unreachable. Start the webapp backend (webapp\\start.ps1).");
       setAvailableModels([]);
     } finally {
@@ -188,9 +188,7 @@ export default function Settings() {
             <SettingsIcon className="w-6 h-6" />
             Settings
           </h1>
-          <p className="text-muted-foreground">
-            Configure Blender MCP, LLM providers, and preferences.
-          </p>
+          <p className="text-muted-foreground">Configure Blender MCP, LLM providers, and preferences.</p>
         </div>
         <div className="flex items-center space-x-2">
           {hasChanges && (
@@ -229,11 +227,7 @@ export default function Settings() {
               <h2 className="font-semibold">LLM Provider</h2>
               <span className="text-sm text-muted-foreground ml-2">({llmConfig.provider})</span>
             </div>
-            {expandedSection === "llm" ? (
-              <ChevronDown className="w-4 h-4" />
-            ) : (
-              <ChevronRight className="w-4 h-4" />
-            )}
+            {expandedSection === "llm" ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </button>
 
           {expandedSection === "llm" && (
@@ -311,9 +305,7 @@ export default function Settings() {
                       onChange={(e) => updateLLMField("ollama_url", e.target.value)}
                       className="w-full bg-background border border-input rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
                     />
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Default: http://localhost:11434
-                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">Default: http://localhost:11434</p>
                   </div>
 
                   <div className="mb-4">
@@ -363,13 +355,9 @@ export default function Settings() {
 
                     <div className="border border-border rounded-md divide-y divide-border max-h-48 overflow-y-auto">
                       {loadingModels ? (
-                        <div className="p-4 text-center text-muted-foreground text-sm">
-                          Loading models...
-                        </div>
+                        <div className="p-4 text-center text-muted-foreground text-sm">Loading models...</div>
                       ) : availableModels.length === 0 ? (
-                        <div className="p-4 text-center text-muted-foreground text-sm">
-                          No models found
-                        </div>
+                        <div className="p-4 text-center text-muted-foreground text-sm">No models found</div>
                       ) : (
                         availableModels.map((model) => (
                           <div
@@ -380,9 +368,7 @@ export default function Settings() {
                           >
                             <div>
                               <div className="font-medium text-sm">{model.name}</div>
-                              {model.size && (
-                                <div className="text-sm text-muted-foreground">{model.size}</div>
-                              )}
+                              {model.size && <div className="text-sm text-muted-foreground">{model.size}</div>}
                             </div>
                             <div className="flex items-center gap-2">
                               {llmConfig.selected_model === model.id && (
@@ -423,9 +409,7 @@ export default function Settings() {
                       onChange={(e) => updateLLMField("lmstudio_url", e.target.value)}
                       className="w-full bg-background border border-input rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
                     />
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Default: http://localhost:1234
-                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">Default: http://localhost:1234</p>
                   </div>
 
                   <div className="mb-4">
@@ -471,10 +455,7 @@ export default function Settings() {
                       </button>
                     </div>
                     {availableModels.map((model: ModelInfo) => (
-                      <div
-                        key={model.id}
-                        className="flex items-center justify-between p-2 bg-muted/50 rounded mb-1"
-                      >
+                      <div key={model.id} className="flex items-center justify-between p-2 bg-muted/50 rounded mb-1">
                         <span className="text-sm">{model.name}</span>
                         <CheckCircle className="w-4 h-4 text-green-500" />
                       </div>
@@ -487,10 +468,7 @@ export default function Settings() {
               {llmConfig.provider === "cloud" && (
                 <div className="space-y-4">
                   <div>
-                    <label
-                      htmlFor="openai-key"
-                      className="text-sm font-medium mb-1 flex items-center gap-2"
-                    >
+                    <label htmlFor="openai-key" className="text-sm font-medium mb-1 flex items-center gap-2">
                       <Key className="w-4 h-4" />
                       OpenAI API Key
                     </label>
@@ -564,7 +542,7 @@ export default function Settings() {
                 title="Server Port Number"
                 value={serverPort}
                 onChange={(e) => {
-                  setServerPort(Number.parseInt(e.target.value));
+                  setServerPort(Number.parseInt(e.target.value, 10));
                   setHasChanges(true);
                 }}
                 className="w-full bg-background border border-input rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
@@ -610,9 +588,7 @@ export default function Settings() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="font-medium text-sm">Auto Sync</div>
-                <p className="text-sm text-muted-foreground">
-                  Automatically sync changes to Blender
-                </p>
+                <p className="text-sm text-muted-foreground">Automatically sync changes to Blender</p>
               </div>
               <button
                 type="button"
@@ -659,8 +635,7 @@ export default function Settings() {
             <h2 className="font-semibold">Security</h2>
           </div>
           <p className="text-sm text-muted-foreground">
-            API keys and authentication tokens are stored locally in your browser and never shared
-            with third parties.
+            API keys and authentication tokens are stored locally in your browser and never shared with third parties.
           </p>
         </div>
       </div>

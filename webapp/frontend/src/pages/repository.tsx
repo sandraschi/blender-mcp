@@ -45,10 +45,9 @@ export default function RepositoryPage() {
   const listAll = async () => {
     setLoading(true);
     try {
-      const res = await callTool<{ success: boolean; objects?: RepoObject[]; total?: number }>(
-        "manage_object_repo",
-        { operation: "list_objects" },
-      );
+      const res = await callTool<{ success: boolean; objects?: RepoObject[]; total?: number }>("manage_object_repo", {
+        operation: "list_objects",
+      });
       if (res.success && res.data?.objects) {
         setObjects(res.data.objects);
         msg(`${res.data.total ?? res.data.objects.length} objects in repository`);
@@ -63,16 +62,13 @@ export default function RepositoryPage() {
   const search = async () => {
     setLoading(true);
     try {
-      const res = await callTool<{ success: boolean; objects?: RepoObject[] }>(
-        "manage_object_repo",
-        {
-          operation: "search",
-          query: query || undefined,
-          category: category || undefined,
-          min_quality: minQuality > 0 ? minQuality : undefined,
-          limit: 50,
-        },
-      );
+      const res = await callTool<{ success: boolean; objects?: RepoObject[] }>("manage_object_repo", {
+        operation: "search",
+        query: query || undefined,
+        category: category || undefined,
+        min_quality: minQuality > 0 ? minQuality : undefined,
+        limit: 50,
+      });
       if (res.success && res.data?.objects) {
         setObjects(res.data.objects);
         msg(`${res.data.objects.length} results`);
@@ -91,23 +87,20 @@ export default function RepositoryPage() {
     }
     setLoading(true);
     try {
-      const res = await callTool<{ success: boolean; message?: string; object_id?: string }>(
-        "manage_object_repo",
-        {
-          operation: "save",
-          object_name: saveObjectName,
-          object_name_display: saveDisplayName || saveObjectName,
-          description: saveDescription,
-          category: saveCategory,
-          quality_rating: saveQuality,
-          tags: saveTags
-            ? saveTags
-                .split(",")
-                .map((t) => t.trim())
-                .filter(Boolean)
-            : [],
-        },
-      );
+      const res = await callTool<{ success: boolean; message?: string; object_id?: string }>("manage_object_repo", {
+        operation: "save",
+        object_name: saveObjectName,
+        object_name_display: saveDisplayName || saveObjectName,
+        description: saveDescription,
+        category: saveCategory,
+        quality_rating: saveQuality,
+        tags: saveTags
+          ? saveTags
+              .split(",")
+              .map((t) => t.trim())
+              .filter(Boolean)
+          : [],
+      });
       if (res.data?.success) {
         msg(res.data.message ?? `Saved as ${res.data.object_id}`);
         listAll();
@@ -167,11 +160,7 @@ export default function RepositoryPage() {
           disabled={loading}
           className="flex items-center gap-2 px-3 py-1.5 text-sm bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors"
         >
-          {loading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <RefreshCw className="w-4 h-4" />
-          )}
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
           Refresh
         </button>
       </div>
@@ -215,15 +204,7 @@ export default function RepositoryPage() {
               value={saveCategory}
               onChange={(e) => setSaveCategory(e.target.value)}
             >
-              {[
-                "general",
-                "character",
-                "architecture",
-                "vehicle",
-                "prop",
-                "environment",
-                "scifi",
-              ].map((c) => (
+              {["general", "character", "architecture", "vehicle", "prop", "environment", "scifi"].map((c) => (
                 <option key={c}>{c}</option>
               ))}
             </select>
@@ -352,20 +333,14 @@ export default function RepositoryPage() {
                   <Box className="w-4 h-4 text-primary shrink-0" />
                   <span className="font-medium text-sm truncate">{obj.name}</span>
                 </div>
-                <span
-                  className={`text-xs font-bold shrink-0 ${qualityColor(obj.estimated_quality)}`}
-                >
+                <span className={`text-xs font-bold shrink-0 ${qualityColor(obj.estimated_quality)}`}>
                   ★{obj.estimated_quality ?? "?"}
                 </span>
               </div>
-              {obj.description && (
-                <p className="text-xs text-muted-foreground line-clamp-2">{obj.description}</p>
-              )}
+              {obj.description && <p className="text-xs text-muted-foreground line-clamp-2">{obj.description}</p>}
               <div className="flex items-center gap-2 flex-wrap">
                 {obj.category && (
-                  <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">
-                    {obj.category}
-                  </span>
+                  <span className="text-xs px-2 py-0.5 bg-primary/10 text-primary rounded-full">{obj.category}</span>
                 )}
                 {obj.tags?.slice(0, 3).map((t) => (
                   <span
@@ -378,9 +353,7 @@ export default function RepositoryPage() {
                 ))}
               </div>
               <div className="flex items-center justify-between pt-1">
-                <span className="text-xs text-muted-foreground font-mono">
-                  {obj.id.slice(0, 8)}…
-                </span>
+                <span className="text-xs text-muted-foreground font-mono">{obj.id.slice(0, 8)}…</span>
                 <button
                   type="button"
                   onClick={() => {

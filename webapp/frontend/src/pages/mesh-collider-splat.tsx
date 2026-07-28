@@ -24,9 +24,7 @@ export default function MeshColliderSplat() {
   const [addonSearchResults, setAddonSearchResults] = useState<
     Array<{ name: string; url: string; description: string }>
   >([]);
-  const [addonsInstalled, setAddonsInstalled] = useState<Array<{ name: string; enabled: boolean }>>(
-    [],
-  );
+  const [addonsInstalled, setAddonsInstalled] = useState<Array<{ name: string; enabled: boolean }>>([]);
   const [addonsLoading, setAddonsLoading] = useState(false);
   const [addonInstallResult, setAddonInstallResult] = useState<string | null>(null);
   const [backendOk, setBackendOk] = useState<boolean | null>(null);
@@ -140,11 +138,7 @@ export default function MeshColliderSplat() {
         </div>
       )}
       {backendOk === null && (
-        <button
-          type="button"
-          onClick={checkBackend}
-          className="text-sm text-muted-foreground underline"
-        >
+        <button type="button" onClick={checkBackend} className="text-sm text-muted-foreground underline">
           Check backend
         </button>
       )}
@@ -167,8 +161,7 @@ export default function MeshColliderSplat() {
         <section className="space-y-4">
           <h2 className="text-lg font-medium">Download & import mesh</h2>
           <p className="text-sm text-muted-foreground">
-            Enter a URL to an OBJ, FBX, GLB, STL, PLY, etc. File is downloaded and imported into
-            Blender.
+            Enter a URL to an OBJ, FBX, GLB, STL, PLY, etc. File is downloaded and imported into Blender.
           </p>
           <div className="flex gap-2">
             <input
@@ -188,9 +181,7 @@ export default function MeshColliderSplat() {
               {meshLoading ? "Downloading…" : "Download & import"}
             </button>
           </div>
-          {meshResult && (
-            <pre className="p-3 rounded-lg bg-muted text-sm overflow-auto">{meshResult}</pre>
-          )}
+          {meshResult && <pre className="p-3 rounded-lg bg-muted text-sm overflow-auto">{meshResult}</pre>}
         </section>
       )}
 
@@ -198,8 +189,8 @@ export default function MeshColliderSplat() {
         <section className="space-y-4">
           <h2 className="text-lg font-medium">Collider</h2>
           <p className="text-sm text-muted-foreground">
-            Create collision geometry from mesh or primitives. Use Construct or run a script (e.g.
-            convex hull, box, sphere) via Script Console.
+            Create collision geometry from mesh or primitives. Use Construct or run a script (e.g. convex hull, box,
+            sphere) via Script Console.
           </p>
         </section>
       )}
@@ -208,8 +199,8 @@ export default function MeshColliderSplat() {
         <section className="space-y-4">
           <h2 className="text-lg font-medium">Gaussian splat import</h2>
           <p className="text-sm text-muted-foreground">
-            Import a 3DGS splat file (.ply or add-on format). Requires a Gaussian splat add-on (e.g.
-            FastGS) installed via the Add-ons tab.
+            Import a 3DGS splat file (.ply or add-on format). Requires a Gaussian splat add-on (e.g. FastGS) installed
+            via the Add-ons tab.
           </p>
           <div className="flex gap-2">
             <input
@@ -228,9 +219,7 @@ export default function MeshColliderSplat() {
               {splatLoading ? "Importing…" : "Import splat"}
             </button>
           </div>
-          {splatResult && (
-            <pre className="p-3 rounded-lg bg-muted text-sm overflow-auto">{splatResult}</pre>
-          )}
+          {splatResult && <pre className="p-3 rounded-lg bg-muted text-sm overflow-auto">{splatResult}</pre>}
         </section>
       )}
 
@@ -238,8 +227,8 @@ export default function MeshColliderSplat() {
         <section className="space-y-6">
           <h2 className="text-lg font-medium">Add-ons</h2>
           <p className="text-sm text-muted-foreground">
-            Install add-ons from URL (ZIP or .py). For Gaussian splats, install FastGS or 3DGS
-            add-on then enable in Blender Preferences.
+            Install add-ons from URL (ZIP or .py). For Gaussian splats, install FastGS or 3DGS add-on then enable in
+            Blender Preferences.
           </p>
 
           <div>
@@ -261,9 +250,7 @@ export default function MeshColliderSplat() {
                 Install
               </button>
             </div>
-            {addonInstallResult && (
-              <p className="mt-2 text-sm text-muted-foreground">{addonInstallResult}</p>
-            )}
+            {addonInstallResult && <p className="mt-2 text-sm text-muted-foreground">{addonInstallResult}</p>}
           </div>
 
           <div>

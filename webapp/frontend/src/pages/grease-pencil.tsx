@@ -66,11 +66,7 @@ export default function GreasePencilPage() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <OpButton label="Create GP" icon={Pen} params={{ operation: "create", name: gpName }} />
-        <OpButton
-          label="List Layers"
-          icon={Square}
-          params={{ operation: "list_layers", gp_object: gpName }}
-        />
+        <OpButton label="List Layers" icon={Square} params={{ operation: "list_layers", gp_object: gpName }} />
         <OpButton
           label="Delete All Strokes"
           icon={Eraser}

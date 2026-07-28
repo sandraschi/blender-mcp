@@ -108,7 +108,6 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: must scroll when messages array reference changes
   useEffect(() => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
@@ -169,9 +168,7 @@ export default function Chat() {
   };
 
   const handleExport = () => {
-    const lines = messages.map(
-      (m) => `[${m.ts ? new Date(m.ts).toISOString() : ""}] ${m.role}: ${m.content}`,
-    );
+    const lines = messages.map((m) => `[${m.ts ? new Date(m.ts).toISOString() : ""}] ${m.role}: ${m.content}`);
     const blob = new Blob([lines.join("\n\n")], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -202,9 +199,7 @@ export default function Chat() {
         <div className="flex items-center gap-2">
           <MessageSquare className="w-5 h-5 text-primary" />
           <h1 className="font-semibold">AI Chat</h1>
-          {skillName && (
-            <span className="text-sm text-muted-foreground ml-2">skill:{skillName}</span>
-          )}
+          {skillName && <span className="text-sm text-muted-foreground ml-2">skill:{skillName}</span>}
         </div>
         <div className="flex items-center gap-3">
           <select
@@ -244,10 +239,7 @@ export default function Chat() {
 
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4" data-testid="chat-messages">
         {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}
-          >
+          <div key={message.id} className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
             {message.role === "assistant" && (
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
                 <Bot className="w-4 h-4 text-primary-foreground" />
@@ -293,19 +285,17 @@ export default function Chat() {
       <div className="px-6 py-2 border-t border-border bg-card/30" data-testid="example-prompts">
         <div className="flex items-center gap-2 overflow-x-auto">
           <span className="text-sm text-muted-foreground whitespace-nowrap">Quick commands:</span>
-          {["Create a cube", "Add lighting", "Apply material", "Render scene", "Export to FBX"].map(
-            (cmd) => (
-              <button
-                key={cmd}
-                type="button"
-                onClick={() => setInput(cmd)}
-                className="text-sm px-3 py-1 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 transition-colors whitespace-nowrap flex items-center gap-1"
-              >
-                <Sparkles className="w-3 h-3" />
-                {cmd}
-              </button>
-            ),
-          )}
+          {["Create a cube", "Add lighting", "Apply material", "Render scene", "Export to FBX"].map((cmd) => (
+            <button
+              key={cmd}
+              type="button"
+              onClick={() => setInput(cmd)}
+              className="text-sm px-3 py-1 bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80 transition-colors whitespace-nowrap flex items-center gap-1"
+            >
+              <Sparkles className="w-3 h-3" />
+              {cmd}
+            </button>
+          ))}
         </div>
       </div>
 

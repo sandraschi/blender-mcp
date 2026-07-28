@@ -69,10 +69,7 @@ interface MCPResponse<T = unknown> {
 /**
  * Call an MCP tool on the backend
  */
-export async function callTool<T>(
-  tool: string,
-  params: Record<string, unknown> = {},
-): Promise<MCPResponse<T>> {
+export async function callTool<T>(tool: string, params: Record<string, unknown> = {}): Promise<MCPResponse<T>> {
   try {
     const response = await fetch(`${API_BASE}/tool`, {
       method: "POST",
@@ -168,10 +165,7 @@ export async function getMaterials(): Promise<
 /**
  * Apply material to object
  */
-export async function applyMaterial(
-  objectName: string,
-  materialName: string,
-): Promise<MCPResponse> {
+export async function applyMaterial(objectName: string, materialName: string): Promise<MCPResponse> {
   return callTool("material_apply", { object: objectName, material: materialName });
 }
 
@@ -270,9 +264,7 @@ export async function listLocalModels(): Promise<
     summary?: string;
   }>("list_local_models", {});
   if (!res.success || !res.data) return { success: false, error: res.error ?? "No data" };
-  const result = (
-    res.data as { result?: { ollama?: string[]; lm_studio?: string[]; errors?: string[] } }
-  ).result;
+  const result = (res.data as { result?: { ollama?: string[]; lm_studio?: string[]; errors?: string[] } }).result;
   if (!result) return { success: false, error: "No result" };
   return {
     success: true,
@@ -285,10 +277,7 @@ export async function listLocalModels(): Promise<
 }
 
 /** Addon management via manage_blender_addons tool */
-export async function addonManage(
-  operation: string,
-  params: Record<string, unknown> = {},
-): Promise<MCPResponse> {
+export async function addonManage(operation: string, params: Record<string, unknown> = {}): Promise<MCPResponse> {
   return callTool("manage_blender_addons", { operation, ...params });
 }
 
@@ -297,10 +286,7 @@ export async function addonsList(): Promise<MCPResponse> {
   return addonManage("list_installed");
 }
 
-export async function addonsInstallFromUrl(
-  url: string,
-  enableOnInstall = true,
-): Promise<MCPResponse> {
+export async function addonsInstallFromUrl(url: string, enableOnInstall = true): Promise<MCPResponse> {
   return addonManage("install_url", { url, enable_after: enableOnInstall });
 }
 
@@ -362,16 +348,12 @@ export async function generateBlenderScript(
   model = "llama3.2",
   ollamaUrl = "http://localhost:11434",
 ): Promise<MCPResponse<{ script: string; error?: string | null }>> {
-  const res = await callTool<{ success?: boolean; script?: string; error?: string | null }>(
-    "generate_blender_script",
-    {
-      prompt,
-      model,
-      ollama_url: ollamaUrl,
-    },
-  );
-  if (!res.success)
-    return { success: false, error: (res.data as { error?: string })?.error ?? res.error };
+  const res = await callTool<{ success?: boolean; script?: string; error?: string | null }>("generate_blender_script", {
+    prompt,
+    model,
+    ollama_url: ollamaUrl,
+  });
+  if (!res.success) return { success: false, error: (res.data as { error?: string })?.error ?? res.error };
   const data = res.data as { script?: string; error?: string | null };
   return { success: true, data: { script: data?.script ?? "", error: data?.error ?? null } };
 }

@@ -68,15 +68,10 @@ export default function AIConstructor() {
           )}
 
           {history.map((msg, i) => (
-            <div
-              key={`${msg.type}-${i}`}
-              className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}
-            >
+            <div key={`${msg.type}-${i}`} className={`flex ${msg.type === "user" ? "justify-end" : "justify-start"}`}>
               <div
                 className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                  msg.type === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
+                  msg.type === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                 }`}
               >
                 {msg.type === "system" && <Command className="w-3 h-3 inline mr-2 opacity-70" />}
@@ -117,18 +112,16 @@ export default function AIConstructor() {
       </div>
 
       <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-        {["Create a forest", "Add a sunlight", "Make it night", "Render scene"].map(
-          (suggestion) => (
-            <button
-              key={suggestion}
-              type="button"
-              onClick={() => setPrompt(suggestion)}
-              className="text-xs text-muted-foreground border border-border rounded px-3 py-2 hover:bg-accent hover:text-accent-foreground transition-colors text-left"
-            >
-              {suggestion}
-            </button>
-          ),
-        )}
+        {["Create a forest", "Add a sunlight", "Make it night", "Render scene"].map((suggestion) => (
+          <button
+            key={suggestion}
+            type="button"
+            onClick={() => setPrompt(suggestion)}
+            className="text-xs text-muted-foreground border border-border rounded px-3 py-2 hover:bg-accent hover:text-accent-foreground transition-colors text-left"
+          >
+            {suggestion}
+          </button>
+        ))}
       </div>
     </div>
   );

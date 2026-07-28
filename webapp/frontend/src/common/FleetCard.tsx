@@ -93,9 +93,7 @@ export function FleetCard({ member, currentAppId }: FleetCardProps) {
         <div className="flex items-center gap-3">
           <div
             className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-              isCurrent
-                ? "bg-primary/20 text-primary"
-                : "bg-muted text-muted-foreground group-hover:text-foreground"
+              isCurrent ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground group-hover:text-foreground"
             }`}
           >
             <member.icon className="h-5 w-5" />
@@ -116,15 +114,11 @@ export function FleetCard({ member, currentAppId }: FleetCardProps) {
                   : "bg-primary animate-pulse"
             }`}
           />
-          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-            {status}
-          </span>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{status}</span>
         </div>
       </div>
 
-      <p className="mt-4 text-xs leading-relaxed text-muted-foreground line-clamp-2">
-        {member.description}
-      </p>
+      <p className="mt-4 text-xs leading-relaxed text-muted-foreground line-clamp-2">{member.description}</p>
 
       <div className="mt-6 flex gap-2">
         {status === "online" ? (

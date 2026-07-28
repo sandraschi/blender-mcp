@@ -11,7 +11,7 @@ import json
 from unittest.mock import patch
 
 import pytest
-from pydantic import ValidationError
+from fastmcp.exceptions import ValidationError
 
 # ---------------------------------------------------------------------------
 # status — json format

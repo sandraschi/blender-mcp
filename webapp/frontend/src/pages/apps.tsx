@@ -1,6 +1,6 @@
 import { Activity, Zap } from "lucide-react";
-import { FleetCard } from "../common/FleetCard";
 import { FLEET_REGISTRY } from "../common/apps-catalog";
+import { FleetCard } from "../common/FleetCard";
 
 export default function Apps() {
   return (

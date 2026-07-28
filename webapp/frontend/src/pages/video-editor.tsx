@@ -114,17 +114,8 @@ export default function VideoEditor() {
       {/* Quick Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <OperationButton label="List Strips" icon={Film} params={{ operation: "list_strips" }} />
-        <OperationButton
-          label="Timeline Info"
-          icon={Play}
-          params={{ operation: "get_timeline_info" }}
-        />
-        <OperationButton
-          label="Clear All"
-          icon={Trash2}
-          params={{ operation: "clear_vse" }}
-          variant="danger"
-        />
+        <OperationButton label="Timeline Info" icon={Play} params={{ operation: "get_timeline_info" }} />
+        <OperationButton label="Clear All" icon={Trash2} params={{ operation: "clear_vse" }} variant="danger" />
         <button
           type="button"
           disabled={loading}
@@ -226,9 +217,7 @@ export default function VideoEditor() {
         </h2>
 
         {strips.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            No strips. Add a movie, sound, or text strip to get started.
-          </p>
+          <p className="text-sm text-muted-foreground">No strips. Add a movie, sound, or text strip to get started.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

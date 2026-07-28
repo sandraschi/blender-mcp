@@ -1,14 +1,4 @@
-import {
-  Activity,
-  Box,
-  Cpu,
-  FileCode2,
-  LayoutDashboard,
-  RefreshCw,
-  Server,
-  Terminal,
-  Wrench,
-} from "lucide-react";
+import { Activity, Box, Cpu, FileCode2, LayoutDashboard, RefreshCw, Server, Terminal, Wrench } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { getBackendHealth, getDiagnostics, getStatus } from "../api/mcp";
 import { useTauri } from "../hooks/useTauri";
@@ -108,23 +98,15 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold tracking-tight">Blender MCP</h1>
         </div>
         <p className="text-lg text-muted-foreground max-w-2xl mb-3">
-          An AI-agent bridge for Blender. Connect Claude, Cursor, or any MCP client directly to your
-          Blender session — create objects, manage materials, run scripts, render scenes, and
-          automate your 3D pipeline through natural language.
+          An AI-agent bridge for Blender. Connect Claude, Cursor, or any MCP client directly to your Blender session —
+          create objects, manage materials, run scripts, render scenes, and automate your 3D pipeline through natural
+          language.
         </p>
         <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">
-            MCP Protocol
-          </span>
-          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">
-            Blender 4.2+
-          </span>
-          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">
-            Python Scripting
-          </span>
-          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">
-            AI Agent Integration
-          </span>
+          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">MCP Protocol</span>
+          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Blender 4.2+</span>
+          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Python Scripting</span>
+          <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">AI Agent Integration</span>
         </div>
       </div>
 
@@ -140,16 +122,11 @@ export default function Dashboard() {
             </div>
             <span className="font-medium text-muted-foreground">Backend</span>
           </div>
-          <div className="text-2xl font-bold">
-            {health?.ok ? "Connected" : health === null ? "..." : "Offline"}
-          </div>
+          <div className="text-2xl font-bold">{health?.ok ? "Connected" : health === null ? "..." : "Offline"}</div>
           <div className="text-sm text-muted-foreground mt-1">
             {health?.ok ? "Port 10849" : health?.error ? `Error: ${health.error}` : "Port 10849"}
           </div>
-          <div
-            className="flex items-center gap-1.5 mt-2 text-sm text-muted-foreground"
-            data-testid="backend-dot"
-          >
+          <div className="flex items-center gap-1.5 mt-2 text-sm text-muted-foreground" data-testid="backend-dot">
             <span
               className={`relative flex h-2.5 w-2.5 ${!health?.ok && health !== null ? "bg-red-500" : health?.ok ? "bg-emerald-500" : "bg-gray-500"} rounded-full`}
             >
@@ -158,11 +135,7 @@ export default function Dashboard() {
               )}
             </span>
             <span>
-              {!health?.ok && health !== null
-                ? "Reconnecting..."
-                : health?.ok
-                  ? "Connected"
-                  : "Connecting..."}
+              {!health?.ok && health !== null ? "Reconnecting..." : health?.ok ? "Connected" : "Connecting..."}
             </span>
           </div>
           {!health?.ok && health !== null && (
@@ -178,14 +151,9 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div
-          className="p-4 bg-card border border-border rounded-lg shadow-sm"
-          data-testid="kpi-blender"
-        >
+        <div className="p-4 bg-card border border-border rounded-lg shadow-sm" data-testid="kpi-blender">
           <div className="flex items-center gap-3 mb-2">
-            <div
-              className={`p-2 rounded-md ${status?.blender ? "bg-green-500/10" : "bg-amber-500/10"}`}
-            >
+            <div className={`p-2 rounded-md ${status?.blender ? "bg-green-500/10" : "bg-amber-500/10"}`}>
               <Cpu className={`w-5 h-5 ${status?.blender ? "text-green-500" : "text-amber-500"}`} />
             </div>
             <span className="font-medium text-muted-foreground">Blender</span>
@@ -196,10 +164,7 @@ export default function Dashboard() {
           <div className="text-sm text-muted-foreground mt-1">v{status?.version ?? "-"}</div>
         </div>
 
-        <div
-          className="p-4 bg-card border border-border rounded-lg shadow-sm"
-          data-testid="kpi-tools"
-        >
+        <div className="p-4 bg-card border border-border rounded-lg shadow-sm" data-testid="kpi-tools">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-blue-500/10 rounded-md">
               <Wrench className="w-5 h-5 text-blue-500" />
@@ -210,19 +175,14 @@ export default function Dashboard() {
           <div className="text-sm text-muted-foreground mt-1">MCP tools registered</div>
         </div>
 
-        <div
-          className="p-4 bg-card border border-border rounded-lg shadow-sm"
-          data-testid="kpi-ollama"
-        >
+        <div className="p-4 bg-card border border-border rounded-lg shadow-sm" data-testid="kpi-ollama">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-purple-500/10 rounded-md">
               <LayoutDashboard className="w-5 h-5 text-purple-500" />
             </div>
             <span className="font-medium text-muted-foreground">Ollama</span>
           </div>
-          <div className="text-2xl font-bold">
-            {status?.ollama ? "Reachable" : "Off / unreachable"}
-          </div>
+          <div className="text-2xl font-bold">{status?.ollama ? "Reachable" : "Off / unreachable"}</div>
           <div className="text-sm text-muted-foreground mt-1">Local LLM generation</div>
         </div>
       </div>
@@ -256,8 +216,8 @@ export default function Dashboard() {
             </div>
             <h3 className="font-semibold">AI Agent Talks to Blender</h3>
             <p className="text-sm text-muted-foreground">
-              Claude, Cursor, or any MCP client sends natural language requests to the Blender MCP
-              server via stdio or HTTP.
+              Claude, Cursor, or any MCP client sends natural language requests to the Blender MCP server via stdio or
+              HTTP.
             </p>
           </div>
           <div className="space-y-2">
@@ -266,8 +226,8 @@ export default function Dashboard() {
             </div>
             <h3 className="font-semibold">Tools Execute in Blender</h3>
             <p className="text-sm text-muted-foreground">
-              The server translates requests into Blender Python API calls — creating, modifying, or
-              inspecting your 3D scene in real time.
+              The server translates requests into Blender Python API calls — creating, modifying, or inspecting your 3D
+              scene in real time.
             </p>
           </div>
           <div className="space-y-2">
@@ -276,8 +236,8 @@ export default function Dashboard() {
             </div>
             <h3 className="font-semibold">Results Stream Back</h3>
             <p className="text-sm text-muted-foreground">
-              Results, logs, and scene data stream back to the AI agent or this dashboard — no
-              manual switching between tools.
+              Results, logs, and scene data stream back to the AI agent or this dashboard — no manual switching between
+              tools.
             </p>
           </div>
         </div>

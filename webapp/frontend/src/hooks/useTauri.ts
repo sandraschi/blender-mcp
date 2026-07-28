@@ -34,36 +34,30 @@ export function useTauri() {
   tauriRef.current = tauri;
 
   /** Call a Tauri Rust command. Returns null in dev browser. */
-  const invoke = useCallback(
-    async <T>(cmd: string, args?: Record<string, unknown>): Promise<T | null> => {
-      if (!tauriRef.current) return null;
-      try {
-        const m = await import("@tauri-apps/api/core");
-        return await m.invoke<T>(cmd, args);
-      } catch {
-        return null;
-      }
-    },
-    [],
-  );
+  const invoke = useCallback(async <T>(cmd: string, args?: Record<string, unknown>): Promise<T | null> => {
+    if (!tauriRef.current) return null;
+    try {
+      const m = await import("@tauri-apps/api/core");
+      return await m.invoke<T>(cmd, args);
+    } catch {
+      return null;
+    }
+  }, []);
 
   /**
    * Listen for a Tauri event.
    * In Tauri 2, the callback receives `Event<T>` where `event.payload` is T.
    * Returns null in dev browser.
    */
-  const listen = useCallback(
-    async <T>(event: string, handler: (payload: T) => void): Promise<(() => void) | null> => {
-      if (!tauriRef.current) return null;
-      try {
-        const m = await import("@tauri-apps/api/event");
-        return await m.listen<T>(event, (e) => handler(e.payload));
-      } catch {
-        return null;
-      }
-    },
-    [],
-  );
+  const listen = useCallback(async <T>(event: string, handler: (payload: T) => void): Promise<(() => void) | null> => {
+    if (!tauriRef.current) return null;
+    try {
+      const m = await import("@tauri-apps/api/event");
+      return await m.listen<T>(event, (e) => handler(e.payload));
+    } catch {
+      return null;
+    }
+  }, []);
 
   /** Open a native file picker. Falls back to `<input type="file">` in browser. */
   const openFile = useCallback(async (extensions?: string[]): Promise<OpenFileResult | null> => {

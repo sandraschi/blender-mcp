@@ -21,10 +21,7 @@ export default function ScriptConsole() {
         setOutput((prev) => [...prev, `Error: ${response.error || "Failed to execute script"}`]);
       }
     } catch (err) {
-      setOutput((prev) => [
-        ...prev,
-        `Error: ${err instanceof Error ? err.message : "Unknown error"}`,
-      ]);
+      setOutput((prev) => [...prev, `Error: ${err instanceof Error ? err.message : "Unknown error"}`]);
     } finally {
       setExecuting(false);
     }
@@ -83,9 +80,7 @@ export default function ScriptConsole() {
             </button>
           </div>
           <div className="flex-1 p-4 bg-[#0d1117] font-mono text-sm overflow-y-auto">
-            {output.length === 0 && (
-              <span className="text-muted-foreground opacity-30 italic">No output...</span>
-            )}
+            {output.length === 0 && <span className="text-muted-foreground opacity-30 italic">No output...</span>}
             {output.map((line, i) => (
               <div
                 key={`output-${i}-${line.substring(0, 5)}`}

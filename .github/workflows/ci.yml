@@ -1,4 +1,4 @@
-# Fleet: mcp-central-docs/templates/ci.yml.template (repaired)
+# Fleet: mcp-central-docs/templates/ci.yml.template
 name: CI
 
 on:
@@ -32,6 +32,7 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: webapp/frontend/package-lock.json
+
       - name: Install Python dependencies
         run: uv sync --extra dev --group dev
 
@@ -42,11 +43,12 @@ jobs:
         run: uv run ruff format --check src tests
 
       - name: Pytest
-        run: uv run python -m pytest tests/ -q --tb=short --no-cov
+        run: uv run python -m pytest -q --tb=short
 
       - name: Install web dependencies
         run: npm ci
         working-directory: webapp/frontend
+
       - name: Biome check
         run: npm run biome:ci
         working-directory: webapp/frontend

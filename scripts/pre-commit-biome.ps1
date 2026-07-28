@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 
 $webRoot = $null
-foreach ($candidate in @("webapp", "web_sota", "webapp/frontend", "web")) {
+foreach ($candidate in @("webapp", "web_sota", "web-sota", "webapp/frontend", "web")) {
     $path = Join-Path $repoRoot $candidate
     if (Test-Path (Join-Path $path "package.json")) {
         $webRoot = $path

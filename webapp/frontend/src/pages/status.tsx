@@ -57,12 +57,8 @@ export default function Status() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 bg-card border border-border rounded-lg">
           <div className="flex items-center gap-3 mb-2">
-            <div
-              className={`p-2 rounded-md ${status.operational ? "bg-green-500/10" : "bg-red-500/10"}`}
-            >
-              <Activity
-                className={`w-5 h-5 ${status.operational ? "text-green-500" : "text-red-500"}`}
-              />
+            <div className={`p-2 rounded-md ${status.operational ? "bg-green-500/10" : "bg-red-500/10"}`}>
+              <Activity className={`w-5 h-5 ${status.operational ? "text-green-500" : "text-red-500"}`} />
             </div>
             <span className="font-medium text-muted-foreground">Status</span>
           </div>
@@ -101,9 +97,7 @@ export default function Status() {
             </div>
             <span className="font-medium text-muted-foreground">Blender</span>
           </div>
-          <div
-            className={`text-2xl font-bold ${status.operational ? "text-green-500" : "text-yellow-500"}`}
-          >
+          <div className={`text-2xl font-bold ${status.operational ? "text-green-500" : "text-yellow-500"}`}>
             {status.operational ? "Connected" : "Disconnected"}
           </div>
           <div className="text-sm text-muted-foreground mt-1">Blender 4.2+</div>

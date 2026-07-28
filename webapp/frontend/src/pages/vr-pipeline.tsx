@@ -87,9 +87,7 @@ export default function VRPipeline() {
             <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
             <div>
               <h4 className="font-medium">Bone Hierarchy</h4>
-              <p className="text-sm text-muted-foreground">
-                Armature structure matches Unity Humanoid standards.
-              </p>
+              <p className="text-sm text-muted-foreground">Armature structure matches Unity Humanoid standards.</p>
             </div>
           </div>
 
@@ -97,9 +95,7 @@ export default function VRPipeline() {
             <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5" />
             <div>
               <h4 className="font-medium text-yellow-500">Weight Painting Issues</h4>
-              <p className="text-sm text-yellow-600/80">
-                3 vertices found with zero weights in 'LeftHand'.
-              </p>
+              <p className="text-sm text-yellow-600/80">3 vertices found with zero weights in 'LeftHand'.</p>
               <button
                 type="button"
                 className="mt-2 text-xs bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 px-3 py-1.5 rounded transition-colors"
@@ -111,10 +107,7 @@ export default function VRPipeline() {
         </div>
 
         <div className="flex justify-end gap-3">
-          <button
-            type="button"
-            className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
+          <button type="button" className="px-4 py-2 text-muted-foreground hover:text-foreground transition-colors">
             Previous
           </button>
           <button
