@@ -115,7 +115,7 @@ Write-Host "  Size gate PASSED (>= 5 MB)" -ForegroundColor Green
 $envExample = "$Root\.env.example"
 if (Test-Path $envExample) {
     Copy-Item $envExample "$ResourceDir\.env.example" -Force
-    Write-Host "  Bundled .env.example ✓" -ForegroundColor Green
+    Write-Host "  Bundled .env.example OK" -ForegroundColor Green
 } else {
     Write-Host "  WARNING: .env.example not found at repo root" -ForegroundColor DarkYellow
 }
