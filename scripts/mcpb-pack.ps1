@@ -1,6 +1,12 @@
 param([string]$RepoRoot)
 Set-Location $RepoRoot
 New-Item -ItemType Directory -Force -Path dist | Out-Null
+$addonSrc = Join-Path $RepoRoot "addon\blender_bridge_addon.py"
+if (Test-Path $addonSrc) {
+    Copy-Item $addonSrc (Join-Path $RepoRoot "docs\blender_bridge_addon.py") -Force
+    Copy-Item $addonSrc (Join-Path $RepoRoot "dist\blender_bridge_addon.py") -Force
+    Write-Host "  Synced bridge addon to docs/ and dist/" -ForegroundColor Yellow
+}
 $proj = Get-Content pyproject.toml -Raw
 $name = if ($proj -match '(?m)^name = "(.*)"') { $matches[1] } else { Split-Path -Leaf $PWD }
 $ver = if ($proj -match '(?m)^version = "(.*)"') { $matches[1] } else { "0.1.0" }
@@ -27,3 +33,6 @@ if (-not (Test-Path .mcpbignore)) {
 }
 npx --yes @anthropic-ai/mcpb pack $RepoRoot "$RepoRoot/dist/$name-v$ver.mcpb"
 Write-Host "Bundle: $RepoRoot/dist/$name-v$ver.mcpb"
+if (Test-Path (Join-Path $RepoRoot "dist\blender_bridge_addon.py")) {
+    Write-Host "Addon:  $RepoRoot/dist/blender_bridge_addon.py (attach to GitHub Release)"
+}

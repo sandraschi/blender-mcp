@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+### Changed
+- **Install docs:** README and INSTALL.md restructured — 2-minute quickstart with download links at top; prerequisites moved below install steps ([#4](https://github.com/sandraschi/blender-mcp/issues/4))
+- **Bridge addon:** canonical path is `addon/blender_bridge_addon.py`; bundled in `.mcpb` at `assets/addon/`; attached to GitHub Releases as `blender_bridge_addon.py`; `docs/blender_bridge_addon.py` kept in sync for older links
+
 ## [0.11.0] — 2026-07-14
 
 ### Added

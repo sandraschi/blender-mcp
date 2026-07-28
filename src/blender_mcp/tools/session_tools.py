@@ -8,7 +8,7 @@ Exposes a `blender_session` portmanteau tool for:
 - run_script: send a Python script to the running GUI via the bridge
 - demo: run a built-in demo scene in Blender
 
-The session bridge addon (docs/blender_bridge_addon.py) is required for
+The session bridge addon (addon/blender_bridge_addon.py) is required for
 run_script and demo operations — the addon provides the /api/v1/blender/exec
 endpoint that allows the MCP server to execute code inside the live session.
 """
@@ -21,6 +21,11 @@ from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+BRIDGE_ADDON_REPO_PATH = "addon/blender_bridge_addon.py"
+BRIDGE_ADDON_DOWNLOAD_URL = (
+    "https://github.com/sandraschi/blender-mcp/releases/latest/download/blender_bridge_addon.py"
+)
 
 _READ_ONLY = {"readonly": True}
 _MUTATING = {}
@@ -148,10 +153,11 @@ def _register_session_tools() -> None:
                         f"Blender GUI started (PID {_blender_pid})."
                         + (f" Opened: {blend_file}" if blend_file else "")
                         + "\n\nNext: enable the bridge addon in Blender:\n"
-                        "  1. Edit > Preferences > Add-ons > Install > select docs/blender_bridge_addon.py\n"
-                        "  2. Enable 'Blender MCP Session Bridge'\n"
-                        "  3. Properties > Scene > Blender MCP Bridge > Start Bridge\n"
-                        "  4. Then use operation='demo' or operation='run_script'."
+                        f"  1. Download: {BRIDGE_ADDON_DOWNLOAD_URL}\n"
+                        f"  2. Edit > Preferences > Add-ons > Install > select {BRIDGE_ADDON_REPO_PATH}\n"
+                        "  3. Enable 'Blender MCP Bridge'\n"
+                        "  4. Properties > Scene > Blender MCP Bridge > Start Bridge\n"
+                        "  5. Then use operation='demo' or operation='run_script'."
                     ),
                 }
 
@@ -226,8 +232,8 @@ async def _exec_via_bridge(script: str, script_name: str, timeout: int) -> dict[
                 "success": False,
                 "message": (
                     "Bridge not connected. Start Blender with operation='start', "
-                    "then enable the bridge addon (docs/blender_bridge_addon.py) "
-                    "and click 'Start Bridge' in Properties > Scene."
+                    f"then install the bridge addon ({BRIDGE_ADDON_DOWNLOAD_URL}), "
+                    "enable it, and click 'Start Bridge' in Properties > Scene."
                 ),
                 "session_used": False,
             }

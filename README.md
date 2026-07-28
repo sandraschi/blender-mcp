@@ -10,19 +10,40 @@ with glowing eyes and watch it build in Blender.
   <a href="https://github.com/PrefectHQ/fastmcp"><img src="https://img.shields.io/badge/FastMCP-3.2-7c5cfc?style=flat-square" alt="FastMCP"></a>
 </p>
 
+## Get started in 2 minutes
+
+| Download | What it is |
+|----------|------------|
+| [**blender-mcp-*.mcpb**](https://github.com/sandraschi/blender-mcp/releases/latest) | MCP server for Claude Desktop |
+| [**Blender**](https://www.blender.org/download/) | 3D app (install separately, never bundled) |
+| [**blender_bridge_addon.py**](https://github.com/sandraschi/blender-mcp/releases/latest/download/blender_bridge_addon.py) *(optional)* | Live viewport only — skip for headless use |
+
+**Steps**
+
+1. Download the `.mcpb` from [Releases](https://github.com/sandraschi/blender-mcp/releases/latest)
+2. Drag it into **Claude Desktop** (Settings → MCP Servers → Install from file)
+3. Install [Blender](https://www.blender.org/download/) if you have not already
+4. Restart Claude Desktop and try: *Create a red cube on a gray floor with a sun lamp.*
+
+That is enough for most tools — the server runs Blender headless in the background.
+
+**Optional — live viewport:** install the [bridge addon](addon/blender_bridge_addon.py) in Blender to watch the scene update while you chat. See [INSTALL.md](INSTALL.md#optional-live-blender-viewport-bridge-addon).
+
+Other install methods (npx mcpb, manual config, developer setup): **[INSTALL.md](INSTALL.md)**
+
 ## How it runs
 
 | Mode | Host app | When |
 |------|----------|------|
 | **Headless (default)** | `blender --background` subprocess | Batch export, CI, agents without a display; VSE, geonodes, most mesh ops |
-| **Live GUI (optional)** | Blender + [bridge addon](docs/blender_bridge_addon.py) | Watch the agent build; viewport screenshots; sculpt with live feedback |
+| **Live GUI (optional)** | Blender + [bridge addon](addon/blender_bridge_addon.py) | Watch the agent build; viewport screenshots; sculpt with live feedback |
 | **Per-tool override** | `prefer_session=False` | Batch jobs force headless even if bridge is connected |
 
-**You do not need to open Blender’s UI** for most MCP tools — the server spawns headless Blender automatically and falls back from live session when no bridge is connected.
+**You do not need to open Blender's UI** for most MCP tools — the server spawns headless Blender automatically and falls back from live session when no bridge is connected.
 
 Install [Blender](https://www.blender.org/download/) separately; it is never bundled. Override path with `BLENDER_EXECUTABLE`.
 
-> **Watch or batch** — Most tools run headless Blender. Use `blender_session` start + enable the bridge addon only if you want the viewport to update live while the agent works. See [INSTALL.md](INSTALL.md#live-blender-gui-session-bridge).
+> **Watch or batch** — Most tools run headless. Use `blender_session` start + the bridge addon only if you want the viewport to update live. See [INSTALL.md](INSTALL.md#optional-live-blender-viewport-bridge-addon).
 
 ## Hands-in / Hands-out
 
@@ -55,15 +76,6 @@ Install [Blender](https://www.blender.org/download/) separately; it is never bun
 - **Generative AI hooks** — Rodin/Tripo/Hunyuan mesh generation and vision refine
 - **Webapp dashboard** — scene explorer, agent lab, materials, mesh/splat pipeline
 - **Fleet-ready** — FastMCP 3.2, `.mcpb` packaging, Prometheus metrics, optional Docker
-
-## Quick Install
-
-1. Download **`blender-mcp-*.mcpb`** from [Releases](https://github.com/sandraschi/blender-mcp/releases/latest)
-2. Drag it into **Claude Desktop**
-
-Done. Install [Blender](https://www.blender.org/download/) separately if you have not already.
-
-Other methods (npx mcpb, manual config, developer setup): **[INSTALL.md](INSTALL.md)**
 
 ## What You Can Do
 

@@ -7,9 +7,10 @@
 ## 🎯 **Quick Navigation**
 
 ### **New to the Project?**
-1. Start with [README.md](../README.md) - Project overview
-2. See [Installation Guide](#installation) - Get started
-3. Review [Repository Protection](#repository-protection) - Stay safe
+1. Start with [README.md](../README.md) — 2-minute quickstart + download links
+2. Follow [INSTALL.md](../INSTALL.md#quick-start-recommended) — drag-and-drop `.mcpb`
+3. Optional live viewport: [bridge addon](../addon/blender_bridge_addon.py)
+4. Review [Repository Protection](#repository-protection) — Stay safe
 
 ### **Want to Contribute?**
 1. Read [CONTRIBUTING.md](../CONTRIBUTING.md) - Guidelines

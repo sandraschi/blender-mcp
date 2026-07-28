@@ -25,7 +25,7 @@ uv run python -m blender_mcp.cli --http --port 10849
 
 # Agent or user:
 # blender_session operation=start
-# Enable docs/blender_bridge_addon.py in Blender → Start Bridge
+# Enable addon/blender_bridge_addon.py in Blender → Start Bridge
 # blender_render operation=screenshot_viewport output_path=...
 ```
 
