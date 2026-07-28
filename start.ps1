@@ -1,6 +1,7 @@
 Param(
     [switch]$Headless,
     [switch]$BackendOnly,
+    [switch]$FrontendOnly,
     [switch]$NoBrowser,
     [switch]$ReuseIfRunning
 )
@@ -9,6 +10,7 @@ Param(
 if ($Headless -and ($Host.Name -ne 'ConsoleHost' -or -not (Get-Variable -Name "NoRelaunch" -ErrorAction SilentlyContinue))) {
     $argList = @("-File", $PSCommandPath, "-NoRelaunch")
     if ($BackendOnly) { $argList += "-BackendOnly" }
+    if ($FrontendOnly) { $argList += "-FrontendOnly" }
     $argList += "-NoBrowser"
     Start-Process pwsh.exe -ArgumentList $argList -WindowStyle Hidden
     exit
@@ -59,6 +61,7 @@ if ($env:SKIP_SYNC -eq "1") {
 }
 
 Write-Host "[2/3] Starting Backend (port $BackendPort) ..." -ForegroundColor Cyan
+if (-not $FrontendOnly) {
 $backendProc = Start-Process uv -ArgumentList "run", "uvicorn", "blender_mcp.server:asgi_app", "--host", "127.0.0.1", "--port", "$BackendPort" `
     -WorkingDirectory $RepoRoot `
     -PassThru -NoNewWindow
@@ -82,10 +85,15 @@ if (-not $backendReady) {
     exit 1
 }
 Write-Host "  [ok] Backend healthy at $healthUrl" -ForegroundColor DarkGreen
+} else {
+    Write-Host "  [skip] FrontendOnly -- leaving backend untouched" -ForegroundColor DarkCyan
+}
 
 if ($BackendOnly) {
-    Write-Host "Backend-only mode active. Press Ctrl+C to exit." -ForegroundColor Yellow
-    Wait-Process -Id $backendProc.Id
+    if ($backendProc) {
+        Write-Host "Backend-only mode active. Press Ctrl+C to exit." -ForegroundColor Yellow
+        Wait-Process -Id $backendProc.Id
+    }
     exit
 }
 

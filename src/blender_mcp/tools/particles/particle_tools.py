@@ -11,6 +11,7 @@ _READ_ONLY = {"readonly": True}
 _MUTATING = {}
 _DESTRUCTIVE = {}
 
+
 def _register_particle_tools():
     """Register all particle-related tools."""
     app = get_app()

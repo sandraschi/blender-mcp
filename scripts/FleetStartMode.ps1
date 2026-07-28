@@ -2,6 +2,18 @@
 # Vendored per-repo under scripts/FleetStartMode.ps1 (no mcp-central-docs runtime path).
 # Port clearing uses per-port netstat+findstr (fast); never Get-NetTCPConnection or global python scan.
 
+function Get-FleetStartModeBoundParameters {
+    param([hashtable]$BoundParameters)
+
+    $filtered = @{}
+    foreach ($key in @('Headless', 'BackendOnly', 'FrontendOnly', 'NoBrowser')) {
+        if ($BoundParameters.ContainsKey($key)) {
+            $filtered[$key] = $BoundParameters[$key]
+        }
+    }
+    return $filtered
+}
+
 function Initialize-FleetStartMode {
     param(
         [switch]$Headless,
@@ -16,7 +28,10 @@ function Initialize-FleetStartMode {
     }
 
     $runBackend = -not $FrontendOnly
-    $runFrontend = (-not $BackendOnly) -and (-not $Headless) -and (-not $FrontendOnly)
+    $probeRun = ($env:FLEET_PROBE_RUN -eq '1')
+    # Interactive default: run frontend unless -BackendOnly or -Headless (probes may use -Headless + FLEET_PROBE_RUN).
+    $runFrontend = (-not $BackendOnly) -and ($FrontendOnly -or (-not $Headless) -or $probeRun)
+    # Match legacy start.ps1: only -NoBrowser, -Headless, and -BackendOnly suppress browser open.
     $skipBrowser = $NoBrowser -or $Headless -or $BackendOnly
 
     return [pscustomobject]@{
@@ -30,39 +45,151 @@ function Initialize-FleetStartMode {
 function Enter-FleetHeadlessConsole {
     param(
         [switch]$Headless,
-        [switch]$BackendOnly
+        [switch]$BackendOnly,
+        [switch]$FrontendOnly,
+        [string]$StartScriptPath = ''
     )
 
-    if ($Headless -and ($Host.UI.RawUI.WindowTitle -notmatch 'Hidden')) {
-        $spawnArgs = @(
-            '-NoProfile', '-File', $PSCommandPath,
-            '-Headless', '-BackendOnly'
-        )
-        Start-Process powershell.exe -ArgumentList $spawnArgs -WindowStyle Hidden
-        exit
+    if ($env:FLEET_PROBE_RUN -eq '1') { return }
+    if (-not $Headless) { return }
+
+    if ($Host.UI.RawUI.WindowTitle -match 'Hidden') { return }
+
+    $scriptPath = $StartScriptPath
+    if (-not $scriptPath) {
+        Write-Host 'ERROR: Enter-FleetHeadlessConsole requires -StartScriptPath (repo start.ps1).' -ForegroundColor Red
+        exit 1
     }
+    if (-not (Test-Path -LiteralPath $scriptPath)) {
+        Write-Host "ERROR: Headless launcher script not found: $scriptPath" -ForegroundColor Red
+        exit 1
+    }
+
+    $spawnArgs = @(
+        '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $scriptPath,
+        '-Headless'
+    )
+    if ($FrontendOnly) {
+        $spawnArgs += '-FrontendOnly'
+    } elseif ($BackendOnly) {
+        $spawnArgs += '-BackendOnly'
+    }
+    Start-Process powershell.exe -ArgumentList $spawnArgs -WindowStyle Hidden
+    exit
 }
 
 function Get-FleetPortListenerPids {
     param([Parameter(Mandatory)][int]$Port)
 
     $pids = [System.Collections.Generic.HashSet[int]]::new()
-    $raw = cmd /c "netstat -ano -p TCP 2>nul | findstr LISTENING"
+    # Port-scoped findstr: fast, and cmd may return Object[] (one line per element).
+    $portNeedle = ":$Port "
+    $raw = cmd /c "netstat -ano -p TCP 2>nul | findstr LISTENING | findstr `"$portNeedle`""
     if (-not $raw) { return @() }
-    foreach ($line in ($raw -split "`r?`n")) {
+
+    $lines = if ($raw -is [System.Array]) { @($raw) } else { @($raw -split "`r?`n") }
+    foreach ($line in $lines) {
         if ([string]::IsNullOrWhiteSpace($line)) { continue }
         $parts = ($line.Trim() -split '\s+')
         if ($parts.Count -lt 5) { continue }
         $localAddr = $parts[1]
         if ($localAddr -notmatch ':(\d+)$') { continue }
-        $localPort = [int]$Matches[1]
-        if ($localPort -ne $Port) { continue }
+        if ([int]$Matches[1] -ne $Port) { continue }
         $procId = 0
         if ([int]::TryParse($parts[-1], [ref]$procId) -and $procId -gt 4) {
             [void]$pids.Add($procId)
         }
     }
     return @($pids)
+}
+
+$script:FleetProtectedPidResults = @{}
+$script:FleetServiceRootPids = $null
+$script:FleetNssmServiceNames = $null
+
+function Clear-FleetProtectedServicePidCache {
+    $script:FleetProtectedPidResults = @{}
+    $script:FleetServiceRootPids = $null
+    $script:FleetNssmServiceNames = $null
+}
+
+function Get-FleetServiceRootProcessIds {
+    if ($null -eq $script:FleetServiceRootPids) {
+        $roots = [System.Collections.Generic.HashSet[int]]::new()
+        foreach ($svc in @(Get-CimInstance Win32_Service -ErrorAction SilentlyContinue | Where-Object { $_.ProcessId -gt 4 })) {
+            [void]$roots.Add($svc.ProcessId)
+        }
+        $script:FleetServiceRootPids = $roots
+    }
+    return $script:FleetServiceRootPids
+}
+
+function Get-FleetNssmServiceNames {
+    if ($null -eq $script:FleetNssmServiceNames) {
+        $script:FleetNssmServiceNames = @(
+            Get-CimInstance Win32_Service -ErrorAction SilentlyContinue |
+                Where-Object { $_.PathName -match 'nssm' } |
+                ForEach-Object { $_.Name }
+        )
+    }
+    return $script:FleetNssmServiceNames
+}
+
+function Test-FleetProcessProtectedByService {
+    param([Parameter(Mandatory)][int]$ProcessId)
+
+    if ($ProcessId -le 4) { return $false }
+    if ($script:FleetProtectedPidResults.ContainsKey($ProcessId)) {
+        return [bool]$script:FleetProtectedPidResults[$ProcessId]
+    }
+
+    $serviceRoots = Get-FleetServiceRootProcessIds
+    $visited = [System.Collections.Generic.HashSet[int]]::new()
+    $current = $ProcessId
+    $protected = $false
+
+    while ($current -gt 4 -and $visited.Add($current)) {
+        if ($serviceRoots.Contains($current)) {
+            $protected = $true
+            break
+        }
+        $proc = Get-CimInstance Win32_Process -Filter "ProcessId=$current" -ErrorAction SilentlyContinue
+        if (-not $proc -or $proc.ParentProcessId -le 4) { break }
+        $current = [int]$proc.ParentProcessId
+    }
+
+    $script:FleetProtectedPidResults[$ProcessId] = $protected
+    return $protected
+}
+
+function Test-FleetPortHeldByService {
+    param([Parameter(Mandatory)][int]$Port)
+
+    foreach ($procId in @(Get-FleetPortListenerPids -Port $Port)) {
+        if (Test-FleetProcessProtectedByService -ProcessId $procId) {
+            return $true
+        }
+    }
+    return $false
+}
+
+function Get-FleetPortsStillListening {
+    param(
+        [Parameter(Mandatory)][int[]]$Ports,
+        [switch]$ExcludeProtectedServiceProcesses
+    )
+
+    $still = @{}
+    foreach ($port in @($Ports | Where-Object { $_ -gt 0 } | Sort-Object -Unique)) {
+        $pids = @(Get-FleetPortListenerPids -Port $port)
+        if ($ExcludeProtectedServiceProcesses) {
+            $pids = @($pids | Where-Object { -not (Test-FleetProcessProtectedByService -ProcessId $_) })
+        }
+        if ($pids.Count -gt 0) {
+            $still[$port] = $pids
+        }
+    }
+    return $still
 }
 
 function Get-FleetProcessBrief {
@@ -124,12 +251,14 @@ function Stop-FleetProcessId {
     if ($Elevated) {
         $null = Invoke-FleetElevatedTaskKill -ProcessIds @($ProcessId)
     } else {
-        try {
-            Stop-Process -Id $ProcessId -Force -ErrorAction Stop
-        } catch {
-            $killError = $_.Exception.Message
-            $null = Start-Process -FilePath "taskkill.exe" -ArgumentList @("/F", "/T", "/PID", "$ProcessId") `
-                -Wait -PassThru -WindowStyle Hidden -ErrorAction SilentlyContinue
+        $null = Start-Process -FilePath "taskkill.exe" -ArgumentList @("/F", "/T", "/PID", "$ProcessId") `
+            -Wait -PassThru -WindowStyle Hidden -ErrorAction SilentlyContinue
+        if ($null -and $null.ExitCode -ne 0) {
+            try {
+                Stop-Process -Id $ProcessId -Force -ErrorAction Stop
+            } catch {
+                $killError = $_.Exception.Message
+            }
         }
     }
 
@@ -190,19 +319,6 @@ function Get-FleetPortListenerPidSet {
     return @($targetPids)
 }
 
-function Get-FleetPortsStillListening {
-    param([Parameter(Mandatory)][int[]]$Ports)
-
-    $still = @{}
-    foreach ($port in @($Ports | Where-Object { $_ -gt 0 } | Sort-Object -Unique)) {
-        $pids = @(Get-FleetPortListenerPids -Port $port)
-        if ($pids.Count -gt 0) {
-            $still[$port] = $pids
-        }
-    }
-    return $still
-}
-
 function Stop-FleetPortSquatters {
     param(
         [Parameter(Mandatory)][int[]]$Ports,
@@ -213,21 +329,47 @@ function Stop-FleetPortSquatters {
     $uniquePorts = @($Ports | Where-Object { $_ -gt 0 } | Sort-Object -Unique)
     if ($uniquePorts.Count -eq 0) { return }
 
-    if ($ElevatedFallback) {
-        $targetPids = @(Get-FleetPortListenerPidSet -Ports $uniquePorts)
-        if ($targetPids.Count -eq 0) { return }
-
-        Write-Host "[$Label] Clearing port listeners on $($uniquePorts -join ', ') ..." -ForegroundColor Yellow
-        foreach ($procId in $targetPids) {
-            $result = Stop-FleetProcessId -ProcessId $procId
-            if ($result.Ok) {
-                Write-Host "  stop PID $procId" -ForegroundColor DarkGray
+    function Get-FleetKillablePortListenerPids {
+        param([int[]]$Ports)
+        $targetPids = [System.Collections.Generic.HashSet[int]]::new()
+        foreach ($port in @($Ports | Where-Object { $_ -gt 0 } | Sort-Object -Unique)) {
+            foreach ($procId in @(Get-FleetPortListenerPids -Port $port)) {
+                if (Test-FleetProcessProtectedByService -ProcessId $procId) {
+                    $brief = Get-FleetProcessBrief -ProcessId $procId
+                    $name = if ($brief) { $brief.Name } else { 'process' }
+                    Write-Host "[$Label] skip PID $procId ($name) on port $port - Windows/NSSM service" -ForegroundColor DarkCyan
+                    continue
+                }
+                [void]$targetPids.Add($procId)
             }
         }
-        Start-Sleep -Milliseconds 300
+        return @($targetPids)
+    }
 
-        $remaining = @(Get-FleetPortListenerPidSet -Ports $uniquePorts)
-        if ($remaining.Count -gt 0) {
+    if ($ElevatedFallback) {
+        Write-Host "[$Label] Clearing port listeners on $($uniquePorts -join ', ') ..." -ForegroundColor Yellow
+        for ($attempt = 1; $attempt -le 3; $attempt++) {
+            $targetPids = @(Get-FleetKillablePortListenerPids -Ports $uniquePorts)
+            if ($targetPids.Count -eq 0) { return }
+
+            if ($attempt -gt 1) {
+                Write-Host "  retry $attempt PIDs: $($targetPids -join ', ')" -ForegroundColor DarkGray
+            }
+            foreach ($procId in $targetPids) {
+                $result = Stop-FleetProcessId -ProcessId $procId
+                if ($result.Ok) {
+                    Write-Host "  stop PID $procId" -ForegroundColor DarkGray
+                } else {
+                    $brief = Get-FleetProcessBrief -ProcessId $procId
+                    $name = if ($brief) { $brief.Name } else { 'process' }
+                    Write-Host "  could not stop PID $procId ($name)" -ForegroundColor DarkYellow
+                }
+            }
+            Start-Sleep -Milliseconds 300
+
+            $remaining = @(Get-FleetKillablePortListenerPids -Ports $uniquePorts)
+            if ($remaining.Count -eq 0) { return }
+
             Write-Host "  elevated stop PIDs: $($remaining -join ', ')" -ForegroundColor DarkGray
             $null = Invoke-FleetElevatedTaskKill -ProcessIds $remaining
             Start-Sleep -Milliseconds 400
@@ -237,7 +379,7 @@ function Stop-FleetPortSquatters {
 
     function Invoke-FleetPortKillPass {
         param([string]$PassLabel)
-        $targetPids = Get-FleetPortListenerPidSet -Ports $uniquePorts
+        $targetPids = @(Get-FleetKillablePortListenerPids -Ports $uniquePorts)
         if ($targetPids.Count -eq 0) { return }
 
         Write-Host "[$PassLabel] Clearing port listeners on $($uniquePorts -join ', ') ..." -ForegroundColor Yellow
@@ -303,13 +445,14 @@ function Resolve-FleetPortConflict {
     $hardRestart = $ForceRestart -or (-not $AllowReuse)
     Stop-FleetPortSquatters -Ports $Ports -Label $Label -ElevatedFallback:$hardRestart
 
-    $still = Get-FleetPortsStillListening -Ports $Ports
-    if ($still.Count -eq 0) {
+    $stillAll = Get-FleetPortsStillListening -Ports $Ports
+    $still = Get-FleetPortsStillListening -Ports $Ports -ExcludeProtectedServiceProcesses
+    if ($stillAll.Count -eq 0) {
         return [pscustomobject]@{ Action = 'Cleared'; Reuse = $false }
     }
 
-    $blockedPorts = @($still.Keys | Sort-Object)
-    $canReuse = $AllowReuse -and (-not $ForceRestart) -and ($HealthChecks.Count -gt 0)
+    $blockedPorts = @($stillAll.Keys | Sort-Object)
+    $canReuse = ($AllowReuse -or ($still.Count -eq 0 -and $stillAll.Count -gt 0)) -and (-not $ForceRestart) -and ($HealthChecks.Count -gt 0)
     if ($canReuse) {
         foreach ($port in $blockedPorts) {
             $portInt = [int]$port
@@ -325,7 +468,11 @@ function Resolve-FleetPortConflict {
     }
 
     if ($canReuse) {
-        Write-Host "[$Label] Ports in use but health checks passed - reusing existing stack (-ReuseIfRunning)." -ForegroundColor Green
+        if ($still.Count -eq 0 -and $stillAll.Count -gt 0) {
+            Write-Host "[$Label] NSSM/service holds port(s); health OK - reusing (-ReuseIfRunning)." -ForegroundColor Green
+        } else {
+            Write-Host "[$Label] Ports in use but health checks passed - reusing existing stack (-ReuseIfRunning)." -ForegroundColor Green
+        }
         return [pscustomobject]@{ Action = 'ReuseHealthy'; Reuse = $true }
     }
 
@@ -342,6 +489,23 @@ function Resolve-FleetPortConflict {
                 $ghostBlockers += "port $($entry.Key) ghost PID $procId"
             }
         }
+    }
+
+    if ($still.Count -eq 0 -and $stillAll.Count -gt 0) {
+        $svcBlockers = @()
+        foreach ($entry in $stillAll.GetEnumerator()) {
+            foreach ($procId in $entry.Value) {
+                $brief = Get-FleetProcessBrief -ProcessId $procId
+                if ($brief) {
+                    $svcBlockers += "port $($entry.Key) $($brief.Name) PID $procId (Windows service)"
+                } else {
+                    $svcBlockers += "port $($entry.Key) PID $procId (Windows service)"
+                }
+            }
+        }
+        Write-Host "[$Label] ERROR: port(s) held by Windows/NSSM service and health check failed: $($svcBlockers -join '; ')" -ForegroundColor Red
+        Write-Host "Fix the service (services.msc / nssm restart), do not kill from dev scripts." -ForegroundColor Yellow
+        return [pscustomobject]@{ Action = 'Blocked'; Reuse = $false }
     }
 
     if ($liveBlockers.Count -gt 0) {
@@ -428,7 +592,6 @@ function Start-FleetDetachedShell {
             ArgumentList           = $Args
             PassThru               = $true
             NoNewWindow            = $true
-            WindowStyle            = 'Hidden'
             RedirectStandardOutput = $outLog
             RedirectStandardError  = $errLog
         }

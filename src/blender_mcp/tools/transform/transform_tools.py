@@ -11,6 +11,7 @@ _READ_ONLY = {"readonly": True}
 _MUTATING = {}
 _DESTRUCTIVE = {}
 
+
 def _register_transform_tools():
     """Register all transform-related tools."""
     app = get_app()

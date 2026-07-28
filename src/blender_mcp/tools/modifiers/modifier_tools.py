@@ -11,6 +11,7 @@ _READ_ONLY = {"readonly": True}
 _MUTATING = {}
 _DESTRUCTIVE = {}
 
+
 def _register_modifier_tools():
     """Register all modifier-related tools."""
     app = get_app()

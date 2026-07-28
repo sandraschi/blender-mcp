@@ -11,6 +11,7 @@ _READ_ONLY = {"readonly": True}
 _MUTATING = {}
 _DESTRUCTIVE = {}
 
+
 def _register_texture_tools():
     """Register all texture-related tools."""
     app = get_app()

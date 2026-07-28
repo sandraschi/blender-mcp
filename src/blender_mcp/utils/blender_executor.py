@@ -251,7 +251,9 @@ except Exception as e:
             blender_cmd.extend(["--python", test_script_path, "--"])
 
             logger.debug(f"Running command: {' '.join(blender_cmd)}")
-            result = subprocess.run(blender_cmd, capture_output=True, text=True, timeout=60, check=False, stdin=subprocess.DEVNULL)
+            result = subprocess.run(
+                blender_cmd, capture_output=True, text=True, timeout=60, check=False, stdin=subprocess.DEVNULL
+            )
 
             if result.returncode != 0:
                 logger.error(f"Blender functionality test failed: {result.stderr}")
