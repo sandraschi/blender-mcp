@@ -15,13 +15,13 @@ usage: |
 ---
 .SYNOPSIS
     Automated repository backup using Windows native compression with SOTA error handling
-    
+
 .DESCRIPTION
     Creates a compressed ZIP backup of the repository and saves to:
     1. Desktop\repo backup\
     2. N:\backup\dev\repos\
     3. OneDrive\repo-backups\
-    
+
     Features:
     - Individual error handling per backup location
     - Retry logic with exponential backoff
@@ -31,7 +31,7 @@ usage: |
     - Detailed error logging
     - Integrity verification after creation
     - Graceful cleanup on failures
-    
+
     Excludes:
     - .venv/ (virtual environments)
     - __pycache__/ (Python cache)
@@ -41,24 +41,24 @@ usage: |
     - VirtualBox files (*.vdi, *.vmdk, *.vbox)
     - Test artifacts (MagicMock/, sandboxes/, quarantine/)
     - Logs (*.log)
-    
+
 .PARAMETER IncludeBuild
     Include dist/ and build/ folders (default: false)
-    
+
 .PARAMETER MaxRetries
     Maximum number of retry attempts for failed operations (default: 3)
-    
+
 .PARAMETER RetryDelaySeconds
     Initial delay between retries in seconds (default: 2)
-    
+
 .EXAMPLE
     .\scripts\backup-repo.ps1
     # Creates backup in Desktop\repo backup, N:\backup\dev\repos, and OneDrive
-    
+
 .EXAMPLE
     .\scripts\backup-repo.ps1 -IncludeBuild
     # Creates backup including build artifacts
-    
+
 .EXAMPLE
     .\scripts\backup-repo.ps1 -MaxRetries 5 -RetryDelaySeconds 5
     # Custom retry configuration for unreliable network drives
@@ -121,7 +121,7 @@ function Write-ErrorLog {
         }
     }
     $script:ErrorLog += $logEntry
-    
+
     if ($script:OutputFormat -eq 'text') {
         Write-Host $logEntry -ForegroundColor $(if ($Category -eq "Error") { "Red" } elseif ($Category -eq "Warning") { "Yellow" } else { "Gray" })
     }
@@ -132,29 +132,29 @@ function Show-BackupHistory {
         [string]$RepoName,
         [string[]]$BackupDirs
     )
-    
-    Write-Host "`nâ•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor Cyan
-    Write-Host "â•‘        ðŸ“Š Backup History: $RepoName ðŸ“Š         â•‘" -ForegroundColor Cyan
+
+    Write-Host "`nâ•"â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor Cyan
+    Write-Host "â•'        ðŸ"Š Backup History: $RepoName ðŸ"Š         â•'" -ForegroundColor Cyan
     Write-Host "â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`n" -ForegroundColor Cyan
-    
+
     foreach ($backupDir in $BackupDirs) {
         if (-not (Test-Path $backupDir)) {
             Write-Host "âš ï¸  Location: $backupDir (not found)`n" -ForegroundColor Yellow
             continue
         }
-        
+
         $backups = Get-ChildItem -Path $backupDir -Filter "*.zip" -File | Sort-Object LastWriteTime -Descending
         $locationName = Split-Path $backupDir -Leaf
         $parentDir = Split-Path $backupDir -Parent | Split-Path -Leaf
-        
-        Write-Host "ðŸ“ $parentDir\$locationName" -ForegroundColor White
+
+        Write-Host "ðŸ" $parentDir\$locationName" -ForegroundColor White
         Write-Host "   Total backups: $($backups.Count)" -ForegroundColor Gray
-        
+
         if ($backups.Count -gt 0) {
             $oldest = $backups[-1]
             $newest = $backups[0]
             $totalSize = ($backups | Measure-Object -Property Length -Sum).Sum / 1MB
-            
+
             Write-Host "   Oldest:       $($oldest.LastWriteTime.ToString('yyyy-MM-dd HH:mm:ss'))" -ForegroundColor Gray
             Write-Host "   Newest:       $($newest.LastWriteTime.ToString('yyyy-MM-dd HH:mm:ss'))" -ForegroundColor Gray
             Write-Host "   Total size:   $([math]::Round($totalSize, 2)) MB" -ForegroundColor Cyan
@@ -165,7 +165,7 @@ function Show-BackupHistory {
         }
         Write-Host ""
     }
-    
+
     exit 0
 }
 
@@ -176,20 +176,20 @@ function Get-FileHashSHA256 {
     )
     $hash = [System.Security.Cryptography.SHA256]::Create()
     $fileStream = [System.IO.File]::OpenRead($FilePath)
-    
+
     if ($ShowProgress) {
         $fileName = Split-Path $FilePath -Leaf
-        Write-Host "  ðŸ” Computing hash: $fileName..." -NoNewline -ForegroundColor DarkGray
+        Write-Host "  ðŸ" Computing hash: $fileName..." -NoNewline -ForegroundColor DarkGray
     }
-    
+
     $hashBytes = $hash.ComputeHash($fileStream)
     $fileStream.Close()
     $hash.Dispose()
-    
+
     if ($ShowProgress) {
-        Write-Host " âœ“" -ForegroundColor Green
+        Write-Host " âœ"" -ForegroundColor Green
     }
-    
+
     return [System.BitConverter]::ToString($hashBytes) -replace '-', ''
 }
 
@@ -199,40 +199,40 @@ function Test-BackupDuplicate {
         [string]$BackupDir,
         [switch]$Verbose
     )
-    
+
     if (-not (Test-Path $NewBackupPath)) {
         return $false
     }
-    
+
     # Get all previous backups, sorted by creation time (newest first)
-    $previousBackups = Get-ChildItem -Path $BackupDir -Filter "*.zip" -File | 
-    Where-Object { $_.FullName -ne $NewBackupPath } | 
+    $previousBackups = Get-ChildItem -Path $BackupDir -Filter "*.zip" -File |
+    Where-Object { $_.FullName -ne $NewBackupPath } |
     Sort-Object LastWriteTime -Descending
-    
+
     if ($previousBackups.Count -eq 0) {
         if ($Verbose) {
             Write-Host "  â„¹ï¸  No previous backup found for comparison" -ForegroundColor DarkGray
         }
         return $false
     }
-    
+
     # Compare with most recent backup
     $previousBackup = $previousBackups[0]
     if ($Verbose) {
-        Write-Host "  ðŸ” Comparing with previous backup: $(Split-Path $previousBackup.Name -Leaf)" -ForegroundColor DarkGray
+        Write-Host "  ðŸ" Comparing with previous backup: $(Split-Path $previousBackup.Name -Leaf)" -ForegroundColor DarkGray
     }
-    
+
     $newHash = Get-FileHashSHA256 -FilePath $NewBackupPath -ShowProgress:$Verbose
     $previousHash = Get-FileHashSHA256 -FilePath $previousBackup.FullName -ShowProgress:$Verbose
-    
+
     $isDuplicate = ($newHash -eq $previousHash)
     if ($Verbose -and $isDuplicate) {
-        Write-Host "  âœ“ Hashes match - duplicate detected" -ForegroundColor Yellow
+        Write-Host "  âœ" Hashes match - duplicate detected" -ForegroundColor Yellow
     }
     elseif ($Verbose) {
-        Write-Host "  âœ“ Hashes differ - backup is new" -ForegroundColor Green
+        Write-Host "  âœ" Hashes differ - backup is new" -ForegroundColor Green
     }
-    
+
     return $isDuplicate
 }
 
@@ -245,7 +245,7 @@ function Test-DiskSpace {
         $drive = (Get-Item $Path).PSDrive.Name
         $driveInfo = Get-PSDrive $drive -ErrorAction Stop
         $availableBytes = $driveInfo.Free
-        
+
         if ($availableBytes -lt $RequiredBytes) {
             Write-ErrorLog "Insufficient disk space on $drive`: Available: $([math]::Round($availableBytes / 1MB, 2)) MB, Required: $([math]::Round($RequiredBytes / 1MB, 2)) MB" "Warning"
             return $false
@@ -270,7 +270,7 @@ function Test-PathAccess {
             Write-ErrorLog "Parent directory does not exist: $parentPath" "Error"
             return $false
         }
-        
+
         # Test write access by creating a temporary file
         if ($Operation -eq "Write") {
             $testFile = Join-Path $parentPath ".backup-test-$(Get-Random).tmp"
@@ -299,10 +299,10 @@ function Invoke-WithRetry {
         [int]$MaxRetries = 3,
         [int]$InitialDelaySeconds = 2
     )
-    
+
     $attempt = 0
     $delay = $InitialDelaySeconds
-    
+
     while ($attempt -le $MaxRetries) {
         try {
             return & $ScriptBlock
@@ -313,7 +313,7 @@ function Invoke-WithRetry {
                 Write-ErrorLog "Operation '$OperationName' failed after $MaxRetries retries" "Error" $_
                 throw
             }
-            
+
             Write-ErrorLog "Operation '$OperationName' failed (attempt $attempt/$MaxRetries). Retrying in $delay seconds..." "Warning" $_
             Start-Sleep -Seconds $delay
             $delay = [math]::Min($delay * 2, 60) # Exponential backoff, max 60 seconds
@@ -328,48 +328,48 @@ function New-BackupZip {
         [string]$RepoRoot,
         [string]$BackupName
     )
-    
+
     $zip = $null
     $filesAdded = 0
     $filesFailed = 0
-    
+
     try {
         # Remove existing backup if present
         if (Test-Path $ZipPath) {
             Write-Host "    Removing existing backup file..." -ForegroundColor Gray
             Remove-Item $ZipPath -Force -ErrorAction Stop
         }
-        
+
         # Create ZIP archive
         $zip = [System.IO.Compression.ZipFile]::Open($ZipPath, [System.IO.Compression.ZipArchiveMode]::Create)
-        
+
         $totalFiles = $Files.Count
         $processedFiles = 0
-        
+
         foreach ($file in $Files) {
             $processedFiles++
             $script:TotalFilesProcessed++
-            
+
             # Progress reporting for large backups
             if ($totalFiles -gt 100 -and $processedFiles % 100 -eq 0) {
                 $percent = [math]::Round(($processedFiles / $totalFiles) * 100, 1)
                 Write-Host "    Progress: $percent% ($processedFiles/$totalFiles files)" -ForegroundColor Gray
             }
-            
+
             try {
                 # Get relative path from repo root
                 $relativePath = $file.FullName.Substring($repoRoot.Length + 1)
                 # Use forward slashes for ZIP standard
                 $zipEntryPath = $relativePath -replace '\\', '/'
-                
+
                 # Add file to archive with full path
                 [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
-                    $zip, 
-                    $file.FullName, 
-                    $zipEntryPath, 
+                    $zip,
+                    $file.FullName,
+                    $zipEntryPath,
                     [System.IO.Compression.CompressionLevel]::Optimal
                 ) | Out-Null
-                
+
                 $filesAdded++
             }
             catch {
@@ -379,27 +379,27 @@ function New-BackupZip {
                 # Continue with next file instead of failing entire backup
             }
         }
-        
+
         # Dispose ZIP archive
         $zip.Dispose()
         $zip = $null
-        
+
         # Verify backup file was created and is valid
         if (-not (Test-Path $ZipPath)) {
             throw "Backup file was not created: $ZipPath"
         }
-        
+
         $backupSize = (Get-Item $ZipPath).Length
         if ($backupSize -eq 0) {
             throw "Backup file is empty: $ZipPath"
         }
-        
+
         # Verify ZIP integrity by attempting to open it
         try {
             $verifyZip = [System.IO.Compression.ZipFile]::OpenRead($ZipPath)
             $entryCount = $verifyZip.Entries.Count
             $verifyZip.Dispose()
-            
+
             if ($entryCount -eq 0) {
                 throw "Backup file contains no entries: $ZipPath"
             }
@@ -407,14 +407,14 @@ function New-BackupZip {
         catch {
             throw "Backup file integrity check failed: $($_.Message)"
         }
-        
+
         return @{
             Success     = $true
             FilesAdded  = $filesAdded
             FilesFailed = $filesFailed
             BackupSize  = $backupSize
         }
-        
+
     }
     catch {
         Write-ErrorLog "Failed to create backup ZIP: $ZipPath" "Error" $_
@@ -426,7 +426,7 @@ function New-BackupZip {
                 Write-ErrorLog "Failed to dispose ZIP archive" "Warning" $_
             }
         }
-        
+
         # Cleanup partial backup file
         if (Test-Path $ZipPath) {
             try {
@@ -436,7 +436,7 @@ function New-BackupZip {
                 Write-ErrorLog "Failed to cleanup partial backup file: $ZipPath" "Warning" $_
             }
         }
-        
+
         throw
     }
 }
@@ -451,9 +451,9 @@ function Save-ErrorLog {
         $logContent += "Duration: $((Get-Date) - $script:StartTime)`n"
         $logContent += "`nErrors:`n"
         $logContent += ($script:ErrorLog -join "`n`n")
-        
+
         $logContent | Out-File -FilePath $LogPath -Encoding UTF8 -ErrorAction Stop
-        Write-Host "`nðŸ“ Error log saved to: $LogPath" -ForegroundColor Cyan
+        Write-Host "`nðŸ" Error log saved to: $LogPath" -ForegroundColor Cyan
     }
     catch {
         Write-Host "âš ï¸  Failed to save error log: $_" -ForegroundColor Yellow
@@ -487,13 +487,13 @@ if ($List) {
     $desktopDir = Join-Path (Join-Path ([Environment]::GetFolderPath("Desktop")) "repo backup") $repoName
     $nDriveDir = Join-Path "N:\backup\dev\repo-backups" $repoName
     $oneDriveDir = Join-Path (Join-Path (Join-Path $env:OneDrive "Backup") "repo-backups") $repoName
-    
+
     Show-BackupHistory -RepoName $repoName -BackupDirs @($desktopDir, $nDriveDir, $oneDriveDir)
     exit 0 # Exit after listing
 }
 
-Write-Host "`nâ•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor Magenta
-Write-Host "â•‘   ðŸ“¦ Repository Backup (SOTA Error Handling) ðŸ“¦        â•‘" -ForegroundColor Magenta
+Write-Host "`nâ•"â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor Magenta
+Write-Host "â•'   ðŸ"¦ Repository Backup (SOTA Error Handling) ðŸ"¦        â•'" -ForegroundColor Magenta
 Write-Host "â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`n" -ForegroundColor Magenta
 
 # Validate we're in a repository
@@ -527,7 +527,7 @@ try {
     $nDriveBackup = Join-Path "N:\backup\dev\repo-backups" $repoName
     $oneDriveRoot = Join-Path (Join-Path $env:OneDrive "Backup") "repo-backups"
     $oneDriveBackup = Join-Path $oneDriveRoot $repoName
-    
+
     $backupDestinations = @(
         @{ Name = "Desktop"; Path = $desktopBackup; BackupPath = (Join-Path $desktopBackup $backupName); Enabled = $true }
         @{ Name = "N: Drive"; Path = $nDriveBackup; BackupPath = (Join-Path $nDriveBackup $backupName); Enabled = $true }
@@ -540,7 +540,7 @@ catch {
 }
 
 # Display configuration
-Write-Host "ðŸ“‹ Backup Configuration:" -ForegroundColor Cyan
+Write-Host "ðŸ"‹ Backup Configuration:" -ForegroundColor Cyan
 Write-Host "  Repository:    $repoName" -ForegroundColor White
 Write-Host "  Timestamp:     $timestamp" -ForegroundColor White
 Write-Host "  Include build: $(if($IncludeBuild){'Yes'}else{'No'})" -ForegroundColor White
@@ -555,15 +555,15 @@ foreach ($dest in $backupDestinations) {
             Write-Host "  Creating directory: $($dest.Path)" -ForegroundColor Gray
             New-Item -ItemType Directory -Path $dest.Path -Force | Out-Null
         }
-        
+
         # Test write access (skip in dry-run)
         if (-not $WhatIf -and -not (Test-PathAccess -Path $dest.BackupPath -Operation "Write")) {
             Write-ErrorLog "No write access to $($dest.Name) backup location: $($dest.Path)" "Error"
             $dest.Enabled = $false
             continue
         }
-        
-        Write-Host "  âœ… $($dest.Name): $($dest.Path)" -ForegroundColor Green
+
+        Write-Host "  âœ... $($dest.Name): $($dest.Path)" -ForegroundColor Green
     }
     catch {
         Write-ErrorLog "Failed to setup $($dest.Name) backup location: $($dest.Path)" "Error" $_
@@ -622,20 +622,20 @@ if (-not $IncludeBuild) {
 # Load repository-specific rules if present
 $rulesFile = Join-Path $repoRoot ".backup-rules.md"
 if (Test-Path $rulesFile) {
-    Write-Host "ðŸ“œ Found .backup-rules.md - loading custom rules..." -ForegroundColor Cyan
+    Write-Host "ðŸ"œ Found .backup-rules.md - loading custom rules..." -ForegroundColor Cyan
     $rules = Get-Content $rulesFile
-    
+
     # 1. Standard ALWAYS exclude
     $customExclusions = $rules | Where-Object { $_ -match "^EXCLUDE:\s*(.+)$" } | ForEach-Object { $matches[1].Trim() }
-    
+
     # 2. WEEKLY (Exclude UNLESS today is Sunday)
     $today = Get-Date
     $isWeeklyDay = ($today.DayOfWeek -eq [DayOfWeek]::Sunday)
     $weeklyRules = $rules | Where-Object { $_ -match "^WEEKLY:\s*(.+)$" } | ForEach-Object { $matches[1].Trim() }
-    
+
     if (-not $isWeeklyDay -and $weeklyRules) {
         $customExclusions += $weeklyRules
-        Write-Host "  ðŸ“… Today is not Sunday - applying $($weeklyRules.Count) weekly exclusions" -ForegroundColor Gray
+        Write-Host "  ðŸ"... Today is not Sunday - applying $($weeklyRules.Count) weekly exclusions" -ForegroundColor Gray
     }
     elseif ($isWeeklyDay -and $weeklyRules) {
         Write-Host "  âœ¨ Sunday! Including $($weeklyRules.Count) weekly items in backup" -ForegroundColor Green
@@ -647,15 +647,15 @@ if (Test-Path $rulesFile) {
 
     if (-not $isMonthlyDay -and $monthlyRules) {
         $customExclusions += $monthlyRules
-        Write-Host "  ðŸ“… Today is not the 1st - applying $($monthlyRules.Count) monthly exclusions" -ForegroundColor Gray
+        Write-Host "  ðŸ"... Today is not the 1st - applying $($monthlyRules.Count) monthly exclusions" -ForegroundColor Gray
     }
     elseif ($isMonthlyDay -and $monthlyRules) {
         Write-Host "  âœ¨ 1st of the month! Including $($monthlyRules.Count) monthly items in backup" -ForegroundColor Green
     }
-    
+
     if ($customExclusions) {
         $exclusions += $customExclusions
-        Write-Host "  âœ… Applied total of $($customExclusions.Count) rules from .backup-rules.md" -ForegroundColor Gray
+        Write-Host "  âœ... Applied total of $($customExclusions.Count) rules from .backup-rules.md" -ForegroundColor Gray
     }
 }
 
@@ -666,21 +666,21 @@ foreach ($excl in $exclusions) {
 Write-Host ""
 
 # Analyze repository size
-Write-Host "ðŸ“Š Analyzing repository size..." -ForegroundColor Cyan
+Write-Host "ðŸ"Š Analyzing repository size..." -ForegroundColor Cyan
 
 try {
     $allFiles = Get-ChildItem -Recurse -File -ErrorAction SilentlyContinue | Where-Object {
         # Skip symlinks/ReparsePoints (cause access denied errors)
         -not ($_.Attributes -band [System.IO.FileAttributes]::ReparsePoint)
     }
-    
+
     $totalSize = ($allFiles | Measure-Object -Property Length -Sum).Sum
-    
+
     # Filter files to backup
     $backupFiles = $allFiles | Where-Object {
         $file = $_
         $shouldExclude = $false
-        
+
         foreach ($excl in $exclusions) {
             $pattern = $excl -replace '\*', '.*' -replace '\.', '\.'
             if ($file.FullName -match $pattern -or $file.FullName -match [regex]::Escape($excl)) {
@@ -688,13 +688,13 @@ try {
                 break
             }
         }
-        
+
         -not $shouldExclude
     }
-    
+
     $backupSize = ($backupFiles | Measure-Object -Property Length -Sum).Sum
     $excludedSize = $totalSize - $backupSize
-    
+
     Write-Host "  Total size:    $([math]::Round($totalSize / 1MB, 2)) MB" -ForegroundColor White
     Write-Host "  Excluded:      $([math]::Round($excludedSize / 1MB, 2)) MB" -ForegroundColor Red
     Write-Host "  Backup size:   $([math]::Round($backupSize / 1MB, 2)) MB" -ForegroundColor Green
@@ -703,10 +703,10 @@ try {
         Write-Host "  Reduction:     $([math]::Round(($excludedSize / $totalSize) * 100, 1))%" -ForegroundColor Cyan
     }
     Write-Host ""
-    
+
     # Estimate compressed size (assume 50% compression ratio)
     $estimatedCompressedSize = $backupSize * 0.5
-    
+
     # Validate disk space for all destinations
     foreach ($dest in $backupDestinations) {
         if (-not (Test-DiskSpace -Path $dest.Path -RequiredBytes $estimatedCompressedSize)) {
@@ -714,19 +714,19 @@ try {
             # Don't disable, let it try and fail gracefully
         }
     }
-    
+
     # Exit early if WhatIf (after file analysis)
     if ($WhatIf) {
         Write-Host "`nâš ï¸  DRY-RUN MODE: No files will be created`n" -ForegroundColor Yellow
-        Write-Host "ðŸ“‹ Files that would be backed up: $($backupFiles.Count) files ($([math]::Round($backupSize / 1MB, 2)) MB)" -ForegroundColor Cyan
-        Write-Host "ðŸ“¦ Backup locations:" -ForegroundColor Cyan
+        Write-Host "ðŸ"‹ Files that would be backed up: $($backupFiles.Count) files ($([math]::Round($backupSize / 1MB, 2)) MB)" -ForegroundColor Cyan
+        Write-Host "ðŸ"¦ Backup locations:" -ForegroundColor Cyan
         foreach ($dest in $backupDestinations) {
             Write-Host "  - $($dest.Name): $($dest.Path)" -ForegroundColor White
         }
-        Write-Host "`nâœ… Dry-run complete - no files created`n" -ForegroundColor Green
+        Write-Host "`nâœ... Dry-run complete - no files created`n" -ForegroundColor Green
         exit 0
     }
-    
+
 }
 catch {
     Write-ErrorLog "Failed to analyze repository" "Error" $_
@@ -734,20 +734,20 @@ catch {
 }
 
 # Create backups
-Write-Host "ðŸ”„ Creating backups..." -ForegroundColor Cyan
+Write-Host "ðŸ"„ Creating backups..." -ForegroundColor Cyan
 Write-Host ""
 
 $successfulBackups = 0
 $failedBackups = 0
 
 foreach ($dest in $backupDestinations) {
-    Write-Host "  â†’ $($dest.Name) backup..." -ForegroundColor Gray
-    
+    Write-Host "  â†' $($dest.Name) backup..." -ForegroundColor Gray
+
     try {
         $result = Invoke-WithRetry -ScriptBlock {
             New-BackupZip -ZipPath $dest.BackupPath -Files $backupFiles -RepoRoot $repoRoot -BackupName $backupName
         } -OperationName "$($dest.Name) backup" -MaxRetries $MaxRetries -InitialDelaySeconds $RetryDelaySeconds
-        
+
         # Check for duplicates (if it's not the first backup)
         if (Test-BackupDuplicate -NewBackupPath $dest.BackupPath -BackupDir $dest.Path -Verbose:$Verbose) {
             Write-Host "  â­ï¸  $($dest.Name) backup identical to previous - removing duplicate" -ForegroundColor Yellow
@@ -758,15 +758,15 @@ foreach ($dest in $backupDestinations) {
             $script:BackupResults[$dest.Name] = $result
             $script:BackupResults[$dest.Name].Success = $true
             $successfulBackups++
-            
+
             $backupSizeMB = [math]::Round($result.BackupSize / 1MB, 2)
-            Write-Host "  âœ… $($dest.Name) backup complete: $backupSizeMB MB ($($result.FilesAdded) files)" -ForegroundColor Green
-            
+            Write-Host "  âœ... $($dest.Name) backup complete: $backupSizeMB MB ($($result.FilesAdded) files)" -ForegroundColor Green
+
             if ($result.FilesFailed -gt 0) {
                 Write-Host "    âš ï¸  Warning: $($result.FilesFailed) files failed to add" -ForegroundColor Yellow
             }
         }
-        
+
     }
     catch {
         $failedBackups++
@@ -774,18 +774,18 @@ foreach ($dest in $backupDestinations) {
         Write-ErrorLog "Failed to create $($dest.Name) backup" "Error" $_
         Write-Host "  âŒ $($dest.Name) backup failed: $($_.Exception.Message)" -ForegroundColor Red
     }
-    
+
     Write-Host ""
 }
 
 # Summary
-Write-Host "â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor $(if ($failedBackups -eq 0) { "Green" } else { "Yellow" })
-Write-Host "â•‘              ðŸ“¦ Backup Summary ðŸ“¦                        â•‘" -ForegroundColor $(if ($failedBackups -eq 0) { "Green" } else { "Yellow" })
+Write-Host "â•"â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor $(if ($failedBackups -eq 0) { "Green" } else { "Yellow" })
+Write-Host "â•'              ðŸ"¦ Backup Summary ðŸ"¦                        â•'" -ForegroundColor $(if ($failedBackups -eq 0) { "Green" } else { "Yellow" })
 Write-Host "â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•" -ForegroundColor $(if ($failedBackups -eq 0) { "Green" } else { "Yellow" })
 Write-Host ""
 
 if ($successfulBackups -gt 0) {
-    Write-Host "âœ… Successful backups: $successfulBackups" -ForegroundColor Green
+    Write-Host "âœ... Successful backups: $successfulBackups" -ForegroundColor Green
     foreach ($dest in $backupDestinations) {
         $res = $script:BackupResults[$dest.Name]
         if ($res.Success -and -not $res.Skipped) {
@@ -809,7 +809,7 @@ if ($failedBackups -gt 0) {
     Write-Host ""
 }
 
-Write-Host "ðŸ“Š Statistics:" -ForegroundColor Cyan
+Write-Host "ðŸ"Š Statistics:" -ForegroundColor Cyan
 Write-Host "  Files processed: $script:TotalFilesProcessed" -ForegroundColor White
 Write-Host "  Files failed:    $script:TotalFilesFailed" -ForegroundColor $(if ($script:TotalFilesFailed -eq 0) { "Green" } else { "Yellow" })
 Write-Host "  Duration:        $((Get-Date) - $script:StartTime)" -ForegroundColor White
@@ -832,7 +832,7 @@ if ($OutputFormat -eq "json") {
         failed     = $failedBackups
         results    = $script:BackupResults
     } | ConvertTo-Json -Depth 5
-    
+
     Write-Host $jsonOutput
     exit 0
 }
@@ -849,7 +849,7 @@ elseif ($failedBackups -gt 0) {
     exit 0
 }
 else {
-    Write-Host "âœ… Backup process completed.`n" -ForegroundColor Green
+    Write-Host "âœ... Backup process completed.`n" -ForegroundColor Green
     exit 0
 }
 

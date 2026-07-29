@@ -2,7 +2,7 @@
 <#
 .SYNOPSIS
     MCP Server Repository Standards Checker and Fixer Generator
-    
+
 .DESCRIPTION
     Analyzes an MCP server repository for compliance with standards:
     - FastMCP 2.12+ compliance (no description= params)
@@ -13,21 +13,21 @@
     - Minimum documentation (README, CONTRIBUTING, etc.)
     - Repo root cleanliness (no unnecessary files)
     - .cursorrules with Rule #1
-    
+
     Generates two outputs:
     1. docs/repository-analysis-{date}.md - Detailed report
     2. scripts/fix-standards.ps1 - Auto-remediation script
-    
+
 .PARAMETER GenerateFixScript
     Generate auto-remediation script (default: true)
-    
+
 .PARAMETER Verbose
     Show detailed checking progress
-    
+
 .EXAMPLE
     .\scripts\check-repo-standards.ps1
     # Analyzes repo, generates report and fix script
-    
+
 .EXAMPLE
     .\scripts\check-repo-standards.ps1 -Verbose
     # Shows detailed progress during analysis
@@ -40,8 +40,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "`nâ•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor Magenta
-Write-Host "â•‘    ðŸ” MCP Server Repository Standards Checker ðŸ”       â•‘" -ForegroundColor Magenta
+Write-Host "`nâ•"â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor Magenta
+Write-Host "â•'    ðŸ" MCP Server Repository Standards Checker ðŸ"       â•'" -ForegroundColor Magenta
 Write-Host "â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`n" -ForegroundColor Magenta
 
 # Check if we're in a repo
@@ -54,7 +54,7 @@ $repoName = (Get-Item .).Name
 $timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 $date = Get-Date -Format "yyyy-MM-dd"
 
-Write-Host "ðŸ“‹ Analyzing Repository: $repoName" -ForegroundColor Cyan
+Write-Host "ðŸ"‹ Analyzing Repository: $repoName" -ForegroundColor Cyan
 Write-Host "   Timestamp: $timestamp`n" -ForegroundColor Gray
 
 # Initialize results
@@ -71,7 +71,7 @@ $results = @{
 # SECTION 1: FastMCP 2.12+ Compliance
 # ============================================================================
 
-Write-Host "ðŸ” Checking FastMCP 2.12+ Compliance..." -ForegroundColor Yellow
+Write-Host "ðŸ" Checking FastMCP 2.12+ Compliance..." -ForegroundColor Yellow
 
 $fastmcpIssues = @()
 $fastmcpScore = 10
@@ -89,7 +89,7 @@ if (Test-Path "src") {
 }
 
 if ($fastmcpIssues.Count -eq 0) {
-    Write-Host "  âœ… No description= parameters found" -ForegroundColor Green
+    Write-Host "  âœ... No description= parameters found" -ForegroundColor Green
 } else {
     Write-Host "  âŒ Found $($fastmcpIssues.Count) description= parameters" -ForegroundColor Red
     $results.Issues += $fastmcpIssues
@@ -102,7 +102,7 @@ $results.Scores["FastMCP"] = [Math]::Max(0, $fastmcpScore)
 # SECTION 2: MCPB Packaging
 # ============================================================================
 
-Write-Host "ðŸ” Checking MCPB Packaging..." -ForegroundColor Yellow
+Write-Host "ðŸ" Checking MCPB Packaging..." -ForegroundColor Yellow
 
 $mcpbScore = 10
 $mcpbIssues = @()
@@ -124,7 +124,7 @@ foreach ($file in $mcpbRequired.Keys) {
 }
 
 if ($mcpbIssues.Count -eq 0) {
-    Write-Host "  âœ… MCPB structure complete" -ForegroundColor Green
+    Write-Host "  âœ... MCPB structure complete" -ForegroundColor Green
 } else {
     Write-Host "  âŒ Missing $($mcpbIssues.Count) MCPB files" -ForegroundColor Red
     $results.Issues += $mcpbIssues
@@ -136,7 +136,7 @@ $results.Scores["MCPB"] = [Math]::Max(0, $mcpbScore)
 # SECTION 3: CI/CD Workflows
 # ============================================================================
 
-Write-Host "ðŸ” Checking CI/CD..." -ForegroundColor Yellow
+Write-Host "ðŸ" Checking CI/CD..." -ForegroundColor Yellow
 
 $ciScore = 10
 $ciIssues = @()
@@ -155,7 +155,7 @@ foreach ($file in $ciFiles.Keys) {
 }
 
 if ($ciIssues.Count -eq 0) {
-    Write-Host "  âœ… CI/CD workflows present" -ForegroundColor Green
+    Write-Host "  âœ... CI/CD workflows present" -ForegroundColor Green
 } else {
     Write-Host "  âŒ Missing $($ciIssues.Count) CI/CD workflows" -ForegroundColor Red
     $results.Issues += $ciIssues
@@ -167,7 +167,7 @@ $results.Scores["CICD"] = [Math]::Max(0, $ciScore)
 # SECTION 4: Test Scaffold
 # ============================================================================
 
-Write-Host "ðŸ” Checking Test Scaffold..." -ForegroundColor Yellow
+Write-Host "ðŸ" Checking Test Scaffold..." -ForegroundColor Yellow
 
 $testScore = 10
 $testIssues = @()
@@ -183,7 +183,7 @@ if (-not (Test-Path "tests")) {
         $testIssues += "No pytest configuration"
         $testScore -= 2
     }
-    
+
     # Check for test files
     $testFiles = Get-ChildItem -Path "tests" -Filter "test_*.py" -Recurse
     if ($testFiles.Count -eq 0) {
@@ -194,7 +194,7 @@ if (-not (Test-Path "tests")) {
 }
 
 if ($testIssues.Count -eq 0) {
-    Write-Host "  âœ… Test scaffold complete" -ForegroundColor Green
+    Write-Host "  âœ... Test scaffold complete" -ForegroundColor Green
 } else {
     Write-Host "  âš ï¸  Found $($testIssues.Count) test issues" -ForegroundColor Yellow
     $results.Issues += $testIssues
@@ -206,7 +206,7 @@ $results.Scores["Tests"] = [Math]::Max(0, $testScore)
 # SECTION 5: Folder Structure
 # ============================================================================
 
-Write-Host "ðŸ” Checking Folder Structure..." -ForegroundColor Yellow
+Write-Host "ðŸ" Checking Folder Structure..." -ForegroundColor Yellow
 
 $structureScore = 10
 $structureIssues = @()
@@ -227,7 +227,7 @@ foreach ($dir in $requiredDirs.Keys) {
 }
 
 if ($structureIssues.Count -eq 0) {
-    Write-Host "  âœ… Folder structure complete" -ForegroundColor Green
+    Write-Host "  âœ... Folder structure complete" -ForegroundColor Green
 } else {
     Write-Host "  âŒ Missing $($structureIssues.Count) required directories" -ForegroundColor Red
     $results.Issues += $structureIssues
@@ -239,7 +239,7 @@ $results.Scores["Structure"] = [Math]::Max(0, $structureScore)
 # SECTION 6: Minimum Documentation
 # ============================================================================
 
-Write-Host "ðŸ” Checking Documentation..." -ForegroundColor Yellow
+Write-Host "ðŸ" Checking Documentation..." -ForegroundColor Yellow
 
 $docsScore = 10
 $docsIssues = @()
@@ -270,7 +270,7 @@ if (Test-Path ".cursorrules") {
 }
 
 if ($docsIssues.Count -eq 0) {
-    Write-Host "  âœ… Documentation complete" -ForegroundColor Green
+    Write-Host "  âœ... Documentation complete" -ForegroundColor Green
 } else {
     Write-Host "  âŒ Missing $($docsIssues.Count) documentation files" -ForegroundColor Red
     $results.Issues += $docsIssues
@@ -282,7 +282,7 @@ $results.Scores["Documentation"] = [Math]::Max(0, $docsScore)
 # SECTION 7: Repo Root Cleanliness
 # ============================================================================
 
-Write-Host "ðŸ” Checking Repo Root Cleanliness..." -ForegroundColor Yellow
+Write-Host "ðŸ" Checking Repo Root Cleanliness..." -ForegroundColor Yellow
 
 $cleanScore = 10
 $rubbishFiles = @()
@@ -325,7 +325,7 @@ foreach ($file in $knownRubbish) {
 }
 
 if ($rubbishFiles.Count -eq 0) {
-    Write-Host "  âœ… Repo root clean" -ForegroundColor Green
+    Write-Host "  âœ... Repo root clean" -ForegroundColor Green
 } else {
     Write-Host "  âš ï¸  Found $($rubbishFiles.Count) unnecessary root files" -ForegroundColor Yellow
     $results.Issues += $rubbishFiles
@@ -337,7 +337,7 @@ $results.Scores["Cleanliness"] = [Math]::Max(0, $cleanScore)
 # SECTION 8: Modern Python Tooling
 # ============================================================================
 
-Write-Host "ðŸ” Checking Modern Python Tooling..." -ForegroundColor Yellow
+Write-Host "ðŸ" Checking Modern Python Tooling..." -ForegroundColor Yellow
 
 $toolingScore = 10
 $toolingIssues = @()
@@ -349,14 +349,14 @@ if (-not (Test-Path "pyproject.toml")) {
     $results.Fixes += "Create pyproject.toml"
 } else {
     $pyproject = Get-Content "pyproject.toml" -Raw
-    
+
     # Check for ruff
     if ($pyproject -notmatch 'ruff') {
         $toolingIssues += "No ruff configuration"
         $toolingScore -= 2
         $results.Fixes += "Add ruff configuration to pyproject.toml"
     }
-    
+
     # Check for uv.lock
     if (-not (Test-Path "uv.lock")) {
         $toolingIssues += "Missing uv.lock (not using uv package manager)"
@@ -365,7 +365,7 @@ if (-not (Test-Path "pyproject.toml")) {
 }
 
 if ($toolingIssues.Count -eq 0) {
-    Write-Host "  âœ… Modern tooling configured" -ForegroundColor Green
+    Write-Host "  âœ... Modern tooling configured" -ForegroundColor Green
 } else {
     Write-Host "  âš ï¸  $($toolingIssues.Count) tooling improvements available" -ForegroundColor Yellow
     $results.Issues += $toolingIssues
@@ -385,10 +385,10 @@ $results.Summary["TotalFixes"] = $results.Fixes.Count
 # Determine grade
 $grade = switch ($overallScore) {
     {$_ -ge 9.0} { "ðŸ† EXCELLENT"; break }
-    {$_ -ge 8.0} { "âœ… GOOD"; break }
+    {$_ -ge 8.0} { "âœ... GOOD"; break }
     {$_ -ge 7.0} { "âš ï¸  NEEDS WORK"; break }
     {$_ -ge 6.0} { "âŒ POOR"; break }
-    default { "ðŸ”¥ CRITICAL"; break }
+    default { "ðŸ"¥ CRITICAL"; break }
 }
 
 $results.Summary["Grade"] = $grade
@@ -397,7 +397,7 @@ $results.Summary["Grade"] = $grade
 # Generate Report
 # ============================================================================
 
-Write-Host "`nðŸ“Š Generating Report..." -ForegroundColor Cyan
+Write-Host "`nðŸ"Š Generating Report..." -ForegroundColor Cyan
 
 $reportPath = "docs/repository-analysis-$date.md"
 if (-not (Test-Path "docs")) {
@@ -407,64 +407,64 @@ if (-not (Test-Path "docs")) {
 $report = @"
 # Repository Standards Analysis - $repoName
 
-**Date:** $timestamp  
-**Overall Score:** $($results.Summary.OverallScore)/10  
+**Date:** $timestamp
+**Overall Score:** $($results.Summary.OverallScore)/10
 **Grade:** $grade
 
 ---
 
-## ðŸ“Š Scores by Category
+## ðŸ"Š Scores by Category
 
 | Category | Score | Status |
 |----------|-------|--------|
-| FastMCP 2.12+ | $($results.Scores.FastMCP)/10 | $(if($results.Scores.FastMCP -ge 8){"âœ…"}else{"âŒ"}) |
-| MCPB Packaging | $($results.Scores.MCPB)/10 | $(if($results.Scores.MCPB -ge 8){"âœ…"}else{"âŒ"}) |
-| CI/CD | $($results.Scores.CICD)/10 | $(if($results.Scores.CICD -ge 7){"âœ…"}else{"âŒ"}) |
-| Test Scaffold | $($results.Scores.Tests)/10 | $(if($results.Scores.Tests -ge 7){"âœ…"}else{"âŒ"}) |
-| Folder Structure | $($results.Scores.Structure)/10 | $(if($results.Scores.Structure -ge 8){"âœ…"}else{"âŒ"}) |
-| Documentation | $($results.Scores.Documentation)/10 | $(if($results.Scores.Documentation -ge 8){"âœ…"}else{"âŒ"}) |
-| Repo Cleanliness | $($results.Scores.Cleanliness)/10 | $(if($results.Scores.Cleanliness -ge 8){"âœ…"}else{"âŒ"}) |
-| Modern Tooling | $($results.Scores.Tooling)/10 | $(if($results.Scores.Tooling -ge 8){"âœ…"}else{"âŒ"}) |
+| FastMCP 2.12+ | $($results.Scores.FastMCP)/10 | $(if($results.Scores.FastMCP -ge 8){"âœ..."}else{"âŒ"}) |
+| MCPB Packaging | $($results.Scores.MCPB)/10 | $(if($results.Scores.MCPB -ge 8){"âœ..."}else{"âŒ"}) |
+| CI/CD | $($results.Scores.CICD)/10 | $(if($results.Scores.CICD -ge 7){"âœ..."}else{"âŒ"}) |
+| Test Scaffold | $($results.Scores.Tests)/10 | $(if($results.Scores.Tests -ge 7){"âœ..."}else{"âŒ"}) |
+| Folder Structure | $($results.Scores.Structure)/10 | $(if($results.Scores.Structure -ge 8){"âœ..."}else{"âŒ"}) |
+| Documentation | $($results.Scores.Documentation)/10 | $(if($results.Scores.Documentation -ge 8){"âœ..."}else{"âŒ"}) |
+| Repo Cleanliness | $($results.Scores.Cleanliness)/10 | $(if($results.Scores.Cleanliness -ge 8){"âœ..."}else{"âŒ"}) |
+| Modern Tooling | $($results.Scores.Tooling)/10 | $(if($results.Scores.Tooling -ge 8){"âœ..."}else{"âŒ"}) |
 
 ---
 
 ## âŒ Issues Found ($($results.Issues.Count))
 
-$(if($results.Issues.Count -eq 0){"âœ… No issues found! Repository is in excellent condition."}else{$results.Issues | ForEach-Object { "- $_" } | Out-String})
+$(if($results.Issues.Count -eq 0){"âœ... No issues found! Repository is in excellent condition."}else{$results.Issues | ForEach-Object { "- $_" } | Out-String})
 
 ---
 
-## ðŸ”§ Recommended Fixes ($($results.Fixes.Count))
+## ðŸ"§ Recommended Fixes ($($results.Fixes.Count))
 
-$(if($results.Fixes.Count -eq 0){"âœ… No fixes needed!"}else{($results.Fixes | Sort-Object -Unique | ForEach-Object { "- $_" }) -join "`n"})
+$(if($results.Fixes.Count -eq 0){"âœ... No fixes needed!"}else{($results.Fixes | Sort-Object -Unique | ForEach-Object { "- $_" }) -join "`n"})
 
 ---
 
-## ðŸ“‹ Detailed Findings
+## ðŸ"‹ Detailed Findings
 
 ### FastMCP 2.12+ Compliance
-**Score:** $($results.Scores.FastMCP)/10  
-$(if($results.Scores.FastMCP -ge 9){"âœ… Fully compliant with FastMCP 2.12+ standards"}else{"âš ï¸ Review tool decorators for description= parameters"})
+**Score:** $($results.Scores.FastMCP)/10
+$(if($results.Scores.FastMCP -ge 9){"âœ... Fully compliant with FastMCP 2.12+ standards"}else{"âš ï¸ Review tool decorators for description= parameters"})
 
-### MCPB Packaging  
-**Score:** $($results.Scores.MCPB)/10  
-$(if($results.Scores.MCPB -ge 9){"âœ… Complete MCPB package structure"}else{"âš ï¸ Missing some MCPB required files"})
+### MCPB Packaging
+**Score:** $($results.Scores.MCPB)/10
+$(if($results.Scores.MCPB -ge 9){"âœ... Complete MCPB package structure"}else{"âš ï¸ Missing some MCPB required files"})
 
 ### CI/CD Workflows
-**Score:** $($results.Scores.CICD)/10  
-$(if($results.Scores.CICD -ge 8){"âœ… GitHub Actions configured"}else{"âš ï¸ Missing CI/CD workflows"})
+**Score:** $($results.Scores.CICD)/10
+$(if($results.Scores.CICD -ge 8){"âœ... GitHub Actions configured"}else{"âš ï¸ Missing CI/CD workflows"})
 
 ### Test Coverage
-**Score:** $($results.Scores.Tests)/10  
-$(if($results.Scores.Tests -ge 8){"âœ… Test infrastructure in place"}else{"âš ï¸ Improve test coverage"})
+**Score:** $($results.Scores.Tests)/10
+$(if($results.Scores.Tests -ge 8){"âœ... Test infrastructure in place"}else{"âš ï¸ Improve test coverage"})
 
 ### Documentation
-**Score:** $($results.Scores.Documentation)/10  
-$(if($results.Scores.Documentation -ge 8){"âœ… Minimum documentation present"}else{"âš ï¸ Missing key documentation files"})
+**Score:** $($results.Scores.Documentation)/10
+$(if($results.Scores.Documentation -ge 8){"âœ... Minimum documentation present"}else{"âš ï¸ Missing key documentation files"})
 
 ### Repository Cleanliness
-**Score:** $($results.Scores.Cleanliness)/10  
-$(if($results.Scores.Cleanliness -ge 9){"âœ… Clean repository root"}else{"âš ï¸ Clean up unnecessary root files"})
+**Score:** $($results.Scores.Cleanliness)/10
+$(if($results.Scores.Cleanliness -ge 9){"âœ... Clean repository root"}else{"âš ï¸ Clean up unnecessary root files"})
 
 ---
 
@@ -481,7 +481,7 @@ $(($results.Fixes | Where-Object { $_ -match "Delete|Move|Clean" } | ForEach-Obj
 
 ---
 
-## ðŸ“š References
+## ðŸ"š References
 
 - **Central Docs:** D:\Dev\repos\mcp-central-docs\
 - **Standards:** mcp-central-docs/STANDARDS.md
@@ -491,26 +491,26 @@ $(($results.Fixes | Where-Object { $_ -match "Delete|Move|Clean" } | ForEach-Obj
 
 ---
 
-**Generated by:** check-repo-standards.ps1  
-**Report saved to:** $reportPath  
+**Generated by:** check-repo-standards.ps1
+**Report saved to:** $reportPath
 $(if($GenerateFixScript){"**Fix script:** scripts/fix-standards.ps1"}else{""})
 "@
 
 Set-Content -Path $reportPath -Value $report -Encoding UTF8
-Write-Host "  âœ… Report saved: $reportPath" -ForegroundColor Green
+Write-Host "  âœ... Report saved: $reportPath" -ForegroundColor Green
 
 # ============================================================================
 # Generate Fix Script
 # ============================================================================
 
 if ($GenerateFixScript -and $results.Fixes.Count -gt 0) {
-    Write-Host "ðŸ”§ Generating Fix Script..." -ForegroundColor Cyan
-    
+    Write-Host "ðŸ"§ Generating Fix Script..." -ForegroundColor Cyan
+
     $fixScriptPath = "scripts/fix-standards.ps1"
     if (-not (Test-Path "scripts")) {
         New-Item -ItemType Directory -Path "scripts" -Force | Out-Null
     }
-    
+
     # Build fix script content
     $fixScriptContent = @()
     $fixScriptContent += "#!/usr/bin/env pwsh"
@@ -520,21 +520,21 @@ if ($GenerateFixScript -and $results.Fixes.Count -gt 0) {
     $fixScriptContent += ""
     $fixScriptContent += "param([switch]`$DryRun = `$false)"
     $fixScriptContent += ""
-    $fixScriptContent += "Write-Host 'ðŸ”§ Fixing Repository Standards...' -ForegroundColor Cyan"
-    $fixScriptContent += "if (`$DryRun) { Write-Host 'ðŸ” DRY RUN MODE' -ForegroundColor Yellow }"
+    $fixScriptContent += "Write-Host 'ðŸ"§ Fixing Repository Standards...' -ForegroundColor Cyan"
+    $fixScriptContent += "if (`$DryRun) { Write-Host 'ðŸ" DRY RUN MODE' -ForegroundColor Yellow }"
     $fixScriptContent += ""
     $fixScriptContent += "`$centralDocs = 'D:\Dev\repos\mcp-central-docs'"
     $fixScriptContent += ""
-    
+
     # Add fixes
     foreach ($fix in $results.Fixes) {
         $fixScriptContent += "# Fix: $fix"
-        
+
         if ($fix -match "Create (.*?) directory") {
             $dir = $matches[1] -replace "/$", ""
             $fixScriptContent += "if (-not (Test-Path '$dir')) {"
             $fixScriptContent += "    New-Item -ItemType Directory -Path '$dir' -Force | Out-Null"
-            $fixScriptContent += "    Write-Host '  âœ… Created: $dir/' -ForegroundColor Green"
+            $fixScriptContent += "    Write-Host '  âœ... Created: $dir/' -ForegroundColor Green"
             $fixScriptContent += "}"
         }
         elseif ($fix -match "Create (.*?) from") {
@@ -542,7 +542,7 @@ if ($GenerateFixScript -and $results.Fixes.Count -gt 0) {
             $fixScriptContent += "if (-not (Test-Path '$file')) {"
             $fixScriptContent += "    if (Test-Path `"`$centralDocs/templates/$file`") {"
             $fixScriptContent += "        Copy-Item `"`$centralDocs/templates/$file`" '$file' -Force"
-            $fixScriptContent += "        Write-Host '  âœ… Copied: $file' -ForegroundColor Green"
+            $fixScriptContent += "        Write-Host '  âœ... Copied: $file' -ForegroundColor Green"
             $fixScriptContent += "    }"
             $fixScriptContent += "}"
         }
@@ -550,7 +550,7 @@ if ($GenerateFixScript -and $results.Fixes.Count -gt 0) {
             $file = $matches[1] -replace "\s*\(.*", ""
             $fixScriptContent += "if (Test-Path '$file') {"
             $fixScriptContent += "    Remove-Item '$file' -Force -ErrorAction SilentlyContinue"
-            $fixScriptContent += "    Write-Host '  âœ… Deleted: $file' -ForegroundColor Green"
+            $fixScriptContent += "    Write-Host '  âœ... Deleted: $file' -ForegroundColor Green"
             $fixScriptContent += "}"
         }
         elseif ($fix -match "Move.*?:\s*(.+)") {
@@ -558,30 +558,30 @@ if ($GenerateFixScript -and $results.Fixes.Count -gt 0) {
             $fixScriptContent += "if (Test-Path '$file') {"
             $fixScriptContent += "    if (-not (Test-Path 'scripts')) { New-Item -ItemType Directory -Path 'scripts' -Force | Out-Null }"
             $fixScriptContent += "    Move-Item '$file' 'scripts/' -Force -ErrorAction SilentlyContinue"
-            $fixScriptContent += "    Write-Host '  âœ… Moved: $file' -ForegroundColor Green"
+            $fixScriptContent += "    Write-Host '  âœ... Moved: $file' -ForegroundColor Green"
             $fixScriptContent += "}"
         }
-        
+
         $fixScriptContent += ""
     }
-    
-    $fixScriptContent += "Write-Host 'âœ… Fix script complete!' -ForegroundColor Green"
-    
+
+    $fixScriptContent += "Write-Host 'âœ... Fix script complete!' -ForegroundColor Green"
+
     Set-Content -Path $fixScriptPath -Value ($fixScriptContent -join "`n") -Encoding UTF8
-    Write-Host "  âœ… Fix script saved: $fixScriptPath" -ForegroundColor Green
+    Write-Host "  âœ... Fix script saved: $fixScriptPath" -ForegroundColor Green
 }
 
 # ============================================================================
 # Display Summary
 # ============================================================================
 
-Write-Host "`nâ•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor Magenta
-Write-Host "â•‘              ðŸ“Š Analysis Complete! ðŸ“Š                  â•‘" -ForegroundColor Magenta
+Write-Host "`nâ•"â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•-" -ForegroundColor Magenta
+Write-Host "â•'              ðŸ"Š Analysis Complete! ðŸ"Š                  â•'" -ForegroundColor Magenta
 Write-Host "â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`n" -ForegroundColor Magenta
 
 Write-Host "ðŸŽ¯ Overall Score: $($results.Summary.OverallScore)/10 - $grade" -ForegroundColor $(if($overallScore -ge 8){"Green"}else{"Yellow"})
 Write-Host ""
-Write-Host "ðŸ“Š Category Scores:" -ForegroundColor White
+Write-Host "ðŸ"Š Category Scores:" -ForegroundColor White
 foreach ($category in $results.Scores.Keys | Sort-Object) {
     $score = $results.Scores[$category]
     $color = if ($score -ge 8) { "Green" } elseif ($score -ge 6) { "Yellow" } else { "Red" }
@@ -589,19 +589,18 @@ foreach ($category in $results.Scores.Keys | Sort-Object) {
 }
 
 Write-Host ""
-Write-Host "ðŸ“‹ Issues: $($results.Issues.Count)" -ForegroundColor $(if($results.Issues.Count -eq 0){"Green"}else{"Yellow"})
-Write-Host "ðŸ”§ Fixes available: $($results.Fixes.Count)" -ForegroundColor Cyan
+Write-Host "ðŸ"‹ Issues: $($results.Issues.Count)" -ForegroundColor $(if($results.Issues.Count -eq 0){"Green"}else{"Yellow"})
+Write-Host "ðŸ"§ Fixes available: $($results.Fixes.Count)" -ForegroundColor Cyan
 Write-Host ""
 
-Write-Host "ðŸ“„ Report: $reportPath" -ForegroundColor White
+Write-Host "ðŸ"„ Report: $reportPath" -ForegroundColor White
 if ($GenerateFixScript -and $results.Fixes.Count -gt 0) {
-    Write-Host "ðŸ”§ Fix script: scripts/fix-standards.ps1" -ForegroundColor White
+    Write-Host "ðŸ"§ Fix script: scripts/fix-standards.ps1" -ForegroundColor White
     Write-Host ""
-    Write-Host "ðŸ’¡ To apply fixes:" -ForegroundColor Yellow
+    Write-Host "ðŸ'¡ To apply fixes:" -ForegroundColor Yellow
     Write-Host "   .\scripts\fix-standards.ps1 -DryRun  # Preview" -ForegroundColor Gray
     Write-Host "   .\scripts\fix-standards.ps1          # Apply" -ForegroundColor Gray
 }
 
 Write-Host ""
-Write-Host "âœ… Done!" -ForegroundColor Green
-
+Write-Host "âœ... Done!" -ForegroundColor Green
