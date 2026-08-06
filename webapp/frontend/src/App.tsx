@@ -8,6 +8,7 @@ import {
   LayoutGrid,
   MessageSquare,
   Monitor,
+  Moon,
   Package,
   Palette,
   Pen,
@@ -15,10 +16,11 @@ import {
   Puzzle,
   ScanEye,
   Settings,
+  Sun,
   Terminal,
   Wand2,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Route, BrowserRouter as Router, Routes, useLocation } from "react-router-dom";
 import { useZoom } from "./hooks/useZoom";
 import AddonManagerPage from "./pages/addon-manager";
@@ -86,6 +88,32 @@ const BACKEND_HEALTH_URL = import.meta.env.DEV ? "/api/v1/health" : "http://127.
 
 const BACKOFF = [1, 2, 4, 8, 16, 30];
 
+// EXPERIMENTAL light mode (invert hack). Not fleet standard — see index.css.
+// Toggling `.dark` off the root flips the invert filter; persisted so the
+// choice survives reloads. Delete this + the CSS block to revert.
+const THEME_KEY = "blender-light-mode";
+
+function useExperimentalTheme() {
+  const [light, setLight] = useState(() => {
+    try {
+      return localStorage.getItem(THEME_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", !light);
+    try {
+      localStorage.setItem(THEME_KEY, light ? "1" : "0");
+    } catch {
+      // ignore storage errors
+    }
+  }, [light]);
+
+  return { light, toggle: () => setLight((v) => !v) };
+}
+
 function useHealthPoll() {
   const attemptRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -143,6 +171,7 @@ function Layout() {
   useZoom();
   useHealthPoll();
   useTauriConnectionBridge();
+  const { light, toggle } = useExperimentalTheme();
   return (
     <div className="flex h-screen bg-background text-foreground overflow-hidden">
       {/* Sidebar */}
@@ -211,6 +240,15 @@ function Layout() {
         <header className="h-16 border-b border-border flex items-center px-6 bg-card/50 backdrop-blur justify-between">
           <h2 className="text-lg font-semibold">Active Scene: Untitled.blend</h2>
           <div className="flex items-center space-x-4">
+            <button
+              type="button"
+              onClick={toggle}
+              className="p-2 rounded-md text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors"
+              title={light ? "Switch to dark (experimental light mode)" : "Switch to light (experimental, ugly)"}
+              aria-label="Toggle light mode (experimental)"
+            >
+              {light ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+            </button>
             <button
               type="button"
               className="px-3 py-1.5 text-sm font-medium bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors"

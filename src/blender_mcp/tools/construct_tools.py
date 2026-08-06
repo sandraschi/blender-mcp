@@ -24,9 +24,9 @@ except ImportError:
     # Fallback for different FastMCP versions
     from typing import Any as Context
 
-_READ_ONLY = {"readonly": True}
-_MUTATING = {}
-_DESTRUCTIVE = {}
+_READ_ONLY = {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False}
+_MUTATING = {"readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": False}
+_DESTRUCTIVE = {"readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False}
 
 
 class ConstructObjectParams(BaseModel):

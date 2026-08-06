@@ -5,10 +5,12 @@ repos:
     rev: v0.16.0
     hooks:
       - id: ruff
+        exclude: ^(mcpb|native|scripts)/   # fleet template scope
         args: [--fix]
         # DO NOT add `files:` here to narrow scope (Trap 7c). Pre-commit and ci.yml must
         # lint the same paths. Fix violations or add paths to BOTH — never hook-only.
       - id: ruff-format
+        exclude: ^(mcpb|native|scripts)/   # fleet template scope
         # Same rule as ruff above — no narrower `files:` than CI.
 
   - repo: local

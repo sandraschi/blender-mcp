@@ -203,3 +203,5 @@ _dashboard/
 native/resources/*.exe
 native/binaries/*.exe
 native/gen/
+
+*.bak*

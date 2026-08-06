@@ -7,9 +7,9 @@ Provides tools for creating particle systems and effects.
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
 
-_READ_ONLY = {"readonly": True}
-_MUTATING = {}
-_DESTRUCTIVE = {}
+_READ_ONLY = {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False}
+_MUTATING = {"readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": False}
+_DESTRUCTIVE = {"readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False}
 
 
 def _register_particle_tools():

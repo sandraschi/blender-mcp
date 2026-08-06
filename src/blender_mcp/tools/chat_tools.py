@@ -10,10 +10,9 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-_READ_ONLY = {"readonly": True}
-_MUTATING = {}
-_DESTRUCTIVE = {}
-
+_READ_ONLY = {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False}
+_MUTATING = {"readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": False}
+_DESTRUCTIVE = {"readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False}
 SKILL_PATH = Path(__file__).resolve().parent.parent.parent.parent / "skills" / "blender-expert" / "SKILL.md"
 
 

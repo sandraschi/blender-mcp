@@ -10,10 +10,9 @@ from blender_mcp.app import get_app
 
 logger = logging.getLogger(__name__)
 
-_READ_ONLY = {"readonly": True}
-_MUTATING = {}
-_DESTRUCTIVE = {}
-
+_READ_ONLY = {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False}
+_MUTATING = {"readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": False}
+_DESTRUCTIVE = {"readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False}
 OLLAMA_DEFAULT = "http://localhost:11434"
 
 BLENDER_SCRIPT_SYSTEM = """You are a Blender Python (bpy) expert. Output only a single, valid Python script. No markdown, no code fences, no explanation. Use only 'import bpy' and standard library. Script must create or modify the scene as requested. Start with import bpy."""

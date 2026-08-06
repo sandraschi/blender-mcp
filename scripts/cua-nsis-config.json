@@ -1,13 +1,50 @@
 {
-    "product_name": "Blender MCP",
-    "install_dir": "%LOCALAPPDATA%\\Blender MCP",
-    "operator_exe": "blender_mcp_native.exe",
-    "backend_process_names": ["blender_mcp_native", "blender_mcp_native-backend"],
-    "backend_port": 10849,
-    "health_path": "/api/v1/health",
-    "diagnostics_path": "/api/v1/diagnostics",
-    "feature_smoke_path": "/api/v1/diagnostics",
-    "window_title_re": "Blender MCP",
-    "nsis_glob": "native/target/release/bundle/nsis/Blender MCP_*_x64-setup.exe",
-    "uninstall_registry_filter": "*Blender MCP*"
+  "product_name": "Blender MCP",
+  "install_dir": "%LOCALAPPDATA%\\Blender MCP",
+  "operator_exe": "blender_mcp_native.exe",
+  "backend_process_names": [
+    "blender_mcp_native",
+    "blender_mcp_native-backend"
+  ],
+  "backend_port": 10849,
+  "health_path": "/api/v1/health",
+  "diagnostics_path": "/api/v1/diagnostics",
+  "feature_smoke_path": "/api/v1/diagnostics",
+  "window_title_re": "Blender MCP",
+  "nsis_glob": "native/target/release/bundle/nsis/Blender MCP_*_x64-setup.exe",
+  "uninstall_registry_filter": "*Blender MCP*",
+  "nav_routes": [
+    [
+      "Dashboard",
+      "Dashboard"
+    ],
+    [
+      "Scene Explorer",
+      "Scene Explorer"
+    ],
+    [
+      "Construct",
+      "Construct"
+    ],
+    [
+      "Material Store",
+      "Material Store"
+    ],
+    [
+      "Chat",
+      "Chat"
+    ],
+    [
+      "Logs",
+      "Logs"
+    ],
+    [
+      "Settings",
+      "Settings"
+    ],
+    [
+      "Help & Reference",
+      "Help & Reference"
+    ]
+  ]
 }

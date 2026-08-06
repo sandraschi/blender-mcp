@@ -17,9 +17,9 @@ from ..app import app
 logger = logging.getLogger(__name__)
 from ..compat import *
 
-_READ_ONLY = {"readonly": True}
-_MUTATING = {}
-_DESTRUCTIVE = {}
+_READ_ONLY = {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False}
+_MUTATING = {"readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": False}
+_DESTRUCTIVE = {"readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False}
 from ..utils.error_handling import MCPError
 
 # Supported file extensions and their Blender import methods

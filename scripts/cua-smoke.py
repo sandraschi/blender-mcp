@@ -148,6 +148,42 @@ def screenshot(out):
 
 
 # Phase 6
+# Phase 5b - Sidebar nav click-through (title-based UIA matching)
+def nav_click_through(output_dir):
+    import pywinauto
+
+    handle = _find_tauri_window()
+    app = pywinauto.Application(backend="uia").connect(handle=handle)
+    win = app.window(handle=handle)
+    win.set_focus()
+    time.sleep(2)
+    nav_routes = cfg("nav_routes", [])
+    if not isinstance(nav_routes, list) or not nav_routes:
+        log("No nav_routes in config - nav walk skipped")
+        return
+    win.maximize()
+    time.sleep(1)
+    for label, expected in nav_routes:
+        try:
+            link = win.descendants(title=label)
+            if link:
+                link[0].click_input()
+            else:
+                elements = win.descendants(control_type="Hyperlink")
+                el = [e for e in elements if label.lower() in (e.window_text() or "").lower()]
+                if el:
+                    el[0].click_input()
+                else:
+                    log(f"Nav '{label}': no link found - skipped")
+                    continue
+            time.sleep(2)
+            path = os.path.join(output_dir, f"nav-{label.lower().replace(' ', '-')}.png")
+            win.capture_as_image().save(path)
+            log(f"Nav '{label}': clicked + screenshot ({os.path.getsize(path)} bytes)")
+        except Exception as e:
+            log(f"Nav '{label}' failed (non-fatal): {e}")
+
+
 def check_diagnostics():
     try:
         r = urllib.request.urlopen(f"{BACKEND_URL}/api/v1/diagnostics", timeout=5)
@@ -185,6 +221,7 @@ def main():
         (True, "Launch", launch_app),
         (False, "Window", verify_window),
         (False, "Screenshot", lambda: screenshot(args.output_dir)),
+        (False, "Nav walk", lambda: nav_click_through(args.output_dir)),
         (False, "Diagnostics", check_diagnostics),
         (False, "Uninstall", uninstall),
     ]

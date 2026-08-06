@@ -23,14 +23,11 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 BRIDGE_ADDON_REPO_PATH = "addon/blender_bridge_addon.py"
-BRIDGE_ADDON_DOWNLOAD_URL = (
-    "https://github.com/sandraschi/blender-mcp/releases/latest/download/blender_bridge_addon.py"
-)
+BRIDGE_ADDON_DOWNLOAD_URL = "https://github.com/sandraschi/blender-mcp/releases/latest/download/blender_bridge_addon.py"
 
-_READ_ONLY = {"readonly": True}
-_MUTATING = {}
-_DESTRUCTIVE = {}
-
+_READ_ONLY = {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False}
+_MUTATING = {"readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": False}
+_DESTRUCTIVE = {"readOnlyHint": False, "destructiveHint": True, "idempotentHint": False, "openWorldHint": False}
 # Single managed Blender GUI process (one at a time)
 _blender_process: subprocess.Popen | None = None
 _blender_pid: int | None = None
