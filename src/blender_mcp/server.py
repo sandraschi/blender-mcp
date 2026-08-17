@@ -154,7 +154,7 @@ _server_start_time = datetime.datetime.now()
 async def _diagnostics_endpoint(request):
     """GET /api/v1/diagnostics — system status, tool count, uptime, resources."""
     uptime = (datetime.datetime.now() - _server_start_time).total_seconds()
-    tool_list = list(app._tool_manager.tools.keys()) if hasattr(app, "_tool_manager") and app._tool_manager else []
+    tool_list = [t.name for t in await app.list_tools()]
     import psutil
 
     mem = psutil.virtual_memory()

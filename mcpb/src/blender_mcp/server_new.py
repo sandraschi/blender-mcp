@@ -25,7 +25,7 @@ from .handlers.scene_handler import clear_scene, create_scene, list_scenes
 app = FastMCP(
     name="blender-mcp",
     version="1.0.0",
-    description="Blender MCP Server for 3D content creation and automation",
+    instructions="Blender MCP Server for 3D content creation and automation",
 )
 
 # Register all tools with the FastMCP app

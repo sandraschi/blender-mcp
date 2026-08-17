@@ -345,7 +345,7 @@ def _register_fleet_api(app):
             _start = time.time()
             app._start_time = _start
         uptime = time.time() - _start
-        tool_list = list(app._tool_manager.tools.keys()) if hasattr(app, "_tool_manager") and app._tool_manager else []
+        tool_list = [t.name for t in await app.list_tools()]
         return JSONResponse(
             {
                 "status": "ok",

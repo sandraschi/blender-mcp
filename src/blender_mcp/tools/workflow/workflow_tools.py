@@ -227,33 +227,8 @@ def _register_workflow_tools():
 
                 # Get the tool function
                 try:
-                    # Import tool modules dynamically
-                    tool_func = None
-                    if tool_name == "blender_mesh":
-                        tool_func = app._tool_manager._tools.get("blender_mesh")
-                    elif tool_name == "blender_animation":
-                        tool_func = app._tool_manager._tools.get("blender_animation")
-                    elif tool_name == "blender_rigging":
-                        tool_func = app._tool_manager._tools.get("blender_rigging")
-                    elif tool_name == "blender_scene":
-                        tool_func = app._tool_manager._tools.get("blender_scene")
-                    elif tool_name == "blender_materials":
-                        tool_func = app._tool_manager._tools.get("blender_materials")
-                    elif tool_name == "blender_transform":
-                        tool_func = app._tool_manager._tools.get("blender_transform")
-                    elif tool_name == "blender_lighting":
-                        tool_func = app._tool_manager._tools.get("blender_lighting")
-                    elif tool_name == "blender_camera":
-                        tool_func = app._tool_manager._tools.get("blender_camera")
-                    elif tool_name == "blender_render":
-                        tool_func = app._tool_manager._tools.get("blender_render")
-                    elif tool_name == "blender_import":
-                        tool_func = app._tool_manager._tools.get("blender_import")
-                    elif tool_name == "blender_export":
-                        tool_func = app._tool_manager._tools.get("blender_export")
-                    else:
-                        # Try to get directly
-                        tool_func = app._tool_manager._tools.get(tool_name)
+                    # Public sync API - private _tool_manager was removed in FastMCP 3.4.x
+                    tool_func = app.get_tool(tool_name)
 
                     if not tool_func:
                         error = f"Step {step_num}: Tool '{tool_name}' not found"
