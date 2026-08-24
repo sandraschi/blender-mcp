@@ -38,7 +38,7 @@ BlenderKit is the **premier asset platform for Blender**, offering:
 
 #### Method B: Manual Installation
 ```bash
-1. Download from https://www.blenderkit.com/get-blenderkit/
+1. Download from https://www.blendkit.com/get-blenderkit/
 2. In Blender: Edit → Preferences → Add-ons → Install
 3. Select the downloaded .zip file
 4. Enable the add-on
@@ -46,7 +46,7 @@ BlenderKit is the **premier asset platform for Blender**, offering:
 
 ### Step 2: Create Account & Login
 ```bash
-1. Visit https://www.blenderkit.com/
+1. Visit https://www.blendkit.com/
 2. Create free account
 3. In BlenderKit panel: Click "Login"
 4. Follow authentication process
@@ -382,6 +382,6 @@ blender_animation(operation="create_rotation_animation",
 
 **BlenderKit is the definitive asset library for Blender - start exploring today!** 🎨✨
 
-**Installation**: https://www.blenderkit.com/get-blenderkit/  
-**Browse Assets**: https://www.blenderkit.com/  
-**Documentation**: https://www.blenderkit.com/docs/
+**Installation**: https://www.blendkit.com/get-blenderkit/  
+**Browse Assets**: https://www.blendkit.com/  
+**Documentation**: https://www.blendkit.com/docs/
