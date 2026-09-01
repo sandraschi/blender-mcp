@@ -85,6 +85,8 @@ if (-not $backendReady) {
     exit 1
 }
 Write-Host "  [ok] Backend healthy at $healthUrl" -ForegroundColor DarkGreen
+    # Fleet depot advertise — let depot-mcp know where this repo's depot lives (vault is source, DB derivative)
+    try { & "D:\Dev\repos\mcp-central-docs\scripts\advertise-depot.ps1" -DepotMcpUrl "http://127.0.0.1:10727" } catch {}
 } else {
     Write-Host "  [skip] FrontendOnly -- leaving backend untouched" -ForegroundColor DarkCyan
 }

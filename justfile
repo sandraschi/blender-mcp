@@ -97,3 +97,8 @@ certify: lint
 
 
 # Bootstrap: install dev deps + pre-commit hook
+
+# Fleet depot — advertise this repo's depot to depot-mcp (vault is source, DB derivative)
+# Auto-called from start.ps1 after backend healthy; run manually for stdio mode
+advertise:
+    powershell.exe -NoProfile -File "D:\Dev\repos\mcp-central-docs\scripts\advertise-depot.ps1" -DepotMcpUrl "http://127.0.0.1:10727"
