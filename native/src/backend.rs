@@ -60,71 +60,20 @@ pub fn materialize_backend(app: &AppHandle) -> Result<PathBuf, String> {
     }
     let bundled = resolve_bundled_backend(app)?;
     log_line(app, &format!("using bundled backend: {}", bundled.display()));
-    Ok(bundled)
+    // Strip Windows extended-length path prefix (\\?\) which Command::spawn() rejects.
+    let s = bundled.to_string_lossy().to_string();
+    let clean = if let Some(rest) = s.strip_prefix(r"\\?\") { PathBuf::from(rest) } else { bundled.clone() };
+    Ok(clean)
 }
 
-fn free_port(port: u16) -> bool {
+fn free_port(_port: u16) -> bool {
     #[cfg(windows)]
     {
-        let img_kill = format!(
-            "Stop-Process -Name 'blender-mcp-backend' -Force -ErrorAction SilentlyContinue; \
-             Stop-Process -Name 'blender_mcp_native' -Force -ErrorAction SilentlyContinue; \
-             taskkill /F /IM blender-mcp-backend.exe /T 2>$null; \
-             taskkill /F /IM blender_mcp_native.exe /T 2>$null"
-        );
-        let _ = Command::new("powershell.exe")
-            .args(["-NoProfile", "-Command", &img_kill])
-            .stdout(Stdio::null()).stderr(Stdio::null())
-            .status();
-
-        let port_kill = format!(
-            "Get-NetTCPConnection -LocalPort {port} -ErrorAction SilentlyContinue \
-            | ForEach-Object {{ taskkill /F /PID `$_.OwningProcess /T 2>$null }}"
-        );
-        let _ = Command::new("powershell.exe")
-            .args(["-NoProfile", "-Command", &port_kill])
-            .stdout(Stdio::null()).stderr(Stdio::null())
-            .status();
-
-        let poll_script = format!(
-            "if (Get-NetTCPConnection -LocalPort {port} -ErrorAction SilentlyContinue) {{ 1 }} else {{ 0 }}"
-        );
-        for i in 0..240 {
-            let output = Command::new("powershell.exe")
-                .args(["-NoProfile", "-Command", &poll_script])
-                .stdout(Stdio::piped()).stderr(Stdio::null())
-                .output();
-            let occupied = output.ok().and_then(|o| {
-                String::from_utf8(o.stdout).ok().and_then(|s| s.trim().parse::<u32>().ok())
-            }).unwrap_or(1);
-            if occupied == 0 { return true; }
-
-            if i == 5 {
-                let _ = Command::new("powershell.exe")
-                    .args(["-NoProfile", "-Command", &img_kill])
-                    .status();
-                let _ = Command::new("powershell.exe")
-                    .args(["-NoProfile", "-Command", &port_kill])
-                    .status();
-            }
-            if i == 15 {
-                let elevated = format!(
-                    "Start-Process powershell -Verb RunAs -WindowStyle Hidden -ArgumentList \
-                     '-NoProfile -Command \"Stop-Process -Name blender-mcp-backend -Force -ErrorAction SilentlyContinue; \
-                     taskkill /F /IM blender-mcp-backend.exe /T 2>$null; \
-                     Get-NetTCPConnection -LocalPort {port} -ErrorAction SilentlyContinue | \
-                     ForEach-Object {{ taskkill /F /PID $_.OwningProcess /T 2>$null }}\"'"
-                );
-                let _ = Command::new("powershell.exe")
-                    .args(["-NoProfile", "-Command", &elevated])
-                    .status();
-            }
-            thread::sleep(Duration::from_secs(1));
-        }
-        return false;
+        let img_kill = "Stop-Process -Name 'blender-mcp-backend' -Force -ErrorAction SilentlyContinue; Stop-Process -Name 'blender_mcp_native' -Force -ErrorAction SilentlyContinue; taskkill /F /IM blender-mcp-backend.exe /T 2>$null; taskkill /F /IM blender_mcp_native.exe /T 2>$null";
+        let _ = Command::new("powershell.exe").args(["-NoProfile", "-Command", img_kill]).stdout(Stdio::null()).stderr(Stdio::null()).status();
+        thread::sleep(Duration::from_millis(500));
     }
-    #[cfg(not(windows))]
-    { true }
+    true
 }
 
 fn stop_managed_child(state: &BackendProcess) {

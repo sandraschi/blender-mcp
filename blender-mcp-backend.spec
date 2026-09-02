@@ -1,3 +1,7 @@
+﻿import sys, os
+site_pkgs = os.path.abspath('.venv/Lib/site-packages')
+if site_pkgs not in sys.path:
+    sys.path.insert(0, site_pkgs)
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all, collect_submodules, copy_metadata
 
@@ -24,7 +28,7 @@ a = Analysis(
     optimize=0,
 )
 # Strip .dist-info from all TOC lists (AV locks). Keep packages that need metadata.
-_keep_dist = ['mcp-', 'opentelemetry', 'email_validator-']
+_keep_dist = ['mcp-', 'opentelemetry-', 'opentelemetry_api', 'opentelemetry-api', 'email_validator-']
 _saved = [e for e in a.datas if isinstance(e, tuple) and any(k in str(e[0]) for k in _keep_dist) and '.dist-info' in str(e[0])]
 for _list in [a.datas, a.binaries, a.zipfiles, a.scripts]:
     _list[:] = [e for e in _list if not (isinstance(e, tuple) and '.dist-info' in str(e[0]))]
@@ -53,3 +57,4 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
 )
+
