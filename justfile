@@ -23,15 +23,15 @@ bootstrap:
 lint:
     Set-Location '{{justfile_directory()}}'
     uv run ruff check .
-    cd webapp/frontend && npx @biomejs/biome check .
+    cd webapp/frontend; npx @biomejs/biome check .
 
 # Execute repo-wide auto-fixes and formatting (Ruff + Biome)
 fix:
     Set-Location '{{justfile_directory()}}'
     uv run ruff check . --fix --unsafe-fixes
     uv run ruff format .
-    cd webapp/frontend && npx @biomejs/biome check --apply .
-    cd webapp/frontend && npx @biomejs/biome format --write .
+    cd webapp/frontend; npx @biomejs/biome check --apply .
+    cd webapp/frontend; npx @biomejs/biome format --write .
 
 # --- Testing ---
 
@@ -85,12 +85,12 @@ build-native-debug:
 fmt:
     Set-Location '{{justfile_directory()}}'
     uv run ruff format .
-    cd webapp/frontend && npx @biomejs/biome format --write .
+    cd webapp/frontend; npx @biomejs/biome format --write .
 
 # Run complete certification pipeline: lint + typecheck + test
 certify: lint
     Write-Host "=== TypeScript typecheck ===" -ForegroundColor Yellow
-    cd webapp/frontend && npx tsc --noEmit
+    cd webapp/frontend; npx tsc --noEmit
     Write-Host "=== Python tests ===" -ForegroundColor Yellow
     uv run pytest tests/ -v
     Write-Host "=== Certification PASSED ===" -ForegroundColor Green
