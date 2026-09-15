@@ -4,6 +4,8 @@ Import tools for Blender MCP.
 Provides tools for importing various file formats into Blender.
 """
 
+import asyncio
+
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
 
@@ -242,7 +244,8 @@ async def _direct_cad_conversion(
             if scale_factor != 1.0:
                 cmd.extend(["--scale", str(scale_factor)])
 
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            # CAD meshing runs minutes — never on the event loop.
+            result = await asyncio.to_thread(subprocess.run, cmd, capture_output=True, text=True, timeout=300)
             return result.returncode == 0
 
         return False
