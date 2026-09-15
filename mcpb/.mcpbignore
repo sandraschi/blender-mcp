@@ -1,0 +1,38 @@
+# Logic/Dev Bloat
+.venv/
+node_modules/
+__pycache__/
+.ruff_cache/
+.pytest_cache/
+tests/
+
+# Discovery & Fleet Metadata
+glama.json
+llms.txt
+llms-full.txt
+.git/
+.github/
+.vscode/
+
+# Build Artifacts
+dist/
+build/
+*.mcpb
+
+# Editor / tooling backups (MCPB_PACKAGING_STANDARDS.md section 2.4)
+*.bak
+*.bak.*
+*.bak-*
+*.orig
+*.rej
+
+# Pack build tooling itself -- not runtime code
+mcpb/pack.ps1
+mcpb/verify_pack.py
+pack.ps1
+verify_pack.py
+
+# Non-MCP components detected in this repo
+webapp/
+native/
+scripts/

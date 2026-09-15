@@ -4,11 +4,11 @@ System status and monitoring portmanteau for Blender MCP.
 Exposes blender_status: status, system_info, health_check, performance_monitor.
 """
 
+import asyncio
 import json
 import os
 import platform
 import sys
-import time
 from datetime import datetime
 from typing import Literal
 
@@ -51,10 +51,10 @@ def _register_status_tools():
 
         Args:
             operation: status | system_info | health_check | performance_monitor
-            include_blender_info: For status — include Blender section
-            include_system_info: For status — include system section
-            include_performance: For status — include performance section
-            duration_seconds: For performance_monitor — sampling duration (1-60)
+            include_blender_info: For status - include Blender section
+            include_system_info: For status - include system section
+            include_performance: For status - include performance section
+            duration_seconds: For performance_monitor - sampling duration (1-60)
             format: "json" for webapp dict (status only); "text" for report string
 
         ## Return Format
@@ -83,7 +83,7 @@ def _register_status_tools():
 
             parts = []
             ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            parts.append(f"Blender MCP Status Report — {ts}")
+            parts.append(f"Blender MCP Status Report - {ts}")
             parts.append("=" * 50)
 
             try:
@@ -92,7 +92,7 @@ def _register_status_tools():
                 _ga()
                 parts.append("MCP Server: Running")
             except Exception as e:
-                parts.append(f"MCP Server: Error — {e}")
+                parts.append(f"MCP Server: Error - {e}")
 
             if include_blender_info:
                 parts.append("\nBlender:")
@@ -134,7 +134,7 @@ def _register_status_tools():
         elif operation == "system_info":
             parts = []
             ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            parts.append(f"Blender MCP System Information — {ts}")
+            parts.append(f"Blender MCP System Information - {ts}")
             parts.append("=" * 50)
             parts.append(f"Platform: {platform.system()} {platform.version()}")
             parts.append(f"Architecture: {platform.machine()}")
@@ -172,7 +172,7 @@ def _register_status_tools():
                 _ga()
                 checks.append("MCP Server: OK")
             except Exception as e:
-                checks.append(f"MCP Server: FAIL — {e}")
+                checks.append(f"MCP Server: FAIL - {e}")
                 status = "UNHEALTHY"
 
             try:
@@ -184,7 +184,7 @@ def _register_status_tools():
                     checks.append("Blender: NOT FOUND")
                     status = "UNHEALTHY"
             except Exception as e:
-                checks.append(f"Blender: FAIL — {e}")
+                checks.append(f"Blender: FAIL - {e}")
                 status = "UNHEALTHY"
 
             try:
@@ -196,16 +196,16 @@ def _register_status_tools():
                 if disk.percent > 95:
                     issues.append(f"low disk ({disk.percent:.0f}%)")
                 if issues:
-                    checks.append(f"Resources: WARNING — {', '.join(issues)}")
+                    checks.append(f"Resources: WARNING - {', '.join(issues)}")
                     if status == "HEALTHY":
                         status = "WARNING"
                 else:
                     checks.append("Resources: OK")
             except Exception as e:
-                checks.append(f"Resources: FAIL — {e}")
+                checks.append(f"Resources: FAIL - {e}")
 
             ts = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            lines = [f"Blender MCP Health Check — {ts}", "=" * 50, f"Overall: {status}", "", *checks]
+            lines = [f"Blender MCP Health Check - {ts}", "=" * 50, f"Overall: {status}", "", *checks]
             return "\n".join(lines)
 
         # ------------------------------------------------------------------
@@ -213,6 +213,9 @@ def _register_status_tools():
             duration_seconds = min(max(1, duration_seconds), 60)
             samples = []
             start = datetime.now()
+            # Prime psutil so interval=None below returns real deltas without
+            # blocking; the loop itself must not freeze the event loop either.
+            psutil.cpu_percent(interval=None)
             try:
                 for _ in range(0, duration_seconds, 2):
                     t = datetime.now()
@@ -220,18 +223,18 @@ def _register_status_tools():
                         {
                             "n": len(samples) + 1,
                             "time": t.strftime("%H:%M:%S"),
-                            "cpu": psutil.cpu_percent(interval=1),
+                            "cpu": psutil.cpu_percent(interval=None),
                             "mem": psutil.virtual_memory().percent,
                             "disk": psutil.disk_usage("/").percent,
                         }
                     )
                     if len(samples) * 2 < duration_seconds:
-                        time.sleep(1)
+                        await asyncio.sleep(1)
             except Exception as e:
                 return f"Performance monitoring failed: {e}"
 
             lines = [
-                f"Blender MCP Performance Monitor — {start.strftime('%Y-%m-%d %H:%M:%S')}",
+                f"Blender MCP Performance Monitor - {start.strftime('%Y-%m-%d %H:%M:%S')}",
                 "=" * 60,
                 f"Duration: {duration_seconds}s  Samples: {len(samples)}",
                 "",
@@ -326,7 +329,7 @@ def _register_status_tools():
                 Row(label="Performance", value="Unavailable")
 
         return ToolResult(
-            content=f"Blender MCP Status — Version {__version__}, Blender {'connected' if blender_ok else 'not found'}",
+            content=f"Blender MCP Status - Version {__version__}, Blender {'connected' if blender_ok else 'not found'}",
             structured_content=card,
         )
 
