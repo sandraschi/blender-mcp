@@ -69,12 +69,24 @@ async def import_file(filepath: str, file_format: ImportFormat | str, **kwargs: 
     # Format-specific import options
     options = {"filepath": filepath, "filter_glob": f"*.{file_format.lower()}", **kwargs}
 
-    # Generate the import operator call based on format
+    # Generate the import operator call based on format.
+    # NOTE (fleet fix 2026-09-18): legacy io_* addon operators
+    # (import_scene.obj etc.) do NOT exist under --factory-startup, which the
+    # executor always uses. Prefer Blender 4.x native wm.* importers, which are
+    # built in. The native OBJ importer has no global_scale, so unit scaling
+    # is applied to the imported meshes below.
+    post_scale = 1.0
     if file_format == ImportFormat.OBJ:
-        operator = "bpy.ops.import_scene.obj"
-        options.setdefault("use_split_objects", True)
-        options.setdefault("use_split_groups", True)
-        options.setdefault("global_scale", 1.0)
+        operator = "bpy.ops.wm.obj_import"
+        post_scale = float(kwargs.get("global_scale", 1.0))
+        options = {
+            "filepath": filepath,
+            "forward_axis": "NEGATIVE_Z",
+            "up_axis": "Y",
+            "use_split_objects": kwargs.get("use_split_objects", True),
+            "use_split_groups": kwargs.get("use_split_groups", True),
+            "validate_meshes": kwargs.get("validate_meshes", False),
+        }
 
     elif file_format == ImportFormat.FBX:
         operator = "bpy.ops.import_scene.fbx"
@@ -165,9 +177,21 @@ def import_asset():
     # Find newly imported objects
     imported_objects = list(set(bpy.data.objects) - existing_objects)
 
+    # Unit scaling for native importers without a global_scale knob
+    # (mm CAD exports -> metres). Scales mesh data directly: no context needed.
+    if abs({post_scale} - 1.0) > 1e-12:
+        import mathutils
+        _m = mathutils.Matrix.Scale({post_scale}, 4)
+        for _o in imported_objects:
+            _d = getattr(_o, 'data', None)
+            if _d is not None and hasattr(_d, 'vertices'):
+                _d.transform(_m)
+        _m = None
+
     return {{
         'status': 'SUCCESS',
         'imported_objects': [obj.name for obj in imported_objects],
+        'applied_scale': {post_scale},
         'imported_meshes': [m.name for m in bpy.data.meshes if m.users > 0],
         'imported_materials': [m.name for m in bpy.data.materials if m.users > 0],
         'imported_textures': [t.name for t in bpy.data.images if t.users > 0],
