@@ -73,8 +73,11 @@ async def import_file(filepath: str, file_format: ImportFormat | str, **kwargs: 
     # NOTE (fleet fix 2026-09-18): legacy io_* addon operators
     # (import_scene.obj etc.) do NOT exist under --factory-startup, which the
     # executor always uses. Prefer Blender 4.x native wm.* importers, which are
-    # built in. The native OBJ importer has no global_scale, so unit scaling
-    # is applied to the imported meshes below.
+    # built in. Second trap: the tool wrapper injects global_scale /
+    # use_custom_normals / import_shading into EVERY call, but native wm.*
+    # importers reject unknown kwargs — so every branch builds an EXPLICIT
+    # option set, and unit scaling for ops without a global_scale knob is
+    # applied to the imported meshes below (post_scale).
     post_scale = 1.0
     if file_format == ImportFormat.OBJ:
         operator = "bpy.ops.wm.obj_import"
@@ -90,42 +93,96 @@ async def import_file(filepath: str, file_format: ImportFormat | str, **kwargs: 
 
     elif file_format == ImportFormat.FBX:
         operator = "bpy.ops.import_scene.fbx"
-        options.setdefault("use_manual_orientation", False)
-        options.setdefault("global_scale", 1.0)
-        options.setdefault("use_custom_normals", True)
+        options = {
+            "filepath": filepath,
+            "global_scale": kwargs.get("global_scale", 1.0),
+            "use_manual_orientation": kwargs.get("use_manual_orientation", False),
+            "use_custom_normals": kwargs.get("use_custom_normals", True),
+        }
 
     elif file_format in (ImportFormat.GLTF, ImportFormat.GLB, ImportFormat.VRM):
-        # GLTF, GLB, and VRM all use the same importer
+        # GLTF, GLB, and VRM all use the same importer (no global_scale knob).
+        # 4.x import_shading enum: NORMALS/FLAT/SMOOTH (not legacy "NORMAL");
+        # the tool wrapper injects booleans, so map them (True = file normals).
         operator = "bpy.ops.import_scene.gltf"
-        options.setdefault("import_pack_images", True)
-        options.setdefault("merge_vertices", False)
-        options.setdefault("import_shading", "NORMAL")
+        post_scale = float(kwargs.get("global_scale", 1.0))
+        _shading = kwargs.get("import_shading", "NORMALS")
+        if _shading is True or _shading == "NORMAL":
+            _shading = "NORMALS"
+        elif _shading is False:
+            _shading = "FLAT"
+        options = {
+            "filepath": filepath,
+            "import_pack_images": kwargs.get("import_pack_images", True),
+            "merge_vertices": kwargs.get("merge_vertices", False),
+            "import_shading": _shading,
+        }
 
     elif file_format == ImportFormat.COLLADA:
         operator = "bpy.ops.wm.collada_import"
-        options.setdefault("import_units", False)
-        options.setdefault("fix_orientation", False)
+        post_scale = float(kwargs.get("global_scale", 1.0))
+        options = {
+            "filepath": filepath,
+            "import_units": kwargs.get("import_units", False),
+            "fix_orientation": kwargs.get("fix_orientation", False),
+        }
 
     elif file_format in (ImportFormat.USD, ImportFormat.USDA, ImportFormat.USDC, ImportFormat.USDZ):
         # All USD variants use the same importer
         operator = "bpy.ops.wm.usd_import"
-        options.setdefault("import_meshes", True)
-        options.setdefault("import_materials", True)
-        options.setdefault("import_lights", True)
-        options.setdefault("import_cameras", True)
+        post_scale = float(kwargs.get("global_scale", 1.0))
+        options = {
+            "filepath": filepath,
+            "import_meshes": kwargs.get("import_meshes", True),
+            "import_materials": kwargs.get("import_materials", True),
+            "import_lights": kwargs.get("import_lights", True),
+            "import_cameras": kwargs.get("import_cameras", True),
+        }
 
     elif file_format == ImportFormat.ABC:
         operator = "bpy.ops.wm.alembic_import"
-        options.setdefault("as_background_job", False)
-        options.setdefault("is_sequence", False)
+        post_scale = float(kwargs.get("global_scale", 1.0))
+        options = {
+            "filepath": filepath,
+            "as_background_job": kwargs.get("as_background_job", False),
+            "is_sequence": kwargs.get("is_sequence", False),
+        }
 
     elif file_format == ImportFormat.PLY:
         operator = "bpy.ops.wm.ply_import"
-        options.setdefault("global_scale", 1.0)
+        post_scale = float(kwargs.get("global_scale", 1.0))
+        options = {
+            "filepath": filepath,
+            "forward_axis": "NEGATIVE_Z",
+            "up_axis": "Y",
+        }
 
     elif file_format == ImportFormat.STL:
         operator = "bpy.ops.wm.stl_import"
-        options.setdefault("global_scale", 1.0)
+        post_scale = float(kwargs.get("global_scale", 1.0))
+        options = {
+            "filepath": filepath,
+            "forward_axis": "NEGATIVE_Z",
+            "up_axis": "Y",
+            "use_facet_normal": kwargs.get("use_facet_normal", False),
+        }
+
+    elif file_format == ImportFormat.BVH:
+        operator = "bpy.ops.import_anim.bvh"
+        options = {
+            "filepath": filepath,
+            "global_scale": kwargs.get("global_scale", 1.0),
+        }
+
+    elif file_format == ImportFormat.SVG:
+        operator = "bpy.ops.import_curve.svg"
+        post_scale = float(kwargs.get("global_scale", 1.0))
+        options = {"filepath": filepath}
+
+    elif file_format == ImportFormat.DXF:
+        operator = "bpy.ops.import_scene.dxf"
+        post_scale = float(kwargs.get("global_scale", 1.0))
+        options = {"filepath": filepath}
 
     elif file_format == ImportFormat.BVH:
         operator = "bpy.ops.import_anim.bvh"
