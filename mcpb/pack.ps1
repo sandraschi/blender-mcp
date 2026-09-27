@@ -1,4 +1,4 @@
-#Requires -Version 7
+#Requires -Version 5.1
 <#
 .SYNOPSIS
 Build this repo's .mcpb bundle for Claude Desktop.
@@ -51,7 +51,15 @@ $VerifyScript = Join-Path $McpbDir 'verify_pack.py'
 $entryPointRel = $manifest.server.entry_point
 if (-not $entryPointRel) { throw 'manifest.json has no server.entry_point.' }
 $entryFile = Join-Path $RepoRoot $entryPointRel
-$entryRelToSrc = [System.IO.Path]::GetRelativePath((Join-Path $RepoRoot 'src'), $entryFile)
+# 5.1-safe: [System.IO.Path]::GetRelativePath is .NET Core only (MethodNotFound
+# on Framework 4.x). $entryFile is absolute and in-src entries share the src
+# prefix, so a prefix cut is equivalent here.
+$srcRootForRel = Join-Path $RepoRoot 'src'
+if ($entryFile.StartsWith($srcRootForRel, [System.StringComparison]::OrdinalIgnoreCase)) {
+    $entryRelToSrc = $entryFile.Substring($srcRootForRel.Length).TrimStart('\', '/')
+} else {
+    $entryRelToSrc = '..'
+}
 $entryModule = ($entryRelToSrc -replace '\.py$', '') -replace '[\\/]', '.'
 
 Step 1 'Wipe + fresh-copy src -> mcpb/src (never a stale/hand-edited stage)'
