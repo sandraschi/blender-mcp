@@ -216,4 +216,5 @@ dev = [
     "altgraph>=0.17.4",
     "pyinstaller-hooks-contrib>=2026.6",
     "pre-commit>=3.6.0",
+    "pywin32>=311",
 ]

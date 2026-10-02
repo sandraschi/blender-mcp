@@ -5,7 +5,7 @@
     BackendPort  = 10849
     FrontendPort = 10848
     HealthPath   = '/api/v1/health'
-    WebRoot      = 'D:\Dev\repos\blender-mcp\webapp'
+    WebRoot      = 'webapp\frontend'
     Backend = @{
         Kind          = 'uvicorn'
         UvicornTarget = 'blender_mcp.server:asgi_app'
