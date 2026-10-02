@@ -1,3 +1,11 @@
+## [Unreleased]
+
+### Added
+- **Assfix 2026-10-02 (first full pass, 59/100):** `blender_shutdown` tool (confirm-gated), `GET /api/capabilities` standard endpoint, fixed unbound-variable fallthrough in agentic loop + async `list_tools` handling in CLI
+
+### Changed
+- `.gitignore` now covers `reports/` (assfix working snapshots)
+
 ## [0.11.1] - 2026-08-17
 
 ### Changed
