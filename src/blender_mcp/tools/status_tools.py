@@ -8,6 +8,7 @@ import asyncio
 import json
 import os
 import platform
+import signal
 import sys
 from datetime import datetime
 from typing import Literal
@@ -332,6 +333,23 @@ def _register_status_tools():
             content=f"Blender MCP Status - Version {__version__}, Blender {'connected' if blender_ok else 'not found'}",
             structured_content=card,
         )
+
+    @app.tool(annotations=_DESTRUCTIVE)
+    async def blender_shutdown(confirmed: bool = False) -> str:
+        """Shut down the blender-mcp server process.
+
+        ## Return Format
+        Confirmation prompt or termination notice string
+
+        ## Examples
+        ```python
+        await call_tool("blender_shutdown", {"confirmed": True})
+        ```
+        """
+        if not confirmed:
+            return "Refusing: pass confirmed=true to terminate the blender-mcp server process."
+        os.kill(os.getpid(), signal.SIGTERM)
+        return "blender-mcp server terminating."
 
 
 _register_status_tools()

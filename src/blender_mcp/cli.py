@@ -1,6 +1,8 @@
 """Command-line interface for Blender MCP."""
 
 import argparse
+import asyncio
+import inspect
 import logging
 import sys
 from pathlib import Path
@@ -242,6 +244,8 @@ def list_available_tools():
         app = get_app()
         if app and hasattr(app, "list_tools"):
             tools = app.list_tools()
+            if inspect.isawaitable(tools):
+                tools = asyncio.run(tools)
             print(f"\nFound {len(tools)} registered tools:")
             for tool in tools:
                 print(f"\n- {tool.name}")

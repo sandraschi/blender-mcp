@@ -148,11 +148,45 @@ async def _logs_endpoint(request):
 
 asgi_app.router.routes.append(Route("/api/v1/logs", endpoint=_logs_endpoint, methods=["GET"]))
 
+
+async def _capabilities_endpoint(request):
+    """GET /api/capabilities - standard fleet shape for webapp discovery."""
+    try:
+        from blender_mcp import __version__ as _pkg_version
+    except Exception:
+        _pkg_version = "unknown"
+    tool_names = sorted(t.name for t in await app.list_tools())
+    return JSONResponse(
+        {
+            "service": "blender-mcp",
+            "version": _pkg_version,
+            "status": "ok",
+            "tool_count": len(tool_names),
+            "tools": tool_names,
+            "endpoints": [
+                "/health",
+                "/api/health",
+                "/api/status",
+                "/api/v1/status",
+                "/api/v1/health",
+                "/api/capabilities",
+                "/api/v1/logs",
+                "/api/v1/diagnostics",
+                "/api/skills",
+                "/mcp",
+            ],
+            "transports": ["http", "stdio"],
+        }
+    )
+
+
+asgi_app.router.routes.append(Route("/api/capabilities", endpoint=_capabilities_endpoint, methods=["GET"]))
+
 _server_start_time = datetime.datetime.now()
 
 
 async def _diagnostics_endpoint(request):
-    """GET /api/v1/diagnostics — system status, tool count, uptime, resources."""
+    """GET /api/v1/diagnostics - system status, tool count, uptime, resources."""
     uptime = (datetime.datetime.now() - _server_start_time).total_seconds()
     tool_list = [t.name for t in await app.list_tools()]
     import psutil
@@ -218,7 +252,7 @@ asgi_app.router.routes.append(Route("/api/v1/diagnostics", endpoint=_diagnostics
 
 
 async def _skills_list_endpoint(request):
-    """GET /api/skills — list registered skills from FastMCP resource providers."""
+    """GET /api/skills - list registered skills from FastMCP resource providers."""
     skills = []
     try:
         providers = getattr(app, "_resource_providers", [])
@@ -235,7 +269,7 @@ async def _skills_list_endpoint(request):
 
 
 async def _skills_detail_endpoint(request):
-    """GET /api/skills/{name} — render skill markdown content."""
+    """GET /api/skills/{name} - render skill markdown content."""
     name = request.path_params.get("name", "")
     try:
         providers = getattr(app, "_resource_providers", [])

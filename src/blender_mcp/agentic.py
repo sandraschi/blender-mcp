@@ -121,6 +121,7 @@ async def _run_sep1577_loop(
     messages: list[Any] = [user_message]
     all_tool_calls: list[dict[str, Any]] = []
     step = 0
+    final_text = ""
 
     while step < max_steps:
         step += 1
@@ -164,9 +165,9 @@ async def _run_sep1577_loop(
             tool_summary = "\n".join(f"[{tc['tool']}]: {tc['result']}" for tc in all_tool_calls[-5:])
             messages.append({"role": "user", "content": f"Tool results so far:\n{tool_summary}"})
 
-    # Max steps reached — return whatever we have
+    # Max steps reached - return whatever we have
     return {
-        "output": final_text if "final_text" in dir() else "",
+        "output": final_text,
         "steps": step,
         "tool_calls": all_tool_calls,
         "warning": f"Reached max_steps={max_steps} without a final stop signal.",
@@ -200,7 +201,7 @@ def register_agentic_tools() -> None:
             workflow_prompt: Natural language description of the 3D workflow goal
             available_operations: Optional list of operation names to constrain the plan
             max_steps: Maximum LLM-tool reasoning loops (default: 5)
-            ctx: FastMCP context — injected automatically when client supports sampling
+            ctx: FastMCP context - injected automatically when client supports sampling
 
         Returns:
             dict with success, message (final plan), steps taken, and tool_calls log
@@ -231,10 +232,10 @@ def register_agentic_tools() -> None:
 
         system_prompt = (
             "You are an expert Blender 3D workflow orchestrator using FastMCP 3.1 SEP-1577. "
-            "You have access to capability-probe tools — call them to discover available Blender "
+            "You have access to capability-probe tools - call them to discover available Blender "
             "operations before planning. Then produce a concrete, ordered step-by-step plan that "
             "precisely maps to real Blender operations. Be specific: name the exact operations, "
-            "parameters, and order. Never hallucinate operations — only use what the probes return."
+            "parameters, and order. Never hallucinate operations - only use what the probes return."
         )
         user_message = f"Workflow goal: {workflow_prompt}\n{ops_hint}"
 
@@ -282,7 +283,7 @@ def register_agentic_tools() -> None:
             available_operations: Operations the orchestrator may use
             processing_strategy: "adaptive" | "parallel" | "sequential"
             max_steps: Maximum reasoning loops (default: 5)
-            ctx: FastMCP context — injected when client supports sampling
+            ctx: FastMCP context - injected when client supports sampling
 
         Returns:
             dict with success, message (processing plan), steps taken, and tool_calls log
@@ -361,8 +362,8 @@ def register_agentic_tools() -> None:
         Args:
             user_query: Natural language question about Blender operations
             context_level: "basic" | "comprehensive" | "detailed"
-            max_steps: Maximum reasoning loops (default: 3 — keeps it snappy)
-            ctx: FastMCP context — injected when client supports sampling
+            max_steps: Maximum reasoning loops (default: 3 - keeps it snappy)
+            ctx: FastMCP context - injected when client supports sampling
 
         Returns:
             dict with success, message, and next_steps suggestions
