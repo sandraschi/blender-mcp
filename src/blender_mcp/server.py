@@ -1,4 +1,4 @@
-"""Blender MCP Server - FastMCP 2.14.3 implementation with modular architecture.
+"""Blender MCP Server - FastMCP 3.x implementation with modular architecture.
 
 This module provides the main entry point for the Blender MCP server, which exposes
 various Blender operations as FastMCP tools using the decorator pattern.
@@ -170,6 +170,7 @@ async def _capabilities_endpoint(request):
                 "/api/v1/status",
                 "/api/v1/health",
                 "/api/capabilities",
+                "/api/shutdown",
                 "/api/v1/logs",
                 "/api/v1/diagnostics",
                 "/api/skills",
@@ -181,6 +182,22 @@ async def _capabilities_endpoint(request):
 
 
 asgi_app.router.routes.append(Route("/api/capabilities", endpoint=_capabilities_endpoint, methods=["GET"]))
+
+
+async def _shutdown_endpoint(request):
+    """POST /api/shutdown - orderly exit so the fleet launcher can restart safely."""
+    import threading
+    import time
+
+    def _delayed_exit():
+        time.sleep(0.5)
+        os._exit(0)
+
+    threading.Thread(target=_delayed_exit, daemon=True).start()
+    return JSONResponse({"success": True, "message": "blender-mcp shutting down"})
+
+
+asgi_app.router.routes.append(Route("/api/shutdown", endpoint=_shutdown_endpoint, methods=["POST"]))
 
 _server_start_time = datetime.datetime.now()
 
@@ -216,8 +233,8 @@ async def _diagnostics_endpoint(request):
             resp = _json.loads(body.decode("utf-8"))
             bridge_alive = resp.get("status") == "success"
         s.close()
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Bridge probe failed: %s", e)
 
     return JSONResponse(
         {
@@ -263,8 +280,8 @@ async def _skills_list_endpoint(request):
                     uri = str(r.uri) if hasattr(r, "uri") else str(r)
                     if "/SKILL.md" in uri or "skill://" in uri:
                         skills.append({"uri": uri, "name": uri.split("/")[-2] if "/" in uri else uri})
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Skills list failed: %s", e)
     return JSONResponse({"success": True, "skills": skills, "count": len(skills)})
 
 
@@ -281,8 +298,8 @@ async def _skills_detail_endpoint(request):
                     if f"skill://{name}/SKILL.md" in uri or (f"/{name}/" in uri and "/SKILL.md" in uri):
                         content = await prov.read_resource(uri)
                         return JSONResponse({"success": True, "name": name, "content": str(content)})
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Skill detail failed for %s: %s", name, e)
     return JSONResponse({"success": False, "error": f"Skill '{name}' not found"}, status_code=404)
 
 
@@ -315,7 +332,7 @@ def parse_args():
 
     # Server configuration
     parser.add_argument("--host", type=str, default="127.0.0.1", help="Host to bind the server to")
-    parser.add_argument("--port", type=int, default=8000, help="Port to run the server on")
+    parser.add_argument("--port", type=int, default=10849, help="Port to run the server on")
     parser.add_argument(
         "--mode",
         type=str,
@@ -350,7 +367,7 @@ def get_recent_logs(level_filter=None, module_filter=None, limit=50, since_minut
 
 
 def main():
-    """Main entry point for the Blender MCP server with unified transport (FastMCP 2.14.4+)."""
+    """Main entry point for the Blender MCP server with unified transport (FastMCP 3.x)."""
     from .transport import run_server
 
     # Configure logging before starting
@@ -401,7 +418,7 @@ def main_stdio():
         raise
 
 
-def main_http(host="127.0.0.1", port=10771):
+def main_http(host="127.0.0.1", port=10849):
     """Entry point for HTTP mode - for web-based MCP clients.
 
     Args:

@@ -130,7 +130,7 @@ def validate_with_model(model: type[BaseModel]) -> callable:
             # For tool functions, the first argument is the params dict
             if args and isinstance(args[0], dict):
                 validated = model(**args[0])
-                return func(validated.dict(), *args[1:], **kwargs)
+                return func(validated.model_dump(), *args[1:], **kwargs)
             return func(*args, **kwargs)
 
         return wrapper

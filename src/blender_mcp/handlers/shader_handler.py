@@ -51,7 +51,7 @@ class ShaderOperationResult(BaseModel):
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary, excluding None values."""
-        return {k: v for k, v in self.dict().items() if v is not None}
+        return {k: v for k, v in self.model_dump().items() if v is not None}
 
 
 class ShaderType(StrEnum):

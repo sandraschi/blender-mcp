@@ -100,7 +100,7 @@ def register_tool(
 
         # If we have a validation model, use its schema
         if validation_model is not None and parameters is None:
-            parameters = validation_model.schema()
+            parameters = validation_model.model_json_schema()
 
         # Create the tool with the wrapped function
         @functools.wraps(func)
@@ -111,7 +111,7 @@ def register_tool(
                     try:
                         validated = validation_model(**params)
                         # Convert model to dict for the function
-                        params = validated.dict()
+                        params = validated.model_dump()
                     except ValidationError as e:
                         error_details = {}
                         for error in e.errors():
