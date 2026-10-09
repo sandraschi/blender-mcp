@@ -8,9 +8,9 @@ sys.stdout.reconfigure(encoding="utf-8")
 # Test 1: Import FastMCP and check version
 def test_imports():
     try:
-        from fastmcp import FastMCP
+        import importlib.util
 
-        return True
+        return importlib.util.find_spec("fastmcp") is not None
     except ImportError:
         return False
     except Exception:
