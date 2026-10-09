@@ -382,7 +382,7 @@ async def _generate_construction_script(
         "complex": "Complex: Advanced geometry, rigging, physics, complex materials/textures",
     }.get(complexity, "")
     style_guidance = (
-        f"STYLE GUIDANCE: {style_preset} aesthetic — adapt proportions, materials, and details accordingly."
+        f"STYLE GUIDANCE: {style_preset} aesthetic - adapt proportions, materials, and details accordingly."
         if style_preset
         else ""
     )
@@ -553,7 +553,7 @@ async def _validate_construction_script(script: str) -> ScriptValidationResult:
             warnings.append("Many Blender API calls - consider optimization")
 
         # Check for proper error handling
-        if "try:" not in script or "except:" not in script:
+        if "try:" not in script or "except Exception:" not in script:
             warnings.append("Missing error handling")
 
         # Check for object naming
@@ -586,7 +586,7 @@ async def _execute_construction_script(
 
         executor = get_blender_executor()
 
-        # Wrap script to report created objects — ensure bpy is imported
+        # Wrap script to report created objects - ensure bpy is imported
         detection_script = (
             script
             + """
@@ -613,8 +613,8 @@ except Exception as _det_err:
             if line.startswith("CREATED_OBJECTS:"):
                 try:
                     created_objects = json.loads(line[len("CREATED_OBJECTS:") :])
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug("CREATED_OBJECTS parse failed: %s", e)
 
         return {
             "success": True,

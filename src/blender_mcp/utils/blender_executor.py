@@ -578,5 +578,5 @@ except Exception as user_error:
         """Destructor to ensure cleanup."""
         try:
             self.cleanup()
-        except Exception:
-            pass  # Ignore errors in destructor
+        except Exception as e:
+            logger.debug("Destructor cleanup failed: %s", e)

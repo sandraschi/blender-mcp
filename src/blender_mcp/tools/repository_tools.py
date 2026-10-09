@@ -57,8 +57,8 @@ def _load_index() -> dict[str, Any]:
         try:
             with open(INDEX_FILE, encoding="utf-8") as f:
                 return json.load(f)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Repository index read failed: %s", e)
     return {"models": [], "last_updated": datetime.now().isoformat()}
 
 
@@ -129,8 +129,8 @@ def _get_next_version(model_dir: Path) -> str:
                 data = json.load(f)
             major, minor, patch = map(int, data.get("version", "0.0.0").split("."))
             return f"{major}.{minor}.{patch + 1}"
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Version bump parse failed: %s", e)
     return "1.0.0"
 
 
@@ -187,8 +187,8 @@ async def _find_construction_script(object_name: str) -> str | None:
                         meta = json.load(f)
                     script = meta.get("construction_script", "").strip()
                     return script if script else None
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug("Construction script read failed: %s", e)
     return None
 
 
@@ -220,7 +220,7 @@ async def _save_object(
 
     # Export the object via the Blender session bridge (preferred) or executor fallback.
     #
-    # The executor runs `blender --background --factory-startup` — a fresh empty session.
+    # The executor runs `blender --background --factory-startup` - a fresh empty session.
     # To export an object from the USER'S running scene we first try the session bridge:
     #   POST /api/v1/blender/exec → picked up by blender_bridge_addon.py in Blender
     #   Bridge executes the export script in the live session and returns output.
@@ -274,7 +274,7 @@ else:
             output = bridge_result["output"]
             session_used = True
         else:
-            # Bridge not connected — fall back to executor
+            # Bridge not connected - fall back to executor
             output = await executor.execute_script(export_script, script_name="save_obj_export")
     except Exception:
         try:
@@ -496,7 +496,7 @@ async def _search_objects(
         if min_quality is not None and model.get("estimated_quality", 0) < min_quality:
             continue
 
-        # Complexity (stored in full metadata, not index summary — skip if not present)
+        # Complexity (stored in full metadata, not index summary - skip if not present)
         # complexity filter is best-effort at index level
 
         results.append(model)
@@ -560,7 +560,7 @@ async def _execute_modification_script(script: str, object_name: str) -> dict[st
 
 
 async def _get_asset_from_repository(asset_id: str) -> dict[str, Any] | None:
-    """Load asset data from repository metadata — real implementation."""
+    """Load asset data from repository metadata - real implementation."""
     obj_dir = REPO_BASE / asset_id
     meta_file = obj_dir / "metadata.json"
     if not meta_file.exists():
@@ -614,7 +614,7 @@ class PlatformExportEngine:
 
 
 class VRChatExportEngine(PlatformExportEngine):
-    """VRChat-specific export engine — exports FBX via Blender."""
+    """VRChat-specific export engine - exports FBX via Blender."""
 
     def __init__(self):
         super().__init__("vrchat")
@@ -707,7 +707,7 @@ print("EXPORT_FBX_OK:" + {json.dumps(str(fbx_path))})
 
 
 class ResoniteExportEngine(PlatformExportEngine):
-    """Resonite-specific export engine — exports GLB via Blender."""
+    """Resonite-specific export engine - exports GLB via Blender."""
 
     def __init__(self):
         super().__init__("resonite")

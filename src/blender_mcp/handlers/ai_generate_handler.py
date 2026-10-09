@@ -106,8 +106,8 @@ print("AI_IMPORT_OBJECTS:" + json.dumps(imported))
 
             try:
                 imported = _json.loads(line[len("AI_IMPORT_OBJECTS:") :])
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug("AI_IMPORT_OBJECTS parse failed: %s", e)
 
     return {
         "success": True,
