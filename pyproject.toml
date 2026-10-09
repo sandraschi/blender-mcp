@@ -188,6 +188,7 @@ ignore = ["S101", "B008", "E501", "S101", "B008", "E501", "E402", "B904", "S101"
 "src/blender_mcp/utils/**" = ["F403", "F405"]
 "webapp/backend/tests/**" = ["T201"]
 "webapp/backend/tests/run_tests.py" = ["T201"]
+"mcpb/verify_pack.py" = ["T201"]
 "verify_tools.py" = ["T201"]
 "setup.py" = ["T201"]
 "examples/**" = ["T201"]

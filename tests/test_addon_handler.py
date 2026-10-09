@@ -140,5 +140,7 @@ class TestManageBlenderAddonsTool:
         try:
             data = _json.loads(content) if isinstance(content, str) else content
             assert data.get("success") is False or "error" in str(data).lower()
-        except Exception:
-            pass  # If parsing fails, at least the call didn't crash
+        except Exception as e:
+            import logging as _logging
+
+            _logging.getLogger(__name__).debug("Addon error-path parse failed: %s", e)

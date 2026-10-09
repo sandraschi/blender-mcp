@@ -84,7 +84,7 @@ class TestServerFunctionality:
 
         try:
             # Import the server module which imports all handlers
-            import blender_mcp.server
+            import blender_mcp.server  # noqa: F401 - availability probe, import success is the assertion
 
             # If we get here without exceptions, imports succeeded
             assert True

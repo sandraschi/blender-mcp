@@ -32,7 +32,7 @@ class TestSmokeLevel:
     def test_server_can_import(self, megatest_config):
         """Test that server module can be imported."""
         try:
-            import blender_mcp.server
+            import blender_mcp.server  # noqa: F401 - availability probe, import success is the assertion
 
             assert True, "Server import successful"
         except ImportError as e:
@@ -41,7 +41,7 @@ class TestSmokeLevel:
     def test_tools_can_import(self, megatest_config):
         """Test that tools module can be imported."""
         try:
-            import blender_mcp.tools
+            import blender_mcp.tools  # noqa: F401 - availability probe, import success is the assertion
 
             assert True, "Tools import successful"
         except ImportError as e:
@@ -50,7 +50,7 @@ class TestSmokeLevel:
     def test_config_can_import(self, megatest_config):
         """Test that config module can be imported."""
         try:
-            import blender_mcp.config
+            import blender_mcp.config  # noqa: F401 - availability probe, import success is the assertion
 
             assert True, "Config import successful"
         except ImportError as e:
@@ -87,7 +87,9 @@ class TestSmokeLevel:
     def test_blender_executor_import(self, megatest_config):
         """Test that Blender executor can be imported."""
         try:
-            from blender_mcp.utils.blender_executor import BlenderExecutor
+            from blender_mcp.utils.blender_executor import (
+                BlenderExecutor,  # noqa: F401 - availability probe, import success is the assertion
+            )
 
             assert True, "BlenderExecutor import successful"
         except ImportError as e:

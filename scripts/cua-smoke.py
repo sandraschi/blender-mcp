@@ -27,12 +27,15 @@ Phases (planned Phase 3): nav sidebar click-through, floating chat visibility.
 
 import argparse
 import json
+import logging
 import os
 import subprocess
 import sys
 import time
 import urllib.error
 import urllib.request
+
+logger = logging.getLogger("cua-smoke")
 
 # ── Config ────────────────────────────────────────────────────────────
 
@@ -128,6 +131,7 @@ def log_warn(msg: str):
 try:
     import pywinauto
     import pywinauto.findwindows
+
     _HAS_PYWAUTO = True
 except ImportError:
     _HAS_PYWAUTO = False
@@ -175,9 +179,13 @@ def cua_find_window(title_re: str = "", retry_seconds: int = 10) -> dict | None:
                 rect = win.rectangle()
                 w = rect.width if isinstance(rect.width, int) else rect.width()
                 h = rect.height if isinstance(rect.height, int) else rect.height()
-                return {"handle": handle, "title": win.window_text(), "rect": {"left": rect.left, "top": rect.top, "width": w, "height": h}}
-        except Exception:
-            pass
+                return {
+                    "handle": handle,
+                    "title": win.window_text(),
+                    "rect": {"left": rect.left, "top": rect.top, "width": w, "height": h},
+                }
+        except Exception as e:
+            logger.debug("Window rect read failed: %s", e)
         if time.monotonic() >= deadline:
             return None
         time.sleep(1)
@@ -215,17 +223,20 @@ def cua_ocr_text(window_handle: int = 0, image_path: str = "") -> str:
     """Run OCR on a window screenshot. Returns text."""
     try:
         import pytesseract
+
         pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
         if image_path and os.path.exists(image_path):
             from PIL import Image
+
             return pytesseract.image_to_string(Image.open(image_path))
         if window_handle:
             from PIL import Image
+
             capture = cua_screenshot(window_handle, f"{image_path or 'capture'}.png")
             if capture and os.path.exists(capture):
                 return pytesseract.image_to_string(Image.open(capture))
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("OCR read failed: %s", e)
     return ""
 
 
@@ -233,9 +244,10 @@ def cua_click(window_handle: int, x: int, y: int):
     """Click at (x,y) relative to window."""
     try:
         import pywinauto.mouse
+
         pywinauto.mouse.click(button="left", coords=(x, y))
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Mouse click failed at (%s, %s): %s", x, y, e)
 
 
 def _release_mouse():
@@ -246,21 +258,23 @@ def _release_mouse():
     click handler is bound - Escape clears that before the next step."""
     try:
         import ctypes
+
         MOUSEEVENTF_LEFTUP = 0x0004
         MOUSEEVENTF_RIGHTUP = 0x0010
         MOUSEEVENTF_MIDDLEUP = 0x0040
         for flag in (MOUSEEVENTF_LEFTUP, MOUSEEVENTF_RIGHTUP, MOUSEEVENTF_MIDDLEUP):
             ctypes.windll.user32.mouse_event(flag, 0, 0, 0, 0)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Mouse release failed: %s", e)
     try:
         import ctypes
+
         VK_ESCAPE = 0x1B
         KEYEVENTF_KEYUP = 0x0002
         ctypes.windll.user32.keybd_event(VK_ESCAPE, 0, 0, 0)
         ctypes.windll.user32.keybd_event(VK_ESCAPE, 0, KEYEVENTF_KEYUP, 0)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Escape key failed: %s", e)
 
 
 # ── Helpers ───────────────────────────────────────────────────────────
@@ -355,13 +369,14 @@ def _foreground_and_maximize(handle: int):
     captured unrelated desktop content (a notes window) instead of the app."""
     try:
         import pywinauto
+
         app = pywinauto.Application(backend="uia").connect(handle=handle)
         w = app.window(handle=handle)
         w.set_focus()
         w.maximize()
         time.sleep(1)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Window focus/maximize failed: %s", e)
 
 
 def verify_window():
@@ -515,6 +530,7 @@ def _verify_page_ocr(text: str, label: str, expected: str) -> bool:
 def _nav_click_element(win_handle: int, wx: int, wy: int, idx: int, label: str = ""):
     """Click a nav item. Tries title-based UIA matching first, then index, then coordinates."""
     import pywinauto
+
     app = pywinauto.Application(backend="uia").connect(handle=win_handle)
     w = app.window(handle=win_handle)
 
@@ -526,16 +542,16 @@ def _nav_click_element(win_handle: int, wx: int, wy: int, idx: int, label: str =
             if link:
                 link[0].click_input()
                 return
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Nav click by title failed for %s: %s", label, e)
         try:
             elements = w.descendants(control_type="Hyperlink")
             el = [e for e in elements if label.lower() in (e.window_text() or "").lower()]
             if el:
                 el[0].click_input()
                 return
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Nav click by hyperlink failed for %s: %s", label, e)
 
     # Fallback: positional Hyperlink
     try:
@@ -543,8 +559,8 @@ def _nav_click_element(win_handle: int, wx: int, wy: int, idx: int, label: str =
         if idx < len(elements):
             elements[idx].click_input()
             return
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Nav click by index failed: %s", e)
     # Try Pane (some WebView versions)
     try:
         elements = w.descendants(control_type="Pane")
@@ -553,8 +569,8 @@ def _nav_click_element(win_handle: int, wx: int, wy: int, idx: int, label: str =
         if idx < len(nav_elements_sorted):
             nav_elements_sorted[idx].click_input()
             return
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Nav click by pane failed: %s", e)
 
     # Fallback to coordinate click
     click_x = wx + int(cfg("sidebar_click_x", 30))
@@ -570,7 +586,10 @@ def nav_click_through(output_dir: str):
     _release_mouse()
     _show_automation_warning()
 
-    nav_routes = cfg("nav_routes", [["Dashboard", "Automation Dashboard"], ["Logging", "Logs"], ["Settings", "Settings"], ["Help", "Help"]])
+    nav_routes = cfg(
+        "nav_routes",
+        [["Dashboard", "Automation Dashboard"], ["Logging", "Logs"], ["Settings", "Settings"], ["Help", "Help"]],
+    )
     nav_routes = [(r[0], r[1]) for r in nav_routes if len(r) >= 2]
     win = cua_find_window(WINDOW_TITLE_RE)
     if not win:
