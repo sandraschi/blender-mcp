@@ -18,6 +18,26 @@ with glowing eyes and watch it build in Blender.
 | [**Blender**](https://www.blender.org/download/) | 3D app (install separately, never bundled) |
 | [**blender_bridge_addon.py**](https://github.com/sandraschi/blender-mcp/releases/latest/download/blender_bridge_addon.py) *(optional)* | Live viewport only — skip for headless use |
 
+**Claude Desktop one-liner** (downloads + runs the installer from the latest release):
+
+```powershell
+irm https://github.com/sandraschi/blender-mcp/releases/latest/download/install.ps1 | iex
+```
+
+Other MCP clients (manual config via uvx):
+
+```json
+{
+  "mcpServers": {
+    "blender-mcp": {
+      "command": "uvx",
+      "args": ["blender-mcp"],
+      "env": { "BLENDER_EXECUTABLE": "C:\\Program Files\\Blender Foundation\\Blender 4.4\\blender.exe" }
+    }
+  }
+}
+```
+
 **Steps**
 
 1. Download the `.mcpb` from [Releases](https://github.com/sandraschi/blender-mcp/releases/latest)
@@ -58,15 +78,18 @@ Install [Blender](https://www.blender.org/download/) separately; it is never bun
 | **Hands-out** | `.blend` (saved scene) | After agent edit session — headless or live bridge |
 | **Hands-out** | Viewport PNG, MP4 (VSE), Gaussian splats | `blender_render`, `blender_vse`, splat tools — **headless** |
 
-### Fleet pipelines (downstream)
+## Fleet Crossconnects (Companions)
 
-| Downstream MCP | Takes from blender-mcp |
-|----------------|------------------------|
-| [godot-mcp](https://github.com/sandraschi/godot-mcp) | `.glb` / `.gltf` game assets |
-| [vrchat-mcp](https://github.com/sandraschi/vrchat-mcp) | `.vrm` after validation |
-| [tahoma2d-mcp](https://github.com/sandraschi/tahoma2d-mcp) | Rendered image sequences / GP output |
-| [freecad-mcp](https://github.com/sandraschi/freecad-mcp) | `.step` via intermediate export |
-| [unity3d-mcp](https://github.com/sandraschi/unity3d-mcp) | `.fbx` / `.glb` for Unity import |
+`blender-mcp` works completely standalone. You can optionally connect it with companion servers in the `sandraschi` fleet to unlock extended features:
+
+| Companion Server | Feature Unlocked | Status | Setup |
+|---|---|---|---|
+| [`qcad-mcp`](https://github.com/sandraschi/qcad-mcp) | dxf-svg-exchange, 2d-cad-to-3d-scene | Optional | [Install Guide](https://github.com/sandraschi/qcad-mcp#quick-install) |
+| [`freecad-mcp`](https://github.com/sandraschi/freecad-mcp) | step-cad-import, mechanical-visualization | Optional | [Install Guide](https://github.com/sandraschi/freecad-mcp#quick-install) |
+| [`resonite-mcp`](https://github.com/sandraschi/resonite-mcp) | gltf-export-to-vr, avatar-mesh-pipeline | Optional | [Install Guide](https://github.com/sandraschi/resonite-mcp#quick-install) |
+| [`speech-mcp`](https://github.com/sandraschi/speech-mcp) | task-completion-readout, render-completion-announcements | Optional | [Install Guide](https://github.com/sandraschi/speech-mcp#quick-install) |
+
+> **Self-Contained Companions**: Fleet companions operate independently. Installing companions does not trigger transitive dependency chains.
 
 ## Features
 

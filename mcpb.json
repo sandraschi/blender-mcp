@@ -1,11 +1,11 @@
 {
   "name": "blender-mcp",
-  "version": "1.0.0",
+  "version": "0.11.1",
   "type": "server",
   "runtime": "python",
   "entry_point": "src/blender_mcp/server.py",
   "dependencies": [
-    "fastmcp>=2.14.4,<3.0.0",
+    "fastmcp>=3.4.4,<4",
     "bpy>=4.0.0"
   ],
   "build": {
