@@ -1,4 +1,4 @@
-"""AI chat tool for Blender MCP — reads blender-expert SKILL.md as system context."""
+"""AI chat tool for Blender MCP - reads blender-expert SKILL.md as system context."""
 
 import logging
 from pathlib import Path

@@ -9,7 +9,7 @@ Exposes a `blender_session` portmanteau tool for:
 - demo: run a built-in demo scene in Blender
 
 The session bridge addon (addon/blender_bridge_addon.py) is required for
-run_script and demo operations — the addon provides the /api/v1/blender/exec
+run_script and demo operations - the addon provides the /api/v1/blender/exec
 endpoint that allows the MCP server to execute code inside the live session.
 """
 
@@ -74,11 +74,11 @@ def _register_session_tools() -> None:
 
         Args:
             operation: status | start | stop | run_script | demo
-            blend_file: for start — path to a .blend file to open (optional)
-            script: for run_script — Python code to execute in Blender
-            script_name: for run_script — label for the script
-            demo_name: for demo — which demo to run
-            timeout: for run_script/demo — seconds to wait for bridge response
+            blend_file: for start - path to a .blend file to open (optional)
+            script: for run_script - Python code to execute in Blender
+            script_name: for run_script - label for the script
+            demo_name: for demo - which demo to run
+            timeout: for run_script/demo - seconds to wait for bridge response
 
         Returns:
             Dict with success, message, and operation-specific fields.

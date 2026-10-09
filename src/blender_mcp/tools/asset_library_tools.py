@@ -96,7 +96,7 @@ def _register_asset_library_tools() -> None:
         - info: Capabilities and env vars (SKETCHFAB_API_TOKEN).
         - polyhaven_categories: List category counts for hdris | textures | models.
         - polyhaven_search: Search catalog (uses api.polyhaven.com/assets).
-        - polyhaven_import: Download + import — HDRIs set as world env; textures/models via files API bundles.
+        - polyhaven_import: Download + import - HDRIs set as world env; textures/models via files API bundles.
         - sketchfab_search: Sketchfab v3 search (requires token).
         - sketchfab_import: Download + import glTF from Sketchfab (requires token + downloadable model).
 

@@ -39,7 +39,7 @@ def _register_api_docs_tools() -> None:
         """
         try:
             if search.strip():
-                # Simple discovery hint — full search would need an index
+                # Simple discovery hint - full search would need an index
                 guess = normalize_identifier(search.strip())
                 doc = fetch_api_doc(guess)
                 doc["search_term"] = search

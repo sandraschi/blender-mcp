@@ -32,7 +32,7 @@ def _register_addon_tools() -> None:
         enabled_only: bool = False,
     ) -> dict[str, Any]:
         """
-        Blender addon management (compatibility alias — prefer blender_addons).
+        Blender addon management (compatibility alias - prefer blender_addons).
 
         Operations mirror blender_addons: search, install_known, install_url,
         list_installed, enable, disable, info.
