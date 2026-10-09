@@ -1,4 +1,4 @@
-"""Blender MCP — AI-powered 3D creation and automation via FastMCP."""
+"""Blender MCP - AI-powered 3D creation and automation via FastMCP."""
 
 __version__ = "0.11.1"
 __author__ = "Blender MCP Contributors"

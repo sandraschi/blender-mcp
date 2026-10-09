@@ -1,8 +1,8 @@
-# Blender MCP — Project Assessment
+# Blender MCP -- Project Assessment
 
 **Assessment Date**: 2026-03-29
 **Version**: 0.4.2
-**Status**: Active Development — Production-Grade Core, Continued Feature Work
+**Status**: Active Development -- Production-Grade Core, Continued Feature Work
 
 ---
 
@@ -52,25 +52,25 @@ scaffold.
 ## What Was Fixed in 0.4.0
 
 ### Critical Bugs
-- `splatting_handler.py`: top-level `import bpy` crashed MCP server on startup —
+- `splatting_handler.py`: top-level `import bpy` crashed MCP server on startup --
   rewritten to executor subprocess pattern
 - `construct_tools.py`: called nonexistent `execute_blender_script(timeout_seconds=...,
-  max_memory_mb=...)` — fixed to `executor.execute_script(timeout=120)`
+  max_memory_mb=...)` -- fixed to `executor.execute_script(timeout=120)`
 - `download_tools.py`: synchronous `requests.get()` in async tool blocked the event
-  loop — replaced with async `httpx.AsyncClient` streaming
+  loop -- replaced with async `httpx.AsyncClient` streaming
 
 ### Stubs Replaced (all previously returned mock data or unconditional `True`)
-- `_get_object_info` — real Blender executor call
-- `_find_construction_script` — searches repository index JSON
-- `_save_object` — exports glTF/blend via executor; writes metadata; updates index;
+- `_get_object_info` -- real Blender executor call
+- `_find_construction_script` -- searches repository index JSON
+- `_save_object` -- exports glTF/blend via executor; writes metadata; updates index;
   documents session_required limitation
-- `_load_object` — appends .blend via `bpy.data.libraries.load`
-- `_list_objects` / `_search_objects` — real index reads with filter support
-- `_create_object_backup` — duplicates object in Blender, hides from viewport/render
-- `_execute_modification_script` — runs via executor, returns real output
-- `_get_asset_from_repository` — reads metadata.json from disk
-- `VRChatExportEngine.export_blend_file` — real FBX via executor
-- `ResoniteExportEngine.export_blend_file` — real GLB via executor
+- `_load_object` -- appends .blend via `bpy.data.libraries.load`
+- `_list_objects` / `_search_objects` -- real index reads with filter support
+- `_create_object_backup` -- duplicates object in Blender, hides from viewport/render
+- `_execute_modification_script` -- runs via executor, returns real output
+- `_get_asset_from_repository` -- reads metadata.json from disk
+- `VRChatExportEngine.export_blend_file` -- real FBX via executor
+- `ResoniteExportEngine.export_blend_file` -- real GLB via executor
 
 ### New Capabilities
 - `manage_blender_addons` MCP tool: search, install_known, install_url,
@@ -102,7 +102,7 @@ scaffold.
 ### Pydantic Compat
 - `_model_dump()` shim added to `construct_tools` and imported into
   `repository_tools`; all `validation.dict()` and `validation.model_dump()` calls
-  replaced with `_model_dump(validation)` — works on both pydantic v1 and v2
+  replaced with `_model_dump(validation)` -- works on both pydantic v1 and v2
 
 ### Repository Save Session Context
 - `_save_object` now documents that `--factory-startup` executor starts a fresh empty
@@ -121,22 +121,22 @@ scaffold.
 - `compat.py`: replaced `Tool = None` / `FunctionTool = None` pre-assignment footgun
   with direct eager imports that fail loudly with a clear install message
 - Orphan files removed: `server_fixed.py`, `server_new.py`, `server_fixed.bak`,
-  `update_imports.py` — all pre-refactor artefacts
+  `update_imports.py` -- all pre-refactor artefacts
 - All `.bak` files from the editing session deleted
 
 ### Test Scaffold
 - `tests/conftest.py` created: session-scoped event loop, autouse env/repo path
   patching, `make_mock_executor`, `mock_ctx`, `repo_dir` fixtures, marker registration
-- `tests/test_construct_tools.py`: 25 tests — `_model_dump`, validation, extraction,
+- `tests/test_construct_tools.py`: 25 tests -- `_model_dump`, validation, extraction,
   context gathering, reference object analysis, script generation (with prompt content
   verification), execution, summary
 - `tests/test_fixes_0_4_1.py`: session_required path, construct_and_save short-circuit,
   search edge cases, JSON-serialisable output
-- `tests/test_repository.py`: 15 tests — object info, save, list, search, find script,
+- `tests/test_repository.py`: 15 tests -- object info, save, list, search, find script,
   get asset
-- `tests/test_addon_handler.py`: 8 tests — search, addons dir, install from URL,
+- `tests/test_addon_handler.py`: 8 tests -- search, addons dir, install from URL,
   tool registration
-- `tests/test_splatting.py`: 9 tests — import (file not found/bad format/no
+- `tests/test_splatting.py`: 9 tests -- import (file not found/bad format/no
   operator/success/crash), collision mesh, Resonite export
 
 ---
@@ -173,7 +173,7 @@ All Blender operations run via `BlenderExecutor.execute_script(script, timeout=N
 4. Parse structured output via sentinel prefixes (`GS_RESULT:`, `OBJ_INFO:`,
    `EXPORT_OK:`, `SCENE_CTX:`, `REF_OBJ:`, etc.)
 
-**Session limitation**: The executor always starts fresh — objects from the user's
+**Session limitation**: The executor always starts fresh -- objects from the user's
 running Blender are not present. Operations that need the active session (save, backup)
 work correctly when called from the MCP HTTP bridge with a running Blender instance,
 or from a Blender addon.

@@ -1,4 +1,4 @@
-﻿# Per-repo fleet start config for blender-mcp
+# Per-repo fleet start config for blender-mcp
 # Edit ports/backend target here - start.ps1 is fleet-standard.
 @{
     Name         = 'blender-mcp'
@@ -10,6 +10,7 @@
         Kind          = 'uvicorn'
         UvicornTarget = 'blender_mcp.server:asgi_app'
         SyncExtras    = @('dev')
+        SyncOnStart  = $true
         Env           = @{ WEB_PORT = '10849' }
     }
     Frontend = @{

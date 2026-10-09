@@ -2,6 +2,7 @@
 
 mod backend;
 use backend::{spawn_backend, BackendProcess};
+use std::io::Write;
 use std::sync::Mutex;
 use tauri::{Emitter, Manager};
 
@@ -43,8 +44,21 @@ fn main() {
         .build(tauri::generate_context!())
         .expect("error building tauri application")
         .run(|app, event| {
+            let name = match &event {
+                tauri::RunEvent::Exit => "Exit".to_string(),
+                tauri::RunEvent::ExitRequested { .. } => "ExitRequested".to_string(),
+                tauri::RunEvent::WindowEvent { label, event: we, .. } => {
+                    let kind = if matches!(we, tauri::WindowEvent::CloseRequested { .. }) { "CloseRequested" } else if matches!(we, tauri::WindowEvent::Destroyed) { "Destroyed" } else if matches!(we, tauri::WindowEvent::Focused(_)) { "Focused" } else if matches!(we, tauri::WindowEvent::Resized(_)) { "Resized" } else { "OtherWinEvent" };
+                    format!("WindowEvent[{label}]={kind}")
+                }
+                tauri::RunEvent::Ready => "Ready".to_string(),
+                tauri::RunEvent::Resumed => "Resumed".to_string(),
+                tauri::RunEvent::MainEventsCleared => "MainEventsCleared".to_string(),
+                _ => "Other".to_string(),
+            };
+            let _ = std::fs::OpenOptions::new().create(true).append(true).open("C:\\Temp\\blender-events.log").and_then(|mut f| writeln!(f, "event: {name}"));
             if let tauri::RunEvent::Exit = event {
-                // Gate G: kill + wait to release exe lock before NSIS uninstall
+                let _ = std::fs::OpenOptions::new().create(true).append(true).open("C:\\Temp\\blender-events.log").and_then(|mut f| writeln!(f, "EXIT EVENT fired"));
                 if let Some(mut child) = app.state::<BackendProcess>().0.lock().unwrap().take() {
                     let _ = child.kill();
                     let _ = child.wait();
