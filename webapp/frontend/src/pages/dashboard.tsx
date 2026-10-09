@@ -1,5 +1,6 @@
 import { Activity, Box, Cpu, FileCode2, LayoutDashboard, RefreshCw, Server, Terminal, Wrench } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getBackendHealth, getDiagnostics, getStatus } from "../api/mcp";
 import { useTauri } from "../hooks/useTauri";
 
@@ -108,6 +109,13 @@ export default function Dashboard() {
           <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">Python Scripting</span>
           <span className="px-3 py-1 bg-white/5 rounded-full border border-white/10">AI Agent Integration</span>
         </div>
+        <Link
+          to="/help"
+          data-testid="onboarding-cue"
+          className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 text-base font-semibold bg-red-600 text-white rounded-lg hover:bg-red-500 transition-colors"
+        >
+          New here? Start onboarding
+        </Link>
       </div>
 
       {/* Status cards */}
