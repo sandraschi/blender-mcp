@@ -1,7 +1,7 @@
 """Execute Blender Python with live GUI session preferred over headless subprocess.
 
 Connection priority:
-1. TCP socket bridge (new v2 addon — fastest, bidirectional)
+1. TCP socket bridge (new v2 addon - fastest, bidirectional)
 2. HTTP poll bridge (legacy v1 addon)
 3. Headless subprocess (blender --background, always works)
 """
@@ -18,7 +18,7 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Config — env vars
+# Config - env vars
 # ---------------------------------------------------------------------------
 
 BRIDGE_HOST = os.environ.get("BLENDER_BRIDGE_HOST", os.environ.get("BLENDER_HOST", "127.0.0.1"))
@@ -27,7 +27,7 @@ BRIDGE_TIMEOUT = int(os.environ.get("BLENDER_BRIDGE_TIMEOUT", "180"))
 
 
 # ---------------------------------------------------------------------------
-# v2 — TCP socket bridge (unidirectional: MCP server → Blender addon)
+# v2 - TCP socket bridge (unidirectional: MCP server → Blender addon)
 # ---------------------------------------------------------------------------
 
 
@@ -63,8 +63,8 @@ def _send_socket_cmd(host: str, port: int, cmd: dict, timeout: int = BRIDGE_TIME
     finally:
         try:
             sock.close()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug("Bridge socket close failed: %s", e)
 
 
 async def exec_via_socket_bridge(script: str, timeout: int = BRIDGE_TIMEOUT) -> dict[str, Any] | None:
@@ -106,7 +106,7 @@ async def exec_via_socket_bridge(script: str, timeout: int = BRIDGE_TIMEOUT) -> 
 
 
 # ---------------------------------------------------------------------------
-# v1 — HTTP poll bridge (legacy)
+# v1 - HTTP poll bridge (legacy)
 # ---------------------------------------------------------------------------
 
 
@@ -125,7 +125,7 @@ async def _exec_via_http_poll(script: str, script_name: str = "exec", timeout: i
 
 
 # ---------------------------------------------------------------------------
-# Fallback — headless subprocess
+# Fallback - headless subprocess
 # ---------------------------------------------------------------------------
 
 

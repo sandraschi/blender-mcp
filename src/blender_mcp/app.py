@@ -151,7 +151,7 @@ async def _exec_in_blender_session(script: str, script_name: str = "exec", timeo
                 "session_used": True,
             }
 
-    # Timeout — clean up
+    # Timeout - clean up
     _session_tasks.pop(task_id, None)
     return {
         "success": False,
@@ -205,7 +205,7 @@ def _register_fleet_api(app):
     async def mcp_tool_bridge(request: Request):
         """Bridge endpoint for webapp and Blender addons to call MCP tools.
 
-        Blender session bridge usage — paste this in Blender's Script Editor
+        Blender session bridge usage - paste this in Blender's Script Editor
         to call save/backup operations from within the running Blender session:
 
             import urllib.request, json

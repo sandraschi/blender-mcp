@@ -60,8 +60,8 @@ def _update_jobs_gauge() -> None:
 
         active = sum(1 for job in _jobs.values() if job.status in (JobStatus.PENDING, JobStatus.RUNNING))
         set_jobs_active(active)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.debug("Jobs gauge update failed: %s", e)
 
 
 async def submit_blender_job(

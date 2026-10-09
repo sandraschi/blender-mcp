@@ -5,9 +5,12 @@ Provides tools for importing various file formats into Blender.
 """
 
 import asyncio
+import logging
 
 from blender_mcp.app import get_app
 from blender_mcp.compat import *
+
+logger = logging.getLogger(__name__)
 
 _READ_ONLY = {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False}
 _MUTATING = {"readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": False}
@@ -188,8 +191,8 @@ def _register_import_tools():
             try:
                 os.remove(converted_file)
                 os.rmdir(temp_dir)
-            except Exception:
-                pass  # Ignore cleanup errors
+            except Exception as e:
+                logger.debug("CAD temp cleanup failed: %s", e)
 
             return f"CAD import successful: {result}"
 

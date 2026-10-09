@@ -6,6 +6,7 @@ Exposes blender_status: status, system_info, health_check, performance_monitor.
 
 import asyncio
 import json
+import logging
 import os
 import platform
 import signal
@@ -19,6 +20,8 @@ from prefab_ui import PrefabApp
 from prefab_ui.components import Heading, Row
 
 from ..compat import *
+
+logger = logging.getLogger(__name__)
 
 _READ_ONLY = {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False}
 _MUTATING = {"readOnlyHint": False, "destructiveHint": False, "idempotentHint": False, "openWorldHint": False}
@@ -114,8 +117,8 @@ def _register_status_tools():
                 try:
                     mem = psutil.virtual_memory()
                     parts.append(f"  Memory: {mem.total / 1024**3:.1f} GB total")
-                except Exception:
-                    pass
+                except Exception as e:
+                    logger.debug("psutil memory read failed: %s", e)
 
             if include_performance:
                 parts.append("\nPerformance:")
