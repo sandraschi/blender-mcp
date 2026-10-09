@@ -21,13 +21,11 @@ bootstrap:
 
 # Execute repo-wide quality checks (Ruff + Biome)
 lint:
-    Set-Location '{{justfile_directory()}}'
     uv run ruff check .
     cd webapp/frontend; npx @biomejs/biome check .
 
 # Execute repo-wide auto-fixes and formatting (Ruff + Biome)
 fix:
-    Set-Location '{{justfile_directory()}}'
     uv run ruff check . --fix --unsafe-fixes
     uv run ruff format .
     cd webapp/frontend; npx @biomejs/biome check --apply .
@@ -37,7 +35,6 @@ fix:
 
 # Run all Python tests with pytest
 test:
-    Set-Location '{{justfile_directory()}}'
     uv run pytest tests/ -v
 
 e2e:
@@ -47,12 +44,10 @@ e2e:
 
 # Execute Bandit security audit
 check-sec:
-    Set-Location '{{justfile_directory()}}'
     uv run bandit -r src/
 
 # Execute safety audit of dependencies
 audit-deps:
-    Set-Location '{{justfile_directory()}}'
     uv run safety check
 # --- Packaging  Distribution ---
 
@@ -60,7 +55,6 @@ audit-deps:
 
 # Serve for local stdio testing
 serve:
-    Set-Location '{{justfile_directory()}}'
     uv run blender-mcp-server
 
 # --- Native App  Tauri 2 ---
@@ -79,7 +73,6 @@ build-native-debug:
 
 # Format Python and JS/TS code
 fmt:
-    Set-Location '{{justfile_directory()}}'
     uv run ruff format .
     cd webapp/frontend; npx @biomejs/biome format --write .
 

@@ -28,4 +28,6 @@ When switching to work on a different repo in a multi-workspace setup:
 - **Central Docs**: `D:\Dev\repos\mcp-central-docs\README.md`
 - **When in doubt**: Read the central README and navigate from there.
 
-
+## Session Context (blender-mcp)
+Before starting work: call `blender_status` for scene state; read `docs/CONFIGURATION.md` for env.
+At end of work: run `uv run ruff check src/` + `uv run pytest tests/ -q`; update CHANGELOG.md.

@@ -1,14 +1,14 @@
 {
   "$schema": "https://glama.ai/mcp/schemas/server.json",
-  "version": "0.10.0",
+  "version": "0.11.1",
   "maintainers": [
     "sandraschi"
   ],
   "name": "blender-mcp",
-  "description": "Professional MCP server built with FastMCP 3.4.2. Blender 3D automation — modeling, animation, rendering, and scene management.",
+  "description": "Professional MCP server built with FastMCP 3.4.4. Blender 3D automation - modeling, animation, rendering, and scene management.",
   "type": "mcp_server",
   "status": "production",
-  "framework": "FastMCP 3.4.2",
+  "framework": "FastMCP 3.4.4",
   "transport": [
     "stdio",
     "http"
@@ -20,5 +20,6 @@
     "rendering",
     "mcp-server",
     "fastmcp"
-  ]
+  ],
+  "tools": ["add_to_collection", "agentic_blender_workflow", "ai_chat", "blender_addons", "blender_ai_generate", "blender_animation", "blender_api_docs", "blender_atlasing", "blender_batch", "blender_camera", "blender_compositor", "blender_download", "blender_export", "blender_export_presets", "blender_furniture", "blender_geonodes", "blender_grease_pencil", "blender_help", "blender_import", "blender_jobs", "blender_lighting", "blender_logs", "blender_materials", "blender_materials_baking", "blender_mesh", "blender_modifiers", "blender_particles", "blender_physics", "blender_render", "blender_rigging", "blender_scene", "blender_sculpt", "blender_selection", "blender_session", "blender_shaders", "blender_shapekeys", "blender_shutdown", "blender_splatting", "blender_status", "blender_textures", "blender_transform", "blender_uv", "blender_validation", "blender_vision_refine", "blender_vrm_metadata", "blender_vse", "blender_workflow", "clear_scene", "config_get", "config_set", "construct_object", "conversational_blender_assistant", "create_collection", "create_scene", "export_for_mcp_handoff", "generate_blender_script", "import_cad_file", "intelligent_3d_processing", "list_local_models", "list_scenes", "llm_models", "manage_asset_library", "manage_blender_addons", "manage_object_construction", "manage_object_repo", "scene_get_hierarchy", "script_execute", "server_info", "set_active_scene", "show_blender_status_app", "show_logs_app", "show_tools_app"]
 }
