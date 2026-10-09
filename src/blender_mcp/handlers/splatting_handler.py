@@ -1,7 +1,7 @@
 """
 Gaussian Splatting handler for Blender MCP.
 
-All operations run via BlenderExecutor (subprocess) — no top-level bpy import.
+All operations run via BlenderExecutor (subprocess) - no top-level bpy import.
 Requires a 3DGS addon installed in Blender (e.g. gaussian_splat or 3dgs_blender).
 Use manage_blender_addons to install one before calling import_gaussian_splat.
 """

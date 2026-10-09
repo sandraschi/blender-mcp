@@ -8,7 +8,7 @@ from blender_mcp.compat import *
 
 logger = logging.getLogger(__name__)
 
-# Default Blender executable — tries common install locations, overridden by BLENDER_EXECUTABLE env var
+# Default Blender executable - tries common install locations, overridden by BLENDER_EXECUTABLE env var
 _DEFAULT_BLENDER_CANDIDATES = [
     r"C:\Program Files\Blender Foundation\Blender 4.4\blender.exe",
     r"C:\Program Files\Blender Foundation\Blender 4.3\blender.exe",

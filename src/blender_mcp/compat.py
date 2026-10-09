@@ -27,7 +27,7 @@ JSONType = JSONPrimitive | dict[str, Any] | list[Any]
 # Re-export Set for compatibility
 Set = set
 
-# FastMCP 3.x component imports — fail loudly if unavailable so the problem is obvious
+# FastMCP 3.x component imports - fail loudly if unavailable so the problem is obvious
 try:
     from fastmcp.server.low_level import LowLevelServer
     from fastmcp.tools.function_tool import FunctionTool

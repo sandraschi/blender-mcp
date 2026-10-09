@@ -53,7 +53,7 @@ class SketchfabAPI:
             return r.json()
 
     async def download_info(self, uid: str) -> dict[str, Any]:
-        """GET /models/{uid}/download — signed URLs for glTF/OBJ sources."""
+        """GET /models/{uid}/download - signed URLs for glTF/OBJ sources."""
         async with httpx.AsyncClient(timeout=self._timeout, headers=self._headers()) as client:
             r = await client.get(f"{API_BASE}/models/{uid}/download")
             r.raise_for_status()

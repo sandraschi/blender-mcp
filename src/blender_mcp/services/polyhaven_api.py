@@ -49,7 +49,7 @@ class PolyHavenAPI:
         page: int = 1,
     ) -> dict[str, Any]:
         """
-        GET /assets — returns a large dict of asset_id -> metadata.
+        GET /assets - returns a large dict of asset_id -> metadata.
         `t` is hdris | textures | models | all
         """
         tmap = {
@@ -69,7 +69,7 @@ class PolyHavenAPI:
         return await self._get("/assets", params=params)
 
     async def files(self, asset_id: str) -> dict[str, Any]:
-        """GET /files/{asset_id} — file tree with CDN URLs."""
+        """GET /files/{asset_id} - file tree with CDN URLs."""
         return await self._get(f"/files/{asset_id}")
 
 
