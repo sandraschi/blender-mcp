@@ -1,10 +1,21 @@
 ## [Unreleased]
 
 ### Added
+- **Assfix 2026-10-09 (cold rescore 0/100):** `GET /api/v1/health` route (fleet launcher
+  HealthPath was 404), `POST /api/shutdown` orderly-exit endpoint, `docs/ONBOARDING.md`
+  + dashboard onboarding CTA (`data-testid="onboarding-cue"`), `docs/TOOLS.md` index,
+  `renovate.json`, glama.json live tool list (72 tools), `.cursorrules` Session Context
 - **Assfix 2026-10-02 (first full pass, 59/100):** `blender_shutdown` tool (confirm-gated), `GET /api/capabilities` standard endpoint, fixed unbound-variable fallthrough in agentic loop + async `list_tools` handling in CLI
 
 ### Changed
 - `.gitignore` now covers `reports/` (assfix working snapshots)
+- Ruff S110/S112 un-ignored; 14 silent `except: pass` sites now log at debug
+- Pydantic v1 `.dict()`/`.schema()` replaced with `.model_dump()`/`.model_json_schema()`
+- justfile: dropped dead per-line `Set-Location` no-ops (recipes run at repo root)
+- E2E: playwright webServer now starts uvicorn backend + vite frontend (was stdio command)
+- `scripts/mcpb-pack.ps1` restored as fleet-shim delegate; vendored `mcpb/pack.ps1` removed
+- Manifests bumped to 0.11.1; `mcpb.json` fastmcp pin raised to >=3.4.4,<4
+- GitHub Actions re-enabled (was disabled since ~2026-05-31; no runs on recent pushes)
 
 ## [0.11.1] - 2026-08-17
 

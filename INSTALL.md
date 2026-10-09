@@ -2,6 +2,9 @@
 
 Control Blender from Claude Desktop (or Cursor) via MCP.
 
+> **New here?** Read [docs/ONBOARDING.md](docs/ONBOARDING.md) first — two downloads,
+> one prompt, five minutes. The detail below is for when you need it.
+
 ## Downloads
 
 | Artifact | Link | Required? |
@@ -178,8 +181,8 @@ $env:BLENDER_EXECUTABLE = "C:\Program Files\Blender Foundation\Blender 5.1\blend
 | **Node.js** | Option B | `winget install OpenJS.NodeJS` |
 | **just** | Option D | `winget install Casey.Just` |
 
-> **Windows:** install CLI tools with [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/).  
-> **macOS:** use `brew install git uv node` equivalents.  
+> **Windows:** install CLI tools with [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/).
+> **macOS:** use `brew install git uv node` equivalents.
 > After any winget install, **close and reopen PowerShell** so PATH updates apply.
 
 > **Docker:** not required for normal install. Optional observability: [docs/DOCKER.md](docs/DOCKER.md) and [docs/MONITORING.md](docs/MONITORING.md).

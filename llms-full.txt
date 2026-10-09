@@ -1,7 +1,20 @@
 # blender-mcp
 > **Guides, best practices, and lessons learned for developing blender-mcp** --- 📄 [AI_DEVELOPMENT_RULES.md](AI_DEVELOPMENT_RULES.md) **Guidelines for AI-assisted development** - Best practices for work...
 
-Generated on: 2026-07-14 23:58:40
+Generated on: 2026-07-14 23:58:40 (base harvest; delta section below is current as of 2026-10-09)
+
+## Server surface — delta update 2026-10-09 (v0.11.1, 72+ MCP tools)
+
+- MCP self-termination: `blender_shutdown` (confirm-gated, DESTRUCTIVE).
+- REST (backend http://127.0.0.1:10849): `/health`, `/api/health`, `/api/status`,
+  `/api/v1/status`, `/api/v1/health` (fleet launcher probe), `/api/capabilities`
+  (standard fleet shape: service/version/tool_count/tools/endpoints),
+  `/api/v1/logs`, `/api/v1/diagnostics`, `/api/skills`, `/api/skills/{name}`,
+  `POST /api/shutdown` (orderly exit for launcher restarts),
+  `POST /tool` (MCP-bridge tool invoke used by the webapp).
+- Frontend http://localhost:10848 (vite dev; same-origin `/api` + `/mcp` proxy).
+- Tool docs: docs/TOOLS.md (index) + docs/FEATURES.md (catalog) + docs/API.md.
+- Onboarding: docs/ONBOARDING.md (two downloads, one prompt, five minutes).
 
 ## Docs - Full Content
 
@@ -109,12 +122,12 @@ Source: docs\development\README.md
 
 This directory contains **development-focused documentation** including:
 
-✅ **Best Practices** - How to develop quality MCP servers  
-✅ **AI Collaboration** - Working effectively with AI assistants  
-✅ **Debugging** - Real-world problem solving  
-✅ **Code Patterns** - Reusable Python snippets  
-✅ **Lessons Learned** - Avoiding common pitfalls  
-✅ **Project Management** - Systematic updates and maintenance  
+✅ **Best Practices** - How to develop quality MCP servers
+✅ **AI Collaboration** - Working effectively with AI assistants
+✅ **Debugging** - Real-world problem solving
+✅ **Code Patterns** - Reusable Python snippets
+✅ **Lessons Learned** - Avoiding common pitfalls
+✅ **Project Management** - Systematic updates and maintenance
 
 ---
 
@@ -190,10 +203,10 @@ This directory contains **development-focused documentation** including:
 
 ---
 
-*Development Documentation*  
-*Location: `docs/development/`*  
-*Files: 8*  
-*Focus: Best practices & lessons learned*  
+*Development Documentation*
+*Location: `docs/development/`*
+*Files: 8*
+*Focus: Best practices & lessons learned*
 *Target: Developers & Contributors*
 
 **Learn from our development journey!** 💻✨
@@ -277,12 +290,12 @@ Source: docs\mcp-technical\README.md
 
 This directory contains **MCP server technical documentation** including:
 
-✅ **MCP Protocol** - Implementation details  
-✅ **FastMCP Framework** - Version 2.12+ specifics  
-✅ **Claude Desktop** - Integration and debugging  
-✅ **Production Deployment** - Checklists and guidelines  
-✅ **Troubleshooting** - Common issues and fixes  
-✅ **Monitoring** - Observability and logging  
+✅ **MCP Protocol** - Implementation details
+✅ **FastMCP Framework** - Version 2.12+ specifics
+✅ **Claude Desktop** - Integration and debugging
+✅ **Production Deployment** - Checklists and guidelines
+✅ **Troubleshooting** - Common issues and fixes
+✅ **Monitoring** - Observability and logging
 
 ---
 
@@ -462,10 +475,10 @@ This directory contains **MCP server technical documentation** including:
 
 ---
 
-*MCP Technical Documentation*  
-*Location: `docs/mcp-technical/`*  
-*Files: 5*  
-*Focus: MCP server development & deployment*  
+*MCP Technical Documentation*
+*Location: `docs/mcp-technical/`*
+*Files: 5*
+*Focus: MCP server development & deployment*
 *Target: Technical developers & DevOps*
 
 **Master MCP server development!** 🔧✨
@@ -566,8 +579,8 @@ All documentation related to:
 - ✅ Quality metrics
 - ✅ Production readiness checklist
 
-**Date**: September 30, 2025  
-**Status**: Historical record  
+**Date**: September 30, 2025
+**Status**: Historical record
 **Read time**: 15 minutes
 
 ---
@@ -584,8 +597,8 @@ All documentation related to:
 - ✅ Plugin ecosystem integration
 - ✅ Enhanced documentation
 
-**Date**: October 8, 2025  
-**Status**: Current assessment  
+**Date**: October 8, 2025
+**Status**: Current assessment
 **Read time**: 10 minutes
 
 ---
@@ -646,7 +659,7 @@ All documentation related to:
 - Glama.ai scoring optimization
 - Best practices for Gold Status
 
-**Read time**: 30 minutes  
+**Read time**: 30 minutes
 **Priority**: HIGH for quality improvement
 
 ---
@@ -950,13 +963,13 @@ Use: [GLAMA_RESCAN_EMAIL.txt](GLAMA_RESCAN_EMAIL.txt)
 
 **As of October 8, 2025**:
 
-✅ **Gold Status**: Maintained and enhanced  
-✅ **Score**: ~90/100 (was 85/100)  
-✅ **Tier**: Gold++ (enhanced)  
-✅ **Tools**: 26 (was 21)  
-✅ **Quality**: Enterprise-grade  
-✅ **Packaging**: Professional MCPB  
-✅ **Documentation**: 21 files, 400+ pages  
+✅ **Gold Status**: Maintained and enhanced
+✅ **Score**: ~90/100 (was 85/100)
+✅ **Tier**: Gold++ (enhanced)
+✅ **Tools**: 26 (was 21)
+✅ **Quality**: Enterprise-grade
+✅ **Packaging**: Professional MCPB
+✅ **Documentation**: 21 files, 400+ pages
 
 **Platform Position**: Top-tier MCP server with professional packaging 🏆
 
@@ -1088,23 +1101,23 @@ After:
 
 **This directory contains everything you need to**:
 
-✅ Understand Glama.ai platform  
-✅ Achieve Gold Status (85-94 points)  
-✅ Maintain quality standards  
-✅ Optimize your MCP server  
-✅ Request platform rescans  
-✅ Track your progress  
+✅ Understand Glama.ai platform
+✅ Achieve Gold Status (85-94 points)
+✅ Maintain quality standards
+✅ Optimize your MCP server
+✅ Request platform rescans
+✅ Track your progress
 
-**Current Status**: Gold++ (90/100) 🏆🌟  
-**Total Documents**: 10 files  
-**Total Pages**: 200+  
+**Current Status**: Gold++ (90/100) 🏆🌟
+**Total Documents**: 10 files
+**Total Pages**: 200+
 
 ---
 
-*Glama.ai Platform Documentation*  
-*Location: `docs/glama-platform/`*  
-*Created: October 8, 2025*  
-*Status: Complete*  
+*Glama.ai Platform Documentation*
+*Location: `docs/glama-platform/`*
+*Created: October 8, 2025*
+*Status: Complete*
 
 **Your complete guide to Glama.ai Gold Status!** 🏆✨
 
@@ -1321,7 +1334,7 @@ Source: docs\github\README.md
 # GitHub Setup for MCP Projects
 
 > **Purpose**: Comprehensive GitHub configuration guide to avoid hours of trial-and-error setup.
-> 
+>
 > **Copy this to new MCP repos** to get everything right the first time!
 
 ---
@@ -1421,9 +1434,9 @@ jobs:
   publish-pypi:
     # Only publish stable releases to PyPI
     if: >
-      startsWith(github.ref, 'refs/tags/v') && 
-      !contains(github.ref, 'alpha') && 
-      !contains(github.ref, 'beta') && 
+      startsWith(github.ref, 'refs/tags/v') &&
+      !contains(github.ref, 'alpha') &&
+      !contains(github.ref, 'beta') &&
       !contains(github.ref, 'rc')
 ```
 
@@ -1561,20 +1574,20 @@ dev-dependencies = [
     "pytest>=8.3.4",
     "pytest-cov>=4.1.0",
     "pytest-asyncio>=0.24.0",
-    
+
     # Linting & Type Checking
     "ruff>=0.1.6",
     "pyright>=1.1.390",
     "mypy>=1.8.0",
-    
+
     # Security
     "bandit>=1.7.0",
     "safety>=3.0.0",
-    
+
     # Building & Publishing (CRITICAL - don't forget!)
     "build>=1.0.0",
     "twine>=5.0.0",
-    
+
     # Security (XML parsing)
     "defusedxml>=0.7.1",
 ]
@@ -1916,8 +1929,8 @@ Source: docs\repository-protection\README.md
 - ✅ Visual setup checklist
 - ✅ Verification tests
 
-**Time to complete**: 5 minutes  
-**Difficulty**: Easy  
+**Time to complete**: 5 minutes
+**Difficulty**: Easy
 **Priority**: **HIGH** - Do this first!
 
 ---
@@ -2173,11 +2186,11 @@ git push origin develop
 
 With these three documents and tools, you have:
 
-✅ **Branch protection** preventing accidents  
-✅ **Clear workflow** for AI collaboration  
-✅ **Multiple backups** for recovery  
-✅ **Safe playground** for experimentation  
-✅ **Emergency procedures** for any scenario  
+✅ **Branch protection** preventing accidents
+✅ **Clear workflow** for AI collaboration
+✅ **Multiple backups** for recovery
+✅ **Safe playground** for experimentation
+✅ **Emergency procedures** for any scenario
 
 **You can now safely say to AI**:
 > *"Let's experiment on feature/experimental and try some wild ideas!"*
@@ -2214,9 +2227,9 @@ With these three documents and tools, you have:
 
 ---
 
-*Repository Protection Documentation*  
-*Created: October 8, 2025*  
-*Location: `docs/repository-protection/`*  
+*Repository Protection Documentation*
+*Created: October 8, 2025*
+*Location: `docs/repository-protection/`*
 *Status: Complete and Ready to Use*
 
 **Your repository is safer than Fort Knox!** 🏰🛡️
@@ -2708,8 +2721,8 @@ Source: docs\mcpb-packaging\README.md
 - ✅ Registry publishing (distribution)
 - ✅ Production patterns (real-world examples)
 
-**Read Time**: 2-3 hours  
-**Difficulty**: Intermediate to Advanced  
+**Read Time**: 2-3 hours
+**Difficulty**: Intermediate to Advanced
 **Priority**: **CRITICAL** for distribution
 
 ---
@@ -2728,8 +2741,8 @@ Source: docs\mcpb-packaging\README.md
 - ✅ Tool inventory (26 tools)
 - ✅ Next steps
 
-**Read Time**: 15 minutes  
-**Status**: ✅ **COMPLETED** implementation  
+**Read Time**: 15 minutes
+**Status**: ✅ **COMPLETED** implementation
 **Package**: dist/blender-mcp.mcpb (ready!)
 
 ---
@@ -2791,12 +2804,12 @@ When users install our MCPB package, they're prompted for:
 
 ### **Build Script Features**
 
-✅ Prerequisites check (MCPB CLI, Python)  
-✅ Manifest validation  
-✅ Output management  
-✅ Package verification  
-✅ Signing support (optional)  
-✅ Color-coded progress  
+✅ Prerequisites check (MCPB CLI, Python)
+✅ Manifest validation
+✅ Output management
+✅ Package verification
+✅ Signing support (optional)
+✅ Color-coded progress
 
 ---
 
@@ -2835,7 +2848,7 @@ When users install our MCPB package, they're prompted for:
 3. Publish to registry
 4. Available in Claude Desktop marketplace
 
-**Use Case**: Official distribution channel  
+**Use Case**: Official distribution channel
 **Status**: 📅 Planned (registry not yet available)
 
 ---
@@ -2844,9 +2857,9 @@ When users install our MCPB package, they're prompted for:
 
 ### **mcpb.json** (Build Configuration)
 
-**Purpose**: Controls how MCPB CLI builds your package  
-**Location**: Project root  
-**Format**: JSON  
+**Purpose**: Controls how MCPB CLI builds your package
+**Location**: Project root
+**Format**: JSON
 
 **Key Sections**:
 ```json
@@ -2868,9 +2881,9 @@ When users install our MCPB package, they're prompted for:
 
 ### **manifest.json** (Runtime Configuration)
 
-**Purpose**: Tells Claude Desktop how to run your server  
-**Location**: Project root  
-**Format**: JSON  
+**Purpose**: Tells Claude Desktop how to run your server
+**Location**: Project root
+**Format**: JSON
 
 **Key Sections**:
 ```json
@@ -3080,10 +3093,10 @@ blender-mcp.mcpb (0.19 MB)
 
 ---
 
-*MCPB Packaging Documentation*  
-*Location: `docs/mcpb-packaging/`*  
-*Files: 3 (2,500+ lines total!)*  
-*Focus: Professional distribution*  
+*MCPB Packaging Documentation*
+*Location: `docs/mcpb-packaging/`*
+*Files: 3 (2,500+ lines total!)*
+*Focus: Professional distribution*
 *Status: Production ready*
 
 **Package your MCP server professionally!** 📦✨
