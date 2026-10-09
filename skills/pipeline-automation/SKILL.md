@@ -21,8 +21,8 @@ description: Automate 3D asset pipelines, including batch optimization, material
 
 - `intelligent_3d_processing(prompt="...")` — Multi-step batch processing with natural language prompt. Handles decimation, material unlinking, export, and optimization.
 - `optimize_3d_scene(target_platform="...", decimation_ratio=0.5)` — Get an optimization plan for a specific platform (Unity, Unreal, VRChat, Web).
-- `batch_render(output_path="...", format="PNG", cameras=["..."])` — Batch render all or selected cameras.
-- `convert_format(input_path="...", output_format="glb", ...)` — Convert between 3D formats (FBX, GLB, OBJ, STL, BLEND).
+- `render_multi_angle(output_path="...", format="PNG", cameras=["..."])` — Batch render all or selected cameras.
+- `export_scene_format(input_path="...", output_format="glb", ...)` — Convert between 3D formats (FBX, GLB, OBJ, STL, BLEND).
 - `apply_modifier(modifier_type="decimate", ratio=0.5)` — Apply geometry modifiers in batch.
 
 ## Workflow
@@ -38,7 +38,7 @@ description: Automate 3D asset pipelines, including batch optimization, material
 "Optimize all meshes in the scene for VRChat and export as GLB." → `optimize_3d_scene(target_platform="vrchat")` → `intelligent_3d_processing(prompt="Batch decimate to 50% and export as GLB for VRChat")`
 
 ### Render Farm
-"Batch render all cameras to PNG at 4K." → `batch_render(cameras=["all"], output_path="//render/exports", format="PNG", resolution="4K")`
+"Batch render all cameras to PNG at 4K." → `render_multi_angle(cameras=["all"], output_path="//render/exports", format="PNG", resolution="4K")`
 
 ### Format Pipeline
-"Convert all FBX props to GLB for web." → `convert_format(input_pattern="*.fbx", output_format="glb")`
+"Convert all FBX props to GLB for web." → `export_scene_format(input_pattern="*.fbx", output_format="glb")`
