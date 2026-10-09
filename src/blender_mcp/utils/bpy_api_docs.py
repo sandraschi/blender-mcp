@@ -64,7 +64,7 @@ def fetch_api_doc(identifier: str, *, max_chars: int = 12000) -> dict[str, str]:
 
     content = _strip_html(raw)
     if len(content) > max_chars:
-        content = content[:max_chars] + "\n\n[truncated — open URL for full page]"
+        content = content[:max_chars] + "\n\n[truncated - open URL for full page]"
 
     return {
         "identifier": ident,

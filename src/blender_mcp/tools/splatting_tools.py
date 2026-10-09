@@ -169,7 +169,7 @@ print("GS_PROBE:" + json.dumps({"has_gs_addon": has_gs, "ops": [o for o in ops i
             elif operation in ("create_proxy", "optimize_for_vr"):
                 result = {
                     "status": "info",
-                    "message": f"Operation '{operation}' — use import_gs with setup_proxy=True, or crop_and_clean + generate_collision_mesh.",
+                    "message": f"Operation '{operation}' - use import_gs with setup_proxy=True, or crop_and_clean + generate_collision_mesh.",
                 }
 
             else:

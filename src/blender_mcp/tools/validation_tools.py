@@ -230,7 +230,7 @@ def _format_geometry_report(result: dict) -> str:
     """Format mesh geometry audit results."""
     status = result.get("status", "UNKNOWN")
     obj = result.get("object", "unknown")
-    lines = [f"**Mesh Geometry Audit — {obj}**", f"Status: {status}", ""]
+    lines = [f"**Mesh Geometry Audit - {obj}**", f"Status: {status}", ""]
     for key in (
         "vertices",
         "edges",
