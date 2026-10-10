@@ -119,9 +119,9 @@ class TestToolRegistration:
         # Get the tools from the app
         # Note: FastMCP internal API may vary, so we'll test what we can
         try:
-            tools = await app_instance.get_tools()
-            # FastMCP returns a dictionary of tools, not a list
-            assert isinstance(tools, dict)
+            tools = await app_instance.list_tools()
+            # FastMCP 3.x returns a sequence of tools
+            assert isinstance(tools, (list, tuple))
             # Should have at least some tools registered
             assert len(tools) > 0
         except AttributeError:

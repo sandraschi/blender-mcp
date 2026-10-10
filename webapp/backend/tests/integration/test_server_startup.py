@@ -63,8 +63,8 @@ except Exception as e:
             from blender_mcp.server import app
             print("Server and all handlers imported successfully")
 
-            # Try to get tools (async call)
-            tools = await app.get_tools()
+            # Try to get tools (async call, FastMCP 3.x API)
+            tools = await app.list_tools()
             print(f"Found {{len(tools)}} tools registered")
 
             # Check that we have expected tools
