@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 
 logger = logging.getLogger(__name__)
@@ -41,12 +42,12 @@ def _register_api_docs_tools() -> None:
             if search.strip():
                 # Simple discovery hint - full search would need an index
                 guess = normalize_identifier(search.strip())
-                doc = fetch_api_doc(guess)
+                doc = await asyncio.to_thread(fetch_api_doc, guess)
                 doc["search_term"] = search
                 doc["success"] = doc.get("found") == "true"
                 return doc
 
-            doc = fetch_api_doc(identifier)
+            doc = await asyncio.to_thread(fetch_api_doc, identifier)
             doc["success"] = doc.get("found") == "true"
             return doc
         except Exception as exc:

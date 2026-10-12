@@ -1,6 +1,7 @@
 """FastMCP application instance for Blender MCP server."""
 
 # Import from our compatibility module first
+import asyncio
 import json
 import logging
 import os
@@ -392,7 +393,7 @@ def _register_resources(app):
         from blender_mcp.utils.bpy_api_docs import fetch_api_doc
 
         try:
-            doc = fetch_api_doc(identifier)
+            doc = await asyncio.to_thread(fetch_api_doc, identifier)
             return json.dumps(doc, indent=2)
         except Exception as e:
             return json.dumps({"error": str(e), "identifier": identifier})
