@@ -170,14 +170,14 @@ Enterprise Stage:
 class AIProviderManager:
     def __init__(self):
         self.providers = {
-            'openai': OpenAIProvider(),
-            'anthropic': AnthropicProvider(),
-            'ollama': OllamaProvider(),
-            'lmstudio': LMStudioProvider()
+            "openai": OpenAIProvider(),
+            "anthropic": AnthropicProvider(),
+            "ollama": OllamaProvider(),
+            "lmstudio": LMStudioProvider(),
         }
 
-    async def generate_response(self, prompt: str, provider: str = 'auto') -> str:
-        if provider == 'auto':
+    async def generate_response(self, prompt: str, provider: str = "auto") -> str:
+        if provider == "auto":
             provider = self.select_best_provider(prompt)
 
         return await self.providers[provider].complete(prompt)
@@ -327,15 +327,14 @@ from app.main import app
 
 client = TestClient(app)
 
+
 def test_create_user():
-    response = client.post(
-        "/users/",
-        json={"name": "Test User", "email": "test@example.com"}
-    )
+    response = client.post("/users/", json={"name": "Test User", "email": "test@example.com"})
     assert response.status_code == 201
     data = response.json()
     assert data["name"] == "Test User"
     assert "id" in data
+
 
 def test_ai_chat_streaming():
     with client.websocket_connect("/ws/chat") as websocket:
@@ -463,11 +462,10 @@ engine = create_async_engine(
     max_overflow=20,
 )
 
+
 async def get_user(user_id: int) -> User:
     async with AsyncSession(engine) as session:
-        result = await session.execute(
-            select(User).where(User.id == user_id)
-        )
+        result = await session.execute(select(User).where(User.id == user_id))
         return result.scalar_one()
 ```
 
@@ -481,7 +479,8 @@ from redis.asyncio import Redis
 memory_cache = TTLCache(maxsize=1000, ttl=300)
 
 # Redis for distributed caching
-redis_cache = Redis(host='localhost', port=6379)
+redis_cache = Redis(host="localhost", port=6379)
+
 
 async def cached_api_call(endpoint: str, params: dict):
     cache_key = f"{endpoint}:{hash(str(params))}"
@@ -517,6 +516,7 @@ import jwt
 
 security = HTTPBearer()
 
+
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=["HS256"])
@@ -536,12 +536,13 @@ from pydantic import BaseModel, Field, validator
 from typing import Optional
 import bleach
 
+
 class UserInput(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
-    email: str = Field(..., regex=r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+    email: str = Field(..., regex=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
     bio: Optional[str] = Field(None, max_length=500)
 
-    @validator('bio')
+    @validator("bio")
     def sanitize_bio(cls, v):
         if v:
             # Sanitize HTML input

@@ -236,36 +236,35 @@ import bleach
 
 app = FastAPI()
 
+
 class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
-    email: str = Field(..., regex=r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+    email: str = Field(..., regex=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
     password: str = Field(..., min_length=8)
     bio: str | None = Field(None, max_length=500)
 
-    @validator('username')
+    @validator("username")
     def username_alphanumeric(cls, v):
-        if not v.replace('_', '').replace('-', '').isalnum():
-            raise ValueError('Username must be alphanumeric with _ and - allowed')
+        if not v.replace("_", "").replace("-", "").isalnum():
+            raise ValueError("Username must be alphanumeric with _ and - allowed")
         return v
 
-    @validator('bio')
+    @validator("bio")
     def sanitize_bio(cls, v):
         if v:
             # Remove potentially dangerous HTML
-            return bleach.clean(v, tags=['p', 'br', 'strong', 'em'], strip=True)
+            return bleach.clean(v, tags=["p", "br", "strong", "em"], strip=True)
         return v
 
-@app.post('/users/')
+
+@app.post("/users/")
 async def create_user(user: UserCreate):
     # Password hashing happens here
     hashed_password = hash_password(user.password)
 
     # Create user in database
     db_user = await create_user_in_db(
-        username=user.username,
-        email=user.email,
-        hashed_password=hashed_password,
-        bio=user.bio
+        username=user.username, email=user.email, hashed_password=hashed_password, bio=user.bio
     )
 
     return {"id": db_user.id, "username": db_user.username}
@@ -320,19 +319,16 @@ from sqlalchemy.orm import selectinload
 # pragma: allowlist secret
 engine = create_async_engine(
     "postgresql+asyncpg://user:password@localhost/db",
-    pool_size=10,         # Connection pool size
-    max_overflow=20,      # Max additional connections
-    pool_recycle=3600,   # Recycle connections after 1 hour
+    pool_size=10,  # Connection pool size
+    max_overflow=20,  # Max additional connections
+    pool_recycle=3600,  # Recycle connections after 1 hour
 )
+
 
 async def get_user_with_posts(user_id: int) -> User:
     async with AsyncSession(engine) as session:
         # Eager loading to prevent N+1 queries
-        result = await session.execute(
-            select(User)
-            .options(selectinload(User.posts))
-            .where(User.id == user_id)
-        )
+        result = await session.execute(select(User).options(selectinload(User.posts)).where(User.id == user_id))
         return result.scalar_one()
 ```
 
@@ -343,13 +339,14 @@ from cachetools import TTLCache
 from redis.asyncio import Redis
 import asyncio
 
+
 class CacheManager:
     def __init__(self):
         # L1: In-memory cache (fastest, limited size)
         self.memory_cache = TTLCache(maxsize=1000, ttl=300)
 
         # L2: Redis cache (distributed, persistent)
-        self.redis_cache = Redis(host='localhost', port=6379)
+        self.redis_cache = Redis(host="localhost", port=6379)
 
         # L3: Database cache (slowest, most persistent)
         self.db_cache = DatabaseCache()
@@ -441,6 +438,7 @@ SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 def override_get_db():
     try:
         db = TestingSessionLocal()
@@ -448,28 +446,32 @@ def override_get_db():
     finally:
         db.close()
 
+
 app.dependency_overrides[get_db] = override_get_db
 client = TestClient(app)
+
 
 @pytest.fixture(scope="module")
 def setup_database():
     # Create tables
     from app.models import Base
+
     Base.metadata.create_all(bind=engine)
     yield
     # Drop tables
     Base.metadata.drop_all(bind=engine)
+
 
 def test_create_and_retrieve_user(setup_database):
     # Create user
     response = client.post(
         "/users/",
         json={
-# pragma: allowlist secret
+            # pragma: allowlist secret
             "username": "testuser",
             "email": "test@example.com",
-            "password": "testpass123"
-        }
+            "password": "testpass123",
+        },
     )
     assert response.status_code == 201
     user_data = response.json()
@@ -609,17 +611,10 @@ import time
 app = FastAPI()
 
 # Metrics
-REQUEST_COUNT = Counter(
-    'http_requests_total',
-    'Total HTTP requests',
-    ['method', 'endpoint', 'status_code']
-)
+REQUEST_COUNT = Counter("http_requests_total", "Total HTTP requests", ["method", "endpoint", "status_code"])
 
-REQUEST_LATENCY = Histogram(
-    'http_request_duration_seconds',
-    'HTTP request latency',
-    ['method', 'endpoint']
-)
+REQUEST_LATENCY = Histogram("http_request_duration_seconds", "HTTP request latency", ["method", "endpoint"])
+
 
 @app.middleware("http")
 async def metrics_middleware(request: Request, call_next):
@@ -628,22 +623,16 @@ async def metrics_middleware(request: Request, call_next):
     response = await call_next(request)
 
     # Record metrics
-    REQUEST_COUNT.labels(
-        method=request.method,
-        endpoint=request.url.path,
-        status_code=response.status_code
-    ).inc()
+    REQUEST_COUNT.labels(method=request.method, endpoint=request.url.path, status_code=response.status_code).inc()
 
-    REQUEST_LATENCY.labels(
-        method=request.method,
-        endpoint=request.url.path
-    ).observe(time.time() - start_time)
+    REQUEST_LATENCY.labels(method=request.method, endpoint=request.url.path).observe(time.time() - start_time)
 
     return response
 
-@app.get('/metrics')
+
+@app.get("/metrics")
 async def metrics():
-    return Response(generate_latest(), media_type='text/plain')
+    return Response(generate_latest(), media_type="text/plain")
 ```
 
 #### **Logging Configuration**
@@ -653,31 +642,30 @@ import logging
 import json
 from pythonjsonlogger import jsonlogger
 
+
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
     def add_fields(self, log_record, record, message_dict):
         super(CustomJsonFormatter, self).add_fields(log_record, record, message_dict)
-        log_record['timestamp'] = record.created
-        log_record['level'] = record.levelname
-        log_record['module'] = record.module
-        log_record['function'] = record.funcName
-        log_record['line'] = record.lineno
+        log_record["timestamp"] = record.created
+        log_record["level"] = record.levelname
+        log_record["module"] = record.module
+        log_record["function"] = record.funcName
+        log_record["line"] = record.lineno
+
 
 # Configure logging
 logger = logging.getLogger()
 handler = logging.StreamHandler()
-formatter = CustomJsonFormatter(
-    '%(timestamp)s %(level)s %(module)s %(function)s %(line)s %(message)s'
-)
+formatter = CustomJsonFormatter("%(timestamp)s %(level)s %(module)s %(function)s %(line)s %(message)s")
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
 # Usage
-logger.info('User login successful', extra={
-    'user_id': user.id,
-    'ip_address': request.client.host,
-    'user_agent': request.headers.get('user-agent')
-})
+logger.info(
+    "User login successful",
+    extra={"user_id": user.id, "ip_address": request.client.host, "user_agent": request.headers.get("user-agent")},
+)
 ```
 
 ### **9. SOTA Builder Integration Patterns**

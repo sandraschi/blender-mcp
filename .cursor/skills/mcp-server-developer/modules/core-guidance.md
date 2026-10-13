@@ -45,29 +45,24 @@ from typing import Dict, Any, Optional
 import logging
 
 # Configure structured logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # Initialize FastMCP server
 app = FastMCP(
-    name="my-mcp-server",
-    version="1.0.0",
-    description="Advanced MCP server with FastMCP 2.14.3 features",
-    license="MIT"
+    name="my-mcp-server", version="1.0.0", description="Advanced MCP server with FastMCP 2.14.3 features", license="MIT"
 )
 
 # Connection pooling for external APIs
 from aiohttp import ClientSession, TCPConnector
 
+
 @asynccontextmanager
 async def managed_session():
     connector = TCPConnector(
-        limit=50,          # Connection pool size
-        ttl_dns_cache=300, # DNS cache TTL
-        keepalive_timeout=60
+        limit=50,  # Connection pool size
+        ttl_dns_cache=300,  # DNS cache TTL
+        keepalive_timeout=60,
     )
     async with ClientSession(connector=connector) as session:
         yield session
@@ -79,10 +74,7 @@ async def managed_session():
 ```python
 @app.tool()
 async def data_operations(
-    operation: str,
-    table: str,
-    filters: Optional[Dict[str, Any]] = None,
-    data: Optional[Dict[str, Any]] = None
+    operation: str, table: str, filters: Optional[Dict[str, Any]] = None, data: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Consolidated data operations tool.
@@ -107,11 +99,10 @@ async def data_operations(
         return {"success": True, "result": result}
 
     except Exception as e:
-        logger.error(f"Data operation failed: {e}", extra={
-            "operation": operation,
-            "table": table,
-            "correlation_id": "auto-generated"
-        })
+        logger.error(
+            f"Data operation failed: {e}",
+            extra={"operation": operation, "table": table, "correlation_id": "auto-generated"},
+        )
         return {"error": str(e), "operation": operation}
 ```
 
@@ -122,7 +113,7 @@ async def iterative_analysis(
     ctx,  # Context for progress reporting
     prompt: str,
     max_iterations: int = 5,
-    quality_threshold: float = 0.85
+    quality_threshold: float = 0.85,
 ) -> Dict[str, Any]:
     """
     FastMCP 2.14.3 sampling workflow for iterative refinement.
@@ -153,7 +144,7 @@ async def iterative_analysis(
         "final_result": best_result,
         "quality_score": best_score,
         "iterations_used": iteration + 1,
-        "threshold_met": best_score >= quality_threshold
+        "threshold_met": best_score >= quality_threshold,
     }
 ```
 
@@ -161,10 +152,7 @@ async def iterative_analysis(
 ```python
 @app.tool()
 async def comprehensive_research(
-    ctx,
-    topic: str,
-    sources: list[str] = ["web", "academic", "news"],
-    depth: str = "comprehensive"
+    ctx, topic: str, sources: list[str] = ["web", "academic", "news"], depth: str = "comprehensive"
 ) -> Dict[str, Any]:
     """
     Cooperative tool that coordinates multiple research operations.
@@ -199,7 +187,7 @@ async def comprehensive_research(
         "research_results": results,
         "synthesis": synthesis,
         "validation_score": validation["score"],
-        "confidence_level": validation["confidence"]
+        "confidence_level": validation["confidence"],
     }
 ```
 
@@ -212,25 +200,27 @@ async def comprehensive_research(
 from pydantic import BaseModel, Field, validator
 from typing import Optional
 
+
 class ToolInput(BaseModel):
     operation: str = Field(..., min_length=1, max_length=50)
     table: str = Field(..., min_length=1, max_length=100)
     filters: Optional[Dict[str, Any]] = None
     data: Optional[Dict[str, Any]] = None
 
-    @validator('operation')
+    @validator("operation")
     def validate_operation(cls, v):
-        allowed_ops = ['create', 'read', 'update', 'delete', 'search']
+        allowed_ops = ["create", "read", "update", "delete", "search"]
         if v not in allowed_ops:
-            raise ValueError(f'Operation must be one of: {allowed_ops}')
+            raise ValueError(f"Operation must be one of: {allowed_ops}")
         return v
 
-    @validator('table')
+    @validator("table")
     def validate_table_name(cls, v):
         # Prevent SQL injection through table names
-        if not re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', v):
-            raise ValueError('Invalid table name format')
+        if not re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", v):
+            raise ValueError("Invalid table name format")
         return v
+
 
 @app.tool()
 async def secure_data_operations(input: ToolInput) -> Dict[str, Any]:
@@ -249,6 +239,7 @@ import time
 # Rate limiting
 limiter = Limiter(key_func=get_remote_address)
 
+
 # Authentication decorator
 def require_auth(func):
     @wraps(func)
@@ -260,7 +251,9 @@ def require_auth(func):
             return {"error": "Authentication required"}
 
         return await func(*args, **kwargs)
+
     return wrapper
+
 
 @app.tool()
 @limiter.limit("10/minute")  # Rate limit: 10 calls per minute
@@ -274,10 +267,12 @@ async def protected_operation(data: str) -> Dict[str, Any]:
 ```python
 class MCPError(Exception):
     """Custom MCP error with structured information."""
+
     def __init__(self, message: str, error_code: str, recovery_steps: list[str] = None):
         self.message = message
         self.error_code = error_code
         self.recovery_steps = recovery_steps or []
+
 
 class ErrorHandler:
     @staticmethod
@@ -285,13 +280,16 @@ class ErrorHandler:
         """Centralized error handling for all tools."""
 
         # Log error with structured information
-        logger.error(f"Tool operation failed: {error}", extra={
-            "operation": operation,
-            "error_type": type(error).__name__,
-            "error_message": str(error),
-            "correlation_id": "auto-generated",
-            "timestamp": time.time()
-        })
+        logger.error(
+            f"Tool operation failed: {error}",
+            extra={
+                "operation": operation,
+                "error_type": type(error).__name__,
+                "error_message": str(error),
+                "correlation_id": "auto-generated",
+                "timestamp": time.time(),
+            },
+        )
 
         # Determine error type and recovery steps
         if isinstance(error, ConnectionError):
@@ -301,8 +299,8 @@ class ErrorHandler:
                 "recovery_steps": [
                     "Check network connectivity",
                     "Verify service endpoints",
-                    "Retry operation in 30 seconds"
-                ]
+                    "Retry operation in 30 seconds",
+                ],
             }
         elif isinstance(error, ValueError):
             return {
@@ -311,8 +309,8 @@ class ErrorHandler:
                 "recovery_steps": [
                     "Review input format requirements",
                     "Check parameter types and ranges",
-                    "Use example inputs as reference"
-                ]
+                    "Use example inputs as reference",
+                ],
             }
         else:
             return {
@@ -321,9 +319,10 @@ class ErrorHandler:
                 "recovery_steps": [
                     "Try operation again",
                     "Contact support if issue persists",
-                    "Check server status page"
-                ]
+                    "Check server status page",
+                ],
             }
+
 
 # Usage in tools
 @app.tool()
@@ -411,15 +410,18 @@ import aiofiles
 # Thread pool for CPU-bound operations
 executor = ThreadPoolExecutor(max_workers=4)
 
+
 async def cpu_intensive_task(data: bytes) -> bytes:
     """Run CPU-intensive operations in thread pool."""
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(executor, process_data_cpu, data)
 
+
 async def io_intensive_task(filepath: str) -> str:
     """Handle file I/O asynchronously."""
-    async with aiofiles.open(filepath, 'r') as f:
+    async with aiofiles.open(filepath, "r") as f:
         return await f.read()
+
 
 @app.tool()
 async def optimized_processing(file_path: str, data: bytes) -> Dict[str, Any]:
@@ -431,11 +433,7 @@ async def optimized_processing(file_path: str, data: bytes) -> Dict[str, Any]:
 
     file_content, processed_data = await asyncio.gather(io_task, cpu_task)
 
-    return {
-        "file_content": file_content,
-        "processed_data": processed_data,
-        "processing_time": "optimized"
-    }
+    return {"file_content": file_content, "processed_data": processed_data, "processing_time": "optimized"}
 ```
 
 ### **Connection Pooling & Caching**
@@ -448,24 +446,23 @@ import asyncio
 _response_cache = TTLCache(maxsize=1000, ttl=300)  # 5-minute TTL
 _connection_pool = None
 
+
 async def get_session() -> ClientSession:
     """Get or create connection pool."""
     global _connection_pool
 
     if _connection_pool is None or _connection_pool.closed:
         connector = TCPConnector(
-            limit=50,                    # Max connections
-            limit_per_host=10,          # Per host limit
-            ttl_dns_cache=300,          # DNS cache
-            keepalive_timeout=60,       # Keep-alive
-            enable_cleanup_closed=True  # Cleanup
+            limit=50,  # Max connections
+            limit_per_host=10,  # Per host limit
+            ttl_dns_cache=300,  # DNS cache
+            keepalive_timeout=60,  # Keep-alive
+            enable_cleanup_closed=True,  # Cleanup
         )
-        _connection_pool = ClientSession(
-            connector=connector,
-            timeout=ClientTimeout(total=30, connect=10)
-        )
+        _connection_pool = ClientSession(connector=connector, timeout=ClientTimeout(total=30, connect=10))
 
     return _connection_pool
+
 
 @app.tool()
 async def cached_api_call(endpoint: str, params: Dict[str, Any]) -> Dict[str, Any]:
@@ -497,19 +494,16 @@ async def cached_api_call(endpoint: str, params: Dict[str, Any]) -> Dict[str, An
 import pytest
 from unittest.mock import AsyncMock, patch
 
+
 @pytest.mark.asyncio
 async def test_data_operations_create():
     """Test create operation in portmanteau tool."""
 
     # Mock database operation
-    with patch('my_server.tools.create_record', new_callable=AsyncMock) as mock_create:
+    with patch("my_server.tools.create_record", new_callable=AsyncMock) as mock_create:
         mock_create.return_value = {"id": 123, "name": "test"}
 
-        result = await data_operations(
-            operation="create",
-            table="users",
-            data={"name": "test"}
-        )
+        result = await data_operations(operation="create", table="users", data={"name": "test"})
 
         assert result["success"] is True
         assert result["result"]["id"] == 123
@@ -523,19 +517,15 @@ import pytest
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
+
 @pytest.mark.asyncio
 async def test_mcp_protocol():
     """Test full MCP protocol integration."""
 
-    server_params = StdioServerParameters(
-        command="python",
-        args=["-m", "my_server"],
-        env={}
-    )
+    server_params = StdioServerParameters(command="python", args=["-m", "my_server"], env={})
 
     async with stdio_client(server_params) as (read, write):
         async with ClientSession(read, write) as session:
-
             # Test tool discovery
             tools = await session.list_tools()
             tool_names = [tool.name for tool in tools]
@@ -543,12 +533,7 @@ async def test_mcp_protocol():
 
             # Test tool execution
             result = await session.call_tool(
-                "data_operations",
-                arguments={
-                    "operation": "read",
-                    "table": "users",
-                    "filters": {"id": 123}
-                }
+                "data_operations", arguments={"operation": "read", "table": "users", "filters": {"id": 123}}
             )
 
             assert result.success is True
@@ -562,16 +547,13 @@ import pytest
 import time
 import asyncio
 
+
 @pytest.mark.asyncio
 async def test_concurrent_operations():
     """Test performance under concurrent load."""
 
     async def single_operation():
-        return await data_operations(
-            operation="read",
-            table="users",
-            filters={"status": "active"}
-        )
+        return await data_operations(operation="read", table="users", filters={"status": "active"})
 
     # Test 10 concurrent operations
     start_time = time.time()
@@ -599,6 +581,7 @@ import time
 # Optional FastAPI integration for health endpoints
 health_app = FastAPI(title="MCP Server Health")
 
+
 @health_app.get("/health")
 async def health_check():
     """Comprehensive health check endpoint."""
@@ -608,8 +591,9 @@ async def health_check():
         "version": "1.0.0",
         "uptime": time.time() - start_time,
         "memory_usage": psutil.virtual_memory().percent,
-        "cpu_usage": psutil.cpu_percent(interval=1)
+        "cpu_usage": psutil.cpu_percent(interval=1),
     }
+
 
 @health_app.get("/metrics")
 async def metrics():
@@ -618,7 +602,7 @@ async def metrics():
         "tool_invocations_total": tool_invocation_count,
         "error_rate": error_count / max(1, tool_invocation_count),
         "average_response_time": sum(response_times) / len(response_times) if response_times else 0,
-        "active_connections": active_connection_count
+        "active_connections": active_connection_count,
     }
 ```
 
@@ -638,7 +622,7 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ],
     context_class=dict,
     logger_factory=structlog.stdlib.LoggerFactory(),
@@ -647,6 +631,7 @@ structlog.configure(
 )
 
 logger = structlog.get_logger()
+
 
 # Usage in tools
 @app.tool()
@@ -659,22 +644,14 @@ async def logged_operation(user_id: str, action: str) -> Dict[str, Any]:
         result = await perform_operation(user_id, action)
 
         logger.info(
-            "Operation completed successfully",
-            user_id=user_id,
-            action=action,
-            result_summary=result.get("summary")
+            "Operation completed successfully", user_id=user_id, action=action, result_summary=result.get("summary")
         )
 
         return {"success": True, "result": result}
 
     except Exception as e:
         logger.error(
-            "Operation failed",
-            user_id=user_id,
-            action=action,
-            error=str(e),
-            error_type=type(e).__name__,
-            exc_info=True
+            "Operation failed", user_id=user_id, action=action, error=str(e), error_type=type(e).__name__, exc_info=True
         )
 
         return {"error": str(e)}

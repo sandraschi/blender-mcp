@@ -58,8 +58,10 @@ class AIProviderManager {
 ```python
 # Document processing and vector search
 class RAGSystem:
-  async def query(question: str, top_k: int = 3): List[str]
-  # Semantic search with embeddings and reranking
+    async def query(question: str, top_k: int = 3):
+        List[str]
+
+    # Semantic search with embeddings and reranking
 ```
 
 ### Container Orchestration
