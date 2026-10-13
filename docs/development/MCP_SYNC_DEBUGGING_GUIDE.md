@@ -1,6 +1,6 @@
 # MCP File Sync Debugging Guide
 
-**Created:** 2025-10-10  
+**Created:** 2025-10-10
 **Context:** Advanced-memory-mcp sync stuck at 242/1896 files - watchdog failed silently
 
 ---
@@ -50,6 +50,7 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
+
 class FileSyncManager:
     def __init__(self, project_path: str):
         self.project_path = project_path
@@ -58,66 +59,52 @@ class FileSyncManager:
         self.files_scanned = 0
         self.files_total = 0
         self.errors = []
-        
-        logger.info("file_sync_initialized", 
-                   project_path=project_path,
-                   state=self.sync_state)
-    
+
+        logger.info("file_sync_initialized", project_path=project_path, state=self.sync_state)
+
     def start_sync(self):
         """Start file synchronization with detailed logging."""
         try:
             logger.info("sync_starting", path=self.project_path)
-            
+
             # Count files first
             self.files_total = self._count_files()
-            logger.info("file_count_complete", 
-                       total=self.files_total,
-                       path=self.project_path)
-            
+            logger.info("file_count_complete", total=self.files_total, path=self.project_path)
+
             # Start watcher
             self.watcher = FileWatcher(self.project_path)
             self.watcher.start()
-            
+
             self.sync_state = "SCANNING"
-            logger.info("sync_started", 
-                       state=self.sync_state,
-                       total_files=self.files_total)
-            
+            logger.info("sync_started", state=self.sync_state, total_files=self.files_total)
+
             return True
-            
+
         except PermissionError as e:
             self.sync_state = "ERROR_PERMISSION"
-            logger.error("sync_permission_denied",
-                        path=self.project_path,
-                        error=str(e))
+            logger.error("sync_permission_denied", path=self.project_path, error=str(e))
             self.errors.append(f"Permission denied: {e}")
             return False
-            
+
         except FileNotFoundError as e:
             self.sync_state = "ERROR_NOT_FOUND"
-            logger.error("sync_path_not_found",
-                        path=self.project_path,
-                        error=str(e))
+            logger.error("sync_path_not_found", path=self.project_path, error=str(e))
             self.errors.append(f"Path not found: {e}")
             return False
-            
+
         except Exception as e:
             self.sync_state = "ERROR_UNKNOWN"
-            logger.error("sync_failed",
-                        error=str(e),
-                        error_type=type(e).__name__,
-                        traceback=traceback.format_exc())
+            logger.error("sync_failed", error=str(e), error_type=type(e).__name__, traceback=traceback.format_exc())
             self.errors.append(f"Sync failed: {e}")
             return False
-    
+
     def get_status(self) -> dict:
         """Get detailed sync status for debugging."""
         return {
             "state": self.sync_state,
             "files_scanned": self.files_scanned,
             "files_total": self.files_total,
-            "progress_percent": (self.files_scanned / self.files_total * 100) 
-                               if self.files_total > 0 else 0,
+            "progress_percent": (self.files_scanned / self.files_total * 100) if self.files_total > 0 else 0,
             "errors": self.errors,
             "watcher_alive": self.watcher.is_alive() if self.watcher else False,
         }
@@ -130,7 +117,7 @@ class FileSyncManager:
 async def sync_health_check() -> str:
     """
     Comprehensive sync health check with diagnostics.
-    
+
     Returns detailed status including:
     - Watcher process state
     - Database growth rate
@@ -139,23 +126,21 @@ async def sync_health_check() -> str:
     - Performance metrics
     """
     status = sync_manager.get_status()
-    
+
     # Check if stuck
     if status["state"] == "SCANNING" and status["files_scanned"] == 0:
-        logger.warning("sync_appears_stuck",
-                      state=status["state"],
-                      duration=sync_manager.get_runtime())
-    
+        logger.warning("sync_appears_stuck", state=status["state"], duration=sync_manager.get_runtime())
+
     # Format output
     output = f"""
 # Sync Health Check
 
-**State:** {status['state']}
-**Progress:** {status['files_scanned']} / {status['files_total']} ({status['progress_percent']:.1f}%)
-**Watcher:** {'ALIVE' if status['watcher_alive'] else 'DEAD ❌'}
+**State:** {status["state"]}
+**Progress:** {status["files_scanned"]} / {status["files_total"]} ({status["progress_percent"]:.1f}%)
+**Watcher:** {"ALIVE" if status["watcher_alive"] else "DEAD ❌"}
 
 ## Errors
-{chr(10).join(status['errors']) if status['errors'] else 'None'}
+{chr(10).join(status["errors"]) if status["errors"] else "None"}
 
 ## Diagnostics
 - Database size: {get_db_size()} KB
@@ -166,25 +151,26 @@ async def sync_health_check() -> str:
 ## Recommendations
 {generate_recommendations(status)}
 """
-    
+
     return output
+
 
 def generate_recommendations(status: dict) -> str:
     """Generate actionable recommendations based on status."""
     recs = []
-    
+
     if not status["watcher_alive"]:
         recs.append("⚠️  Watcher is dead - restart server required")
-    
+
     if status["state"] == "ERROR_PERMISSION":
         recs.append("🔒 Permission error - check folder permissions")
-    
+
     if status["files_scanned"] == 0 and status["state"] == "SCANNING":
         recs.append("🐛 Scan appears stuck - check logs for errors")
-    
+
     if status["progress_percent"] < 50 and get_runtime() > 300:
         recs.append("⏱️  Slow scan - consider reducing file count or checking disk I/O")
-    
+
     return "\n".join(recs) if recs else "✅ All systems healthy"
 ```
 
@@ -193,48 +179,46 @@ def generate_recommendations(status: dict) -> str:
 ```python
 class ProgressMonitor:
     """Monitor sync progress and detect stalls."""
-    
+
     def __init__(self, check_interval: int = 30):
         self.check_interval = check_interval
         self.last_progress = 0
         self.stall_count = 0
         self.max_stalls = 3
-        
+
     async def monitor(self):
         """Background monitoring task."""
         while True:
             await asyncio.sleep(self.check_interval)
-            
+
             current_progress = sync_manager.files_scanned
-            
+
             if current_progress == self.last_progress:
                 self.stall_count += 1
-                logger.warning("sync_stalled",
-                              progress=current_progress,
-                              stall_count=self.stall_count)
-                
+                logger.warning("sync_stalled", progress=current_progress, stall_count=self.stall_count)
+
                 if self.stall_count >= self.max_stalls:
-                    logger.error("sync_stuck",
-                                progress=current_progress,
-                                duration=self.stall_count * self.check_interval)
+                    logger.error(
+                        "sync_stuck", progress=current_progress, duration=self.stall_count * self.check_interval
+                    )
                     # Attempt recovery
                     await self.attempt_recovery()
             else:
                 self.stall_count = 0  # Reset on progress
-                logger.debug("sync_progress",
-                            scanned=current_progress,
-                            remaining=sync_manager.files_total - current_progress)
-            
+                logger.debug(
+                    "sync_progress", scanned=current_progress, remaining=sync_manager.files_total - current_progress
+                )
+
             self.last_progress = current_progress
-    
+
     async def attempt_recovery(self):
         """Try to recover from stuck sync."""
         logger.info("attempting_sync_recovery")
-        
+
         # Kill stuck watcher
         if sync_manager.watcher:
             sync_manager.watcher.stop()
-        
+
         # Restart sync
         await sync_manager.start_sync()
 ```
@@ -252,69 +236,77 @@ import tempfile
 from pathlib import Path
 from file_sync import FileSyncManager
 
+
 @pytest.fixture
 def temp_project():
     """Create temporary project with test files."""
     with tempfile.TemporaryDirectory() as tmpdir:
         project_path = Path(tmpdir)
-        
+
         # Create test files
         for i in range(100):
             (project_path / f"test_{i}.md").write_text(f"# Test {i}")
-        
+
         yield project_path
+
 
 def test_sync_counts_files_correctly(temp_project):
     """Test that file counting works."""
     sync = FileSyncManager(str(temp_project))
     sync.start_sync()
-    
+
     assert sync.files_total == 100
     assert sync.sync_state == "SCANNING"
+
 
 def test_sync_handles_missing_directory():
     """Test handling of non-existent directory."""
     sync = FileSyncManager("/nonexistent/path")
     result = sync.start_sync()
-    
+
     assert result is False
     assert sync.sync_state == "ERROR_NOT_FOUND"
     assert len(sync.errors) > 0
+
 
 def test_sync_handles_permission_error(temp_project):
     """Test handling of permission errors."""
     # Make directory read-only
     temp_project.chmod(0o444)
-    
+
     sync = FileSyncManager(str(temp_project))
     result = sync.start_sync()
-    
+
     assert result is False
     assert "Permission" in sync.errors[0]
+
 
 @pytest.mark.timeout(60)
 def test_sync_completes_in_reasonable_time(temp_project):
     """Test that sync doesn't hang."""
     sync = FileSyncManager(str(temp_project))
     sync.start_sync()
-    
+
     # Wait for completion
     import time
+
     start = time.time()
     while sync.sync_state == "SCANNING" and time.time() - start < 30:
         time.sleep(0.5)
-    
+
     assert sync.sync_state == "COMPLETED"
     assert sync.files_scanned == sync.files_total
+
 
 def test_watcher_stays_alive(temp_project):
     """Test that watcher doesn't die silently."""
     sync = FileSyncManager(str(temp_project))
     sync.start_sync()
-    
+
     import time
+
     time.sleep(5)
-    
+
     status = sync.get_status()
     assert status["watcher_alive"] is True
 ```
@@ -327,21 +319,20 @@ import pytest
 from mcp.client import ClientSession
 from mcp import StdioServerParameters
 
+
 @pytest.mark.asyncio
 async def test_sync_status_reports_progress():
     """Test that sync_status tool works and reports progress."""
-    server = StdioServerParameters(
-        command="python",
-        args=["-m", "advanced_memory.mcp.server"]
-    )
-    
+    server = StdioServerParameters(command="python", args=["-m", "advanced_memory.mcp.server"])
+
     async with ClientSession(server) as client:
         # Call sync_status
         result = await client.call_tool("sync_status")
-        
+
         assert "files_scanned" in result
         assert "files_total" in result
         assert "state" in result
+
 
 @pytest.mark.asyncio
 async def test_sync_health_check_detects_stuck_sync():
@@ -359,31 +350,34 @@ import pytest
 import time
 from file_sync import FileSyncManager
 
+
 @pytest.mark.performance
 def test_sync_speed_baseline(benchmark, temp_project_1000_files):
     """Benchmark sync speed for 1000 files."""
+
     def run_sync():
         sync = FileSyncManager(str(temp_project_1000_files))
         sync.start_sync()
         while sync.sync_state == "SCANNING":
             time.sleep(0.1)
         return sync
-    
+
     result = benchmark(run_sync)
     assert result.files_scanned == 1000
+
 
 @pytest.mark.performance
 def test_database_growth_rate(temp_project):
     """Test that database grows at reasonable rate."""
     sync = FileSyncManager(str(temp_project))
     initial_size = get_db_size()
-    
+
     sync.start_sync()
     time.sleep(10)
-    
+
     final_size = get_db_size()
     growth_rate = (final_size - initial_size) / 10  # KB/sec
-    
+
     assert growth_rate > 0, "Database should grow during sync"
     assert growth_rate < 1000, "Growth rate seems suspiciously high"
 ```
@@ -415,10 +409,10 @@ Export metrics for monitoring tools:
 ```python
 from prometheus_client import Counter, Gauge, Histogram
 
-files_scanned = Counter('mcp_files_scanned_total', 'Total files scanned')
-files_total = Gauge('mcp_files_total', 'Total files to scan')
-scan_duration = Histogram('mcp_scan_duration_seconds', 'Time to scan files')
-sync_errors = Counter('mcp_sync_errors_total', 'Sync errors', ['error_type'])
+files_scanned = Counter("mcp_files_scanned_total", "Total files scanned")
+files_total = Gauge("mcp_files_total", "Total files to scan")
+scan_duration = Histogram("mcp_scan_duration_seconds", "Time to scan files")
+sync_errors = Counter("mcp_sync_errors_total", "Sync errors", ["error_type"])
 ```
 
 ### 3. **Health Endpoint**
@@ -428,12 +422,12 @@ sync_errors = Counter('mcp_sync_errors_total', 'Sync errors', ['error_type'])
 async def sync_health():
     """Health check endpoint for monitoring."""
     status = sync_manager.get_status()
-    
+
     return {
         "healthy": status["state"] not in ["ERROR_UNKNOWN", "ERROR_PERMISSION"],
         "state": status["state"],
         "progress": f"{status['files_scanned']}/{status['files_total']}",
-        "errors": status["errors"]
+        "errors": status["errors"],
     }
 ```
 
@@ -508,4 +502,3 @@ When sync appears stuck:
 - [MCP Best Practices](https://modelcontextprotocol.io/docs/best-practices)
 - [Structlog Documentation](https://www.structlog.org/)
 - [Prometheus Python Client](https://github.com/prometheus/client_python)
-

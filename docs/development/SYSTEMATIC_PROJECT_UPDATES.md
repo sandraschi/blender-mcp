@@ -1,7 +1,7 @@
 # 🔄 Systematic Project-Wide Updates with AI
 
-**The Challenge of Comprehensive Changes**  
-**Based on Real FastMCP 2.12 Migration Experience**  
+**The Challenge of Comprehensive Changes**
+**Based on Real FastMCP 2.12 Migration Experience**
 **Timeline**: September 2025
 
 ---
@@ -12,7 +12,7 @@
 
 **What Developers Need**:
 - ✅ **Check ALL files** for import issues in one pass
-- ✅ **Update ALL tools** with correct decorators systematically  
+- ✅ **Update ALL tools** with correct decorators systematically
 - ✅ **Fix ALL type hints** across the entire project
 - ✅ **Validate ALL functions** follow the same pattern
 - ✅ **Comprehensive project-wide consistency**
@@ -32,7 +32,7 @@
 ```
 tools/
 ├── device_status.py     ← Update 3 tools
-├── device_control.py    ← Update 5 tools  
+├── device_control.py    ← Update 5 tools
 ├── system_status.py     ← Update 3 tools
 ├── auth_tools.py        ← Update 3 tools
 ├── config_tools.py      ← Update 5 tools
@@ -43,7 +43,7 @@ Total: 24 tools across 7 files
 
 **What Happened with AI**:
 - 🔄 **Request 1**: Fixed device_status.py and device_control.py
-- 🔄 **Request 2**: Fixed auth_tools.py and config_tools.py  
+- 🔄 **Request 2**: Fixed auth_tools.py and config_tools.py
 - 🔄 **Request 3**: Fixed help_tool.py (but missed some functions)
 - 🔄 **Request 4**: Fixed remaining functions in help_tool.py
 - 🔄 **Request 5**: Fixed system_status.py
@@ -79,7 +79,7 @@ src/nest_protect_mcp/server.py
 # Find all decorator patterns
 grep -r "@" src/nest_protect_mcp/tools/ --include="*.py"
 
-# Find all import patterns  
+# Find all import patterns
 grep -r "from.*import" src/nest_protect_mcp/tools/ --include="*.py"
 
 # Find all function definitions
@@ -92,17 +92,17 @@ grep -r "def " src/nest_protect_mcp/tools/ --include="*.py"
 ```markdown
 ## Import Fixes Needed
 - [ ] src/nest_protect_mcp/tools/device_status.py
-- [ ] src/nest_protect_mcp/tools/device_control.py  
+- [ ] src/nest_protect_mcp/tools/device_control.py
 - [ ] src/nest_protect_mcp/tools/system_status.py
 - [ ] src/nest_protect_mcp/tools/auth_tools.py
 - [ ] src/nest_protect_mcp/tools/config_tools.py
 - [ ] src/nest_protect_mcp/tools/help_tool.py
 - [ ] src/nest_protect_mcp/tools/about_tool.py
 
-## Decorator Updates Needed  
+## Decorator Updates Needed
 - [ ] device_status.py: list_devices, get_device_status, get_device_events
 - [ ] device_control.py: hush_alarm, run_safety_check, set_led_brightness, sound_alarm, arm_disarm_security
-- [ ] system_status.py: get_system_status, get_process_status, get_api_status  
+- [ ] system_status.py: get_system_status, get_process_status, get_api_status
 - [ ] auth_tools.py: initiate_oauth_flow, handle_oauth_callback, refresh_access_token
 - [ ] config_tools.py: get_config, update_config, reset_config, export_config, import_config
 - [ ] help_tool.py: list_available_tools, get_tool_help, search_tools
@@ -117,7 +117,7 @@ Total: 24 functions across 7 files
 
 **Request Format**:
 ```
-I need to systematically update [X] files for [specific change]. 
+I need to systematically update [X] files for [specific change].
 
 FILES TO UPDATE (in this batch):
 1. src/nest_protect_mcp/tools/device_status.py
@@ -126,14 +126,14 @@ FILES TO UPDATE (in this batch):
 
 SPECIFIC CHANGES NEEDED:
 - Remove `from ..tools import tool` imports
-- Remove `@tool` decorators from all functions  
+- Remove `@tool` decorators from all functions
 - Add proper Pydantic models for parameters
 - Keep all function logic EXACTLY the same
 - Do NOT add mocks or simplify functionality
 
 FUNCTIONS TO UPDATE:
 device_status.py: list_devices(), get_device_status(), get_device_events()
-device_control.py: hush_alarm(), run_safety_check(), set_led_brightness(), sound_alarm(), arm_disarm_security()  
+device_control.py: hush_alarm(), run_safety_check(), set_led_brightness(), sound_alarm(), arm_disarm_security()
 system_status.py: get_system_status(), get_process_status(), get_api_status()
 
 Please update ALL files and ALL functions in this batch. I will make separate requests for the remaining files.
@@ -144,7 +144,7 @@ Please update ALL files and ALL functions in this batch. I will make separate re
 **Batch 1: Core Tools (3 files)**
 - device_status.py, device_control.py, system_status.py
 
-**Batch 2: Auth & Config (2 files)**  
+**Batch 2: Auth & Config (2 files)**
 - auth_tools.py, config_tools.py
 
 **Batch 3: Help & Documentation (2 files)**
@@ -170,13 +170,14 @@ grep -r "from ..tools import tool" src/nest_protect_mcp/tools/  # Should find no
 import os
 import ast
 
+
 def check_file_imports(filepath):
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         content = f.read()
-    
+
     tree = ast.parse(content)
     imports = []
-    
+
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
@@ -185,13 +186,14 @@ def check_file_imports(filepath):
             module = node.module or ""
             for alias in node.names:
                 imports.append(f"from {module} import {alias.name}")
-    
+
     return imports
+
 
 # Check all tool files
 tools_dir = "src/nest_protect_mcp/tools/"
 for filename in os.listdir(tools_dir):
-    if filename.endswith('.py') and filename != '__init__.py':
+    if filename.endswith(".py") and filename != "__init__.py":
         filepath = os.path.join(tools_dir, filename)
         imports = check_file_imports(filepath)
         print(f"\n{filename}:")
@@ -205,28 +207,28 @@ for filename in os.listdir(tools_dir):
 import os
 import ast
 
+
 def check_function_decorators(filepath):
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         content = f.read()
-    
+
     tree = ast.parse(content)
     functions = []
-    
+
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef):
-            decorators = [d.id if hasattr(d, 'id') else str(d) for d in node.decorator_list]
-            functions.append({
-                'name': node.name,
-                'decorators': decorators,
-                'is_async': isinstance(node, ast.AsyncFunctionDef)
-            })
-    
+            decorators = [d.id if hasattr(d, "id") else str(d) for d in node.decorator_list]
+            functions.append(
+                {"name": node.name, "decorators": decorators, "is_async": isinstance(node, ast.AsyncFunctionDef)}
+            )
+
     return functions
 
-# Check all tool files  
+
+# Check all tool files
 tools_dir = "src/nest_protect_mcp/tools/"
 for filename in os.listdir(tools_dir):
-    if filename.endswith('.py') and filename != '__init__.py':
+    if filename.endswith(".py") and filename != "__init__.py":
         filepath = os.path.join(tools_dir, filename)
         functions = check_function_decorators(filepath)
         print(f"\n{filename}:")
@@ -261,7 +263,7 @@ for filename in os.listdir(tools_dir):
 ```
 Round 1: Update 3-4 core files
 ├── Verify changes work
-├── Test server startup  
+├── Test server startup
 └── Commit working state
 
 Round 2: Update next 3-4 files
@@ -283,7 +285,7 @@ Round 3: Continue until complete
 ```
 Update imports in ALL tool files:
 - Remove: from ..tools import tool
-- Remove: from ..tools import Tool  
+- Remove: from ..tools import Tool
 - Add: (no tool-specific imports needed)
 
 Files: ALL files in src/nest_protect_mcp/tools/
@@ -317,44 +319,48 @@ Files: ALL files in src/nest_protect_mcp/tools/
 # comprehensive_check.py
 def validate_all_tools():
     """Ensure every tool follows the correct pattern."""
-    
+
     tools_expected = [
-        ('device_status', ['list_devices', 'get_device_status', 'get_device_events']),
-        ('device_control', ['hush_alarm', 'run_safety_check', 'set_led_brightness', 'sound_alarm', 'arm_disarm_security']),
-        ('system_status', ['get_system_status', 'get_process_status', 'get_api_status']),
-        ('auth_tools', ['initiate_oauth_flow', 'handle_oauth_callback', 'refresh_access_token']),
-        ('config_tools', ['get_config', 'update_config', 'reset_config', 'export_config', 'import_config']),
-        ('help_tool', ['list_available_tools', 'get_tool_help', 'search_tools']),
-        ('about_tool', ['about_server', 'get_supported_devices'])
+        ("device_status", ["list_devices", "get_device_status", "get_device_events"]),
+        (
+            "device_control",
+            ["hush_alarm", "run_safety_check", "set_led_brightness", "sound_alarm", "arm_disarm_security"],
+        ),
+        ("system_status", ["get_system_status", "get_process_status", "get_api_status"]),
+        ("auth_tools", ["initiate_oauth_flow", "handle_oauth_callback", "refresh_access_token"]),
+        ("config_tools", ["get_config", "update_config", "reset_config", "export_config", "import_config"]),
+        ("help_tool", ["list_available_tools", "get_tool_help", "search_tools"]),
+        ("about_tool", ["about_server", "get_supported_devices"]),
     ]
-    
+
     for module_name, expected_functions in tools_expected:
         print(f"\nValidating {module_name}.py:")
-        
+
         # Check file exists
         filepath = f"src/nest_protect_mcp/tools/{module_name}.py"
         if not os.path.exists(filepath):
             print(f"  ❌ File missing: {filepath}")
             continue
-            
-        # Check functions exist  
+
+        # Check functions exist
         functions = check_function_decorators(filepath)
-        function_names = [f['name'] for f in functions]
-        
+        function_names = [f["name"] for f in functions]
+
         for expected_func in expected_functions:
             if expected_func in function_names:
                 print(f"  ✅ {expected_func} found")
             else:
                 print(f"  ❌ {expected_func} MISSING")
-        
+
         # Check for old patterns
-        with open(filepath, 'r') as f:
+        with open(filepath, "r") as f:
             content = f.read()
-            
+
         if "@tool" in content:
             print(f"  ❌ Old @tool decorators still present")
         if "from ..tools import tool" in content:
             print(f"  ❌ Old tool imports still present")
+
 
 if __name__ == "__main__":
     validate_all_tools()
@@ -368,7 +374,7 @@ if __name__ == "__main__":
 
 **Problem**: AI updates 3 files, ignores the other 4
 
-**Solution**: 
+**Solution**:
 - ✅ **Explicit file enumeration** in each request
 - ✅ **Batch size limits** (3-4 files max per request)
 - ✅ **Verification after each batch**
@@ -413,7 +419,7 @@ OBJECTIVE: [specific change needed]
 
 FILES IN THIS BATCH:
 1. [file1]
-2. [file2] 
+2. [file2]
 3. [file3]
 
 SPECIFIC CHANGES:
@@ -430,7 +436,7 @@ CRITICAL REQUIREMENTS:
 
 FUNCTIONS TO UPDATE:
 [file1]: [function1(), function2(), function3()]
-[file2]: [function1(), function2()]  
+[file2]: [function1(), function2()]
 [file3]: [function1(), function2(), function3(), function4()]
 
 VERIFICATION:
@@ -475,13 +481,13 @@ python -m nest_protect_mcp --test-startup
 
 **If we had followed this systematic approach**:
 
-**Day 1**: 
+**Day 1**:
 - Batch 1: device_status.py, device_control.py, system_status.py
 - Verification and testing
 - Commit working state
 
 **Day 2**:
-- Batch 2: auth_tools.py, config_tools.py  
+- Batch 2: auth_tools.py, config_tools.py
 - Batch 3: help_tool.py, about_tool.py
 - Verification and testing
 - Commit working state
@@ -502,7 +508,7 @@ python -m nest_protect_mcp --test-startup
 
 **What Could Have Been Better**:
 - ✅ **Systematic batching** instead of ad-hoc requests
-- ✅ **Automated verification** scripts  
+- ✅ **Automated verification** scripts
 - ✅ **Explicit function enumeration** in requests
 - ✅ **Pattern consistency checking**
 
@@ -516,7 +522,7 @@ python -m nest_protect_mcp --test-startup
 - **Git strategy**: Commit after each successful batch
 - **Testing**: Automated testing after each batch
 
-### **For 20+ Tools Projects**  
+### **For 20+ Tools Projects**
 - **Pattern-based batching**: Group by change type, not file location
 - **Function enumeration**: List every function explicitly
 - **Consistency checking**: Automated pattern verification
@@ -524,7 +530,7 @@ python -m nest_protect_mcp --test-startup
 
 ### **For Complex Integration Projects**
 - **Incremental approach**: One integration layer at a time
-- **Validation-driven**: Let verification scripts guide completeness  
+- **Validation-driven**: Let verification scripts guide completeness
 - **Conservative batching**: Smaller batches for complex changes
 - **Rollback readiness**: Easy rollback after each batch
 

@@ -66,10 +66,12 @@ from fastmcp import FastMCP
 # Create your server
 app = FastMCP("my-server")
 
+
 @app.tool()
 def hello_world() -> str:
     """A simple hello world tool."""
     return "Hello from my MCP server!"
+
 
 if __name__ == "__main__":
     print("Starting MCP server...")
@@ -87,11 +89,14 @@ from fastmcp import FastMCP
 from pydantic import BaseModel
 from typing import Annotated
 
+
 class ToolParams(BaseModel):
     name: Annotated[str, {"description": "Name to greet"}]
     age: Annotated[int, {"description": "Age of person"}] = None
 
+
 app = FastMCP("my-server")
+
 
 @app.tool()
 def greet_person(params: ToolParams) -> str:
@@ -100,6 +105,7 @@ def greet_person(params: ToolParams) -> str:
         return f"Hello {params.name}! You are {params.age} years old."
     else:
         return f"Hello {params.name}!"
+
 
 if __name__ == "__main__":
     app.run()
@@ -117,6 +123,7 @@ from fastmcp import FastMCP
 
 app = FastMCP("async-server")
 
+
 @app.tool()
 async def async_operation(task_name: str) -> str:
     """An async tool that simulates I/O operations."""
@@ -124,6 +131,7 @@ async def async_operation(task_name: str) -> str:
     await asyncio.sleep(1)  # Simulate async work
     print(f"Completed async task: {task_name}")
     return f"Async task '{task_name}' completed successfully!"
+
 
 if __name__ == "__main__":
     app.run()
@@ -199,21 +207,20 @@ logger = logging.getLogger(__name__)
 # Create server
 app = FastMCP("complete-example")
 
+
 # Simple tool
 @app.tool()
 def health_check() -> dict:
     """Check server health."""
-    return {
-        "status": "healthy",
-        "server": "complete-example",
-        "version": "1.0.0"
-    }
+    return {"status": "healthy", "server": "complete-example", "version": "1.0.0"}
+
 
 # Tool with parameters
 class MathParams(BaseModel):
     operation: str  # "add", "subtract", "multiply", "divide"
     a: float
     b: float
+
 
 @app.tool()
 def calculate(params: MathParams) -> float:
@@ -233,8 +240,10 @@ def calculate(params: MathParams) -> float:
     else:
         raise ValueError(f"Unknown operation: {params.operation}")
 
+
 # Async tool example
 import asyncio
+
 
 @app.tool()
 async def async_task(task_name: str) -> str:
@@ -243,6 +252,7 @@ async def async_task(task_name: str) -> str:
     await asyncio.sleep(1)  # Simulate work
     logger.info(f"Completed async task: {task_name}")
     return f"Task '{task_name}' completed successfully!"
+
 
 if __name__ == "__main__":
     print("🚀 Complete MCP Server Example")
@@ -344,6 +354,7 @@ app = FastMCP("my-server", host="127.0.0.1", port=8001)
 # Or use dynamic port allocation
 import socket
 
+
 def find_free_port(start=8000, end=9000):
     for port in range(start, end):
         try:
@@ -353,6 +364,7 @@ def find_free_port(start=8000, end=9000):
         except OSError:
             continue
     raise RuntimeError("No free ports")
+
 
 PORT = find_free_port()
 app = FastMCP("my-server", port=PORT)
@@ -368,6 +380,7 @@ from fastmcp import FastMCP
 
 app = FastMCP("my-server")
 
+
 @app.tool()
 def my_function():
     return "Hello World"
@@ -380,11 +393,13 @@ print("Server started")  # Breaks stdio protocol
 
 # ✅ Correct: Use logging or stderr
 import logging
+
 logger = logging.getLogger(__name__)
 logger.info("Server started")
 
 # OR use stderr for debugging
 import sys
+
 print("Debug info", file=sys.stderr)
 ```
 
@@ -393,20 +408,23 @@ print("Debug info", file=sys.stderr)
 # ❌ Wrong: Pydantic V1 syntax
 from pydantic import BaseModel, validator
 
+
 class User(BaseModel):
     email: str
 
-    @validator('email')
+    @validator("email")
     def validate_email(cls, v):
         return v.lower()
+
 
 # ✅ Correct: Pydantic V2 syntax
 from pydantic import BaseModel, field_validator
 
+
 class User(BaseModel):
     email: str
 
-    @field_validator('email')
+    @field_validator("email")
     @classmethod
     def validate_email(cls, v):
         return v.lower()
@@ -440,17 +458,16 @@ mcpjam profile --server "python my_mcp_server.py"
 import pytest
 from my_mcp_server import app
 
+
 def test_health_check():
     result = app.call_tool("health_check", {})
     assert result["status"] == "healthy"
 
+
 def test_calculate_add():
-    result = app.call_tool("calculate", {
-        "operation": "add",
-        "a": 5,
-        "b": 3
-    })
+    result = app.call_tool("calculate", {"operation": "add", "a": 5, "b": 3})
     assert result == 8
+
 
 if __name__ == "__main__":
     test_health_check()
@@ -510,6 +527,7 @@ def test_my_function():
     print(f"Function result: {result}")
     return result
 
+
 # Run test
 test_my_function()
 ```
@@ -564,6 +582,7 @@ print("Debug: Processing request...", file=sys.stderr)
 def mixed_tool():
     return asyncio.run(async_function())  # Wrong!
 
+
 # ✅ CORRECT - Proper async patterns
 @app.tool()
 async def async_tool():
@@ -576,6 +595,7 @@ async def async_tool():
 @app.tool()
 def risky_tool(param: str):
     return 1 / int(param)  # Will crash on "0"
+
 
 # ✅ CORRECT - Comprehensive error handling
 @app.tool()
@@ -597,20 +617,23 @@ def safe_tool(param: str):
 # ❌ WRONG - Pydantic V1
 from pydantic import BaseModel, validator
 
+
 class User(BaseModel):
     email: str
 
-    @validator('email')
+    @validator("email")
     def validate_email(cls, v):
         return v.lower()
+
 
 # ✅ CORRECT - Pydantic V2
 from pydantic import BaseModel, field_validator
 
+
 class User(BaseModel):
     email: str
 
-    @field_validator('email')
+    @field_validator("email")
     @classmethod
     def validate_email(cls, v):
         return v.lower()
@@ -645,6 +668,7 @@ logger = logging.getLogger(__name__)
 # Create server
 app = FastMCP("my-server")
 
+
 @app.tool()
 def my_tool(param: str) -> str:
     """Clear description of what this tool does."""
@@ -656,6 +680,7 @@ def my_tool(param: str) -> str:
     except Exception as e:
         logger.error(f"Error: {e}")
         return f"Error processing request: {str(e)}"
+
 
 if __name__ == "__main__":
     app.run()
@@ -713,4 +738,3 @@ if __name__ == "__main__":
 - **Read**: `read_note("PYTHON_SNIPPETS_USAGE_GUIDE", project="claude-depot-consolidated")`
 
 **Happy coding!** 🚀🐍
-

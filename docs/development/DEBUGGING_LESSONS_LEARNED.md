@@ -1,8 +1,8 @@
 # 🎓 FastMCP 2.12 Debugging: Lessons Learned
 
-**Real-World Experience Report**  
-**Project**: nest-protect MCP Server  
-**Timeline**: 3 Days of Intensive Debugging (Sept 17-19, 2025)  
+**Real-World Experience Report**
+**Project**: nest-protect MCP Server
+**Timeline**: 3 Days of Intensive Debugging (Sept 17-19, 2025)
 **Result**: From Broken → Production Ready (24 Working Tools)
 
 ---
@@ -24,13 +24,13 @@ This document captures the **complete debugging journey** of transforming a brok
    ✅ Server starts successfully
    ✅ Claude Desktop connects via STDIO
    ✅ Initial handshake completes
-   
+
 2. DISCOVERY PHASE (1-5 seconds) ← **DANGER ZONE**
    🎯 Claude requests tool list
-   🎯 FastMCP loads and validates tools  
+   🎯 FastMCP loads and validates tools
    🎯 Tool functions are imported and checked
    ❌ MOST FAILURES HAPPEN HERE
-   
+
 3. OPERATION PHASE (5+ seconds)
    ✅ Tools respond to user requests
    ✅ Sustained operation
@@ -52,10 +52,13 @@ This document captures the **complete debugging journey** of transforming a brok
 @app.tool()
 async def my_tool():
     import missing_library  # Explodes when tool is called
+
     return {"result": "ok"}
+
 
 # ❌ BOMB TYPE 2: Circular imports
 from .module_a import something  # module_a imports this module
+
 
 # ❌ BOMB TYPE 3: Conditional imports
 @app.tool()
@@ -70,9 +73,11 @@ async def my_tool():
 try:
     import required_library
     import optional_library
+
     HAS_OPTIONAL = True
 except ImportError:
     HAS_OPTIONAL = False
+
 
 @app.tool()
 async def my_tool():
@@ -89,9 +94,11 @@ async def my_tool():
 # ❌ BOMB TYPE 1: Module-level validation
 config = MyConfig()  # Pydantic validation happens immediately
 
+
 # ❌ BOMB TYPE 2: Required fields without defaults
 class MyConfig(BaseModel):
     api_key: str  # No default, will fail if not set
+
 
 # ❌ BOMB TYPE 3: File/network access during import
 DEFAULT_CONFIG = load_config_from_file()  # File might not exist
@@ -102,8 +109,10 @@ DEFAULT_CONFIG = load_config_from_file()  # File might not exist
 # ✅ SOLUTION: Lazy loading with graceful defaults
 config = None
 
+
 class MyConfig(BaseModel):
     api_key: str = Field("", description="API key")  # Default provided
+
 
 def get_config():
     global config
@@ -124,6 +133,7 @@ def get_config():
 async def main():
     app.run()  # app.run() is already blocking
 
+
 asyncio.run(main())
 
 # ❌ PROBLEM: Event loop conflicts
@@ -135,6 +145,7 @@ loop = asyncio.get_running_loop()  # May not exist
 # ✅ SOLUTION: Keep it simple
 def main():
     app.run()  # FastMCP handles everything
+
 
 if __name__ == "__main__":
     main()
@@ -148,11 +159,13 @@ if __name__ == "__main__":
 # ❌ PROBLEM: Global state without proper access
 shared_data = {}
 
+
 @app.tool()
 async def tool1():
     shared_data["key"] = "value"  # Race conditions possible
 
-@app.tool() 
+
+@app.tool()
 async def tool2():
     return shared_data["key"]  # May not exist
 ```
@@ -163,15 +176,19 @@ async def tool2():
 class AppState(BaseModel):
     data: Dict[str, Any] = {}
 
+
 app_state = AppState()
+
 
 def get_app_state() -> AppState:
     return app_state
+
 
 @app.tool()
 async def tool1():
     state = get_app_state()
     state.data["key"] = "value"
+
 
 @app.tool()
 async def tool2():
@@ -188,7 +205,7 @@ async def tool2():
 ```python
 def validate_environment():
     """Quick environment check before starting server."""
-    
+
     # Test 1: Critical imports
     critical_imports = ["fastmcp", "pydantic", "aiohttp"]
     for module in critical_imports:
@@ -198,15 +215,16 @@ def validate_environment():
         except ImportError as e:
             print(f"❌ {module}: {e}")
             return False
-    
+
     # Test 2: Custom modules
     try:
         from .tools import device_status, auth_tools  # Your modules
+
         print("✅ Custom modules")
     except ImportError as e:
         print(f"❌ Custom modules: {e}")
         return False
-    
+
     # Test 3: Configuration
     try:
         config = get_config()  # Your config loading
@@ -214,8 +232,9 @@ def validate_environment():
     except Exception as e:
         print(f"❌ Configuration: {e}")
         return False
-    
+
     return True
+
 
 if __name__ == "__main__":
     if not validate_environment():
@@ -231,9 +250,11 @@ from fastmcp import FastMCP
 
 app = FastMCP("test")
 
+
 @app.tool()
 async def hello() -> dict:
     return {"message": "Hello"}
+
 
 if __name__ == "__main__":
     app.run()
@@ -255,10 +276,12 @@ logging.basicConfig(level=logging.DEBUG, handlers=[logging.StreamHandler(sys.std
 # test_step_2.py - Add your imports
 from your_module import some_function
 
+
 # test_step_3.py - Add one tool
 @app.tool()
 async def real_tool() -> dict:
     return some_function()
+
 
 # test_step_4.py - Add configuration
 config = get_config()
@@ -272,7 +295,7 @@ Look for these patterns in logs:
 
 ```
 ❌ "ImportError" during tool loading
-❌ "ValidationError" during config access  
+❌ "ValidationError" during config access
 ❌ "AttributeError" for missing objects
 ❌ "TimeoutError" for network calls
 ❌ "PermissionError" for file access
@@ -315,17 +338,17 @@ async def file_tool(path: str) -> dict:
         # Validate path
         if not os.path.exists(path):
             return {"success": False, "error": "File not found"}
-        
+
         # Check permissions
         if not os.access(path, os.R_OK):
             return {"success": False, "error": "Permission denied"}
-        
+
         # Read file
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             content = f.read()
-        
+
         return {"success": True, "content": content}
-    
+
     except PermissionError:
         return {"success": False, "error": "Permission denied"}
     except UnicodeDecodeError:
@@ -344,19 +367,16 @@ async def device_tool(device_id: str) -> dict:
         # Validate device ID format
         if not device_id or len(device_id) < 5:
             return {"success": False, "error": "Invalid device ID"}
-        
-        # Check device availability  
+
+        # Check device availability
         if not await is_device_online(device_id):
             return {"success": False, "error": "Device offline"}
-        
+
         # Perform operation with timeout
-        result = await asyncio.wait_for(
-            device_operation(device_id), 
-            timeout=30.0
-        )
-        
+        result = await asyncio.wait_for(device_operation(device_id), timeout=30.0)
+
         return {"success": True, "result": result}
-        
+
     except asyncio.TimeoutError:
         return {"success": False, "error": "Device operation timeout"}
     except DeviceError as e:
@@ -387,7 +407,7 @@ async def device_tool(device_id: str) -> dict:
 
 ### **Time Investment vs. Results**
 - **Day 1**: 8 hours → Basic server startup working
-- **Day 2**: 6 hours → All tools loading without crashes  
+- **Day 2**: 6 hours → All tools loading without crashes
 - **Day 3**: 4 hours → Production-ready with real API integration
 - **Total**: 18 hours → Complete transformation
 
@@ -397,7 +417,7 @@ async def device_tool(device_id: str) -> dict:
 
 ### **Common Mental Traps**
 
-1. **"Claude is randomly killing my server"** 
+1. **"Claude is randomly killing my server"**
    - Reality: Your server is crashing during tool discovery
 
 2. **"The framework is buggy"**
@@ -435,11 +455,14 @@ git diff HEAD~1  # What changed since it last worked?
 ```python
 # Minimum viable server
 from fastmcp import FastMCP
+
 app = FastMCP("test")
+
 
 @app.tool()
 async def test() -> dict:
     return {"status": "ok"}
+
 
 app.run()
 ```
@@ -447,6 +470,7 @@ app.run()
 **Step 3** (5 minutes): Add logging and test one component
 ```python
 import logging
+
 logging.basicConfig(level=logging.DEBUG, handlers=[logging.StreamHandler(sys.stderr)])
 
 # Add one component from your main server
@@ -471,9 +495,11 @@ logging.basicConfig(level=logging.DEBUG, handlers=[logging.StreamHandler(sys.std
 # Common issues and quick fixes
 try:
     import PIL, torch, transformers  # Avatar generation dependencies
+
     HAS_AVATAR_DEPS = True
 except ImportError:
     HAS_AVATAR_DEPS = False
+
 
 @app.tool()
 async def generate_avatar() -> dict:
@@ -487,6 +513,7 @@ async def generate_avatar() -> dict:
 # Common issues and quick fixes
 model = None  # Don't load at module level
 
+
 def get_model():
     global model
     if model is None:
@@ -496,6 +523,7 @@ def get_model():
             logger.error(f"Model loading failed: {e}")
             model = "error"  # Mark as failed
     return model
+
 
 @app.tool()
 async def chat() -> dict:
@@ -514,9 +542,9 @@ async def control_device(device_ip: str) -> dict:
         # Test connectivity first
         if not await ping_device(device_ip):
             return {"error": "Device not reachable"}
-        
+
         # Your device control logic
-        
+
     except NetworkError:
         return {"error": "Network connectivity issue"}
     except AuthenticationError:
@@ -539,16 +567,18 @@ from typing import Dict, Any
 # 1. Comprehensive logging setup
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stderr)]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stderr)],
 )
 logger = logging.getLogger(__name__)
+
 
 # 2. Environment validation
 def validate_environment() -> bool:
     try:
         # Test all critical imports
         import aiohttp, pydantic  # Add your dependencies
+
         # Test configuration loading
         config = get_config()
         # Test external connectivity
@@ -557,29 +587,34 @@ def validate_environment() -> bool:
         logger.error(f"Environment validation failed: {e}")
         return False
 
+
 # 3. Graceful state management
 app_state = None
+
+
 def get_app_state():
     global app_state
     if app_state is None:
         app_state = initialize_state()
     return app_state
 
+
 # 4. FastMCP server with error handling
 app = FastMCP("bulletproof-server")
+
 
 @app.tool()
 async def example_tool(param: str) -> Dict[str, Any]:
     """Example tool with comprehensive error handling."""
     try:
         logger.info(f"Tool called with param: {param}")
-        
+
         # Your tool logic here
         result = await some_operation(param)
-        
+
         logger.info("Tool completed successfully")
         return {"success": True, "result": result}
-        
+
     except SpecificError as e:
         logger.warning(f"Expected error: {e}")
         return {"success": False, "error": str(e)}
@@ -587,12 +622,13 @@ async def example_tool(param: str) -> Dict[str, Any]:
         logger.error(f"Unexpected error: {e}", exc_info=True)
         return {"success": False, "error": "Internal server error"}
 
+
 # 5. Validated startup
 if __name__ == "__main__":
     if not validate_environment():
         logger.error("Environment validation failed - exiting")
         sys.exit(1)
-    
+
     logger.info("Starting server...")
     app.run()
 ```
@@ -603,7 +639,7 @@ if __name__ == "__main__":
 
 ### **Documentation to Bookmark**
 - FastMCP 2.12 Official Docs
-- Pydantic V2 Migration Guide  
+- Pydantic V2 Migration Guide
 - aiohttp Best Practices
 - Python asyncio Documentation
 

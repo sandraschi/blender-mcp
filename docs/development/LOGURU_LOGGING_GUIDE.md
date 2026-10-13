@@ -33,10 +33,10 @@ def setup_logging(log_level: str = "INFO"):
 
     # Add console handler
     logger.add(
-        sys.stderr,        # Output to stderr
-        level=log_level,   # Minimum log level
-        format=log_format, # Structured format
-        colorize=True      # Color output
+        sys.stderr,  # Output to stderr
+        level=log_level,  # Minimum log level
+        format=log_format,  # Structured format
+        colorize=True,  # Color output
     )
 ```
 
@@ -171,6 +171,7 @@ logger.level("DEBUG")
 
 # Or set via environment
 import os
+
 log_level = os.getenv("LOG_LEVEL", "INFO")
 setup_logging(log_level)
 ```
@@ -307,6 +308,7 @@ logger.bind(scene=scene_name, object_count=count).info("Scene creation completed
 
 # Best: With timing
 import time
+
 start = time.time()
 # ... operation ...
 duration = time.time() - start
@@ -354,9 +356,9 @@ if logger.level("DEBUG").no <= logger._core.level:
 # Add file handler
 logger.add(
     "blender_mcp.log",
-    rotation="10 MB",      # Rotate when file reaches 10MB
-    retention="1 week",    # Keep logs for 1 week
-    level="DEBUG"
+    rotation="10 MB",  # Rotate when file reaches 10MB
+    retention="1 week",  # Keep logs for 1 week
+    level="DEBUG",
 )
 ```
 
@@ -367,7 +369,7 @@ logger.add(
     "logs.json",
     format="{time} | {level} | {name} | {function} | {line} | {message}",
     serialize=True,  # JSON format
-    level="INFO"
+    level="INFO",
 )
 ```
 

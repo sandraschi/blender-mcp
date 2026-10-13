@@ -1,7 +1,7 @@
 # 🔧 Development Pain Points & Solutions
 
-**Real-World Issues and Practical Solutions**  
-**Based on Actual Development Experience**  
+**Real-World Issues and Practical Solutions**
+**Based on Actual Development Experience**
 **Timeline**: September 2025
 
 ---
@@ -33,7 +33,7 @@ npm start  # Another React app on 3000 - CONFLICT!
 ```yaml
 # Port allocation scheme
 Frontend Apps:     3000-3099
-Backend APIs:      8000-8099  
+Backend APIs:      8000-8099
 Databases:         5000-5099
 Monitoring:        9000-9099
 Cache/Redis:       6000-6099
@@ -288,7 +288,7 @@ fetch('http://localhost:8000/api/devices')
 # Error: CORS policy blocked request
 
 # Console shows:
-# "Access to fetch at 'http://localhost:8000/api/devices' from origin 
+# "Access to fetch at 'http://localhost:8000/api/devices' from origin
 # 'http://localhost:3000' has been blocked by CORS policy"
 ```
 
@@ -307,10 +307,10 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",      # React dev server
-        "http://localhost:3001",      # Alternative port
-        "http://127.0.0.1:3000",     # Alternative localhost
-        "http://100.64.0.*",         # Tailscale network
+        "http://localhost:3000",  # React dev server
+        "http://localhost:3001",  # Alternative port
+        "http://127.0.0.1:3000",  # Alternative localhost
+        "http://100.64.0.*",  # Tailscale network
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -329,7 +329,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'http://localhost:3001', 
+    'http://localhost:3001',
     'http://127.0.0.1:3000',
     /^http:\/\/100\.64\.0\.\d+:\d+$/  // Tailscale network regex
   ],
@@ -521,7 +521,7 @@ mcpjam debug-tool get_device_status
 
 # Shows:
 # - Parameter validation
-# - Function execution 
+# - Function execution
 # - Return value validation
 # - Error stack traces
 # - Performance metrics
@@ -534,7 +534,7 @@ mcpjam validate
 
 # Output shows:
 # ✅ list_devices: Valid schema
-# ✅ get_device_status: Valid schema  
+# ✅ get_device_status: Valid schema
 # ❌ sound_alarm: Missing required parameter description
 # ✅ about_server: Valid schema
 ```
@@ -565,13 +565,13 @@ services:
     volumes:
       - .:/workspace
     command: mcpjam serve --port 4000
-    
+
   ring-mcp:
     build: .
     volumes:
       - .:/app
     command: python -m ring_mcp
-    
+
   monitoring:
     # Grafana + Prometheus stack
     # Monitor MCPJam testing metrics
@@ -636,9 +636,9 @@ services:
 ```python
 # Backend CORS setup
 CORS_ORIGINS = [
-    "http://localhost:3001",      # Frontend
-    "http://localhost:4001",      # MCPJam
-    "http://100.64.0.*",          # Tailscale network
+    "http://localhost:3001",  # Frontend
+    "http://localhost:4001",  # MCPJam
+    "http://100.64.0.*",  # Tailscale network
 ]
 ```
 

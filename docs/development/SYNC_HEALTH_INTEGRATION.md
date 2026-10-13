@@ -18,15 +18,17 @@ mcp = FastMCP("My MCP Server")
 # Initialize health monitor
 sync_monitor = SyncHealthMonitor(
     project_path="/path/to/files",
-    stall_timeout=60,        # Alert if no progress for 60 seconds
-    check_interval=10,       # Check health every 10 seconds
-    max_recovery_attempts=3  # Try to recover 3 times
+    stall_timeout=60,  # Alert if no progress for 60 seconds
+    check_interval=10,  # Check health every 10 seconds
+    max_recovery_attempts=3,  # Try to recover 3 times
 )
+
 
 @mcp.tool()
 async def sync_status() -> str:
     """Get detailed sync status with health diagnostics."""
     return sync_monitor.format_health_report()
+
 
 @mcp.tool()
 async def sync_health_check() -> dict:
@@ -44,10 +46,10 @@ async def initialize():
     if not sync_monitor.start_scan():
         logger.error("Failed to start file scan")
         return
-    
+
     # Start background health monitoring
     await sync_monitor.start_monitoring()
-    
+
     logger.info("Server initialized successfully")
 ```
 
@@ -57,18 +59,18 @@ async def initialize():
 async def scan_files():
     """Scan files and update progress."""
     files = list(Path(sync_monitor.project_path).rglob("*.md"))
-    
+
     for i, file_path in enumerate(files):
         # Process file...
         await process_file(file_path)
-        
+
         # Update progress every file (or every N files)
         if i % 10 == 0:  # Update every 10 files
             sync_monitor.update_scan_progress(i)
-        
+
         # Yield to event loop
         await asyncio.sleep(0)
-    
+
     # Mark complete
     sync_monitor.update_scan_progress(len(files))
 ```
@@ -82,19 +84,19 @@ async def scan_files():
 ```python
 from sync_health import SyncHealthMonitor
 
+
 class CustomSyncMonitor(SyncHealthMonitor):
     """Extended monitor with custom checks."""
-    
+
     async def _check_health(self):
         """Override with custom health checks."""
         # Call parent checks
         await super()._check_health()
-        
+
         # Add custom checks
         if self.metrics.bytes_processed > 1_000_000_000:  # 1GB
-            self._log("large_scan_warning", level="warning",
-                     bytes=self.metrics.bytes_processed)
-        
+            self._log("large_scan_warning", level="warning", bytes=self.metrics.bytes_processed)
+
         # Check database size
         db_size = get_database_size()
         if db_size == 0 and self.metrics.files_scanned > 0:
@@ -108,26 +110,18 @@ class CustomSyncMonitor(SyncHealthMonitor):
 from prometheus_client import Counter, Gauge, Histogram
 
 # Define metrics
-files_scanned_total = Counter(
-    'mcp_files_scanned_total',
-    'Total files scanned'
-)
-files_total_gauge = Gauge(
-    'mcp_files_total',
-    'Total files to scan'
-)
-scan_duration = Histogram(
-    'mcp_scan_duration_seconds',
-    'Time to scan files'
-)
+files_scanned_total = Counter("mcp_files_scanned_total", "Total files scanned")
+files_total_gauge = Gauge("mcp_files_total", "Total files to scan")
+scan_duration = Histogram("mcp_scan_duration_seconds", "Time to scan files")
+
 
 def update_prometheus_metrics():
     """Update Prometheus metrics from sync monitor."""
     report = sync_monitor.get_health_report()
-    
-    files_scanned_total.inc(report['metrics']['files_scanned'])
-    files_total_gauge.set(report['metrics']['files_total'])
-    scan_duration.observe(report['metrics']['runtime_seconds'])
+
+    files_scanned_total.inc(report["metrics"]["files_scanned"])
+    files_total_gauge.set(report["metrics"]["files_total"])
+    scan_duration.observe(report["metrics"]["runtime_seconds"])
 ```
 
 ### Integration with Health Endpoint
@@ -137,22 +131,23 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
+
 @app.get("/health")
 async def health():
     """Health check endpoint for load balancers."""
     report = sync_monitor.get_health_report()
-    
+
     return {
-        "status": "healthy" if report['healthy'] else "unhealthy",
+        "status": "healthy" if report["healthy"] else "unhealthy",
         "checks": {
             "sync": {
-                "status": report['state'],
+                "status": report["state"],
                 "progress": f"{report['metrics']['files_scanned']}/{report['metrics']['files_total']}",
             },
             "watcher": {
-                "alive": report['watcher']['alive'],
+                "alive": report["watcher"]["alive"],
             },
-        }
+        },
     }
 ```
 
@@ -167,19 +162,21 @@ async def health():
 import pytest
 from my_server import sync_monitor
 
+
 @pytest.mark.asyncio
 async def test_sync_monitor_starts():
     """Test that sync monitor initializes."""
     assert sync_monitor is not None
     assert sync_monitor.state != SyncState.ERROR_UNKNOWN
 
+
 @pytest.mark.asyncio
 async def test_health_check_tool_works():
     """Test that health check tool returns data."""
     from my_server import sync_health_check
-    
+
     result = await sync_health_check()
-    
+
     assert "healthy" in result
     assert "state" in result
     assert "metrics" in result
@@ -193,14 +190,14 @@ async def test_sync_completes_successfully(temp_project):
     """Test end-to-end sync."""
     monitor = SyncHealthMonitor(str(temp_project))
     monitor.start_scan()
-    
+
     # Simulate scan
     await scan_files()
-    
+
     report = monitor.get_health_report()
-    assert report['healthy']
-    assert report['state'] == 'completed'
-    assert report['metrics']['files_scanned'] == report['metrics']['files_total']
+    assert report["healthy"]
+    assert report["state"] == "completed"
+    assert report["metrics"]["files_scanned"] == report["metrics"]["files_total"]
 ```
 
 ---
@@ -235,7 +232,7 @@ groups:
         for: 5m
         annotations:
           summary: "MCP sync appears stalled"
-          
+
       - alert: MCPWatcherDead
         expr: mcp_watcher_alive == 0
         for: 1m
@@ -304,41 +301,44 @@ mcp = FastMCP("blender-mcp")
 # Global sync monitor
 sync_monitor = None
 
+
 @mcp.on_startup()
 async def initialize():
     """Initialize server with health monitoring."""
     global sync_monitor
-    
+
     project_path = Path.cwd()
     sync_monitor = SyncHealthMonitor(
         project_path=str(project_path),
         stall_timeout=60,
         check_interval=10,
     )
-    
+
     # Start scan
     if sync_monitor.start_scan():
         # Start monitoring
         await sync_monitor.start_monitoring()
-        
+
         # Start background scan task
         asyncio.create_task(perform_initial_scan())
     else:
         logger.error("Failed to initialize file sync")
 
+
 async def perform_initial_scan():
     """Perform initial file scan with progress updates."""
     files = list(Path(sync_monitor.project_path).rglob("*.md"))
-    
+
     for i, file_path in enumerate(files):
         # Process file
         await index_file(file_path)
-        
+
         # Update progress
         sync_monitor.update_scan_progress(i + 1)
-        
+
         # Yield to event loop
         await asyncio.sleep(0)
+
 
 @mcp.tool()
 async def sync_status() -> str:
@@ -347,12 +347,13 @@ async def sync_status() -> str:
         return "Sync monitor not initialized"
     return sync_monitor.format_health_report()
 
+
 @mcp.tool()
 async def force_rescan() -> str:
     """Force a full rescan of files."""
     if sync_monitor is None:
         return "Sync monitor not initialized"
-    
+
     sync_monitor.state = SyncState.INITIALIZING
     if sync_monitor.start_scan():
         asyncio.create_task(perform_initial_scan())
@@ -377,4 +378,3 @@ async def force_rescan() -> str:
 - [MCP Sync Debugging Guide](./MCP_SYNC_DEBUGGING_GUIDE.md)
 - [Test Suite](../../tests/test_sync_health.py)
 - [Sync Health Module](../../src/blender_mcp/sync_health.py)
-
