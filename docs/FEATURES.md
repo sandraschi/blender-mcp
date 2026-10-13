@@ -150,13 +150,16 @@ Execute complex multi-step workflows in single operations:
 
 ```python
 # Create furnished room in one call
-blender_workflow("execute", steps=[
-    {"tool": "blender_scene", "operation": "clear_scene"},
-    {"tool": "blender_furniture", "operation": "create_sofa", "name": "LivingSofa"},
-    {"tool": "blender_furniture", "operation": "create_table", "name": "CoffeeTable"},
-    {"tool": "blender_lighting", "operation": "setup_three_point"},
-    {"tool": "blender_camera", "operation": "setup_camera"}
-])
+blender_workflow(
+    "execute",
+    steps=[
+        {"tool": "blender_scene", "operation": "clear_scene"},
+        {"tool": "blender_furniture", "operation": "create_sofa", "name": "LivingSofa"},
+        {"tool": "blender_furniture", "operation": "create_table", "name": "CoffeeTable"},
+        {"tool": "blender_lighting", "operation": "setup_three_point"},
+        {"tool": "blender_camera", "operation": "setup_camera"},
+    ],
+)
 ```
 
 ### Object Repository

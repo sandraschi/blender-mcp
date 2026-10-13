@@ -15,7 +15,7 @@ async def export_for_mcp_handoff(
     target_mcp: str,
     optimization_preset: str = "automatic",
     quality_level: str = "high",
-    integration_metadata: bool = True
+    integration_metadata: bool = True,
 ) -> MCPExportResult:
     """
     Export asset with target-MCP-specific optimizations and metadata.
@@ -49,25 +49,16 @@ VRCHAT_OPTIMIZATIONS = {
         "polygon_limit": 70000,  # Avatar limit
         "triangle_limit": 100000,  # Scene limit
         "auto_decimation": True,
-        "lod_generation": True
+        "lod_generation": True,
     },
     "materials": {
         "material_limit": 8,
         "texture_size_max": 2048,
         "auto_atlasing": True,
-        "shader_conversion": "PBR_to_VRChat"
+        "shader_conversion": "PBR_to_VRChat",
     },
-    "rigging": {
-        "bone_limit": 256,
-        "humanoid_mapping": True,
-        "physbone_setup": True,
-        "dynamic_bone_generation": True
-    },
-    "performance": {
-        "draw_call_optimization": True,
-        "texture_compression": "BC7",
-        "mesh_compression": True
-    }
+    "rigging": {"bone_limit": 256, "humanoid_mapping": True, "physbone_setup": True, "dynamic_bone_generation": True},
+    "performance": {"draw_call_optimization": True, "texture_compression": "BC7", "mesh_compression": True},
 }
 ```
 
@@ -85,7 +76,7 @@ VRCHAT_INTEGRATION_COMMANDS = [
     "vrchat_apply_avatar_optimizations --preset full_body",
     "vrchat_setup_physbones --auto-detect",
     "vrchat_generate_upload_package --quality maximum",
-    "vrchat_validate_platform_requirements --strict"
+    "vrchat_validate_platform_requirements --strict",
 ]
 ```
 
@@ -94,26 +85,10 @@ VRCHAT_INTEGRATION_COMMANDS = [
 #### **ProtoFlux-Ready Export**
 ```python
 RESONITE_OPTIMIZATIONS = {
-    "geometry": {
-        "polygon_limit": 100000,
-        "collision_mesh_generation": True,
-        "protoflux_compatibility": True
-    },
-    "materials": {
-        "material_limit": 16,
-        "pbr_to_universal": True,
-        "emission_support": True
-    },
-    "physics": {
-        "dynamic_bone_setup": True,
-        "collision_primitive_generation": True,
-        "rigidbody_optimization": True
-    },
-    "interaction": {
-        "grabbable_setup": True,
-        "trigger_zone_generation": True,
-        "protoflux_components": True
-    }
+    "geometry": {"polygon_limit": 100000, "collision_mesh_generation": True, "protoflux_compatibility": True},
+    "materials": {"material_limit": 16, "pbr_to_universal": True, "emission_support": True},
+    "physics": {"dynamic_bone_setup": True, "collision_primitive_generation": True, "rigidbody_optimization": True},
+    "interaction": {"grabbable_setup": True, "trigger_zone_generation": True, "protoflux_components": True},
 }
 ```
 
@@ -125,7 +100,7 @@ PROTOFLUX_COMPONENTS = {
     "collision": "Generate optimized collision meshes",
     "triggers": "Add interaction trigger zones",
     "dynamic_bones": "Setup cloth and hair physics",
-    "lights": "Convert to Resonite light system"
+    "lights": "Convert to Resonite light system",
 }
 ```
 
@@ -139,7 +114,7 @@ UNITY_OPTIMIZATIONS = {
     "material_conversion": "PBR_to_URP",
     "lighting_setup": True,
     "navigation_mesh": True,
-    "occlusion_culling": True
+    "occlusion_culling": True,
 }
 ```
 
@@ -170,12 +145,7 @@ class MCPAssetTransfer:
     Standardized protocol for secure asset transfer between MCP servers.
     """
 
-    async def initiate_transfer(
-        self,
-        source_mcp: str,
-        target_mcp: str,
-        asset_package: AssetPackage
-    ) -> TransferResult:
+    async def initiate_transfer(self, source_mcp: str, target_mcp: str, asset_package: AssetPackage) -> TransferResult:
 
         # 1. Validate asset compatibility
         compatibility = await self.validate_compatibility(asset_package, target_mcp)
@@ -198,7 +168,7 @@ class MCPAssetTransfer:
             target_location=transfer.location,
             integration_commands_executed=len(integration.commands),
             optimization_applied=optimized.optimizations,
-            ready_for_use=True
+            ready_for_use=True,
         )
 ```
 
@@ -211,7 +181,7 @@ INTEGRATION_COMMAND_PROTOCOL = {
     "setup_interaction": "Configure interaction components",
     "generate_scripts": "Create necessary scripts/components",
     "validate_requirements": "Check platform compliance",
-    "prepare_deployment": "Ready asset for deployment/upload"
+    "prepare_deployment": "Ready asset for deployment/upload",
 }
 ```
 
@@ -227,14 +197,12 @@ INTEGRATION_COMMAND_PROTOCOL = {
 result = await construct_object(
     description="steampunk chair with brass gears and leather cushions",
     style_preset="steampunk",
-    export_target="vrchat"
+    export_target="vrchat",
 )
 
 # Step 2: Automatic VRChat Export
 export_result = await export_for_mcp_handoff(
-    asset_id=result["object_id"],
-    target_mcp="vrchat",
-    optimization_preset="avatar_furniture"
+    asset_id=result["object_id"], target_mcp="vrchat", optimization_preset="avatar_furniture"
 )
 
 # Result: Chair appears in VRChat ready for upload
@@ -247,16 +215,12 @@ export_result = await export_for_mcp_handoff(
 
 # AI constructs detailed environment in Blender
 scene = await construct_object(
-    description="detailed cyberpunk alleyway with neon signs and debris",
-    complexity="complex",
-    export_target="resonite"
+    description="detailed cyberpunk alleyway with neon signs and debris", complexity="complex", export_target="resonite"
 )
 
 # Automatic Resonite optimization and export
 resonite_ready = await export_for_mcp_handoff(
-    asset_id=scene["scene_id"],
-    target_mcp="resonite",
-    optimization_preset="interactive_environment"
+    asset_id=scene["scene_id"], target_mcp="resonite", optimization_preset="interactive_environment"
 )
 
 # Result: Full environment with ProtoFlux interactions ready in Resonite
@@ -268,17 +232,12 @@ resonite_ready = await export_for_mcp_handoff(
 
 # AI constructs rigged character
 character = await construct_object(
-    description="industrial robot with articulated joints",
-    complexity="complex",
-    rigging="full",
-    export_target="unity"
+    description="industrial robot with articulated joints", complexity="complex", rigging="full", export_target="unity"
 )
 
 # Unity-optimized export with scripts
 unity_package = await export_for_mcp_handoff(
-    asset_id=character["character_id"],
-    target_mcp="unity",
-    optimization_preset="game_character"
+    asset_id=character["character_id"], target_mcp="unity", optimization_preset="game_character"
 )
 
 # Result: Complete Unity prefab with scripts and animations
@@ -297,14 +256,11 @@ class CrossMCPExportEngine:
         "vrchat": VRChatExportEngine(),
         "resonite": ResoniteExportEngine(),
         "unity": UnityExportEngine(),
-        "unreal": UnrealExportEngine()
+        "unreal": UnrealExportEngine(),
     }
 
     async def export_asset(
-        self,
-        asset_data: Dict[str, Any],
-        target_platform: str,
-        optimization_settings: Dict[str, Any]
+        self, asset_data: Dict[str, Any], target_platform: str, optimization_settings: Dict[str, Any]
     ) -> MCPExportResult:
 
         # Get platform-specific engine
@@ -328,7 +284,7 @@ class CrossMCPExportEngine:
             integration_commands=commands,
             metadata=engine.generate_metadata(optimized_asset),
             optimization_report=optimized_asset.applied_optimizations,
-            validation_results=validation
+            validation_results=validation,
         )
 ```
 

@@ -30,7 +30,7 @@ construct_object(
     description="a robot like Robbie from Forbidden Planet",
     complexity="complex",
     style_preset="scifi",
-    max_iterations=3
+    max_iterations=3,
 )
 ```
 
@@ -74,12 +74,9 @@ construct_object(
 #### **Comprehensive Object Lifecycle:**
 ```python
 # Complete object management ecosystem
-manage_object_repo(operation="save", object_name="MyRobot",
-                  category="robots", quality_rating=8, public=True)
-manage_object_repo(operation="load", object_id="robot_001",
-                  target_name="LoadedRobot", scale=[2,2,2])
-manage_object_repo(operation="search", query="scifi robot",
-                  min_quality=7, limit=10)
+manage_object_repo(operation="save", object_name="MyRobot", category="robots", quality_rating=8, public=True)
+manage_object_repo(operation="load", object_id="robot_001", target_name="LoadedRobot", scale=[2, 2, 2])
+manage_object_repo(operation="search", query="scifi robot", min_quality=7, limit=10)
 ```
 
 #### **Advanced Metadata System:**
@@ -100,11 +97,13 @@ manage_object_repo(operation="search", query="scifi robot",
 #### **Conversational Refinement Pipeline:**
 ```python
 # Intelligent object improvement
-manage_object_construction(operation="modify",
-                          object_name="Robot",
-                          modification_description="add glowing red eyes",
-                          preserve_original=True,
-                          max_iterations=2)
+manage_object_construction(
+    operation="modify",
+    object_name="Robot",
+    modification_description="add glowing red eyes",
+    preserve_original=True,
+    max_iterations=2,
+)
 ```
 
 #### **Modification Intelligence:**
@@ -148,12 +147,14 @@ manage_object_construction(operation="modify",
 ```python
 # Agentic script generation request
 script_request = await ctx.sample(
-    messages=[{
-        "role": "user",
-        "content": f"Generate Blender Python script for: {description}\n\nScene context: {context_info}"
-    }],
+    messages=[
+        {
+            "role": "user",
+            "content": f"Generate Blender Python script for: {description}\n\nScene context: {context_info}",
+        }
+    ],
     temperature=0.3,  # Balanced creativity vs precision
-    max_tokens=2048   # Sufficient for complex scripts
+    max_tokens=2048,  # Sufficient for complex scripts
 )
 ```
 
@@ -205,15 +206,13 @@ construct_object("medieval castle towers with battlements")
 #### **Architectural Visualization:**
 ```python
 # Quick client presentations
-construct_object("modern office building with glass facade",
-                complexity="complex", style_preset="realistic")
+construct_object("modern office building with glass facade", complexity="complex", style_preset="realistic")
 ```
 
 #### **VFX Production:**
 ```python
 # Complex scene elements
-construct_object("particle system for magical energy effects",
-                allow_modifications=True)
+construct_object("particle system for magical energy effects", allow_modifications=True)
 ```
 
 ### **Educational Applications**

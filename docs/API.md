@@ -335,10 +335,7 @@ from blender_mcp.app import get_app
 app = get_app()
 
 # Execute tools directly
-result = await app.run_tool("blender_mesh", {
-    "operation": "create_cube",
-    "name": "MyCube"
-})
+result = await app.run_tool("blender_mesh", {"operation": "create_cube", "name": "MyCube"})
 
 print(f"Created: {result['object_created']}")
 ```
@@ -353,18 +350,18 @@ app = get_app()
 ctx = Context()
 
 # AI construction with context
-result = await app.run_tool("construct_object", {
-    "description": "a red racing car",
-    "complexity": "complex",
-    "style_preset": "realistic"
-}, ctx=ctx)
+result = await app.run_tool(
+    "construct_object",
+    {"description": "a red racing car", "complexity": "complex", "style_preset": "realistic"},
+    ctx=ctx,
+)
 
 # Context preserves conversation state
-refinement = await app.run_tool("manage_object_construction", {
-    "operation": "modify",
-    "object_name": result["object_name"],
-    "modification_description": "add racing stripes"
-}, ctx=ctx)
+refinement = await app.run_tool(
+    "manage_object_construction",
+    {"operation": "modify", "object_name": result["object_name"], "modification_description": "add racing stripes"},
+    ctx=ctx,
+)
 ```
 
 ### Batch Operations
@@ -374,7 +371,7 @@ refinement = await app.run_tool("manage_object_construction", {
 operations = [
     ("blender_mesh", {"operation": "create_cube", "name": "Cube1"}),
     ("blender_mesh", {"operation": "create_sphere", "name": "Sphere1"}),
-    ("blender_materials", {"operation": "apply_color", "object_name": "Cube1", "color": [1, 0, 0]})
+    ("blender_materials", {"operation": "apply_color", "object_name": "Cube1", "color": [1, 0, 0]}),
 ]
 
 results = []

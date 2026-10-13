@@ -19,27 +19,13 @@ This document provides practical examples of how to use Blender-MCP tools for co
 await create_scene(name="MyScene")
 
 # Add a camera
-await create_camera(
-    name="MainCamera",
-    location=(5, -5, 3),
-    rotation=(1.0, 0.0, 0.8)
-)
+await create_camera(name="MainCamera", location=(5, -5, 3), rotation=(1.0, 0.0, 0.8))
 
 # Add a sun light
-await create_light(
-    name="Sun",
-    light_type='SUN',
-    location=(0, 0, 10),
-    energy=2.0,
-    rotation=(0.6, 0, 0.8)
-)
+await create_light(name="Sun", light_type="SUN", location=(0, 0, 10), energy=2.0, rotation=(0.6, 0, 0.8))
 
 # Add a ground plane
-await create_plane(
-    name="Ground",
-    size=10.0,
-    location=(0, 0, 0)
-)
+await create_plane(name="Ground", size=10.0, location=(0, 0, 0))
 ```
 
 ## Material Creation
@@ -48,26 +34,13 @@ await create_plane(
 
 ```python
 # Create a metallic material
-await create_material(
-    name="Chrome",
-    material_type='PRINCIPLED',
-    color=(0.8, 0.8, 0.8),
-    metallic=1.0,
-    roughness=0.1
-)
+await create_material(name="Chrome", material_type="PRINCIPLED", color=(0.8, 0.8, 0.8), metallic=1.0, roughness=0.1)
 
 # Create a sphere
-await create_sphere(
-    name="MetalSphere",
-    location=(0, 0, 1),
-    radius=1.0
-)
+await create_sphere(name="MetalSphere", location=(0, 0, 1), radius=1.0)
 
 # Assign the material
-await assign_material(
-    object_name="MetalSphere",
-    material_name="Chrome"
-)
+await assign_material(object_name="MetalSphere", material_name="Chrome")
 ```
 
 ## Animation
@@ -76,42 +49,19 @@ await assign_material(
 
 ```python
 # Create a sphere
-await create_sphere(
-    name="Ball",
-    location=(0, 0, 5),
-    radius=0.5
-)
+await create_sphere(name="Ball", location=(0, 0, 5), radius=0.5)
 
 # Add a ground plane
-await create_plane(
-    name="Ground",
-    size=10.0,
-    location=(0, 0, 0)
-)
+await create_plane(name="Ground", size=10.0, location=(0, 0, 0))
 
 # Add rigid body physics to the ball
-await setup_rigid_body(
-    object_name="Ball",
-    type='ACTIVE',
-    mass=1.0,
-    friction=0.5,
-    bounce=0.8
-)
+await setup_rigid_body(object_name="Ball", type="ACTIVE", mass=1.0, friction=0.5, bounce=0.8)
 
 # Add rigid body to ground
-await setup_rigid_body(
-    object_name="Ground",
-    type='PASSIVE',
-    friction=0.5,
-    bounce=0.5
-)
+await setup_rigid_body(object_name="Ground", type="PASSIVE", friction=0.5, bounce=0.5)
 
 # Bake physics simulation
-await bake_physics_simulation(
-    frame_start=1,
-    frame_end=100,
-    step=1
-)
+await bake_physics_simulation(frame_start=1, frame_end=100, step=1)
 ```
 
 ## Physics Simulation
@@ -120,43 +70,26 @@ await bake_physics_simulation(
 
 ```python
 # Create a plane for cloth
-await create_plane(
-    name="Cloth",
-    size=2.0,
-    location=(0, 0, 3),
-    rotation=(0, 0, 0)
-)
+await create_plane(name="Cloth", size=2.0, location=(0, 0, 3), rotation=(0, 0, 0))
 
 # Add cloth simulation
 await setup_cloth_simulation(
     object_name="Cloth",
-    quality_preset='MEDIUM',
+    quality_preset="MEDIUM",
     mass=0.3,
     bending_stiffness=0.5,
     use_collision=True,
-    use_self_collision=True
+    use_self_collision=True,
 )
 
 # Create a sphere as a collision object
-await create_sphere(
-    name="CollisionSphere",
-    location=(0, 0, 1),
-    radius=0.8
-)
+await create_sphere(name="CollisionSphere", location=(0, 0, 1), radius=0.8)
 
 # Add collision to the sphere
-await setup_collision(
-    object_name="CollisionSphere",
-    type='PASSIVE',
-    friction=0.5
-)
+await setup_collision(object_name="CollisionSphere", type="PASSIVE", friction=0.5)
 
 # Bake the simulation
-await bake_physics_simulation(
-    frame_start=1,
-    frame_end=100,
-    step=1
-)
+await bake_physics_simulation(frame_start=1, frame_end=100, step=1)
 ```
 
 ## Rendering
@@ -220,8 +153,8 @@ await export_fbx(
     bake_anim_use_nla_strips=True,
     bake_anim_use_all_actions=False,
     add_leaf_bones=True,
-    primary_bone_axis='Y',
-    secondary_bone_axis='X'
+    primary_bone_axis="Y",
+    secondary_bone_axis="X",
 )
 ```
 
@@ -230,13 +163,13 @@ await export_fbx(
 ```python
 await export_gltf(
     filepath="/path/to/export/scene.glb",
-    export_format='GLB',
+    export_format="GLB",
     export_textures=True,
-    export_materials='EXPORT',
+    export_materials="EXPORT",
     export_animations=True,
     export_skins=True,
     export_morph=True,
-    export_yup=True
+    export_yup=True,
 )
 ```
 
@@ -249,7 +182,7 @@ await export_stl(
     use_mesh_modifiers=True,
     ascii=False,
     use_scene_unit=True,
-    global_scale=1.0
+    global_scale=1.0,
 )
 ```
 

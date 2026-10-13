@@ -46,28 +46,18 @@ construct_object("a blue sphere")
 construct_object("a wooden table")
 
 # With parameters
-construct_object(
-    description="a medieval castle",
-    complexity="complex",
-    style_preset="realistic"
-)
+construct_object(description="a medieval castle", complexity="complex", style_preset="realistic")
 ```
 
 ### Complex Scenes
 ```python
 # Environment with multiple objects
 construct_object(
-    description="a cozy living room with sofa, coffee table, and lamp",
-    complexity="complex",
-    allow_modifications=True
+    description="a cozy living room with sofa, coffee table, and lamp", complexity="complex", allow_modifications=True
 )
 
 # Character with rigging
-construct_object(
-    description="a robot with articulated arms and legs",
-    complexity="complex",
-    style_preset="scifi"
-)
+construct_object(description="a robot with articulated arms and legs", complexity="complex", style_preset="scifi")
 ```
 
 ### Architectural Visualization
@@ -75,7 +65,7 @@ construct_object(
 construct_object(
     description="modern office building with glass facade and green roof",
     complexity="complex",
-    style_preset="realistic"
+    style_preset="realistic",
 )
 ```
 
@@ -134,9 +124,7 @@ export_for_mcp_handoff("environment_001", "resonite", quality_level="ultra")
 1. **Create Base Character**
 ```python
 construct_object(
-    description="humanoid character with detailed face and clothing",
-    complexity="complex",
-    style_preset="realistic"
+    description="humanoid character with detailed face and clothing", complexity="complex", style_preset="realistic"
 )
 ```
 
@@ -174,17 +162,10 @@ from blender_mcp.app import get_app
 app = get_app()
 
 # Create object
-result = await app.run_tool("construct_object", {
-    "description": "a red cube",
-    "complexity": "simple"
-})
+result = await app.run_tool("construct_object", {"description": "a red cube", "complexity": "simple"})
 
 # Apply material
-await app.run_tool("blender_materials", {
-    "operation": "apply_color",
-    "object_name": "Cube",
-    "color": [1.0, 0.0, 0.0]
-})
+await app.run_tool("blender_materials", {"operation": "apply_color", "object_name": "Cube", "color": [1.0, 0.0, 0.0]})
 ```
 
 ### HTTP API

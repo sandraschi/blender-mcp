@@ -220,8 +220,7 @@ blender_selection("select_object", object_name="MyObject")
 blender_materials("list_materials")
 
 # Apply with correct parameters
-blender_materials("apply_pbr", object_name="MyObject",
-                 base_color=[1.0, 0.0, 0.0], metallic=0.0)
+blender_materials("apply_pbr", object_name="MyObject", base_color=[1.0, 0.0, 0.0], metallic=0.0)
 ```
 
 #### Animation Keyframe Issues
@@ -273,8 +272,7 @@ blender_export_presets("export_vrchat", include_animations=True)
 **Solutions:**
 ```python
 # Use Unity-compatible export
-blender_export("export_fbx", object_names=["MyModel"],
-              export_settings={"unity_compatible": True})
+blender_export("export_fbx", object_names=["MyModel"], export_settings={"unity_compatible": True})
 
 # Check scale and units
 blender_scene("set_units", unit_system="metric")
