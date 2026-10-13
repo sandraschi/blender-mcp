@@ -1,9 +1,9 @@
 # 🔧 FastMCP 2.12 Troubleshooting Guide
 
-**Based on Real-World Debugging Experience**  
-**Project**: nest-protect MCP Server  
-**Timeline**: September 17-20, 2025  
-**Framework**: FastMCP 2.12.3  
+**Based on Real-World Debugging Experience**
+**Project**: nest-protect MCP Server
+**Timeline**: September 17-20, 2025
+**Framework**: FastMCP 2.12.3
 **Status**: ✅ **PRODUCTION READY**
 
 This guide documents the **complete debugging journey** from a broken MCP server to a production-ready system. Use this to troubleshoot similar issues in other MCP projects like avatarmcp, local llms, and tapo.
@@ -104,16 +104,19 @@ PydanticDeprecatedSince20: `json_encoders` is deprecated
 # ❌ Old (Pydantic V1)
 from pydantic import BaseModel, validator
 
+
 class MyModel(BaseModel):
-    @validator('field_name')
+    @validator("field_name")
     def validate_field(cls, v):
         return v
+
 
 # ✅ New (Pydantic V2)
 from pydantic import BaseModel, field_validator
 
+
 class MyModel(BaseModel):
-    @field_validator('field_name')
+    @field_validator("field_name")
     @classmethod
     def validate_field(cls, v):
         return v
@@ -127,14 +130,13 @@ class MyModel(BaseModel):
         env_prefix = "MY_"
         json_encoders = {datetime: lambda v: v.isoformat()}
 
+
 # ✅ New (Pydantic V2)
 from pydantic import ConfigDict
 
+
 class MyModel(BaseModel):
-    model_config = ConfigDict(
-        env_prefix="MY_",
-        json_encoders={datetime: lambda v: v.isoformat()}
-    )
+    model_config = ConfigDict(env_prefix="MY_", json_encoders={datetime: lambda v: v.isoformat()})
 ```
 
 #### **3. Files Updated**
@@ -188,6 +190,7 @@ app = FastMCP("nest-protect", instructions="...")  # ✅ Use 'instructions' inst
 # Old pattern - separate tool registry
 self._tool_registry = ToolRegistry()  # ❌ Not needed in 2.12
 
+
 @tool  # ❌ Decorator from custom module
 def my_tool():
     pass
@@ -197,10 +200,12 @@ def my_tool():
 ```python
 app = FastMCP("server-name")
 
+
 @app.tool()  # ✅ Use app.tool() decorator
 async def my_tool() -> Dict[str, Any]:
     """Tool description here."""
     return {"result": "data"}
+
 
 # That's it! No manual registration needed
 ```
@@ -224,10 +229,12 @@ server_task = asyncio.create_task(server.start_stdio())  # ❌ Old API
 ```python
 app = FastMCP("server-name")
 
+
 # Register tools with @app.tool()
 @app.tool()
 async def some_tool():
     return {"status": "ok"}
+
 
 # Simple startup
 if __name__ == "__main__":
@@ -254,6 +261,7 @@ async def tool_func(data: dict):
 class ToolParams(BaseModel):
     device_id: str = Field(..., description="Device identifier")
     timeout: int = Field(30, description="Timeout in seconds")
+
 
 @app.tool()
 async def tool_func(device_id: str, timeout: int = 30) -> Dict[str, Any]:
@@ -292,12 +300,13 @@ async def tool_func(device_id: str, timeout: int = 30) -> Dict[str, Any]:
 @app.tool()
 async def my_tool():
     from some_module import missing_function  # ❌ Import error!
+
     return {"result": "ok"}
 ```
 
 **What happens**:
 1. ✅ Server starts successfully
-2. ✅ Claude connects and initializes  
+2. ✅ Claude connects and initializes
 3. ❌ Claude tries to list tools → import error occurs
 4. ❌ Server crashes due to unhandled import error
 5. ❌ Claude detects disconnect and sends `--kill` to cleanup
@@ -321,6 +330,7 @@ def some_tool():
 @app.tool()
 async def my_tool():
     import missing_library  # ❌ Library not installed!
+
     return {"result": "ok"}
 ```
 
@@ -334,13 +344,14 @@ import sys
 # Add this to your main server file
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stderr)  # ← This appears in Claude Desktop logs!
-    ]
+    ],
 )
 
 logger = logging.getLogger(__name__)
+
 
 @app.tool()
 async def my_tool():
@@ -362,16 +373,19 @@ def test_tool_registration():
     try:
         # Import all your tool modules
         from .tools import device_status, device_control, auth_tools
+
         logger.info("All tool modules imported successfully")
-        
+
         # Test that required dependencies are available
         import aiohttp
         import pydantic
+
         logger.info("All dependencies available")
-        
+
     except Exception as e:
         logger.error(f"Tool registration test failed: {e}", exc_info=True)
         raise
+
 
 # Call this before app.run()
 if __name__ == "__main__":
@@ -386,10 +400,12 @@ from fastmcp import FastMCP
 
 app = FastMCP("test-server")
 
+
 @app.tool()
 async def hello_world() -> dict:
     """Simple test tool."""
     return {"message": "Hello, World!"}
+
 
 if __name__ == "__main__":
     app.run()
@@ -403,12 +419,12 @@ If this works but your full server doesn't, you have an issue in your tool imple
 
 ### **Fix 1: State Manager Import Errors**
 
-#### **❌ Problem**: 
+#### **❌ Problem**:
 ```python
 # state_manager.py was missing imports
 def get_app_state():
     import time  # ❌ Import inside function
-    import os    # ❌ These should be at module level
+    import os  # ❌ These should be at module level
 ```
 
 #### **✅ Solution**:
@@ -418,6 +434,7 @@ import time
 import os
 from typing import Optional
 from pydantic import BaseModel
+
 
 def get_app_state():
     # Now the imports are available
@@ -437,6 +454,7 @@ server = NestProtectMCP()  # ❌ Instantiated at import time → validation erro
 # server.py
 server = None  # ✅ Defer instantiation
 
+
 def create_server():
     global server
     if server is None:
@@ -451,7 +469,8 @@ def create_server():
 # __main__.py
 async def main():  # ❌ Made it async but app.run() is blocking
     app.run()
-    
+
+
 asyncio.run(main())  # ❌ This creates issues
 ```
 
@@ -460,6 +479,7 @@ asyncio.run(main())  # ❌ This creates issues
 # __main__.py
 def main():  # ✅ Keep it simple and synchronous
     app.run()  # ✅ This is blocking and handles its own event loop
+
 
 if __name__ == "__main__":
     main()  # ✅ Direct call
@@ -472,6 +492,7 @@ if __name__ == "__main__":
 @app.tool()
 async def list_devices():
     from .tools.device_status import list_devices as tool_func  # ❌ Import inside tool
+
     return await tool_func()
 ```
 
@@ -481,6 +502,7 @@ This worked but created issues with tool discovery.
 ```python
 # Import at module level
 from .tools.device_status import list_devices as device_list_func
+
 
 @app.tool()
 async def list_devices():
@@ -530,8 +552,9 @@ async def list_devices():
 async def test_tool() -> dict:
     return {"status": "working"}
 
+
 # Step 2: Add real functionality
-@app.tool() 
+@app.tool()
 async def real_tool(param: str) -> dict:
     # Your actual logic here
     return {"result": param}
@@ -563,7 +586,7 @@ async def validate_all_tools():
         ("test_tool", {}),
         ("real_tool", {"param": "test"}),
     ]
-    
+
     for tool_name, params in tools:
         try:
             result = await globals()[tool_name](**params)
@@ -587,11 +610,13 @@ async def validate_all_tools():
 1. **Simple FastMCP Pattern**:
    ```python
    app = FastMCP("name")
-   
+
+
    @app.tool()
    async def tool() -> dict:
        return {"result": "data"}
-   
+
+
    app.run()
    ```
 
@@ -599,7 +624,8 @@ async def validate_all_tools():
    ```python
    # Global state object
    app_state = AppState()
-   
+
+
    def get_app_state() -> AppState:
        return app_state
    ```
@@ -610,7 +636,7 @@ async def validate_all_tools():
    import aiohttp
    import pydantic
    from typing import Dict, Any
-   
+
    # Not inside functions
    ```
 
@@ -661,7 +687,7 @@ async def validate_all_tools():
 **The key insight**: Claude Desktop doesn't kill servers randomly. It kills them because they crash during normal operation, usually during tool discovery or execution. The "start and kill after a few seconds" pattern almost always indicates:
 
 1. **Import errors** when tools are loaded
-2. **Validation errors** when configuration is accessed  
+2. **Validation errors** when configuration is accessed
 3. **Missing dependencies** when tools try to execute
 4. **Unhandled exceptions** in async functions
 

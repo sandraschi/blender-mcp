@@ -13,7 +13,7 @@ This is non-negotiable. Every design decision prioritizes production data safety
 ```python
 # Test uses ONLY these paths - NEVER production
 test_dir = Path(tempfile.mkdtemp(prefix="megatest_"))  # System temp directory
-test_db = test_dir / "test.db"                         # Isolated DB
+test_db = test_dir / "test.db"  # Isolated DB
 
 # Examples:
 # Windows: C:\Users\sandr\AppData\Local\Temp\megatest_xyz123\
@@ -38,15 +38,17 @@ PRODUCTION_PATHS_TO_PROTECT = [
     # Add your actual production paths here
 ]
 
+
 def is_production_path(path: Path) -> bool:
     """Detect if path is in production directories."""
     path = path.resolve()
-    
+
     for prod_path in PRODUCTION_PATHS_TO_PROTECT:
         if path == prod_path or path.is_relative_to(prod_path):
             return True  # PRODUCTION DETECTED!
-    
+
     return False
+
 
 # ENFORCED before ANY test operations
 if is_production_path(test_db):
@@ -64,18 +66,19 @@ if is_production_path(test_dir):
 def is_safe_test_path(path: Path) -> bool:
     """Verify path is in approved test locations."""
     path_str = str(path).lower()
-    
+
     # ONLY these paths are allowed for testing
     safe_indicators = [
-        "test_data",       # Repository test data
-        "megatest",        # Megatest-specific
+        "test_data",  # Repository test data
+        "megatest",  # Megatest-specific
         tempfile.gettempdir(),  # System temp
-        "tests/",          # Test directory
-        "/tmp/",           # Unix temp
-        "temp/",           # Temp directory
+        "tests/",  # Test directory
+        "/tmp/",  # Unix temp
+        "temp/",  # Temp directory
     ]
-    
+
     return any(indicator.lower() in path_str for indicator in safe_indicators)
+
 
 # ENFORCED: Test path MUST match whitelist
 if not is_safe_test_path(test_dir):
@@ -99,7 +102,7 @@ if prod_db.exists():
 # AFTER test completes
 if prod_db.exists() and prod_checksum_before:
     prod_checksum_after = compute_checksum_file(prod_db)
-    
+
     if prod_checksum_after != prod_checksum_before:
         raise RuntimeError(
             f"CRITICAL ERROR: Production database was modified!\n"
@@ -167,7 +170,7 @@ This prevents:
 def isolated_test_env():
     # Create test environment
     temp_base = Path(tempfile.mkdtemp(prefix="megatest_"))
-    
+
     try:
         yield {"test_dir": temp_base, ...}
     finally:
@@ -185,7 +188,7 @@ def validate_test_isolation(request):
     """Runs before EVERY test function."""
     if "megatest" in request.node.name.lower():
         env = request.getfixturevalue("isolated_test_env")
-        
+
         # Re-verify safety before EACH test
         assert not is_production_path(env["test_dir"])
         assert not is_production_path(env["test_db"])
@@ -197,8 +200,8 @@ def validate_test_isolation(request):
 ```python
 # Megatest creates its own config - NEVER uses system config
 test_config = AdvancedMemoryConfig(
-    database_path=str(test_db),        # Explicit test DB
-    projects={...}                      # Explicit test projects
+    database_path=str(test_db),  # Explicit test DB
+    projects={...},  # Explicit test projects
 )
 
 # System config is READ ONLY (for production path detection)
@@ -264,7 +267,7 @@ After ALL megatest operations, these checks run:
 def test_file_added_to_md_folder_externally(megatest_context, assert_production_safe):
     """
     Test scenario: User manually creates file in MD folder.
-    
+
     This should NOT happen, but if it does:
     - Sync should NOT crash
     - Sync should NOT hang
@@ -274,32 +277,32 @@ def test_file_added_to_md_folder_externally(megatest_context, assert_production_
     # SAFETY: Verify we're in test environment
     assert_production_safe(megatest_context.test_dir)
     assert_production_safe(megatest_context.test_db)
-    
+
     # Get test MD folder path (NOT production!)
     test_md_folder = megatest_context.test_dir / "test_personal"
-    
+
     # VERIFY this is NOT production
     assert "test" in str(test_md_folder).lower()
     assert "megatest" in str(test_md_folder).lower() or "temp" in str(test_md_folder).lower()
-    
+
     # Create file directly (simulating user error)
     illegal_file = test_md_folder / "illegal_note.md"
     illegal_file.write_text("# Illegal Note\nCreated outside API")
-    
+
     # Trigger sync
     sync_result = megatest_context.sync()
-    
+
     # CRITICAL VALIDATIONS
     assert sync_result.completed == True, "Sync must complete!"
     assert sync_result.crashed == False, "Sync must NOT crash!"
     assert sync_result.hung == False, "Sync must NOT hang!"
-    
+
     # File should be detected (warning or imported)
     assert "illegal_note.md" in sync_result.new_files or "illegal_note.md" in sync_result.warnings
-    
+
     # System should still be operational
     assert megatest_context.can_perform_operations(), "System should remain operational"
-    
+
     # SAFETY: Verify production still untouched
     # (This is verified automatically by fixtures, but emphasize here)
     print("✅ Test completed - Production data verified safe")
@@ -354,18 +357,18 @@ def cleanup_and_verify():
         current = compute_checksum_file(prod_db)
         assert current == initial, "PRODUCTION DB MODIFIED!"
         print("✅ Production DB: VERIFIED UNTOUCHED")
-    
+
     # 2. Verify production MD folder
     if prod_home.exists():
         # Check no new files added
         # Check no files deleted
         # Check no files modified
         print("✅ Production MD folder: VERIFIED UNTOUCHED")
-    
+
     # 3. Remove ALL test data
     shutil.rmtree(test_base)
     print(f"✅ Test data cleaned: {test_base}")
-    
+
     # 4. Verify no test artifacts left
     assert not test_base.exists()
     print("✅ No test artifacts remaining")
@@ -396,12 +399,7 @@ def cleanup_and_verify():
 ```python
 # Created in code, NEVER saved to file
 test_config = AdvancedMemoryConfig(
-    database_path="/tmp/megatest_xyz/test.db",
-    projects={
-        "test_personal": {
-            "home": "/tmp/megatest_xyz/test_personal"
-        }
-    }
+    database_path="/tmp/megatest_xyz/test.db", projects={"test_personal": {"home": "/tmp/megatest_xyz/test_personal"}}
 )
 ```
 
@@ -414,7 +412,7 @@ test_config = AdvancedMemoryConfig(
 ### Scenario 1: Test Crashes Mid-Execution
 **Risk**: Test data left in temp directory
 
-**Safety**: 
+**Safety**:
 - ✅ Production UNTOUCHED (separate paths)
 - ✅ Test data in temp (auto-deleted by OS eventually)
 - ✅ Production checksum verified (no changes)
@@ -606,4 +604,3 @@ If you EVER see these messages, test will abort immediately:
 *Risk to production: ZERO*
 
 🛡️ **YOUR PRODUCTION DATA IS SACRED - WE PROTECT IT AT ALL COSTS!** 🛡️
-

@@ -32,19 +32,19 @@ This framework works for:
                     LEVEL 5: FULL BLAST
                     All tools + Real output validation
                     Time: 60-120 min
-                    
+
                LEVEL 4: INTEGRATION
                Multi-tool workflows + Real data
                Time: 30-60 min
-               
+
           LEVEL 3: ADVANCED
           All tools individually
           Time: 15-30 min
-          
-     LEVEL 2: STANDARD  
+
+     LEVEL 2: STANDARD
      Core tools only
      Time: 5-15 min
-     
+
 LEVEL 1: SMOKE
 Quick sanity check
 Time: 1-3 min
@@ -259,6 +259,7 @@ import hashlib
 # SAFETY: Detect your production paths
 # ============================================================================
 
+
 def get_production_paths():
     """Return production paths specific to YOUR MCP server."""
     # CUSTOMIZE THIS for your server!
@@ -266,15 +267,12 @@ def get_production_paths():
         # Example for Advanced Memory:
         # Path.home() / ".advanced-memory",
         # Path.home() / "Documents" / "claude-depot",
-        
         # Example for Virtualization MCP:
         # Path.home() / ".virtualization-mcp",
         # Path.home() / "VirtualMachines",
-        
         # Example for Database MCP:
         # Path.home() / ".database-mcp",
         # Path("/var/lib/postgresql"),
-        
         # ADD YOUR PRODUCTION PATHS HERE:
         # Path.home() / ".your-mcp-server",
     ]
@@ -300,6 +298,7 @@ def is_safe_test_path(path: Path) -> bool:
 # UNIVERSAL FIXTURES (Use as-is in any MCP server)
 # ============================================================================
 
+
 @pytest.fixture(scope="session", autouse=True)
 def verify_not_production():
     """Session-level safety - CRITICAL!"""
@@ -315,15 +314,15 @@ def verify_not_production():
 def isolated_test_env():
     """Create isolated temp environment."""
     temp_base = Path(tempfile.mkdtemp(prefix="megatest_mcp_"))
-    
+
     # CRITICAL: Verify safe
     assert is_safe_test_path(temp_base)
     assert not is_production_path(temp_base)
-    
+
     print(f"\n✅ Test environment: {temp_base}")
-    
+
     yield {"test_dir": temp_base}
-    
+
     # Cleanup
     shutil.rmtree(temp_base)
     print(f"✅ Cleaned up: {temp_base}")
@@ -332,11 +331,13 @@ def isolated_test_env():
 @pytest.fixture
 def assert_production_safe():
     """Fixture for explicit safety assertions."""
+
     def _assert_safe(test_path: Path):
         if is_production_path(test_path):
             pytest.fail(f"FATAL: Production path detected: {test_path}")
         if not is_safe_test_path(test_path):
             pytest.fail(f"FATAL: Unsafe test path: {test_path}")
+
     return _assert_safe
 ```
 
@@ -357,16 +358,17 @@ Coverage: Critical tools only (20%)
 
 import pytest
 
+
 @pytest.mark.megatest_smoke
 async def test_server_initializes(isolated_test_env, assert_production_safe):
     """Test: MCP server can initialize."""
     test_dir = isolated_test_env["test_dir"]
     assert_production_safe(test_dir)
-    
+
     # Initialize your MCP server
     # server = await initialize_mcp_server(test_dir)
     # assert server.is_ready
-    
+
     pass  # Implement based on your server
 
 
@@ -378,11 +380,11 @@ async def test_list_operation_works(isolated_test_env):
     # - Virtualization: list_vms()
     # - Avatar: list_avatars()
     # - Database: list_databases()
-    
+
     # result = await your_list_tool()
     # assert result is not None
     # assert len(result) >= 0  # Can be empty, that's OK
-    
+
     pass  # Implement based on your tools
 
 
@@ -394,10 +396,10 @@ async def test_basic_read_works(isolated_test_env):
     # - Virtualization: get_vm_status()
     # - Avatar: get_avatar_info()
     # - Database: get_table_schema()
-    
+
     # result = await your_read_tool()
     # assert result is not None
-    
+
     pass  # Implement based on your tools
 
 
@@ -406,16 +408,16 @@ async def test_basic_create_works(isolated_test_env, assert_production_safe):
     """Test: Basic create operation works."""
     test_dir = isolated_test_env["test_dir"]
     assert_production_safe(test_dir)
-    
+
     # Example for ANY MCP server:
     # - Advanced Memory: write_note()
     # - Virtualization: create_vm()
     # - Avatar: create_avatar()
     # - Database: create_table()
-    
+
     # result = await your_create_tool(test_data)
     # assert result.success
-    
+
     pass  # Implement based on your tools
 
 
@@ -744,7 +746,7 @@ testpaths = tests
 python_files = test_*.py
 
 # CRITICAL: Megatest excluded by default
-addopts = 
+addopts =
     -m "not megatest"
     --strict-markers
     -v
@@ -906,12 +908,12 @@ Track these metrics to measure success:
 ```python
 megatest_metrics = {
     "test_levels_implemented": 5,  # All levels complete
-    "total_tools_tested": 45,      # All MCP tools covered
-    "time_smoke": "2 min",          # Fast feedback
-    "time_full": "90 min",          # Complete validation
+    "total_tools_tested": 45,  # All MCP tools covered
+    "time_smoke": "2 min",  # Fast feedback
+    "time_full": "90 min",  # Complete validation
     "bugs_caught_pre_release": 15,  # Before users see them
-    "production_incidents": 0,      # Zero production issues
-    "llm_quota_saved": "85%",      # Automated vs manual
+    "production_incidents": 0,  # Zero production issues
+    "llm_quota_saved": "85%",  # Automated vs manual
     "developer_confidence": "95%",  # High confidence in releases
 }
 ```
@@ -1186,4 +1188,3 @@ Refer to Advanced Memory MCP as reference implementation:
 *ROI: Positive within first month*
 
 🎯 **Copy this guide to your MCP repos and start building safe, comprehensive tests!** 🎯
-

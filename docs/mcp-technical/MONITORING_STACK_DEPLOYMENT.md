@@ -1,7 +1,7 @@
 # 📊 AI-Powered Monitoring Stack Deployment
 
-**From Specialist Territory to 5-Minute Setup**  
-**Grafana + Prometheus + Loki + Promtail with AI + Docker**  
+**From Specialist Territory to 5-Minute Setup**
+**Grafana + Prometheus + Loki + Promtail with AI + Docker**
 **Timeline**: September 2025
 
 ---
@@ -75,7 +75,7 @@ Create a complete monitoring stack with Grafana, Prometheus, Loki, and Promtail 
 
 REQUIREMENTS:
 - Grafana dashboards for home surveillance and IoT monitoring
-- Prometheus for metrics collection 
+- Prometheus for metrics collection
 - Loki for log aggregation
 - Promtail for log shipping
 - Persistent storage for all data
@@ -83,7 +83,7 @@ REQUIREMENTS:
 - Pre-configured dashboards for common home monitoring scenarios
 - Include example configurations for:
   * Smart home devices (Nest, sensors)
-  * Network infrastructure monitoring  
+  * Network infrastructure monitoring
   * Application performance monitoring
   * System resource monitoring
 
@@ -222,7 +222,7 @@ networks:
 
 **2. Network Monitoring Dashboard**:
 - Internet speed tests over time
-- Router CPU/memory usage  
+- Router CPU/memory usage
 - Connected device counts
 - Bandwidth usage by device
 - DNS response times
@@ -246,22 +246,24 @@ networks:
 from prometheus_client import Counter, Histogram, Gauge, start_http_server
 
 # Metrics
-tool_calls_total = Counter('mcp_tool_calls_total', 'Total tool calls', ['tool_name'])
-tool_duration = Histogram('mcp_tool_duration_seconds', 'Tool execution time', ['tool_name'])
-active_connections = Gauge('mcp_active_connections', 'Active MCP connections')
-nest_api_calls = Counter('nest_api_calls_total', 'Nest API calls', ['endpoint', 'status'])
+tool_calls_total = Counter("mcp_tool_calls_total", "Total tool calls", ["tool_name"])
+tool_duration = Histogram("mcp_tool_duration_seconds", "Tool execution time", ["tool_name"])
+active_connections = Gauge("mcp_active_connections", "Active MCP connections")
+nest_api_calls = Counter("nest_api_calls_total", "Nest API calls", ["endpoint", "status"])
+
 
 @app.tool()
 async def list_devices() -> Dict[str, Any]:
-    tool_calls_total.labels(tool_name='list_devices').inc()
-    with tool_duration.labels(tool_name='list_devices').time():
+    tool_calls_total.labels(tool_name="list_devices").inc()
+    with tool_duration.labels(tool_name="list_devices").time():
         try:
             result = await device_list_func()
-            nest_api_calls.labels(endpoint='devices', status='success').inc()
+            nest_api_calls.labels(endpoint="devices", status="success").inc()
             return result
         except Exception as e:
-            nest_api_calls.labels(endpoint='devices', status='error').inc()
+            nest_api_calls.labels(endpoint="devices", status="error").inc()
             raise
+
 
 # Start metrics server
 start_http_server(8000)
@@ -298,31 +300,32 @@ import requests
 from prometheus_client import Gauge
 
 # System metrics
-cpu_usage = Gauge('home_cpu_usage_percent', 'CPU usage')
-memory_usage = Gauge('home_memory_usage_percent', 'Memory usage')
-disk_usage = Gauge('home_disk_usage_percent', 'Disk usage')
-internet_speed = Gauge('home_internet_speed_mbps', 'Internet speed')
+cpu_usage = Gauge("home_cpu_usage_percent", "CPU usage")
+memory_usage = Gauge("home_memory_usage_percent", "Memory usage")
+disk_usage = Gauge("home_disk_usage_percent", "Disk usage")
+internet_speed = Gauge("home_internet_speed_mbps", "Internet speed")
 
 # IoT device metrics
-nest_protect_battery = Gauge('nest_protect_battery_percent', 'Battery level', ['device_id'])
-thermostat_temp = Gauge('thermostat_temperature_celsius', 'Temperature', ['location'])
-security_status = Gauge('security_system_armed', 'Security system status')
+nest_protect_battery = Gauge("nest_protect_battery_percent", "Battery level", ["device_id"])
+thermostat_temp = Gauge("thermostat_temperature_celsius", "Temperature", ["location"])
+security_status = Gauge("security_system_armed", "Security system status")
+
 
 async def collect_metrics():
     # System metrics
     cpu_usage.set(psutil.cpu_percent())
     memory_usage.set(psutil.virtual_memory().percent)
-    disk_usage.set(psutil.disk_usage('/').percent)
-    
+    disk_usage.set(psutil.disk_usage("/").percent)
+
     # Internet speed test
     speed = await test_internet_speed()
     internet_speed.set(speed)
-    
+
     # Nest device data
     devices = await get_nest_devices()
     for device in devices:
-        nest_protect_battery.labels(device_id=device['id']).set(device['battery'])
-    
+        nest_protect_battery.labels(device_id=device["id"]).set(device["battery"])
+
     # Security system
     security_status.set(1 if await is_security_armed() else 0)
 ```
@@ -418,7 +421,7 @@ Include alerting rules for:
 ```
 Build monitoring for smart home ecosystem:
 - Nest thermostat temperature control efficiency
-- Smart lighting usage patterns and energy consumption  
+- Smart lighting usage patterns and energy consumption
 - Voice assistant query logs and response times
 - Smart plug power monitoring and automation
 - HVAC system performance and energy usage
@@ -484,7 +487,7 @@ Include debugging dashboards for:
 ### **Home Automation Dashboard**
 "Went from scattered IoT device apps to unified monitoring in one afternoon. Now I can see everything from solar production to pet door activity in one place. The neighbors are definitely impressed!"
 
-### **Development Project Monitoring**  
+### **Development Project Monitoring**
 "Added comprehensive monitoring to our MCP server project. Now we can see API performance, error patterns, and usage analytics. What used to require a dedicated DevOps person took me 30 minutes with AI assistance."
 
 ### **Small Business Infrastructure**
@@ -522,7 +525,7 @@ Include debugging dashboards for:
 
 **Perfect for**:
 - ✅ Home surveillance and automation
-- ✅ Development project monitoring  
+- ✅ Development project monitoring
 - ✅ Small business infrastructure
 - ✅ Learning DevOps concepts
 - ✅ Impressing technically-minded friends!

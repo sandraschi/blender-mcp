@@ -1,6 +1,6 @@
 # 🔍 Claude Desktop MCP Server Debugging Guide
 
-**The Mystery of "Server Starts, Then Dies"**  
+**The Mystery of "Server Starts, Then Dies"**
 **Real-World Debugging Experience from nest-protect MCP**
 
 ---
@@ -14,14 +14,14 @@ You see this pattern in Claude Desktop logs:
 2025-09-19T19:52:08.612Z [your-server] [info] Server started and connected successfully
 2025-09-19T19:52:08.760Z [your-server] [info] Message from client: {"method":"initialize"...}
 [... normal operation for 5-10 seconds ...]
-2025-09-19 21:52:13,700 - your_server - INFO - Kill argument received - exiting gracefully  
+2025-09-19 21:52:13,700 - your_server - INFO - Kill argument received - exiting gracefully
 2025-09-19T19:52:14.266Z [your-server] [info] Server transport closed
 2025-09-19T19:52:14.266Z [your-server] [error] Server disconnected
 ```
 
 ### **What Users Think**
 - "Claude is randomly killing my server!"
-- "The connection is unstable!"  
+- "The connection is unstable!"
 - "Something is wrong with my Claude Desktop installation!"
 
 ### **The Reality**
@@ -56,6 +56,7 @@ T+10s:   Claude Desktop sends --kill to cleanup zombie process
 @app.tool()
 async def my_tool():
     from some_module import missing_function  # ❌ Import happens when tool is called
+
     return {"result": "ok"}
 ```
 
@@ -72,6 +73,7 @@ async def my_tool():
 # Import at module level
 from some_module import missing_function
 
+
 @app.tool()
 async def my_tool():
     return {"result": missing_function()}  # ✅ Import already validated
@@ -83,6 +85,7 @@ async def my_tool():
 ```python
 # Module-level instantiation with validation
 config = MyConfig()  # ❌ Validates immediately on import
+
 
 @app.tool()
 async def my_tool():
@@ -101,6 +104,7 @@ async def my_tool():
 ```python
 config = None  # ✅ Defer instantiation
 
+
 def get_config():
     global config
     if config is None:
@@ -110,6 +114,7 @@ def get_config():
             # Handle gracefully
             config = MyConfig.default()
     return config
+
 
 @app.tool()
 async def my_tool():
@@ -159,14 +164,15 @@ import sys
 # Set up logging that appears in Claude Desktop logs
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stderr),  # ← This is key!
-        logging.FileHandler('debug.log')    # ← Also save to file
-    ]
+        logging.FileHandler("debug.log"),  # ← Also save to file
+    ],
 )
 
 logger = logging.getLogger(__name__)
+
 
 @app.tool()
 async def my_tool():
@@ -187,17 +193,18 @@ async def my_tool():
 def validate_environment():
     """Validate all dependencies and configuration before starting."""
     logger.info("Starting environment validation...")
-    
+
     # Test imports
     try:
         import aiohttp
         import pydantic
         import your_custom_module
+
         logger.info("✅ All imports successful")
     except ImportError as e:
         logger.error(f"❌ Import failed: {e}")
         raise
-    
+
     # Test configuration
     try:
         config = MyConfig()
@@ -205,7 +212,7 @@ def validate_environment():
     except Exception as e:
         logger.error(f"❌ Configuration validation failed: {e}")
         raise
-    
+
     # Test external connections
     try:
         # Test API connectivity, file access, etc.
@@ -213,8 +220,9 @@ def validate_environment():
     except Exception as e:
         logger.error(f"❌ External validation failed: {e}")
         raise
-    
+
     logger.info("🎉 Environment validation complete")
+
 
 if __name__ == "__main__":
     validate_environment()  # ✅ Fail fast if something is wrong
@@ -231,7 +239,7 @@ async def test_all_tools():
         ("tool2", {"param": "test"}),
         ("tool3", {"device_id": "test-device"}),
     ]
-    
+
     for tool_name, test_params in tools_to_test:
         try:
             logger.info(f"Testing tool: {tool_name}")
@@ -245,6 +253,7 @@ async def test_all_tools():
         except Exception as e:
             logger.error(f"❌ {tool_name}: {e}", exc_info=True)
             raise  # Fail fast on tool issues
+
 
 # Call this during development/testing
 # await test_all_tools()
@@ -265,22 +274,26 @@ logger = logging.getLogger(__name__)
 
 app = FastMCP("minimal-test")
 
+
 @app.tool()
 async def hello() -> dict:
     """Simple test tool."""
     logger.info("Hello tool called")
     return {"message": "Hello, World!"}
 
+
 @app.tool()
 async def test_import() -> dict:
     """Test importing your problematic module."""
     try:
         from your_module import your_function  # ← Test your specific import
+
         logger.info("Import successful")
         return {"status": "import_ok"}
     except Exception as e:
         logger.error(f"Import failed: {e}")
         return {"status": "import_failed", "error": str(e)}
+
 
 if __name__ == "__main__":
     logger.info("Starting minimal server...")
@@ -326,9 +339,10 @@ def get_app_state():
 # models.py
 class ProtectConfig(BaseModel):
     project_id: str  # ❌ Required field, no default
-    client_id: str   # ❌ Required field, no default
+    client_id: str  # ❌ Required field, no default
 
-# server.py  
+
+# server.py
 config = ProtectConfig()  # ❌ Instant validation error if fields missing
 ```
 
@@ -339,10 +353,12 @@ config = ProtectConfig()  # ❌ Instant validation error if fields missing
 # models.py
 class ProtectConfig(BaseModel):
     project_id: str = Field("", description="Project ID")  # ✅ Default value
-    client_id: str = Field("", description="Client ID")    # ✅ Default value
+    client_id: str = Field("", description="Client ID")  # ✅ Default value
+
 
 # server.py
 config = None  # ✅ Defer instantiation
+
 
 def get_config():
     global config
@@ -359,6 +375,7 @@ def get_config():
 async def main():
     app.run()  # ❌ app.run() is blocking, doesn't need async
 
+
 asyncio.run(main())  # ❌ Creates event loop conflicts
 ```
 
@@ -369,6 +386,7 @@ asyncio.run(main())  # ❌ Creates event loop conflicts
 # __main__.py
 def main():  # ✅ Keep it simple
     app.run()
+
 
 if __name__ == "__main__":
     main()  # ✅ Direct call
@@ -419,25 +437,27 @@ logger = logging.getLogger(__name__)
 
 app = FastMCP("diagnostic")
 
+
 @app.tool()
 async def test_imports() -> dict:
     """Test all your imports."""
     results = {}
     imports_to_test = [
         "aiohttp",
-        "pydantic", 
+        "pydantic",
         "your_custom_module",
         # Add your specific imports here
     ]
-    
+
     for module in imports_to_test:
         try:
             __import__(module)
             results[module] = "✅ OK"
         except Exception as e:
             results[module] = f"❌ FAILED: {e}"
-    
+
     return {"import_results": results}
+
 
 @app.tool()
 async def test_config() -> dict:
@@ -445,10 +465,12 @@ async def test_config() -> dict:
     try:
         # Your config loading logic here
         from your_module import YourConfig
+
         config = YourConfig()
         return {"config_status": "✅ OK", "config": str(config)}
     except Exception as e:
         return {"config_status": f"❌ FAILED: {e}", "traceback": traceback.format_exc()}
+
 
 if __name__ == "__main__":
     logger.info("Starting diagnostic server...")
@@ -462,31 +484,31 @@ import logging
 import sys
 from datetime import datetime
 
+
 def setup_debug_logging():
     """Set up comprehensive logging for debugging."""
-    
+
     # Create formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
-    )
-    
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s")
+
     # Console handler (appears in Claude Desktop)
     console_handler = logging.StreamHandler(sys.stderr)
     console_handler.setLevel(logging.DEBUG)
     console_handler.setFormatter(formatter)
-    
+
     # File handler (for detailed analysis)
-    file_handler = logging.FileHandler(f'debug_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+    file_handler = logging.FileHandler(f"debug_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
-    
+
     # Configure root logger
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)
     root_logger.addHandler(console_handler)
     root_logger.addHandler(file_handler)
-    
+
     return logging.getLogger(__name__)
+
 
 # Use in your server
 logger = setup_debug_logging()
@@ -507,7 +529,7 @@ logger = setup_debug_logging()
 
 1. **Add logging** to your minimal server
 2. **Add one tool at a time** from your main server
-3. **Test after each addition** 
+3. **Test after each addition**
 4. **When it breaks**: You've found the problematic tool
 
 ### **Phase 3: Fix the Root Cause (Variable)**
@@ -534,14 +556,14 @@ logger = setup_debug_logging()
 - Add timeout handling for generation
 - Test with minimal avatar requests first
 
-### **For local llms Issues**  
+### **For local llms Issues**
 - Verify model loading doesn't happen at import time
 - Add memory monitoring for large models
 - Test model inference separately
 - Handle model download/cache issues
 
 ### **For tapo Issues**
-- Test device discovery separately 
+- Test device discovery separately
 - Add network connectivity validation
 - Handle device offline scenarios
 - Test authentication before tool registration
@@ -552,10 +574,10 @@ logger = setup_debug_logging()
 
 **You've fixed the "start and kill" issue when**:
 
-✅ Server runs for minutes/hours without disconnection  
-✅ All tools respond correctly in Claude Desktop  
-✅ Logs show normal operation, not error patterns  
-✅ Tool discovery happens without crashes  
-✅ Error handling gracefully manages edge cases  
+✅ Server runs for minutes/hours without disconnection
+✅ All tools respond correctly in Claude Desktop
+✅ Logs show normal operation, not error patterns
+✅ Tool discovery happens without crashes
+✅ Error handling gracefully manages edge cases
 
 **Remember**: Claude Desktop is not the enemy. It's trying to help by cleaning up crashed servers. Fix the crash, and the killing stops! 🔧🎯

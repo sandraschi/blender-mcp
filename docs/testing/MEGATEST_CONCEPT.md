@@ -26,9 +26,9 @@ if is_production_path(config.home_dir):
 
 # ENFORCED: Test directory must be in temp or test-specific location
 ALLOWED_TEST_PATHS = [
-    Path("test_data/megatest/"),      # Relative test path
-    Path(tempfile.gettempdir()),      # System temp directory
-    Path.cwd() / "tests/megatest/data"  # Test-specific directory
+    Path("test_data/megatest/"),  # Relative test path
+    Path(tempfile.gettempdir()),  # System temp directory
+    Path.cwd() / "tests/megatest/data",  # Test-specific directory
 ]
 ```
 
@@ -261,24 +261,24 @@ def validate_test_environment():
     # Get production paths from system
     production_db = get_production_db_path()
     production_home = get_production_home_dir()
-    
+
     # Get test paths
     test_db = config.test_db_path
     test_home = config.test_home_dir
-    
+
     # CRITICAL: Ensure test paths are different
     assert test_db != production_db, "FATAL: Test DB same as production!"
     assert test_home != production_home, "FATAL: Test home same as production!"
-    
+
     # CRITICAL: Ensure test paths are in safe locations
     assert is_safe_test_path(test_db), f"FATAL: Unsafe DB path: {test_db}"
     assert is_safe_test_path(test_home), f"FATAL: Unsafe home path: {test_home}"
-    
+
     # CRITICAL: Verify production data is untouched
     if production_db.exists():
         prod_checksum_before = compute_checksum(production_db)
         # Store for post-test verification
-    
+
     # Display test environment for verification
     print(f"""
     ╔══════════════════════════════════════════════════════════╗
@@ -775,7 +775,7 @@ performance_report = {
     "read_avg": "X ms/note",
     "write_avg": "X ms/note",
     "export_speed": "X notes/second",
-    "import_speed": "X notes/second"
+    "import_speed": "X notes/second",
 }
 ```
 
@@ -787,12 +787,9 @@ error_report = {
     "successful": 1480,
     "failed": 20,
     "error_rate": "1.3%",
-    "errors_by_type": {
-        "malformed_files": 15,
-        "invalid_operations": 5
-    },
+    "errors_by_type": {"malformed_files": 15, "invalid_operations": 5},
     "crashes": 0,  # Must be 0!
-    "hangs": 0      # Must be 0!
+    "hangs": 0,  # Must be 0!
 }
 ```
 
@@ -806,7 +803,7 @@ coverage_report = {
     "export": "✅ 5 formats tested",
     "import": "✅ 5 sources tested",
     "edge_cases": "✅ 50 scenarios tested",
-    "stress": "✅ High load tested"
+    "stress": "✅ High load tested",
 }
 ```
 
@@ -906,7 +903,7 @@ python_classes = Test*
 python_functions = test_*
 
 # Megatest requires EXPLICIT marker
-addopts = 
+addopts =
     -m "not megatest"
     --strict-markers
     --tb=short
@@ -926,43 +923,42 @@ from pathlib import Path
 from .phases import *
 from .reporters import HTMLReporter
 
+
 @pytest.fixture(scope="module")
 def megatest_context():
     """Setup isolated test environment."""
-    context = MegatestContext(
-        test_dir=Path("test_data/megatest"),
-        db_path=Path("test_data/megatest.db")
-    )
+    context = MegatestContext(test_dir=Path("test_data/megatest"), db_path=Path("test_data/megatest.db"))
     context.clean()
     yield context
     context.cleanup()
+
 
 @pytest.mark.megatest
 def test_megatest_full(megatest_context):
     """Run complete megatest suite."""
     reporter = HTMLReporter()
-    
+
     # Phase 1: Setup
     phase1 = Phase1Setup(megatest_context)
     results_p1 = phase1.run()
     reporter.add_phase("Setup", results_p1)
-    
+
     # Phase 2: Generation
     phase2 = Phase2Generation(megatest_context)
     results_p2 = phase2.run()
     reporter.add_phase("Generation", results_p2)
-    
+
     # ... (continue for all phases)
-    
+
     # Phase 8: Analysis
     phase8 = Phase8Analysis(megatest_context)
     results_p8 = phase8.run()
     reporter.add_phase("Analysis", results_p8)
-    
+
     # Generate final report
     report_path = reporter.generate("megatest_report.html")
     print(f"\nReport generated: {report_path}")
-    
+
     # Assert critical metrics
     assert results_p8.crashes == 0, "System crashed during test!"
     assert results_p8.hangs == 0, "System hung during test!"
@@ -980,16 +976,18 @@ class MetricsCollector:
         self.operations = []
         self.timings = {}
         self.errors = []
-    
+
     def record_operation(self, op_type, duration, success, details):
-        self.operations.append({
-            "type": op_type,
-            "duration_ms": duration * 1000,
-            "success": success,
-            "timestamp": time.time(),
-            "details": details
-        })
-    
+        self.operations.append(
+            {
+                "type": op_type,
+                "duration_ms": duration * 1000,
+                "success": success,
+                "timestamp": time.time(),
+                "details": details,
+            }
+        )
+
     def get_stats(self, op_type):
         ops = [o for o in self.operations if o["type"] == op_type]
         durations = [o["duration_ms"] for o in ops]
@@ -998,7 +996,7 @@ class MetricsCollector:
             "avg_ms": sum(durations) / len(durations) if durations else 0,
             "min_ms": min(durations) if durations else 0,
             "max_ms": max(durations) if durations else 0,
-            "success_rate": sum(1 for o in ops if o["success"]) / len(ops) if ops else 0
+            "success_rate": sum(1 for o in ops if o["success"]) / len(ops) if ops else 0,
         }
 ```
 
@@ -1142,4 +1140,3 @@ The **Megatest** provides comprehensive, real-world validation of Advanced Memor
 *Status: Ready for implementation*
 *Estimated effort: 5 weeks (1 developer)*
 *Expected ROI: High - catches bugs early, validates reliability*
-

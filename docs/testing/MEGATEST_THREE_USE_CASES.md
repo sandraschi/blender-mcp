@@ -120,24 +120,24 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.12"
-      
+
       - name: Install dependencies
         run: |
           pip install uv
           uv sync --dev
-      
+
       - name: Run Smoke Test
         env:
           MEGATEST_LOCATION: hidden
           MEGATEST_CLEANUP: immediate
         run: |
           pytest tests/megatest/ -v -m megatest_smoke --tb=short
-      
+
       - name: Upload artifacts (if test fails)
         if: failure()
         uses: actions/upload-artifact@v4
@@ -168,37 +168,37 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.12"
-      
+
       - name: Install dependencies
         run: |
           pip install uv
           uv sync --dev
-      
+
       - name: Run Standard Test
         env:
           MEGATEST_LOCATION: hidden
           MEGATEST_CLEANUP: immediate
         run: |
           pytest tests/megatest/ -v -m megatest_standard --tb=short
-      
+
       - name: Save artifacts before cleanup
         if: always()
         run: |
           mkdir -p artifacts
           cp -r /tmp/megatest_*/artifacts/* artifacts/ || true
-      
+
       - name: Upload test report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: megatest-standard-report
           path: artifacts/
-      
+
       - name: Comment PR with results
         if: always()
         uses: actions/github-script@v6
@@ -237,31 +237,31 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.12"
-      
+
       - name: Install dependencies
         run: |
           pip install uv
           uv sync --dev
           npm install -g docsify-cli  # For Docsify validation
-      
+
       - name: Run Full Blast Test
         env:
           MEGATEST_LOCATION: hidden
           MEGATEST_CLEANUP: immediate
         run: |
           pytest tests/megatest/ -v -m megatest_full --tb=short --durations=20
-      
+
       - name: Save all artifacts
         if: always()
         run: |
           mkdir -p full-blast-artifacts
           cp -r /tmp/megatest_*/artifacts/* full-blast-artifacts/ || true
-      
+
       - name: Upload complete report
         if: always()
         uses: actions/upload-artifact@v4
@@ -269,7 +269,7 @@ jobs:
           name: megatest-full-blast-report
           path: full-blast-artifacts/
           retention-days: 90  # Keep for 3 months
-      
+
       - name: Create release quality badge
         if: success()
         uses: schneegans/dynamic-badges-action@v1.7.0
@@ -305,21 +305,21 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Run Integration Test
         env:
           MEGATEST_LOCATION: hidden
           MEGATEST_CLEANUP: archive  # Keep for release records
         run: |
           pytest tests/megatest/ -v -m megatest_integration
-      
+
       - name: Upload release validation report
         uses: actions/upload-artifact@v4
         with:
           name: release-validation-report-${{ github.ref_name }}
           path: artifacts/
           retention-days: 365  # Keep for 1 year (release records)
-  
+
   publish:
     needs: megatest-integration
     if: success()
@@ -483,6 +483,7 @@ from rich.console import Console
 app = typer.Typer()
 console = Console()
 
+
 @app.command()
 def validate(
     level: str = typer.Option("smoke", help="Test level: smoke, standard, full"),
@@ -491,7 +492,7 @@ def validate(
 ):
     """
     Validate your Advanced Memory installation.
-    
+
     This runs a comprehensive test to ensure everything is working correctly.
     Test data is created in an isolated environment (safe).
     """
@@ -501,35 +502,34 @@ def validate(
     console.print(f"Time: ~{get_level_time(level)}")
     console.print(f"Safe: Uses isolated test environment")
     console.print("=" * 60 + "\n")
-    
+
     # Set environment for user validation
     os.environ["MEGATEST_LOCATION"] = "visible"  # Documents folder
     os.environ["MEGATEST_CLEANUP"] = "archive" if keep_artifacts else "immediate"
-    
+
     # Run pytest with appropriate marker
     marker = f"megatest_{level}"
     result = subprocess.run(
-        ["pytest", "tests/megatest/", "-v", "-m", marker, "--tb=short"],
-        capture_output=True,
-        text=True
+        ["pytest", "tests/megatest/", "-v", "-m", marker, "--tb=short"], capture_output=True, text=True
     )
-    
+
     # Display results
     if result.returncode == 0:
         console.print("\n[bold green]✅ VALIDATION PASSED[/bold green]")
         console.print("\n🎉 Your Advanced Memory installation is working perfectly!")
-        
+
         if keep_artifacts:
             report_path = find_latest_report()
             console.print(f"\n📊 Report saved to: {report_path}")
-            
+
             if open_report:
                 import webbrowser
+
                 webbrowser.open(str(report_path))
     else:
         console.print("\n[bold red]❌ VALIDATION FAILED[/bold red]")
         console.print("\n⚠️  Some tests failed. Please check the report for details.")
-        
+
         report_path = find_latest_report()
         console.print(f"\n📊 Report saved to: {report_path}")
         console.print("\nPlease share this report when requesting support.")
@@ -610,16 +610,12 @@ This MCP server includes comprehensive validation testing:
 ```python
 # tests/megatest/profiles/development.json
 {
-  "location": "local",
-  "cleanup": "on-success",
-  "default_level": "smoke",
-  "open_report_on_failure": true,
-  "keep_recent": 3,
-  "artifacts": {
-    "save_screenshots": false,
-    "save_exports": false,
-    "save_logs": true
-  }
+    "location": "local",
+    "cleanup": "on-success",
+    "default_level": "smoke",
+    "open_report_on_failure": true,
+    "keep_recent": 3,
+    "artifacts": {"save_screenshots": false, "save_exports": false, "save_logs": true},
 }
 ```
 
@@ -627,17 +623,12 @@ This MCP server includes comprehensive validation testing:
 ```python
 # tests/megatest/profiles/ci.json
 {
-  "location": "hidden",
-  "cleanup": "immediate",
-  "default_level": "standard",
-  "upload_artifacts": true,
-  "fail_fast": true,
-  "artifacts": {
-    "save_screenshots": true,
-    "save_exports": true,
-    "save_logs": true,
-    "compress": true
-  }
+    "location": "hidden",
+    "cleanup": "immediate",
+    "default_level": "standard",
+    "upload_artifacts": true,
+    "fail_fast": true,
+    "artifacts": {"save_screenshots": true, "save_exports": true, "save_logs": true, "compress": true},
 }
 ```
 
@@ -645,18 +636,13 @@ This MCP server includes comprehensive validation testing:
 ```python
 # tests/megatest/profiles/user-validation.json
 {
-  "location": "visible",
-  "cleanup": "archive",
-  "default_level": "smoke",
-  "open_report": true,
-  "show_progress": true,
-  "friendly_messages": true,
-  "artifacts": {
-    "save_screenshots": true,
-    "save_exports": true,
-    "save_test_data": true,
-    "generate_html_report": true
-  }
+    "location": "visible",
+    "cleanup": "archive",
+    "default_level": "smoke",
+    "open_report": true,
+    "show_progress": true,
+    "friendly_messages": true,
+    "artifacts": {"save_screenshots": true, "save_exports": true, "save_test_data": true, "generate_html_report": true},
 }
 ```
 
@@ -708,7 +694,7 @@ for test in track(tests, description="Running tests..."):
 </head>
 <body>
     <h1>🎉 Advanced Memory Validation Report</h1>
-    
+
     <div class="summary">
         <h2>Summary</h2>
         <p><strong>Status:</strong> <span class="pass">✅ ALL TESTS PASSED</span></p>
@@ -716,7 +702,7 @@ for test in track(tests, description="Running tests..."):
         <p><strong>Duration:</strong> 2m 15s</p>
         <p><strong>Timestamp:</strong> 2025-10-15 14:30:45</p>
     </div>
-    
+
     <h2>Test Results</h2>
     <ul>
         <li class="pass">✅ Server initialization</li>
@@ -724,14 +710,14 @@ for test in track(tests, description="Running tests..."):
         <li class="pass">✅ Note reading</li>
         <!-- ... -->
     </ul>
-    
+
     <h2>Sample Artifacts</h2>
     <p>Test created sample notes to demonstrate functionality:</p>
     <ul>
         <li><a href="artifacts/test_data/note1.md">Sample Note 1</a></li>
         <li><a href="artifacts/test_data/note2.md">Sample Note 2</a></li>
     </ul>
-    
+
     <h2>What This Means</h2>
     <p><strong>✅ Your Advanced Memory installation is working correctly!</strong></p>
     <p>You can now use it with confidence. All core features have been validated.</p>
@@ -839,15 +825,15 @@ This will:
 **In your MCPB listing**:
 
 > **✨ Quality Guaranteed**
-> 
+>
 > This MCP server includes built-in validation testing.
 > After installation, run `npm run validate` to prove it works!
-> 
+>
 > - 🧪 10 comprehensive tests
 > - ⚡ 2-minute validation
 > - 📊 Beautiful HTML report
 > - 🛡️ Production-safe (isolated environment)
-> 
+>
 > **Try before you trust!** We're confident enough to let you test everything.
 
 **Marketing impact**: Shows you stand behind your code!
@@ -1070,4 +1056,3 @@ Instead of wondering "Does this work?", they can **PROVE it works** in 2 minutes
 *Three use cases documented: October 15, 2025*
 *Development + GitHub + User Validation = Complete coverage*
 *Your megatest framework serves everyone!*
-

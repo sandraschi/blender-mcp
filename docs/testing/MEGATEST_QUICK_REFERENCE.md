@@ -262,7 +262,7 @@ pytest tests/megatest/ -v -m megatest_full
      - Search: ✅ WORKING
      - Theme toggle: ✅ WORKING
      - Screenshot: saved to artifacts/
-   
+
    • HTML Site: ✅ WORKING SITE
      - index.html: Valid
      - 100 note pages generated
@@ -391,7 +391,7 @@ tests/megatest/
 async def test_working_docsify_site(megatest_context, assert_production_safe):
     """
     Level 5: Validate a fully functional Docsify site.
-    
+
     Tests that exported Docsify site:
     - Has valid HTML structure
     - Can be served locally
@@ -402,71 +402,72 @@ async def test_working_docsify_site(megatest_context, assert_production_safe):
     """
     # SAFETY: Verify test environment
     assert_production_safe(megatest_context.test_dir)
-    
+
     # Create test notes
     notes = await megatest_context.create_notes(count=50, complexity="varied")
-    
+
     # Export to Docsify (enhanced)
     export_path = megatest_context.test_dir / "docsify_export"
-    result = await megatest_context.export_docsify_enhanced(
-        export_path=str(export_path),
-        enable_all_plugins=True
-    )
-    
+    result = await megatest_context.export_docsify_enhanced(export_path=str(export_path), enable_all_plugins=True)
+
     # Validate file structure
     assert (export_path / "index.html").exists()
     assert (export_path / "_sidebar.md").exists()
     assert (export_path / "README.md").exists()
-    
+
     # Validate HTML structure
     html_content = (export_path / "index.html").read_text()
     assert "<!DOCTYPE html>" in html_content
     assert "docsify" in html_content.lower()
     assert "search" in html_content.lower()
-    
+
     # Validate plugins configured
     assert "docsify-pagination" in html_content
     assert "docsify-themeable" in html_content
     assert "docsify-copy-code" in html_content
-    
+
     # Start local Docsify server
     import subprocess
+
     server = subprocess.Popen(
         ["npx", "-y", "docsify-cli", "serve", str(export_path), "-p", "3000"],
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
+        stderr=subprocess.PIPE,
     )
-    
+
     try:
         # Wait for server to start
         import time
+
         time.sleep(5)
-        
+
         # Test site loads
         import requests
+
         response = requests.get("http://localhost:3000")
         assert response.status_code == 200
         assert "Docsify" in response.text
-        
+
         # Test navigation works (check sidebar)
         assert "sidebar" in response.text.lower()
-        
+
         # Test search endpoint exists
         search_response = requests.get("http://localhost:3000/#/?id=search")
         assert search_response.status_code == 200
-        
+
         # Take screenshot (if running in headless browser mode)
-        screenshot_path = take_screenshot("http://localhost:3000", 
-                                         megatest_context.artifacts_dir / "docsify_working.png")
-        
+        screenshot_path = take_screenshot(
+            "http://localhost:3000", megatest_context.artifacts_dir / "docsify_working.png"
+        )
+
         print(f"✅ Docsify site WORKING: http://localhost:3000")
         print(f"✅ Screenshot saved: {screenshot_path}")
-        
+
     finally:
         # Stop server
         server.terminate()
         server.wait(timeout=5)
-    
+
     # FINAL VALIDATION
     assert result.success == True
     assert result.notes_exported == 50
@@ -597,4 +598,3 @@ Each level builds on the previous, adding more features and coverage.
 *Quick reference created: October 15, 2025*
 *All levels: ISOLATED and SAFE*
 *Choose wisely, test confidently!*
-
