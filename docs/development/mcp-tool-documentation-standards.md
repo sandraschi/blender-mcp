@@ -1,9 +1,9 @@
 # MCP Tool Documentation Standards
 ## Making AI Assistants Succeed on the First Try
 
-**Version**: 1.0  
-**Last Updated**: 2025-10-10  
-**Status**: Community Best Practices  
+**Version**: 1.0
+**Last Updated**: 2025-10-10
+**Status**: Community Best Practices
 **Target Audience**: MCP Server Developers
 
 ---
@@ -93,7 +93,7 @@ Every MCP tool must include these 7 elements:
 
 State the purpose AND critical constraint in one line.
 
-**❌ BAD**: "Search bookmarks by title or URL."  
+**❌ BAD**: "Search bookmarks by title or URL."
 **✅ GOOD**: "Search Firefox bookmarks by title/URL (requires Firefox closed)."
 
 **Why it matters**: The AI needs to know upfront if there are blockers.
@@ -146,7 +146,7 @@ Args:
         Case-insensitive, supports partial matches
         Examples: "plex", "github.com", "machine learning tutorial"
         Min length: 1 character
-        
+
     profile_path (str, OPTIONAL):
         Full absolute path to Firefox profile directory
         Format: "C:\\Users\\{username}\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\{profile_id}"
@@ -154,7 +154,7 @@ Args:
         Default: Auto-detects from profiles.ini (may fail with multiple profiles)
         Get path: Use get_firefox_profiles() tool first
         Platform: Windows requires double backslashes, Linux/Mac use forward slashes
-        
+
     limit (int, OPTIONAL):
         Maximum number of bookmark results to return
         Range: 1-100 (values outside range will be clamped)
@@ -184,7 +184,7 @@ Returns:
 """
 Returns:
     dict: Search results with metadata
-    
+
     Structure:
     {
         "status": str,              # "success" or "error"
@@ -197,7 +197,7 @@ Returns:
                 "title": str,       # Bookmark title (may be empty)
                 "url": str,         # Full URL including protocol
                 "dateAdded": int,   # Unix timestamp in microseconds
-                "lastModified": int,# Unix timestamp in microseconds  
+                "lastModified": int,# Unix timestamp in microseconds
                 "parent": int,      # Parent folder ID (0 = root)
                 "tags": [str]       # List of tags (may be empty)
             }
@@ -205,7 +205,7 @@ Returns:
         "truncated": bool,          # True if results limited by 'limit' parameter
         "execution_time_ms": float  # Query execution time
     }
-    
+
     On Error:
     {
         "status": "error",
@@ -253,7 +253,7 @@ Common Issues & Solutions:
    - Call get_firefox_profiles() to list available profiles
    - Verify path exists: "C:\\Users\\...\\Profiles\\{profile_name}"
    - Check for typos (path is case-sensitive on Linux/Mac)
-   
+
 3. "No results found" (empty results array)
    CAUSE: Search term doesn't match any bookmarks
    FIX: Try different search strategies
@@ -261,7 +261,7 @@ Common Issues & Solutions:
    - Check spelling
    - Try URL domain: "github.com" instead of project name
    - Use list_bookmarks() to browse all bookmarks
-   
+
 4. "Permission denied"
    CAUSE: Insufficient file system permissions
    FIX: Check file permissions
@@ -298,8 +298,8 @@ Examples:
         query="plex"
     )
     # Returns: All bookmarks with "plex" in title or URL
-    
-    
+
+
     # Example 2: Search specific profile with limit (multiple profiles)
     # Use when: You have multiple Firefox profiles or need to specify which one
     result = search_bookmarks(
@@ -308,8 +308,8 @@ Examples:
         limit=20
     )
     # Returns: Up to 20 bookmarks matching "immich"
-    
-    
+
+
     # Example 3: Search by domain name (finding all bookmarks from a site)
     # Use when: You want all bookmarks from a specific website
     result = search_bookmarks(
@@ -317,8 +317,8 @@ Examples:
         limit=100
     )
     # Returns: All GitHub bookmarks (up to 100)
-    
-    
+
+
     # Example 4: Broad search with high limit (comprehensive search)
     # Use when: You want to find everything related to a topic
     result = search_bookmarks(
@@ -326,8 +326,8 @@ Examples:
         limit=100
     )
     # Returns: All bookmarks with "AI" in title or URL
-    
-    
+
+
     # Example 5: Error handling pattern (production code)
     # Use when: You need robust error handling
     try:
@@ -335,7 +335,7 @@ Examples:
             query="machine learning",
             limit=50
         )
-        
+
         if result["status"] == "success":
             print(f"Found {result['count']} bookmarks")
             for bookmark in result["results"]:
@@ -343,7 +343,7 @@ Examples:
         else:
             print(f"Error: {result['error']}")
             print(f"Suggestion: {result['suggestion']}")
-            
+
     except Exception as e:
         print(f"Unexpected error: {e}")
         # Fallback: try export_bookmarks() instead
@@ -368,19 +368,19 @@ Platform Notes:
         - Path format: Use DOUBLE backslashes "C:\\Users\\..."
         - Check Firefox: Task Manager → Details tab → firefox.exe
         - Common issue: OneDrive may sync profile (causes locks)
-        
+
     LINUX:
         - Profile location: ~/.mozilla/firefox/
         - Path format: /home/{user}/.mozilla/firefox/{profile}
         - Check Firefox: ps aux | grep firefox
         - Common issue: Snap Firefox uses different profile path
-        
+
     MACOS:
         - Profile location: ~/Library/Application Support/Firefox/Profiles/
         - Path format: /Users/{user}/Library/Application Support/...
         - Check Firefox: Activity Monitor or ps aux | grep firefox
         - Common issue: Firefox may run in background (check menu bar)
-        
+
     Cross-Platform:
         - places.sqlite is portable across platforms
         - Bookmark IDs are consistent across platforms
@@ -399,32 +399,32 @@ Here's the complete template you can copy-paste:
 ```python
 def tool_name(param1: str, param2: Optional[int] = None) -> Dict:
     """[One-line purpose with critical constraint]
-    
+
     [2-3 sentences describing what this tool does and when to use it.
     Mention any important limitations or considerations.]
-    
+
     Prerequisites:
         - [Requirement 1: specific condition that must be true]
         - [Requirement 2: external state needed]
         - [Requirement 3: permissions/access required]
-    
+
     Args:
         param1 (str, REQUIRED):
             [What this parameter does in plain language]
             Format: [pattern/structure with curly braces for variables]
             Example: [concrete realistic value]
             Validation: [constraints, min/max, allowed values]
-            
+
         param2 (int, OPTIONAL):
             [What this parameter does]
             Range: [min-max values]
             Default: [default value and why it's chosen]
             Example: [realistic value]
             Performance: [impact of different values if relevant]
-    
+
     Returns:
         [type]: [Brief description]
-        
+
         Structure (Success):
         {
             "field1": type,  # Description and valid values
@@ -433,7 +433,7 @@ def tool_name(param1: str, param2: Optional[int] = None) -> Dict:
                 "subfield": type  # Description
             }
         }
-        
+
         Structure (Error):
         {
             "status": "error",
@@ -441,34 +441,34 @@ def tool_name(param1: str, param2: Optional[int] = None) -> Dict:
             "error_code": str,   # Machine-readable code
             "suggestion": str    # How to fix
         }
-    
+
     Common Issues & Solutions:
-        
+
         1. [Error message or condition]
            CAUSE: [Why this happens]
            FIX: [Step-by-step solution]
            - [Specific action 1]
            - [Specific action 2]
            WORKAROUND: [Alternative approach if fix isn't possible]
-           
+
         2. [Another error or issue]
            CAUSE: [Root cause]
            FIX: [How to resolve]
-           
+
         3. [Edge case or unexpected behavior]
            CAUSE: [Explanation]
            FIX: [Solution]
-    
+
     Examples:
-        
+
         # Example 1: [Most common use case - describe when to use]
         result = tool_name(
             param1="realistic_value"
         )
         # Returns: [What to expect]
         # Use when: [Scenario description]
-        
-        
+
+
         # Example 2: [Second common case - with optional param]
         result = tool_name(
             param1="another_realistic_value",
@@ -476,8 +476,8 @@ def tool_name(param1: str, param2: Optional[int] = None) -> Dict:
         )
         # Returns: [What to expect]
         # Use when: [Scenario description]
-        
-        
+
+
         # Example 3: [Advanced or edge case]
         result = tool_name(
             param1="special_case_value",
@@ -485,8 +485,8 @@ def tool_name(param1: str, param2: Optional[int] = None) -> Dict:
         )
         # Returns: [What to expect]
         # Use when: [Scenario description]
-        
-        
+
+
         # Example 4: [Error handling pattern]
         try:
             result = tool_name(param1="value")
@@ -499,36 +499,36 @@ def tool_name(param1: str, param2: Optional[int] = None) -> Dict:
         except Exception as e:
             # Handle unexpected error
             pass
-    
+
     Platform Notes:
-        
+
         WINDOWS:
             - [Windows-specific information]
             - [Common Windows issues]
-            
+
         LINUX:
             - [Linux-specific information]
             - [Common Linux issues]
-            
+
         MACOS:
             - [macOS-specific information]
             - [Common macOS issues]
-            
+
         Cross-Platform:
             - [Things that work the same everywhere]
             - [Portable aspects]
-    
+
     Performance:
         - Typical: [Expected performance for normal case]
         - Best case: [Fastest scenario]
         - Worst case: [Slowest scenario]
         - Optimization tips: [How to make it faster]
-    
+
     See Also:
         - [related_tool_1()]: [When to use instead of this tool]
         - [related_tool_2()]: [Tool to get required parameters]
         - [related_tool_3()]: [Alternative approach for same goal]
-    
+
     Version History:
         - v1.0: Initial release
         - v1.1: Added [feature]
@@ -565,17 +565,17 @@ def search_bookmarks(query, profile_path=None, limit=50):
 ```python
 def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int = 50) -> Dict:
     """Search Firefox bookmarks by title/URL (requires Firefox closed).
-    
+
     Performs case-insensitive search across bookmark titles and URLs using
     SQLite FTS5 full-text search. Efficient for large bookmark collections
     (tested with 10,000+ bookmarks). Returns results sorted by relevance.
-    
+
     Prerequisites:
         - Firefox must be completely closed (database will be locked otherwise)
         - Profile must exist and contain places.sqlite database
         - Read permissions on Firefox profile directory
         - Firefox version 57+ (uses FTS5 features)
-    
+
     Args:
         query (str, REQUIRED):
             Search term to find in bookmark titles or URLs
@@ -583,7 +583,7 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
             Examples: "plex", "github.com", "machine learning tutorial"
             Min length: 1 character
             Special chars: Automatically escaped for SQLite FTS
-            
+
         profile_path (str, OPTIONAL):
             Full absolute path to Firefox profile directory containing places.sqlite
             Format: "C:\\Users\\{username}\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\{profile_id}"
@@ -591,16 +591,16 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
             Default: Auto-detects from profiles.ini (may fail with multiple profiles)
             Get path: Use get_firefox_profiles() tool first
             Platform: Windows requires double backslashes, Linux/Mac use forward slashes
-            
+
         limit (int, OPTIONAL):
             Maximum number of bookmark results to return
             Range: 1-100 (values outside range will be clamped)
             Default: 50
             Performance: <20 is instant, 50-100 may take 1-2 seconds with large databases
-    
+
     Returns:
         dict: Search results with metadata
-        
+
         Structure (Success):
         {
             "status": "success",
@@ -613,7 +613,7 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
                     "title": str,       # Bookmark title (may be empty string)
                     "url": str,         # Full URL including protocol
                     "dateAdded": int,   # Unix timestamp in microseconds
-                    "lastModified": int,# Unix timestamp in microseconds  
+                    "lastModified": int,# Unix timestamp in microseconds
                     "parent": int,      # Parent folder ID (0 = root)
                     "tags": [str]       # List of tags (may be empty)
                 }
@@ -621,7 +621,7 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
             "truncated": bool,          # True if results limited by 'limit' parameter
             "execution_time_ms": float  # Query execution time
         }
-        
+
         Structure (Error):
         {
             "status": "error",
@@ -630,9 +630,9 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
             "suggestion": str,          # How to fix the error
             "profile": str              # Profile path attempted (if known)
         }
-    
+
     Common Issues & Solutions:
-        
+
         1. "Failed to connect to database" / "Database is locked"
            CAUSE: Firefox is still running (even in background)
            FIX: Close Firefox completely
@@ -641,7 +641,7 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
            - macOS: Activity Monitor → Quit Firefox (check menu bar icon)
            - System tray: Check for hidden Firefox icon
            WORKAROUND: Use export_bookmarks() tool instead (works while Firefox is open)
-           
+
         2. "Profile not found" / "places.sqlite not found"
            CAUSE: Invalid profile path or profile doesn't exist
            FIX: Get correct path first
@@ -649,7 +649,7 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
            - Verify path exists: Check "C:\\Users\\...\\Profiles\\{profile_name}"
            - Check for typos (path is case-sensitive on Linux/Mac)
            - Ensure you're using the correct profile (not "default" but "default-release")
-           
+
         3. "No results found" (count: 0, empty results array)
            CAUSE: Search term doesn't match any bookmarks
            FIX: Try different search strategies
@@ -658,7 +658,7 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
            - Try URL domain: "github.com" instead of project name
            - Try partial words: "mach learn" instead of "machine learning"
            - Use list_bookmarks() to browse all bookmarks
-           
+
         4. "Permission denied"
            CAUSE: Insufficient file system permissions
            FIX: Check file permissions
@@ -666,16 +666,16 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
            - Linux/Mac: chmod 644 places.sqlite OR run with sudo
            - Verify user owns the Firefox profile directory
            - Check OneDrive/Dropbox sync (may cause permission issues)
-           
+
         5. "Timeout" / Slow performance
            CAUSE: Large database or complex search
            FIX: Optimize search
            - Reduce 'limit' parameter (try 20 instead of 100)
            - Use more specific search terms
            - Consider export_bookmarks() + local search for large datasets
-    
+
     Examples:
-        
+
         # Example 1: Basic search with auto-detected profile (most common case)
         # Use when: You have only one Firefox profile and Firefox is closed
         result = search_bookmarks(
@@ -683,8 +683,8 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
         )
         # Returns: All bookmarks with "plex" in title or URL (up to 50)
         # Use when: Quick search, single profile, Firefox closed
-        
-        
+
+
         # Example 2: Search specific profile with limit (multiple profiles)
         # Use when: You have multiple Firefox profiles or need to specify which one
         result = search_bookmarks(
@@ -694,8 +694,8 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
         )
         # Returns: Up to 20 bookmarks matching "immich" from specified profile
         # Use when: Multiple profiles, need specific profile, or auto-detect fails
-        
-        
+
+
         # Example 3: Search by domain name (finding all bookmarks from a site)
         # Use when: You want all bookmarks from a specific website
         result = search_bookmarks(
@@ -704,8 +704,8 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
         )
         # Returns: All GitHub bookmarks (up to 100)
         # Use when: Finding all links from a domain, organizing bookmarks
-        
-        
+
+
         # Example 4: Broad search with high limit (comprehensive search)
         # Use when: You want to find everything related to a topic
         result = search_bookmarks(
@@ -714,8 +714,8 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
         )
         # Returns: All bookmarks with "AI" in title or URL (up to 100)
         # Use when: Research, discovering connections, topic exploration
-        
-        
+
+
         # Example 5: Error handling pattern (production code)
         # Use when: You need robust error handling in production
         try:
@@ -723,7 +723,7 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
                 query="machine learning",
                 limit=50
             )
-            
+
             if result["status"] == "success":
                 if result["count"] == 0:
                     print("No bookmarks found - try broader search terms")
@@ -731,18 +731,18 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
                     print(f"Found {result['count']} bookmarks:")
                     for bookmark in result["results"]:
                         print(f"  - {bookmark['title']}: {bookmark['url']}")
-                    
+
                     if result["truncated"]:
                         print(f"(showing first {limit}, increase limit for more)")
             else:
                 print(f"Error: {result['error']}")
                 print(f"Suggestion: {result['suggestion']}")
-                
+
         except Exception as e:
             print(f"Unexpected error: {e}")
             print("Fallback: Try export_bookmarks() tool instead")
-        
-        
+
+
         # Example 6: Linux/Mac path format
         # Use when: Running on Linux or macOS
         result = search_bookmarks(
@@ -750,36 +750,36 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
             profile_path="/home/user/.mozilla/firefox/abc123.default-release"
         )
         # Note: Forward slashes, no drive letter
-    
+
     Platform Notes:
-        
+
         WINDOWS:
             - Profile location: %APPDATA%\\Mozilla\\Firefox\\Profiles\\
             - Full path: C:\\Users\\{username}\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\{profile}
             - Path format: MUST use DOUBLE backslashes "C:\\Users\\..."
             - Check Firefox: Task Manager → Details tab → Look for firefox.exe
             - Common issue: OneDrive may sync profile causing database locks
-            
+
         LINUX:
             - Profile location: ~/.mozilla/firefox/
             - Full path: /home/{user}/.mozilla/firefox/{profile}.{type}
             - Path format: Forward slashes /home/user/...
             - Check Firefox: ps aux | grep firefox
             - Common issue: Snap Firefox uses /home/{user}/snap/firefox/common/.mozilla/
-            
+
         MACOS:
             - Profile location: ~/Library/Application Support/Firefox/Profiles/
             - Full path: /Users/{user}/Library/Application Support/Firefox/Profiles/{profile}
             - Path format: Forward slashes with spaces (use quotes)
             - Check Firefox: Activity Monitor or ps aux | grep firefox
             - Common issue: Firefox may run in background (check menu bar icon)
-            
+
         Cross-Platform:
             - places.sqlite format is identical across platforms
             - Bookmark IDs are consistent across platforms
             - Timestamps are Unix microseconds (same everywhere)
             - Can copy places.sqlite between systems (paths may need adjustment)
-    
+
     Performance:
         - Typical: 10-50ms for database with <1000 bookmarks
         - Large: 100-500ms for database with 10,000+ bookmarks
@@ -787,7 +787,7 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
         - Worst case: 1-2 seconds for complex queries on large databases
         - Optimization: Use specific search terms, lower limit, close background apps
         - Database size: places.sqlite grows 1MB per ~1000 bookmarks
-    
+
     See Also:
         - get_firefox_profiles(): List available Firefox profiles (use this first)
         - list_bookmarks(): Browse all bookmarks without search (slower but comprehensive)
@@ -795,7 +795,7 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
         - find_duplicates(): Find duplicate bookmark URLs
         - get_bookmark_stats(): Get overall bookmark statistics
         - add_bookmark(): Add new bookmarks programmatically
-    
+
     Version History:
         - v1.0 (2024-01): Initial release with basic search
         - v1.1 (2024-03): Added FTS5 support for faster search
@@ -865,7 +865,7 @@ Common Issues:
 ### ❌ Don't: Assume Users Know Your Tools
 ```python
 """Args:
-    profile: Profile to use
+profile: Profile to use
 """
 ```
 How do they get a profile? What format?
@@ -873,9 +873,9 @@ How do they get a profile? What format?
 ### ✅ Do: Guide Users to Prerequisites
 ```python
 """Args:
-    profile_path (str): Full path to profile directory
-        Get path: Use get_firefox_profiles() tool first
-        Format: "C:\\Users\\{user}\\AppData\\..."
+profile_path (str): Full path to profile directory
+    Get path: Use get_firefox_profiles() tool first
+    Format: "C:\\Users\\{user}\\AppData\\..."
 """
 ```
 
@@ -1017,7 +1017,7 @@ Compare documentation quality experimentally:
 
 # Measure over 100 tool calls each:
 # - First-call success rate
-# - Average attempts to success  
+# - Average attempts to success
 # - User satisfaction rating
 # - Support ticket volume
 

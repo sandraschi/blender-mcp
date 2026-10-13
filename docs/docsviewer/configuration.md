@@ -160,12 +160,7 @@ export AUTO_UPDATE_ASSETS=false   # Manual updates only
 ### Custom Blender Arguments
 ```python
 # In your MCP server configuration
-{
-  "args": [
-    "-m", "blender_mcp",
-    "--blender-args", "--factory-startup,--disable-autoexec"
-  ]
-}
+{"args": ["-m", "blender_mcp", "--blender-args", "--factory-startup,--disable-autoexec"]}
 ```
 
 ### Multiple Blender Versions
@@ -425,13 +420,13 @@ print(f'✅ Blender path: {os.environ.get(\"BLENDER_EXECUTABLE\", \"Not set\")}'
 import os
 
 BLENDER_MCP_CONFIG = {
-    'blender_executable': '/usr/bin/blender',
-    'operation_timeout': 30,
-    'max_parallel_operations': 3,
-    'log_level': 'INFO',
-    'temp_directory': '/tmp/blender_mcp',
-    'enable_gpu_rendering': True,
-    'render_samples': 128
+    "blender_executable": "/usr/bin/blender",
+    "operation_timeout": 30,
+    "max_parallel_operations": 3,
+    "log_level": "INFO",
+    "temp_directory": "/tmp/blender_mcp",
+    "enable_gpu_rendering": True,
+    "render_samples": 128,
 }
 
 # Load configuration

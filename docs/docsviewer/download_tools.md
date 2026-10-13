@@ -190,11 +190,7 @@ blender_download("https://www.blenderkit.com/asset-url")
 ### Batch Downloads
 ```python
 # Download multiple assets
-urls = [
-    "https://example.com/model1.obj",
-    "https://example.com/texture1.png",
-    "https://example.com/model2.fbx"
-]
+urls = ["https://example.com/model1.obj", "https://example.com/texture1.png", "https://example.com/model2.fbx"]
 
 for url in urls:
     blender_download(url)

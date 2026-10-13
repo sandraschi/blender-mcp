@@ -104,7 +104,7 @@ error: No parameter named "page_size" in SearchQuery
 query = SearchQuery(
     query=search_text,
     page=1,  # ❌ Doesn't exist
-    page_size=100  # ❌ Doesn't exist
+    page_size=100,  # ❌ Doesn't exist
 )
 ```
 
@@ -118,7 +118,7 @@ response = await call_post(
     client,
     "/api/search/query",
     json=query.model_dump(),
-    params={"page": 1, "page_size": 100}  # ✅ Correct location
+    params={"page": 1, "page_size": 100},  # ✅ Correct location
 )
 ```
 
@@ -145,7 +145,7 @@ from blender_mcp.mcp.async_client import client
 response = await call_post(
     client,  # ✅ First parameter
     "/api/entities",
-    json=data
+    json=data,
 )
 ```
 
@@ -194,7 +194,7 @@ class Repository(Generic[T]):
 ```python
 class Repository(Generic[T]):
     def filter(self, query):
-        if hasattr(self.Model, 'project_id'):  # ✅ Check first
+        if hasattr(self.Model, "project_id"):  # ✅ Check first
             query = query.filter(self.Model.project_id == self.project_id)
         return query
 ```
@@ -225,6 +225,7 @@ def helper(this, options, *args):
 ```python
 import pybars
 
+
 def helper(this, options, *args):
     if not args:
         return pybars.strlist([""])  # ✅ Correct type
@@ -247,6 +248,7 @@ error: "safe_load" is not a known attribute of "None"
 ```python
 try:
     import yaml
+
     HAS_YAML = True
 except ImportError:
     HAS_YAML = False  # ❌ yaml unbound
@@ -260,6 +262,7 @@ if HAS_YAML:
 ```python
 try:
     import yaml  # type: ignore[import]
+
     HAS_YAML = True
 except ImportError:
     yaml = None  # type: ignore[assignment]  # ✅ Assign None
@@ -292,6 +295,7 @@ logger.error("message: error=%s, error_type=%s", str(e), type(e).__name__)  # �
 
 # OR use structlog (if available)
 import structlog
+
 logger = structlog.get_logger()
 logger.error("message", error=str(e), error_type=type(e).__name__)  # ✅ Works with structlog
 ```
@@ -310,6 +314,7 @@ error: Argument type incompatible with parameter "include_object"
 def include_object(object, name: str, type_: str, reflected, compare_to) -> bool:
     return True
 
+
 # Used in:
 context.configure(include_object=include_object)  # ❌ Type mismatch
 ```
@@ -318,6 +323,7 @@ context.configure(include_object=include_object)  # ❌ Type mismatch
 ```python
 def include_object(object, name: str, type_: str, reflected, compare_to) -> bool:  # type: ignore[no-untyped-def,misc]
     return True
+
 
 # Used in:
 context.configure(include_object=include_object)  # type: ignore[arg-type]  # ✅
@@ -511,16 +517,17 @@ if hasattr(obj, 'attr'):  # Check before access
 
 from blender_mcp.mcp.tools import read_note, write_note
 
+
 async def operation(identifier: str):
     # Error: FunctionTool not callable
     content = await read_note(identifier)
-    
+
     # Error: Missing client parameter
     response = await call_post("/api/search", json=query)
-    
+
     # Error: Path incompatible with str
     path: str = Path("/some/path")
-    
+
     # Error: No parameter named "error"
     logger.error("failed", error=str(e))
 ```
@@ -535,16 +542,17 @@ from blender_mcp.mcp.tools import read_note as mcp_read_note
 from blender_mcp.mcp.tools import write_note as mcp_write_note
 from pathlib import Path
 
+
 async def operation(identifier: str):
     # ✅ Use .fn() method
     content = await mcp_read_note.fn(identifier)
-    
+
     # ✅ Pass client first
     response = await call_post(client, "/api/search", json=query)
-    
+
     # ✅ Accept both types
     path: str | Path = Path("/some/path")
-    
+
     # ✅ Use positional formatting
     logger.error("failed: error=%s", str(e))
 ```
@@ -595,4 +603,3 @@ See also:
 - [Workflows Guide](./WORKFLOWS.md)
 - [Security Hardening](./SECURITY_HARDENING.md)
 - [Common Pitfalls](./README.md#common-pitfalls--solutions)
-

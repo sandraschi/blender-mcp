@@ -37,6 +37,7 @@ Based on industry-standard MCP server quality criteria and the production checkl
 ```python
 # Replace all print() with structured logging
 import logging
+
 logger = logging.getLogger(__name__)
 
 # Replace: print("Error: message")

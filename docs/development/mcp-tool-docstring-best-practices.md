@@ -41,16 +41,16 @@ Every parameter needs:
 ```python
 """
 Args:
-    query (str, REQUIRED): 
+    query (str, REQUIRED):
         Search term for bookmark titles/URLs
         Examples: "plex", "immich", "python tutorial"
-        
-    profile_path (str, OPTIONAL): 
+
+    profile_path (str, OPTIONAL):
         Full path to Firefox profile directory
         Format: "C:\\Users\\{username}\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\{profile}"
         Example: "C:\\Users\\sandr\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\airiswdq.default-release"
         Default: Auto-detects default profile using profiles.ini
-        
+
     limit (int, OPTIONAL):
         Maximum results to return
         Range: 1-100
@@ -92,11 +92,11 @@ Common Issues:
     1. "Failed to connect to database"
        → Firefox is still running. Close it completely (check system tray)
        → Alternative: Use export_bookmarks() if you need access while Firefox is open
-       
-    2. "Profile not found" 
+
+    2. "Profile not found"
        → Use get_firefox_profiles() to find the correct path
        → Check that path uses double backslashes on Windows
-       
+
     3. "Permission denied"
        → Run as administrator if profile is in protected directory
        → Check that places.sqlite file exists and is readable
@@ -123,14 +123,14 @@ Examples:
         query="plex",
         limit=20
     )
-    
+
     # Search specific profile - when multiple profiles exist
     result = search_bookmarks(
         query="immich",
         profile_path="C:\\Users\\sandr\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\airiswdq.default-release",
         limit=50
     )
-    
+
     # Case-sensitive exact match - for finding specific titles
     result = search_bookmarks(
         query="Plex Media Server",
@@ -145,15 +145,15 @@ Windows/Linux/Mac differences matter!
 ```python
 """
 Platform Notes:
-    Windows: 
+    Windows:
         - Use double backslashes in paths: "C:\\Users\\..."
         - Profile location: %APPDATA%\\Mozilla\\Firefox\\Profiles
         - Check Task Manager for running Firefox processes
-        
+
     Linux:
         - Profile location: ~/.mozilla/firefox/
         - Use forward slashes: "/home/user/.mozilla/..."
-        
+
     macOS:
         - Profile location: ~/Library/Application Support/Firefox/Profiles/
         - Firefox may run in background - check Activity Monitor
@@ -189,59 +189,59 @@ Claude shouldn't have to guess the format
 ```python
 def tool_name(param1: str, param2: Optional[int] = None) -> Dict:
     """[One-line summary with key constraint]
-    
+
     [Longer description if needed - WHY use this tool vs alternatives]
-    
+
     Prerequisites:
         - [What must be true before calling]
         - [External state requirements]
-    
+
     Args:
         param1 (str, REQUIRED):
             [Purpose and meaning]
             Format: [constraints/pattern]
             Example: [realistic example]
-            
+
         param2 (int, OPTIONAL):
             [Purpose and meaning]
             Range: [min-max if applicable]
             Default: [default value]
             Example: [realistic example]
-    
+
     Returns:
         [type]: {
             "field1": type,  # description
             "field2": type,  # description
             ...
         }
-    
+
     Raises/Errors:
         - [Error condition] → [How to fix it]
         - [Error condition] → [How to fix it]
-    
+
     Examples:
         # [Use case 1 - simplest/most common]
         result = tool_name(
             param1="realistic_value"
         )
-        
+
         # [Use case 2 - with optional params]
         result = tool_name(
             param1="realistic_value",
             param2=42
         )
-        
+
         # [Use case 3 - advanced/edge case]
         result = tool_name(
             param1="special_case_value",
             param2=100
         )
-    
+
     Platform Notes:
         Windows: [Windows-specific info]
         Linux: [Linux-specific info]
         macOS: [macOS-specific info]
-    
+
     See Also:
         - [Related tool for alternative approach]
         - [Tool to get required parameters]
@@ -318,37 +318,37 @@ def search_bookmarks(query, profile_path=None, limit=50):
 ```python
 def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int = 50):
     """Search Firefox bookmarks by title/URL (requires Firefox closed).
-    
+
     Searches through Firefox bookmarks database for matching titles or URLs.
     Uses SQLite FTS for fast searching across large bookmark collections.
-    
+
     Prerequisites:
         - Firefox must be completely closed (check system tray)
         - places.sqlite must be readable (not locked)
-    
+
     Args:
         query (str, REQUIRED):
             Search term to find in bookmark titles/URLs
             Case-insensitive, matches partial strings
             Examples: "plex", "github.com", "machine learning"
-            
+
         profile_path (str, OPTIONAL):
             Full path to Firefox profile directory containing places.sqlite
             Format: "C:\\Users\\{user}\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\{profile}"
             Example: "C:\\Users\\sandr\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\airiswdq.default-release"
             Default: Auto-detects from profiles.ini (may fail with multiple profiles)
             Get path using: get_firefox_profiles()
-            
+
         limit (int, OPTIONAL):
             Maximum number of results to return
             Range: 1-100
             Default: 50
-    
+
     Returns:
         dict: {
             "status": "success" | "error",
             "query": str,              # echoed search query
-            "count": int,              # number of results found  
+            "count": int,              # number of results found
             "results": [               # list of bookmark objects
                 {
                     "id": int,         # unique bookmark ID
@@ -360,57 +360,57 @@ def search_bookmarks(query: str, profile_path: Optional[str] = None, limit: int 
                 }
             ]
         }
-    
+
     Common Issues:
         1. "Failed to connect to database"
            → Close Firefox completely (check system tray for running processes)
            → On Windows: Check Task Manager for firefox.exe
            → Alternative: export_bookmarks() works with Firefox open
-           
+
         2. "Profile not found"
            → Use get_firefox_profiles() to find correct path
            → Ensure path uses double backslashes on Windows
            → Check that places.sqlite exists at that location
-           
+
         3. No results found
            → Search is case-insensitive but requires partial match
            → Try broader search terms
            → Use list_bookmarks() to browse all bookmarks
-    
+
     Examples:
         # Basic search - auto-detect profile (most common use case)
         result = search_bookmarks(
             query="plex",
             limit=20
         )
-        
+
         # Specific profile - when multiple profiles exist
         result = search_bookmarks(
             query="immich",
             profile_path="C:\\Users\\sandr\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\airiswdq.default-release",
             limit=50
         )
-        
+
         # Search by domain
         result = search_bookmarks(
             query="github.com",
             limit=100
         )
-    
+
     Platform Notes:
         Windows:
             - Profile: %APPDATA%\\Mozilla\\Firefox\\Profiles\\
             - Use double backslashes in paths
             - Check Task Manager for firefox.exe
-            
+
         Linux:
             - Profile: ~/.mozilla/firefox/
             - Use forward slashes in paths
-            
+
         macOS:
             - Profile: ~/Library/Application Support/Firefox/Profiles/
             - Firefox may run in background (check Activity Monitor)
-    
+
     See Also:
         - get_firefox_profiles(): Find available Firefox profiles
         - list_bookmarks(): Browse all bookmarks without search

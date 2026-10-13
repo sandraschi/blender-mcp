@@ -175,18 +175,10 @@ blender_view_logs(since_minutes=1440)
 ### Combined Filtering
 ```python
 # Recent errors in mesh operations
-blender_view_logs(
-    level_filter="ERROR",
-    module_filter="mesh",
-    since_minutes=30
-)
+blender_view_logs(level_filter="ERROR", module_filter="mesh", since_minutes=30)
 
 # Debug information with details
-blender_view_logs(
-    level_filter="DEBUG",
-    include_details=True,
-    limit=100
-)
+blender_view_logs(level_filter="DEBUG", include_details=True, limit=100)
 ```
 
 ## Common Debugging Scenarios

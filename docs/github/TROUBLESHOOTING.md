@@ -32,7 +32,7 @@ dev-dependencies = [
 - run: uv run twine check dist/*  # ✅ Now works!
 ```
 
-**Time wasted**: 30 minutes  
+**Time wasted**: 30 minutes
 **Lesson**: All CI tools must be in dev-dependencies!
 
 ---
@@ -68,7 +68,7 @@ dev-dependencies = [
 - run: uv build  # ✅ Use uv's native build command
 ```
 
-**Time wasted**: 1 hour  
+**Time wasted**: 1 hour
 **Lesson**: Use `uv build` instead of `python -m build`
 
 ---
@@ -122,7 +122,7 @@ Error: Resource not accessible by integration
       dist/*.tar.gz
 ```
 
-**Time wasted**: 2 hours  
+**Time wasted**: 2 hours
 **Lesson**: Use modern, maintained actions
 
 ---
@@ -133,7 +133,7 @@ Error: Resource not accessible by integration
 
 **Full Error**:
 ```
-DEPRECATED: this command (check) has been DEPRECATED, 
+DEPRECATED: this command (check) has been DEPRECATED,
 and will be unsupported beyond 01 June 2024.
 ```
 
@@ -149,7 +149,7 @@ and will be unsupported beyond 01 June 2024.
 - run: uv run safety scan --output json --save-as report.json  # ✅ Modern
 ```
 
-**Time wasted**: 30 minutes  
+**Time wasted**: 30 minutes
 **Lesson**: Check tool documentation for command updates
 
 ---
@@ -173,7 +173,7 @@ and will be unsupported beyond 01 June 2024.
   if: always()  # ✅ Always uploads results
 ```
 
-**Time wasted**: 1 hour  
+**Time wasted**: 1 hour
 **Lesson**: Security scans should inform, not block
 
 ---
@@ -201,7 +201,7 @@ Error: API request failed: 401 Unauthorized
 2. Create token
 3. Add to GitHub Secrets as `SEMGREP_APP_TOKEN`
 
-**Time wasted**: 45 minutes  
+**Time wasted**: 45 minutes
 **Lesson**: Make optional tools actually optional!
 
 ---
@@ -308,8 +308,10 @@ error: No parameter named "page" in SearchQuery
 ```python
 query = SearchQuery(text=search_text)  # Only takes 'text'
 response = await call_post(
-    client, url, json=query.model_dump(),
-    params={"page": 1, "page_size": 100}  # ✅ In params
+    client,
+    url,
+    json=query.model_dump(),
+    params={"page": 1, "page_size": 100},  # ✅ In params
 )
 ```
 
@@ -392,7 +394,7 @@ $ git commit -m "style: apply ruff formatting"
 
 **Prevention**: Add pre-commit hook
 
-**Time wasted**: 15 minutes  
+**Time wasted**: 15 minutes
 **Lesson**: Format before pushing!
 
 ---
@@ -530,7 +532,7 @@ git log origin/master..HEAD
 # Linting failed
 uv run ruff check . --fix && git add -A && git commit -m "fix: linting"
 
-# Formatting failed  
+# Formatting failed
 uv run ruff format . && git add -A && git commit -m "style: formatting"
 
 # Type checking failed
@@ -676,13 +678,13 @@ uv build
 ```yaml
 jobs:
   lint:     # No dependencies
-  test:     # No dependencies  
+  test:     # No dependencies
   security: # No dependencies
-  
+
   build:
     needs: [lint, test, security]  # Waits for all 3
     if: always() && needs.lint.result == 'success'  # Must pass lint
-  
+
   quality-gate:
     needs: [lint, test, security, build]  # Waits for all
     if: always()  # Always runs
@@ -872,4 +874,3 @@ git push
 ---
 
 **Don't repeat our mistakes - use this guide!** 🎯
-
