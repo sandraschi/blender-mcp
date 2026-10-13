@@ -165,17 +165,18 @@ filetype:obj katana free - Find specific file types
 ### 2. **File Format Selection**
 ```python
 # For 3D models (Blender MCP supports all these):
-'.obj'   # Universal, simple
-'.fbx'   # Game engines, preserves materials
-'.dae'   # COLLADA, good material support
-'.gltf'  # Modern web format
-'.blend' # Blender native (best compatibility)
+".obj"  # Universal, simple
+
+".fbx"  # Game engines, preserves materials
+".dae"  # COLLADA, good material support
+".gltf"  # Modern web format
+".blend"  # Blender native (best compatibility)
 
 # For textures:
-'.png'   # Universal, lossless
-'.jpg'   # Smaller files, lossy
-'.exr'   # HDR, floating point
-'.tiff'  # High quality, large files
+".png"  # Universal, lossless
+".jpg"  # Smaller files, lossy
+".exr"  # HDR, floating point
+".tiff"  # High quality, large files
 ```
 
 ### 3. **Batch Downloads**
@@ -184,7 +185,7 @@ filetype:obj katana free - Find specific file types
 assets = [
     "https://polyhaven.com/model/katana",
     "https://ambientcg.com/metal_textures",
-    "https://textures.com/wood_grain"
+    "https://textures.com/wood_grain",
 ]
 
 for url in assets:

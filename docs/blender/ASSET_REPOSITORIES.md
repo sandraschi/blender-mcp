@@ -54,13 +54,10 @@ from blender_mcp.handlers.asset_repository_handler import AssetRepository
 result = await download_and_import_asset(
     repository=AssetRepository.KENNEY,
     asset_name="fantasy-town-kit",
-    import_options={
-        "scale": 1.0,
-        "location": [0, 0, 0]
-    }
+    import_options={"scale": 1.0, "location": [0, 0, 0]},
 )
 
-if result['status'] == 'SUCCESS':
+if result["status"] == "SUCCESS":
     print(f"✅ Imported {result['asset_name']}")
 else:
     print(f"❌ Error: {result['error']}")
@@ -83,7 +80,7 @@ from blender_mcp.handlers.asset_repository_handler import search_assets
 
 # Search for fantasy assets
 results = await search_assets("fantasy", limit=5)
-for asset in results['results']:
+for asset in results["results"]:
     print(f"Found: {asset['asset_name']} in {asset['repository']}")
 ```
 
@@ -94,17 +91,11 @@ for asset in results['results']:
 ```python
 # Download 3D assets (default)
 await download_and_import_asset(
-    repository="kenney",
-    asset_name="fantasy-town-kit",
-    repository_specific_params={"type": "3d"}
+    repository="kenney", asset_name="fantasy-town-kit", repository_specific_params={"type": "3d"}
 )
 
 # Download 2D assets
-await download_and_import_asset(
-    repository="kenney",
-    asset_name="ui-pack",
-    repository_specific_params={"type": "2d"}
-)
+await download_and_import_asset(repository="kenney", asset_name="ui-pack", repository_specific_params={"type": "2d"})
 ```
 
 ### Quaternius Assets
@@ -112,12 +103,7 @@ await download_and_import_asset(
 ```python
 # Download a game kit
 await download_and_import_asset(
-    repository="quaternius",
-    asset_name="ultimate-space-kit",
-    import_options={
-        "scale": 0.5,
-        "location": [10, 0, 0]
-    }
+    repository="quaternius", asset_name="ultimate-space-kit", import_options={"scale": 0.5, "location": [10, 0, 0]}
 )
 ```
 
@@ -128,9 +114,7 @@ await download_and_import_asset(
 await download_and_import_asset(
     repository="opengameart",
     asset_name="community_asset",
-    repository_specific_params={
-        "url": "https://opengameart.org/sites/default/files/asset.zip"
-    }
+    repository_specific_params={"url": "https://opengameart.org/sites/default/files/asset.zip"},
 )
 ```
 
@@ -139,9 +123,7 @@ await download_and_import_asset(
 ```python
 # Download HDRI environment
 await download_and_import_asset(
-    repository="polyhaven",
-    asset_name="lebombo",
-    repository_specific_params={"type": "hdris"}
+    repository="polyhaven", asset_name="lebombo", repository_specific_params={"type": "hdris"}
 )
 ```
 
@@ -150,9 +132,7 @@ await download_and_import_asset(
 ```python
 # Download PBR texture pack
 await download_and_import_asset(
-    repository="polyhaven",
-    asset_name="wood_02",
-    repository_specific_params={"type": "textures"}
+    repository="polyhaven", asset_name="wood_02", repository_specific_params={"type": "textures"}
 )
 ```
 
@@ -161,29 +141,29 @@ await download_and_import_asset(
 ### Common Options
 ```python
 import_options = {
-    "scale": 1.0,           # Import scale factor
+    "scale": 1.0,  # Import scale factor
     "location": [0, 0, 0],  # Import location [x, y, z]
     "rotation": [0, 0, 0],  # Import rotation [x, y, z] degrees
-    "format": "blend"       # File format (auto-detected)
+    "format": "blend",  # File format (auto-detected)
 }
 ```
 
 ### Blend File Options
 ```python
 import_options = {
-    "directory": "Object",   # Directory in blend file (Object/, Material/, etc.)
-    "asset_name": "Asset",   # Name of asset to import
-    "link": False           # True = link, False = append
+    "directory": "Object",  # Directory in blend file (Object/, Material/, etc.)
+    "asset_name": "Asset",  # Name of asset to import
+    "link": False,  # True = link, False = append
 }
 ```
 
 ### Scene Import Options
 ```python
 import_options = {
-    "global_scale": 1.0,    # Scale factor for FBX/OBJ imports
+    "global_scale": 1.0,  # Scale factor for FBX/OBJ imports
     "use_split_objects": True,  # Split objects (OBJ)
     "import_pack_images": True,  # Pack images (GLTF)
-    "merge_vertices": False     # Merge vertices (GLTF)
+    "merge_vertices": False,  # Merge vertices (GLTF)
 }
 ```
 
@@ -249,19 +229,12 @@ import_options = {"scale": 1.0}
 ### 2. Position Assets Properly
 ```python
 # Place assets in scene
-import_options = {
-    "location": [x, y, z],
-    "rotation": [0, 0, 0]
-}
+import_options = {"location": [x, y, z], "rotation": [0, 0, 0]}
 ```
 
 ### 3. Batch Import Multiple Assets
 ```python
-assets_to_import = [
-    ("kenney", "fantasy-town-kit"),
-    ("quaternius", "ultimate-space-kit"),
-    ("polyhaven", "lebombo")
-]
+assets_to_import = [("kenney", "fantasy-town-kit"), ("quaternius", "ultimate-space-kit"), ("polyhaven", "lebombo")]
 
 for repo, asset in assets_to_import:
     # Import with different positions
@@ -290,10 +263,12 @@ result = await download_and_import_asset("kenney", "fantasy-town-kit")
 
 # Then apply materials
 from blender_mcp.handlers.material_handler import create_material
+
 await create_material(name="wood_material", color=[0.4, 0.3, 0.2])
 
 # Add lighting
 from blender_mcp.handlers.scene_handler import setup_lighting
+
 await setup_lighting()
 ```
 

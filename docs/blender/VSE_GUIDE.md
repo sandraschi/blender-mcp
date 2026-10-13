@@ -13,8 +13,14 @@ blender_vse(operation="add_movie", filepath="C:/footage/clip.mp4", channel=1, fr
 blender_vse(operation="list_strips")
 
 # 3. Render to video
-blender_vse(operation="render_video", output_path="C:/output/final.mp4",
-            frame_start=1, frame_end=300, resolution_x=1920, resolution_y=1080)
+blender_vse(
+    operation="render_video",
+    output_path="C:/output/final.mp4",
+    frame_start=1,
+    frame_end=300,
+    resolution_x=1920,
+    resolution_y=1080,
+)
 ```
 
 ## Concepts
@@ -110,42 +116,59 @@ All VSE operations execute via the Blender executor in `--background` mode. No G
 # === BUILD A SIMPLE VIDEO EDIT ===
 
 # Step 1: Add clips
-blender_vse(operation="add_movie", filepath="C:/footage/intro.mp4",
-            channel=1, frame=1, strip_name="intro")
-blender_vse(operation="add_movie", filepath="C:/footage/main.mp4",
-            channel=1, frame=61, strip_name="main")
-blender_vse(operation="add_movie", filepath="C:/footage/outro.mp4",
-            channel=1, frame=181, strip_name="outro")
+blender_vse(operation="add_movie", filepath="C:/footage/intro.mp4", channel=1, frame=1, strip_name="intro")
+blender_vse(operation="add_movie", filepath="C:/footage/main.mp4", channel=1, frame=61, strip_name="main")
+blender_vse(operation="add_movie", filepath="C:/footage/outro.mp4", channel=1, frame=181, strip_name="outro")
 
 # Step 2: Add transitions between clips
-blender_vse(operation="add_effect", effect_type="CROSS",
-            strip1_name="intro", strip2_name="main",
-            frame=55, length=10, channel=2, strip_name="xfade1")
-blender_vse(operation="add_effect", effect_type="CROSS",
-            strip1_name="main", strip2_name="outro",
-            frame=175, length=10, channel=2, strip_name="xfade2")
+blender_vse(
+    operation="add_effect",
+    effect_type="CROSS",
+    strip1_name="intro",
+    strip2_name="main",
+    frame=55,
+    length=10,
+    channel=2,
+    strip_name="xfade1",
+)
+blender_vse(
+    operation="add_effect",
+    effect_type="CROSS",
+    strip1_name="main",
+    strip2_name="outro",
+    frame=175,
+    length=10,
+    channel=2,
+    strip_name="xfade2",
+)
 
 # Step 3: Add background music
-blender_vse(operation="add_sound", filepath="C:/audio/bgm.mp3",
-            channel=10, frame=1, strip_name="bgm")
+blender_vse(operation="add_sound", filepath="C:/audio/bgm.mp3", channel=10, frame=1, strip_name="bgm")
 
 # Step 4: Add title text
-blender_vse(operation="add_text", text="My Video Title",
-            channel=3, frame=1, length=60, font_size=64,
-            strip_name="title")
+blender_vse(
+    operation="add_text", text="My Video Title", channel=3, frame=1, length=60, font_size=64, strip_name="title"
+)
 
 # Step 5: Review timeline
 blender_vse(operation="list_strips")
 blender_vse(operation="get_timeline_info")
 
 # Step 6: Render final video
-blender_vse(operation="render_video",
-            output_path="C:/output/final.mp4",
-            frame_start=1, frame_end=300,
-            resolution_x=1920, resolution_y=1080,
-            codec="H264", container="MPEG4",
-            fps=30, quality="GOOD",
-            audio_codec="AAC", audio_bitrate=192)
+blender_vse(
+    operation="render_video",
+    output_path="C:/output/final.mp4",
+    frame_start=1,
+    frame_end=300,
+    resolution_x=1920,
+    resolution_y=1080,
+    codec="H264",
+    container="MPEG4",
+    fps=30,
+    quality="GOOD",
+    audio_codec="AAC",
+    audio_bitrate=192,
+)
 ```
 
 ## Limitations

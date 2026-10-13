@@ -1,7 +1,7 @@
 # Bulletproof MCP Server - Complete Solution
 
-**Date:** October 10, 2025  
-**Mission:** Fix ALL silent failures in MCP file sync  
+**Date:** October 10, 2025
+**Mission:** Fix ALL silent failures in MCP file sync
 **Result:** 3 robust systems, 5,000+ lines of code, complete protection
 
 ---
@@ -90,29 +90,18 @@ from link_parser import LinkParser
 from sync_health import SyncHealthMonitor
 
 # Initialize components
-file_validator = FileValidator(
-    allow_empty=True,
-    strict_frontmatter=False
-)
+file_validator = FileValidator(allow_empty=True, strict_frontmatter=False)
 
-link_parser = LinkParser(
-    max_links=10000,
-    max_parse_time=5.0,
-    extract_urls=False
-)
+link_parser = LinkParser(max_links=10000, max_parse_time=5.0, extract_urls=False)
 
-sync_monitor = SyncHealthMonitor(
-    project_path=project_path,
-    stall_timeout=60,
-    check_interval=10
-)
+sync_monitor = SyncHealthMonitor(project_path=project_path, stall_timeout=60, check_interval=10)
 
 
 @mcp.tool()
 async def write_note(title: str, content: str, folder: str) -> str:
     """
     Write note with complete error protection.
-    
+
     Handles:
     - Invalid filenames
     - Encoding issues
@@ -120,71 +109,54 @@ async def write_note(title: str, content: str, folder: str) -> str:
     - Many links
     - All edge cases
     """
-    
+
     # STEP 1: Validate filename
     file_path = Path(folder) / f"{title}.md"
     file_result = file_validator.validate_file(file_path)
-    
+
     if not file_result.is_valid:
-        logger.error("invalid_filename",
-                    title=title,
-                    errors=file_result.errors)
+        logger.error("invalid_filename", title=title, errors=file_result.errors)
         return f"❌ Invalid filename: {file_result.errors[0]}"
-    
+
     # Log filename warnings
     for warning in file_result.warnings:
         logger.info("filename_warning", warning=warning)
-    
+
     # STEP 2: Parse links safely
     link_result = link_parser.parse_links(content)
-    
+
     if not link_result.is_valid:
         # Parsing failed, but continue without links
-        logger.warning("link_parsing_failed",
-                      title=title,
-                      errors=link_result.errors)
+        logger.warning("link_parsing_failed", title=title, errors=link_result.errors)
         links = []  # Save without links
     else:
         links = link_result.links
-        
+
         # Log link warnings
         for warning in link_result.warnings:
             logger.info("link_warning", warning=warning)
-        
+
         # Log statistics
         stats = link_parser.get_statistics(link_result)
-        logger.info("links_extracted",
-                   title=title,
-                   total_links=stats['total_links'],
-                   parse_time_ms=stats['parse_time_ms'])
-    
+        logger.info(
+            "links_extracted", title=title, total_links=stats["total_links"], parse_time_ms=stats["parse_time_ms"]
+        )
+
     # STEP 3: Save note with metadata
     try:
         await save_note_to_database(
-            title=title,
-            content=content,
-            folder=folder,
-            links=links,
-            frontmatter=file_result.frontmatter
+            title=title, content=content, folder=folder, links=links, frontmatter=file_result.frontmatter
         )
-        
+
         # Update sync progress
-        sync_monitor.update_scan_progress(
-            sync_monitor.metrics.files_scanned + 1
-        )
-        
-        logger.info("note_saved_successfully",
-                   title=title,
-                   size=len(content),
-                   links=len(links))
-        
+        sync_monitor.update_scan_progress(sync_monitor.metrics.files_scanned + 1)
+
+        logger.info("note_saved_successfully", title=title, size=len(content), links=len(links))
+
         return f"✅ Note saved: {title} ({len(content)} bytes, {len(links)} links)"
-    
+
     except Exception as e:
-        logger.error("note_save_failed",
-                    title=title,
-                    error=str(e),
-                    error_type=type(e).__name__)
+        logger.error("note_save_failed", title=title, error=str(e), error_type=type(e).__name__)
         return f"❌ Failed to save: {e}"
 ```
 
@@ -289,9 +261,8 @@ result = await write_note(title, content, "meetings")
 
 ```python
 title = "Comprehensive Research"
-content = (
-    "# Research\n\n" +
-    "\n".join([f"See [[Topic{i}]] and [Source{i}](url{i})" for i in range(2000)])
+content = "# Research\n\n" + "\n".join(
+    [f"See [[Topic{i}]] and [Source{i}](url{i})" for i in range(2000)]
 )  # 2000 wikilinks + 2000 markdown links = 4000 total
 
 result = await write_note(title, content, "research")
@@ -304,7 +275,7 @@ result = await write_note(title, content, "research")
 
 ```python
 title = "日本語☕"  # Unicode + emoji
-content = "\x00\xFF"  # Binary content
+content = "\x00\xff"  # Binary content
 
 result = await write_note(title, content, "test")
 # ❌ "Invalid filename: Non-ASCII characters in filename"
@@ -333,33 +304,33 @@ result = await write_note(title, content, "test")
 @mcp.tool()
 async def system_health() -> str:
     """Complete system health dashboard."""
-    
+
     # Get all health reports
     sync_report = sync_monitor.get_health_report()
-    
+
     return f"""
 # MCP Server Health Dashboard
 
 ## Sync Health
-- State: {sync_report['state']}
-- Progress: {sync_report['metrics']['files_scanned']}/{sync_report['metrics']['files_total']}
-- Speed: {sync_report['metrics']['files_per_second']:.2f} files/sec
-- Watcher: {'ALIVE' if sync_report['watcher']['alive'] else 'DEAD'}
+- State: {sync_report["state"]}
+- Progress: {sync_report["metrics"]["files_scanned"]}/{sync_report["metrics"]["files_total"]}
+- Speed: {sync_report["metrics"]["files_per_second"]:.2f} files/sec
+- Watcher: {"ALIVE" if sync_report["watcher"]["alive"] else "DEAD"}
 
 ## File Validation
-- Files validated: {validation_stats['total']}
-- Valid: {validation_stats['valid']}
-- Invalid: {validation_stats['invalid']}
-- Skipped: {validation_stats['skipped']}
+- Files validated: {validation_stats["total"]}
+- Valid: {validation_stats["valid"]}
+- Invalid: {validation_stats["invalid"]}
+- Skipped: {validation_stats["skipped"]}
 
 ## Link Parsing
-- Notes with links: {link_stats['notes_with_links']}
-- Total links: {link_stats['total_links']}
-- Average per note: {link_stats['avg_links_per_note']:.1f}
-- Parse errors: {link_stats['errors']}
+- Notes with links: {link_stats["notes_with_links"]}
+- Total links: {link_stats["total_links"]}
+- Average per note: {link_stats["avg_links_per_note"]:.1f}
+- Parse errors: {link_stats["errors"]}
 
 ## Recommendations
-{chr(10).join(sync_report['recommendations'])}
+{chr(10).join(sync_report["recommendations"])}
 """
 ```
 
@@ -421,9 +392,7 @@ link_result = parser.parse_links(content)
 
 2. **Log everything with context**
 ```python
-logger.info("operation", 
-           key=value,
-           context="more info")
+logger.info("operation", key=value, context="more info")
 ```
 
 3. **Use lenient defaults**
@@ -446,9 +415,9 @@ if not result.is_valid:
 
 6. **Set limits**
 ```python
-max_file_size=10*1024*1024  # 10 MB
-max_links=10000              # 10K links
-max_parse_time=5.0           # 5 seconds
+max_file_size = 10 * 1024 * 1024  # 10 MB
+max_links = 10000  # 10K links
+max_parse_time = 5.0  # 5 seconds
 ```
 
 ### DON'T ❌
@@ -472,10 +441,10 @@ except SpecificError as e:
 2. **Don't use greedy regex**
 ```python
 # BAD
-r'\[\[(.+)\]\]'  # Catastrophic backtracking
+r"\[\[(.+)\]\]"  # Catastrophic backtracking
 
 # GOOD
-r'\[\[([^\[\]]+?)\]\]'  # Non-greedy, safe
+r"\[\[([^\[\]]+?)\]\]"  # Non-greedy, safe
 ```
 
 3. **Don't skip progress updates**
@@ -674,14 +643,14 @@ python -m build
 
 ## Quotes of the Day
 
-> "Dependency hell was not invented on a whim...  
-> and neither was sync hell!"  
+> "Dependency hell was not invented on a whim...
+> and neither was sync hell!"
 > *- Advanced-memory-mcp debugging session*
 
-> "Greedy regex: The gift that keeps on hanging!"  
+> "Greedy regex: The gift that keeps on hanging!"
 > *- Link parser catastrophe*
 
-> "If a file can break your sync, we validate for it!"  
+> "If a file can break your sync, we validate for it!"
 > *- File validator philosophy*
 
 ---
@@ -731,9 +700,7 @@ python -m build
 1. **Parallel Processing**
 ```python
 # Process files in parallel
-await asyncio.gather(*[
-    process_file(f) for f in files
-])
+await asyncio.gather(*[process_file(f) for f in files])
 ```
 
 2. **Incremental Parsing**
@@ -789,4 +756,3 @@ From three critical bugs to **bulletproof MCP server infrastructure**:
 **"From fragile to unbreakable!"** 🛡️🚀
 
 *October 10, 2025 - The day MCP servers became bulletproof*
-

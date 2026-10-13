@@ -1,8 +1,8 @@
 # 🚨 AI Development Rules: Critical Guidelines
 
-**Based on Real-World Disasters and Recoveries**  
-**Project**: nest-protect MCP Server Development  
-**Timeline**: September 2025  
+**Based on Real-World Disasters and Recoveries**
+**Project**: nest-protect MCP Server Development
+**Timeline**: September 2025
 
 **WARNING**: These rules prevent catastrophic AI-generated "solutions" that destroy working functionality.
 
@@ -14,7 +14,7 @@
 
 **What AI Tools Often Suggest**:
 - ❌ "Let's simplify this to get it working"
-- ❌ "Replace real API calls with mocks for now" 
+- ❌ "Replace real API calls with mocks for now"
 - ❌ "Delete the complex tools folder and put everything in one file"
 - ❌ "Use placeholder functions until we debug the imports"
 
@@ -25,11 +25,13 @@
 # ❌ DISASTER: AI suggestion to "fix" import errors
 # "Let's replace the real tools with simple mocks to get the server loading"
 
+
 @app.tool()
 async def list_devices() -> Dict[str, Any]:
     return {"devices": ["mock-device-1", "mock-device-2"]}  # ❌ DESTROYED real functionality
 
-@app.tool() 
+
+@app.tool()
 async def get_device_status(device_id: str) -> Dict[str, Any]:
     return {"status": "mock-status", "battery": 100}  # ❌ DESTROYED real API integration
 ```
@@ -52,7 +54,7 @@ async def get_device_status(device_id: str) -> Dict[str, Any]:
 
 **AI Logic Flaws**:
 1. **Path of least resistance**: Mocks always "work" and seem to solve immediate problems
-2. **Build-first mentality**: Prioritizes "getting it running" over preserving functionality  
+2. **Build-first mentality**: Prioritizes "getting it running" over preserving functionality
 3. **Import error avoidance**: Removing real dependencies eliminates import errors
 4. **Complexity fear**: Real API integration looks "complicated" compared to mocks
 
@@ -78,19 +80,19 @@ async def get_device_status(device_id: str) -> Dict[str, Any]:
         state = get_app_state()
         if not state.access_token:
             return {"error": "Authentication required", "requires": "oauth_setup"}
-        
+
         # ✅ REAL API CALL to Google Smart Device Management API
         async with aiohttp.ClientSession() as session:
             headers = {"Authorization": f"Bearer {state.access_token}"}
             url = f"https://smartdevicemanagement.googleapis.com/v1/{device_id}"
-            
+
             async with session.get(url, headers=headers) as response:
                 if response.status == 200:
                     data = await response.json()
                     return {"success": True, "device_data": data}
                 else:
                     return {"error": f"API error: {response.status}"}
-                    
+
     except Exception as e:
         return {"error": f"Real API call failed: {e}"}
 ```
@@ -103,9 +105,9 @@ async def get_device_status(device_id: str) -> Dict[str, Any]:
     # ❌ MOCK DATA - ABSOLUTELY FORBIDDEN
     return {
         "battery": 85,
-        "status": "online", 
+        "status": "online",
         "last_test": "2025-09-01",
-        "mock": True  # ❌ This destroys all value
+        "mock": True,  # ❌ This destroys all value
     }
 ```
 
@@ -119,18 +121,18 @@ async def get_device_status(device_id: str) -> Dict[str, Any]:
 async def get_nest_thermostat_status_mock(device_id: str) -> Dict[str, Any]:
     """
     Get Nest Thermostat status.
-    
+
     ⚠️ MOCK IMPLEMENTATION: Real Nest Thermostat API integration pending.
     This will be replaced with real Google Smart Device Management API calls
     when Thermostat support is added to this MCP server.
-    
+
     Planned implementation: Q1 2026
     """
     return {
         "error": "Not implemented yet",
-        "status": "mock_placeholder", 
+        "status": "mock_placeholder",
         "message": "Nest Thermostat support coming Q1 2026",
-        "use_instead": ["list_devices", "get_device_status"]  # ✅ Point to real tools
+        "use_instead": ["list_devices", "get_device_status"],  # ✅ Point to real tools
     }
 ```
 
@@ -143,7 +145,7 @@ async def get_device_status(device_id: str) -> Dict[str, Any]:
         # ✅ ALWAYS attempt real API call first
         result = await make_real_nest_api_call(device_id)
         return {"success": True, "data": result}
-        
+
     except APIUnavailableError as e:
         # ✅ Real API failure, not a mock
         return {
@@ -151,7 +153,7 @@ async def get_device_status(device_id: str) -> Dict[str, Any]:
             "details": str(e),
             "retry_in": "5-10 minutes",
             "last_known_status": await get_cached_status(device_id),  # ✅ Real cached data
-            "note": "This is real cached data, not mock data"
+            "note": "This is real cached data, not mock data",
         }
     except Exception as e:
         return {"error": f"Real API call failed: {e}"}
@@ -162,7 +164,7 @@ async def get_device_status(device_id: str) -> Dict[str, Any]:
 @app.tool()
 async def get_device_status(device_id: str) -> Dict[str, Any]:
     """Get real-time status from actual Nest device."""
-    
+
     # ✅ Environment detection
     if os.getenv("NEST_DEVELOPMENT_MODE") == "true":
         return {
@@ -170,13 +172,13 @@ async def get_device_status(device_id: str) -> Dict[str, Any]:
             "message": "Set up real Google Cloud credentials to access actual devices",
             "setup_instructions": [
                 "1. Create Google Cloud Project",
-                "2. Enable Smart Device Management API", 
+                "2. Enable Smart Device Management API",
                 "3. Set NEST_CLIENT_ID and NEST_CLIENT_SECRET",
-                "4. Run initiate_oauth_flow tool"
+                "4. Run initiate_oauth_flow tool",
             ],
-            "development_mode": True  # ✅ Clear this is environment issue
+            "development_mode": True,  # ✅ Clear this is environment issue
         }
-    
+
     # ✅ Always attempt real API for production
     return await make_real_nest_api_call(device_id)
 ```
@@ -188,7 +190,7 @@ async def get_device_status(device_id: str) -> Dict[str, Any]:
 # ✅ CORRECT
 @app.tool(name="get_nest_camera_feed_(mock)")
 
-# ❌ WRONG  
+# ❌ WRONG
 @app.tool(name="get_nest_camera_feed")  # Looks real but isn't
 ```
 
@@ -197,7 +199,7 @@ async def get_device_status(device_id: str) -> Dict[str, Any]:
 async def placeholder_tool() -> Dict[str, Any]:
     """
     Tool description.
-    
+
     ⚠️ MOCK IMPLEMENTATION: This is not connected to real devices.
     Real implementation planned for [specific date/milestone].
     Reason for mock: [specific technical reason]
@@ -210,7 +212,7 @@ return {
     "error": "Not implemented yet",
     "status": "mock_placeholder",
     "implementation_status": "planned_for_q1_2026",
-    "reason": "Google Smart Device Management API doesn't support this device type yet"
+    "reason": "Google Smart Device Management API doesn't support this device type yet",
 }
 ```
 
@@ -219,7 +221,7 @@ return {
 return {
     "error": "Feature not available",
     "use_instead": ["list_devices", "get_device_status"],  # ✅ Point to working real tools
-    "real_alternatives": "Use get_device_status for current device information"
+    "real_alternatives": "Use get_device_status for current device information",
 }
 ```
 
@@ -236,29 +238,36 @@ return {
 async def connect_to_firefox_db() -> Dict[str, Any]:
     """Connect to Firefox SQLite database."""
 
+
 @app.tool()
 async def get_bookmark_table_schema() -> Dict[str, Any]:
     """Get bookmark table structure."""
+
 
 @app.tool()
 async def list_bookmark_folders() -> Dict[str, Any]:
     """List all bookmark folders."""
 
+
 @app.tool()
 async def search_bookmarks_by_title() -> Dict[str, Any]:
     """Search bookmarks by title only."""
+
 
 @app.tool()
 async def search_bookmarks_by_url() -> Dict[str, Any]:
     """Search bookmarks by URL only."""
 
+
 @app.tool()
 async def get_bookmark_by_id() -> Dict[str, Any]:
     """Get single bookmark by ID."""
 
+
 @app.tool()
 async def count_total_bookmarks() -> Dict[str, Any]:
     """Count all bookmarks."""
+
 
 @app.tool()
 async def close_firefox_db() -> Dict[str, Any]:
@@ -269,37 +278,39 @@ async def close_firefox_db() -> Dict[str, Any]:
 ```python
 @app.tool()
 async def search_bookmarks(
-    query: str = "", 
+    query: str = "",
     search_type: str = "all",  # title, url, tags, all
     folder: str = "",
-    limit: int = 50
+    limit: int = 50,
 ) -> Dict[str, Any]:
     """
     Search Firefox bookmarks with comprehensive filtering.
-    
+
     Handles: title search, URL search, tag search, folder filtering
     Returns: complete bookmark data with metadata
     """
     # Single tool handles all search scenarios
     # Includes connection management, query execution, result formatting
 
+
 @app.tool()
 async def manage_bookmarks(
     action: str,  # add, delete, update, move
-    bookmark_data: Dict[str, Any]
+    bookmark_data: Dict[str, Any],
 ) -> Dict[str, Any]:
     """
     Complete bookmark management operations.
-    
+
     Handles: creating, deleting, updating, organizing bookmarks
     """
     # Single tool for all CRUD operations
+
 
 @app.tool()
 async def get_bookmark_overview() -> Dict[str, Any]:
     """
     Get comprehensive bookmark statistics and folder structure.
-    
+
     Returns: total counts, folder hierarchy, recent additions, popular tags
     """
     # Single tool for dashboard-style overview
@@ -313,7 +324,7 @@ async def get_bookmark_overview() -> Dict[str, Any]:
 
 **❌ Fragmented thinking**:
 - "Step 1: Connect to database"
-- "Step 2: Query bookmark table" 
+- "Step 2: Query bookmark table"
 - "Step 3: Format results"
 - "Step 4: Close connection"
 
@@ -332,9 +343,11 @@ async def get_bookmark_overview() -> Dict[str, Any]:
 async def authenticate_nest_api() -> Dict[str, Any]:
     """Just handle authentication."""
 
+
 @app.tool()
 async def fetch_device_list() -> Dict[str, Any]:
     """Just get raw device list."""
+
 
 @app.tool()
 async def parse_device_data() -> Dict[str, Any]:
@@ -347,7 +360,7 @@ async def parse_device_data() -> Dict[str, Any]:
 async def list_devices() -> Dict[str, Any]:
     """
     Get all Nest Protect devices with complete information.
-    
+
     Handles: authentication, API calls, data parsing, error handling
     Returns: user-ready device information
     """
@@ -359,16 +372,23 @@ async def list_devices() -> Dict[str, Any]:
 **❌ Tool proliferation**:
 ```python
 @app.tool()
-async def get_device_battery_status() -> Dict[str, Any]: pass
+async def get_device_battery_status() -> Dict[str, Any]:
+    pass
+
 
 @app.tool()
-async def get_device_network_status() -> Dict[str, Any]: pass
+async def get_device_network_status() -> Dict[str, Any]:
+    pass
+
 
 @app.tool()
-async def get_device_sensor_status() -> Dict[str, Any]: pass
+async def get_device_sensor_status() -> Dict[str, Any]:
+    pass
+
 
 @app.tool()
-async def get_device_all_status() -> Dict[str, Any]: pass
+async def get_device_all_status() -> Dict[str, Any]:
+    pass
 ```
 
 **✅ Rich parameterization**:
@@ -376,11 +396,11 @@ async def get_device_all_status() -> Dict[str, Any]: pass
 @app.tool()
 async def get_device_status(
     device_id: str,
-    details: List[str] = ["all"]  # battery, network, sensors, maintenance, all
+    details: List[str] = ["all"],  # battery, network, sensors, maintenance, all
 ) -> Dict[str, Any]:
     """
     Get comprehensive device status with configurable detail levels.
-    
+
     Returns exactly what the user needs in one call.
     """
 ```
@@ -397,7 +417,7 @@ async def get_device_status(
 
 **Just Right (Target)**:
 - Complete user workflows
-- Natural task boundaries  
+- Natural task boundaries
 - Self-contained operations
 - Meaningful atomic units
 
@@ -411,7 +431,7 @@ async def get_device_status(
 **Good tool**: "Find my bookmarks about cooking"
 **Bad tool**: "Execute SQL query on bookmarks table with JOIN on folders"
 
-**Good tool**: "Check my smoke detector status"  
+**Good tool**: "Check my smoke detector status"
 **Bad tool**: "Parse JSON response from device status endpoint"
 
 ### **Real Examples from Our Project**
@@ -420,7 +440,7 @@ async def get_device_status(
 
 **Device Status Tools** (3 tools, not 10):
 - `list_devices` - Complete device discovery with full metadata
-- `get_device_status` - Comprehensive status for one device  
+- `get_device_status` - Comprehensive status for one device
 - `get_device_events` - Historical events with filtering
 
 **Device Control Tools** (5 tools, not 15):
@@ -436,7 +456,7 @@ async def get_device_status(
 ```python
 # ❌ BAD: 15+ fragmented tools
 @app.tool() async def connect_to_nest_api(): pass
-@app.tool() async def validate_nest_token(): pass  
+@app.tool() async def validate_nest_token(): pass
 @app.tool() async def refresh_nest_token(): pass
 @app.tool() async def get_raw_device_list(): pass
 @app.tool() async def parse_device_response(): pass
@@ -456,7 +476,7 @@ async def get_device_status(
 
 **❌ AI suggests**:
 - `connect_to_db`
-- `execute_query` 
+- `execute_query`
 - `fetch_results`
 - `close_connection`
 
@@ -511,13 +531,13 @@ async def get_device_status(
 - **Focus**: Core workflows only
 - **Example**: Personal task manager
 
-#### **Medium Project (Our FastMCP)**  
+#### **Medium Project (Our FastMCP)**
 - **Target**: 15-25 tools total
 - **Focus**: Complete feature coverage with workflow grouping
 - **Example**: Smart home device control
 
 #### **Large Project (Enterprise)**
-- **Target**: 30-50 tools total  
+- **Target**: 30-50 tools total
 - **Focus**: Multiple domains with clear boundaries
 - **Example**: Complete business automation platform
 
@@ -544,11 +564,14 @@ async def get_device_status(
 @app.tool()
 async def get_device_status():
     from missing_module import api_call  # ❌ Import error
+
     return await api_call()
+
 
 # After (fixed)
 import aiohttp  # ✅ Move import to module level
 from .state_manager import get_app_state  # ✅ Fix import path
+
 
 @app.tool()
 async def get_device_status():
@@ -564,6 +587,7 @@ async def get_device_status():
 # ❌ DON'T: Replace with mocks
 # ✅ DO: Add graceful error handling
 
+
 @app.tool()
 async def get_device_status(device_id: str) -> Dict[str, Any]:
     try:
@@ -571,10 +595,10 @@ async def get_device_status(device_id: str) -> Dict[str, Any]:
         state = get_app_state()
         if not state.access_token:
             return {"error": "Not authenticated", "requires": "oauth_setup"}
-        
+
         result = await real_nest_api_call(device_id, state.access_token)
         return {"success": True, "data": result}
-        
+
     except ImportError as e:
         return {"error": f"Missing dependency: {e}", "requires": "pip install {missing_package}"}
     except AuthenticationError:
@@ -607,7 +631,7 @@ async def get_device_status(device_id: str) -> Dict[str, Any]:
 
 **Why This is Catastrophic**:
 - 🔥 **Destroys organization** that took months to develop
-- 🔥 **Eliminates modularity** and maintainability  
+- 🔥 **Eliminates modularity** and maintainability
 - 🔥 **Breaks testing** and development workflows
 - 🔥 **Makes rollback impossible** without Git recovery
 
@@ -624,9 +648,11 @@ from .tools.device_control import hush_alarm as device_hush_func
 from .tools.auth_tools import initiate_oauth_flow as oauth_start_func
 # ... preserve all real implementations
 
+
 @app.tool()
 async def list_devices() -> Dict[str, Any]:
     return await device_list_func()  # ✅ Real function preserved
+
 
 @app.tool()
 async def hush_alarm(device_id: str) -> Dict[str, Any]:
@@ -654,6 +680,7 @@ async def test_tool() -> Dict[str, Any]:
 async def mock_device_list() -> Dict[str, Any]:
     return {"devices": ["mock1", "mock2"]}  # ❌ Mock spreading
 
+
 @app.tool()
 async def mock_device_status() -> Dict[str, Any]:
     return {"battery": 100, "status": "ok"}  # ❌ More mocks
@@ -678,22 +705,18 @@ async def list_devices() -> Dict[str, Any]:
         if not state.access_token:
             return {
                 "error": "Development setup required",
-                "instructions": [
-                    "1. Run 'initiate_oauth_flow' tool",
-                    "2. Complete OAuth setup", 
-                    "3. Retry this tool"
-                ],
-                "development_mode": True
+                "instructions": ["1. Run 'initiate_oauth_flow' tool", "2. Complete OAuth setup", "3. Retry this tool"],
+                "development_mode": True,
             }
-        
+
         # ✅ Real API call preserved
         return await make_real_nest_api_call(state)
-        
+
     except Exception as e:
         return {
             "error": f"Real API call failed: {e}",
             "development_note": "This is a real implementation, not a mock",
-            "next_steps": ["Check authentication", "Verify API credentials"]
+            "next_steps": ["Check authentication", "Verify API credentials"],
         }
 ```
 
@@ -814,7 +837,7 @@ git push origin main
 
 **🚨 IMMEDIATE RED FLAGS**:
 - [ ] AI suggests "replacing with mocks for now"
-- [ ] AI wants to "simplify the architecture" 
+- [ ] AI wants to "simplify the architecture"
 - [ ] AI proposes "inlining everything to one file"
 - [ ] AI suggests "removing complex dependencies"
 - [ ] You see `return {"mock": "data"}` in tool functions
@@ -833,7 +856,7 @@ git push origin main
 
 **Priority Order (Never Compromise)**:
 1. ✅ **Real API integration** > Mock responses
-2. ✅ **Actual device control** > Placeholder functions  
+2. ✅ **Actual device control** > Placeholder functions
 3. ✅ **Production error handling** > "TODO: implement"
 4. ✅ **Comprehensive tools** > Simplified versions
 5. ✅ **Modular architecture** > Monolithic files
@@ -918,7 +941,7 @@ git push origin main
 - "one tool per operation"
 - "placeholder until"
 - "mock the response"
-- "simplify the architecture"  
+- "simplify the architecture"
 - "remove for now"
 - "inline to fix imports"
 

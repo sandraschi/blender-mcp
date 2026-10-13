@@ -265,10 +265,7 @@ All tools follow this FastMCP 2.12 pattern:
 
 ```python
 @app.tool
-async def tool_name(
-    param1: type = default_value,
-    param2: type = default_value
-) -> str:
+async def tool_name(param1: type = default_value, param2: type = default_value) -> str:
     """
     Brief description of what the tool does.
 
@@ -283,6 +280,7 @@ async def tool_name(
         Description of return value
     """
     from blender_mcp.handlers.handler_module import handler_function
+
     return await handler_function(param1=param1, param2=param2)
 ```
 

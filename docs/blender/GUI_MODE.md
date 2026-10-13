@@ -64,10 +64,11 @@ executor = BlenderExecutor(headless=False)
 import asyncio
 from blender_mcp.utils.blender_executor import get_blender_executor
 
+
 async def create_animated_cube():
     # Enable GUI mode
     executor = get_blender_executor(headless=False)
-    
+
     script = """
 import bpy
 import math
@@ -100,9 +101,10 @@ bpy.ops.object.light_add(type='SUN', location=(5, 5, 10))
 
 print("Press SPACEBAR to play animation!")
 """
-    
+
     await executor.execute_script(script, script_name="animated_cube")
     print("Blender GUI is open - press SPACEBAR to play animation!")
+
 
 asyncio.run(create_animated_cube())
 ```
@@ -156,9 +158,11 @@ export BLENDER_GUI_MODE=true
 ```python
 # Always use GUI for debugging
 import os
-os.environ['BLENDER_GUI_MODE'] = 'true'
+
+os.environ["BLENDER_GUI_MODE"] = "true"
 
 from blender_mcp.utils.blender_executor import get_blender_executor
+
 executor = get_blender_executor()  # Will use GUI if env var is set
 ```
 
@@ -201,6 +205,7 @@ executor = get_blender_executor()  # Will use GUI if env var is set
 ```python
 # Reset the singleton to switch modes
 from blender_mcp.utils import blender_executor
+
 blender_executor._blender_executor_instance = None
 
 # Now get new executor with different mode
@@ -226,4 +231,3 @@ Check out these example scripts:
 - [Main README](../README.md)
 - [Tool Reference](TOOL_REFERENCE.md)
 - [Examples Directory](../examples/)
-

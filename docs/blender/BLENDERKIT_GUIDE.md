@@ -182,19 +182,18 @@ blender_transform(operation="move_object", name="Katana", location=[0, 0, 1])
 blender_transform(operation="scale_object", name="Katana", scale=[1.2, 1.2, 1.2])
 
 # Apply custom materials
-blender_materials(operation="create_pbr_material", name="DamascusSteel",
-                 base_color=[0.3, 0.3, 0.35], metallic=1.0, roughness=0.2)
+blender_materials(
+    operation="create_pbr_material", name="DamascusSteel", base_color=[0.3, 0.3, 0.35], metallic=1.0, roughness=0.2
+)
 
 # Add lighting setup
 blender_lighting(operation="setup_three_point_lighting")
 
 # Set up camera
-blender_camera(operation="create_camera", camera_name="HeroCam",
-              location=[3, -3, 2], target_location=[0, 0, 1])
+blender_camera(operation="create_camera", camera_name="HeroCam", location=[3, -3, 2], target_location=[0, 0, 1])
 
 # Create turntable animation
-blender_animation(operation="create_rotation_animation",
-                 object_name="Katana", duration=120)
+blender_animation(operation="create_rotation_animation", object_name="Katana", duration=120)
 ```
 
 ### Hybrid Workflow Benefits
@@ -382,6 +381,6 @@ blender_animation(operation="create_rotation_animation",
 
 **BlenderKit is the definitive asset library for Blender - start exploring today!** 🎨✨
 
-**Installation**: https://www.blenderkit.com/get-blenderkit/  
-**Browse Assets**: https://www.blenderkit.com/  
+**Installation**: https://www.blenderkit.com/get-blenderkit/
+**Browse Assets**: https://www.blenderkit.com/
 **Documentation**: https://www.blenderkit.com/docs/

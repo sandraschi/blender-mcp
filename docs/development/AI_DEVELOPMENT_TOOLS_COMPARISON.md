@@ -1,8 +1,8 @@
 # 🤖 AI Development Tools: Real-World Comparison
 
-**Based on FastMCP 2.12 Debugging Experience**  
-**Project**: nest-protect MCP Server Development  
-**Timeline**: September 2025  
+**Based on FastMCP 2.12 Debugging Experience**
+**Project**: nest-protect MCP Server Development
+**Timeline**: September 2025
 **Update**: September 19, 2025 - Claude Desktop Pro rate limiting issues
 
 ---
@@ -112,6 +112,7 @@ from fastmcp.tools import Tool  # ✅ Correct import location
 
 app = FastMCP("server", instructions="...")  # ✅ Correct parameter name
 
+
 @app.tool()  # ✅ Correct decorator pattern
 async def my_tool() -> Dict[str, Any]:
     return {"result": "data"}
@@ -123,6 +124,7 @@ async def my_tool() -> Dict[str, Any]:
 from fastmcp import FastMCP, Tool  # ❌ Old import pattern
 
 app = FastMCP("server", description="...")  # ❌ Old parameter name
+
 
 @tool  # ❌ Undefined decorator
 def my_tool():  # ❌ Missing async, return type
@@ -155,18 +157,18 @@ def my_tool():  # ❌ Missing async, return type
 
 ### **What We Accomplished with Cursor + Sonnet**
 
-**Day 1**: FastMCP 2.12 import issues → Working server startup  
-**Day 2**: Tool registration problems → All 24 tools loading  
-**Day 3**: Mock data → Real API integration with comprehensive error handling  
+**Day 1**: FastMCP 2.12 import issues → Working server startup
+**Day 2**: Tool registration problems → All 24 tools loading
+**Day 3**: Mock data → Real API integration with comprehensive error handling
 
 **Total**: **Production-ready MCP server with 24 working tools**
 
 ### **Estimated Timeline with Windsurf + Free LLM**
 
-**Week 1**: Fighting basic import errors and PowerShell syntax issues  
-**Week 2**: Struggling with tool registration patterns  
-**Week 3**: Debugging async/await and state management  
-**Week 4**: Maybe getting basic functionality working  
+**Week 1**: Fighting basic import errors and PowerShell syntax issues
+**Week 2**: Struggling with tool registration patterns
+**Week 3**: Debugging async/await and state management
+**Week 4**: Maybe getting basic functionality working
 
 **Total**: **Likely weeks to achieve what we did in 3 days**
 
@@ -291,15 +293,15 @@ ls -la | grep .py
 
 Our FastMCP 2.12 debugging experience clearly demonstrates that **premium AI tools like Claude Sonnet provide dramatically better results** for complex development tasks. However, the **practical landscape has shifted significantly**:
 
-**September 2025 Reality**: 
+**September 2025 Reality**:
 - ✅ **Cursor IDE + Sonnet**: Still the gold standard for complex development
-- ❌ **Claude Desktop Pro**: Rate limiting has made it unusable for real development work  
+- ❌ **Claude Desktop Pro**: Rate limiting has made it unusable for real development work
 - ❌ **Windsurf Free**: Requires explicit "don't test" instructions to avoid disasters
 
 The combination of:
 
 - ✅ **Proper platform awareness** (PowerShell vs. bash syntax)
-- ✅ **Context retention** (following user rules and guidelines)  
+- ✅ **Context retention** (following user rules and guidelines)
 - ✅ **Pattern recognition** (FastMCP 2.12 specific issues)
 - ✅ **Production-quality output** (comprehensive error handling, type safety)
 
@@ -309,7 +311,7 @@ For serious development work, especially debugging and system integration, the p
 
 **Bottom line (Updated Sept 2025)**: **Cursor with Claude Sonnet is now the ONLY viable option** for complex development work. Claude Desktop Pro has become unusable due to rate limiting, and Windsurf Free requires constant babysitting to avoid disasters.
 
-**Current Recommendation**: 
+**Current Recommendation**:
 - 🥇 **For serious development**: Cursor IDE + Claude Sonnet (only tool that works for multi-step debugging)
 - 🔧 **For basic MCP testing**: Claude Desktop (just to check if servers load and respond)
 - 🚫 **For testing/debugging**: Avoid Windsurf Free - explicit "no testing" instructions required
@@ -340,7 +342,7 @@ The AI development landscape has become much more constrained, making the right 
 ```
 Step 1: Develop in Cursor + Sonnet
   ├── Complex debugging and fixes
-  ├── Multi-tool integration 
+  ├── Multi-tool integration
   └── Production-ready implementation
 
 Step 2: Basic validation in Claude Desktop
