@@ -1,44 +1,44 @@
 {
-  "name": "blender-mcp-webapp",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "biome check src",
-    "format": "biome check --write src",
-    "preview": "vite preview",
-    "biome:ci": "biome ci .",
-    "biome": "biome check --write ."
-  },
-  "dependencies": {
-    "@tauri-apps/api": "^2.2.0",
-    "@tauri-apps/plugin-clipboard-manager": "^2.3.2",
-    "@tauri-apps/plugin-dialog": "^2.7.1",
-    "@tauri-apps/plugin-fs": "^2.5.1",
-    "@tauri-apps/plugin-notification": "^2.3.3",
-    "@tauri-apps/plugin-process": "^2.3.1",
-    "@tauri-apps/plugin-shell": "^2.3.5",
-    "@tauri-apps/plugin-updater": "^2.10.1",
-    "framer-motion": "^12.35.1",
-    "lucide-react": "^0.474.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.2",
-    "zustand": "^5.0.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.4.12",
-    "@playwright/test": "^1.49.1",
-    "@types/node": "^22.10.1",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^4.3.4",
-    "autoprefixer": "^10.4.20",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17",
-    "typescript": "~5.6.2",
-    "vite": "^6.0.5"
-  }
+	"name": "blender-mcp-webapp",
+	"private": true,
+	"version": "1.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc -b && vite build",
+		"lint": "biome check src",
+		"format": "biome check --write src",
+		"preview": "vite preview",
+		"biome:ci": "biome ci .",
+		"biome": "biome check --write ."
+	},
+	"dependencies": {
+		"@tauri-apps/api": "^2.2.0",
+		"@tauri-apps/plugin-clipboard-manager": "^2.3.2",
+		"@tauri-apps/plugin-dialog": "^2.7.1",
+		"@tauri-apps/plugin-fs": "^2.5.1",
+		"@tauri-apps/plugin-notification": "^2.3.3",
+		"@tauri-apps/plugin-process": "^2.3.1",
+		"@tauri-apps/plugin-shell": "^2.3.5",
+		"@tauri-apps/plugin-updater": "^2.10.1",
+		"framer-motion": "^12.35.1",
+		"lucide-react": "^0.474.0",
+		"react": "^18.3.1",
+		"react-dom": "^18.3.1",
+		"react-router-dom": "^6.26.2",
+		"zustand": "^5.0.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.12",
+		"@playwright/test": "^1.49.1",
+		"@types/node": "^22.10.1",
+		"@types/react": "^18.3.18",
+		"@types/react-dom": "^18.3.5",
+		"@vitejs/plugin-react": "^4.3.4",
+		"autoprefixer": "^10.4.20",
+		"postcss": "^8.4.49",
+		"tailwindcss": "^3.4.17",
+		"typescript": "~5.6.2",
+		"vite": "^6.0.5"
+	}
 }
