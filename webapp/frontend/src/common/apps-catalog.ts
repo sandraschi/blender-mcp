@@ -133,11 +133,11 @@ export const FLEET_REGISTRY: FleetMember[] = [
     category: "Knowledge",
   },
   {
-    id: "mywienerlinien",
+    id: "publictransport-mcp",
     name: "My Wiener Linien",
     description: "Advanced transit tracking for the city of Vienna.",
     port: 10872,
-    repo_path: "D:/Dev/repos/mywienerlinien",
+    repo_path: "D:/Dev/repos/publictransport-mcp",
     icon: TrainFront,
     category: "Transit",
   },
