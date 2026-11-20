@@ -26,7 +26,7 @@ EXAMPLES:
   blender-mcp --stdio
 
   # Run HTTP server for web clients
-  blender-mcp --http --host 0.0.0.0 --port 8001
+  blender-mcp --http --host 127.0.0.1 --port 8001
 
   # Install Claude Desktop configuration
   blender-mcp --install-config
